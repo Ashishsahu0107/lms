@@ -2,13 +2,14 @@ import express from "express";
 import Attempt from "../models/Attempt.js";
 import User from "../models/User.js";
 import Course from "../models/Course.js";
+import Assignment from "../models/Assignment.js";     // 🔥 add
+import Submission from "../models/Submission.js";     // 🔥 add
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 /**
- * 🔹 LEADERBOARD (top users by avg score)
- * returns: [{ userId, name, avgScore, attempts }]
+ * 🔹 LEADERBOARD
  */
 router.get("/leaderboard", authMiddleware, async (req, res) => {
   try {
@@ -24,7 +25,6 @@ router.get("/leaderboard", authMiddleware, async (req, res) => {
       { $limit: 10 },
     ]);
 
-    // attach user names
     const users = await User.find({
       _id: { $in: data.map((d) => d._id) },
     }).select("name email");
@@ -47,15 +47,24 @@ router.get("/leaderboard", authMiddleware, async (req, res) => {
 });
 
 /**
- * 🔹 ADMIN ANALYTICS
- * returns: { users, courses, attempts, avgScore }
+ * 🔥 ADMIN ANALYTICS (FIXED)
  */
 router.get("/admin", authMiddleware, async (req, res) => {
   try {
-    const [users, courses, attempts] = await Promise.all([
+    const [
+      users,
+      courses,
+      attempts,
+      assignments,
+      submissions,
+      pendingSubmissions,
+    ] = await Promise.all([
       User.countDocuments(),
       Course.countDocuments(),
       Attempt.countDocuments(),
+      Assignment.countDocuments(),                  // 🔥 new
+      Submission.countDocuments(),                  // 🔥 new
+      Submission.countDocuments({ grade: null }),   // 🔥 new
     ]);
 
     const avg = await Attempt.aggregate([
@@ -67,6 +76,9 @@ router.get("/admin", authMiddleware, async (req, res) => {
       courses,
       attempts,
       avgScore: Math.round(avg[0]?.avgScore || 0),
+      assignments,
+      submissions,
+      pendingSubmissions,
     });
   } catch (err) {
     console.log("Analytics Error:", err);

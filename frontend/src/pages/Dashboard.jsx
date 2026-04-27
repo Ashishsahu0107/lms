@@ -13,49 +13,27 @@ import {
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [attempts, setAttempts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // 🔥 FETCH FUNCTION
-  const fetchAll = async () => {
-    try {
-      const [statsRes, attemptsRes] = await Promise.all([
-        api.get("/dashboard/stats"),
-        api.get("/quiz/attempts"),
-      ]);
-
-      setData(statsRes.data);
-      setAttempts(attemptsRes.data || []);
-    } catch (err) {
-      console.log("Dashboard Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchAll();
+    // 🔹 dashboard stats
+    api.get("/dashboard/stats").then((res) =>
+      setData(res.data)
+    );
 
-    // 🔁 AUTO REFRESH
-    const interval = setInterval(fetchAll, 5000);
-    return () => clearInterval(interval);
+    // 🔹 quiz history
+    api.get("/quiz/attempts").then((res) =>
+      setAttempts(res.data)
+    );
   }, []);
 
-  // 🔥 EVENT LISTENER (quiz submit ke baad)
-  useEffect(() => {
-    const handler = () => fetchAll();
-    window.addEventListener("storage", handler);
-
-    return () => window.removeEventListener("storage", handler);
-  }, []);
-
-  if (loading || !data) return <p className="p-6">Loading...</p>;
+  if (!data) return <p className="p-6">Loading...</p>;
 
   const latestScore = attempts[0]?.score || 0;
 
   return (
     <div className="space-y-6">
 
-      {/* Header */}
+      {/* 🔹 Header */}
       <div>
         <h2 className="text-2xl font-bold dark:text-white">
           Welcome Back 👋
@@ -65,16 +43,20 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Cards */}
+      {/* 🔹 Cards */}
       <div className="grid md:grid-cols-5 gap-6">
+
         <Card title="Score" value={`${data.score}%`} color="blue" />
         <Card title="Assignments" value={data.assignments} color="green" />
         <Card title="Streak" value={data.streak} color="purple" />
         <Card title="Skills" value={data.skills} color="orange" />
+
+        {/* 🔥 NEW CARD */}
         <Card title="Quiz Score" value={`${latestScore}%`} color="blue" />
+
       </div>
 
-      {/* Charts */}
+      {/* 🔹 Charts */}
       <div className="grid md:grid-cols-2 gap-6">
 
         <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
@@ -86,7 +68,7 @@ export default function Dashboard() {
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="value" stroke="#3b82f6" />
+            <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={3} />
           </LineChart>
         </div>
 
@@ -105,7 +87,43 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Quiz History */}
+      {/* 🔹 Bottom Section */}
+      <div className="grid md:grid-cols-2 gap-6">
+
+        {/* Progress */}
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
+          <h3 className="font-semibold mb-3 dark:text-white">
+            🎯 Overall Progress
+          </h3>
+
+          <div className="bg-gray-200 h-3 rounded-full">
+            <div
+              className="bg-blue-500 h-3 rounded-full"
+              style={{ width: `${data.score}%` }}
+            />
+          </div>
+
+          <p className="mt-2 text-sm dark:text-white">
+            {data.score}% Completed
+          </p>
+        </div>
+
+        {/* Activity Feed */}
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
+          <h3 className="font-semibold mb-3 dark:text-white">
+            ⚡ Recent Activity
+          </h3>
+
+          <ul className="space-y-2 text-sm">
+            <li className="dark:text-white">✔ Completed a course</li>
+            <li className="dark:text-white">✔ Attempted quiz</li>
+            <li className="dark:text-white">✔ Submitted assignment</li>
+          </ul>
+        </div>
+
+      </div>
+
+      {/* 🔥 QUIZ HISTORY SECTION */}
       <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
         <h3 className="text-xl font-bold mb-3 dark:text-white">
           📊 Quiz History
@@ -139,7 +157,7 @@ export default function Dashboard() {
   );
 }
 
-// Card
+// 🔹 Card Component
 function Card({ title, value, color }) {
   const colors = {
     blue: "bg-blue-500",
@@ -149,19 +167,20 @@ function Card({ title, value, color }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
-      <div className="flex justify-between">
-        <p className="text-gray-500 dark:text-gray-300">
+    <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow hover:shadow-xl transition">
+      <div className="flex justify-between items-center">
+        <h3 className="text-gray-500 dark:text-gray-300">
           {title}
-        </p>
+        </h3>
+
         <span className={`${colors[color]} text-white px-2 py-1 rounded text-xs`}>
           {title}
         </span>
       </div>
 
-      <h3 className="text-2xl font-bold mt-3 dark:text-white">
+      <p className="text-3xl font-bold mt-3 dark:text-white">
         {value}
-      </h3>
+      </p>
     </div>
   );
 }

@@ -1,68 +1,103 @@
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
-  const location = useLocation();
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  // 🔥 USER GET
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const linkClass =
+    "block px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700";
 
-  // 🎓 STUDENT MENU
-  const studentMenu = [
-    { name: "Dashboard", path: "/dashboard", icon: "📊" },
-    { name: "Courses", path: "/courses", icon: "📚" },
-    { name: "Assignments", path: "/assignments", icon: "📝" },
-    { name: "Quiz", path: "/quiz", icon: "❓" },
-    { name: "Attendance", path: "/attendance", icon: "📅" },
-    { name: "Support", path: "/support", icon: "💬" },
-    { name: "Leaderboard", path: "/leaderboard", icon: "🏆" },
-  ];
-
-  // 👑 ADMIN MENU
-  const adminMenu = [
-    { name: "Admin Panel", path: "/admin", icon: "⚙️" },
-    { name: "Admin Dashboard", path: "/admin-dashboard", icon: "📊" },
-    { name: "Add Quiz", path: "/add-quiz", icon: "➕" },
-    { name: "Upload Quiz", path: "/upload-quiz", icon: "📤" },
-  ];
-
-  // 🔥 ROLE BASED MENU
-  const menu = user.role === "admin" ? adminMenu : studentMenu;
+  const activeClass = "bg-blue-500 text-white";
 
   return (
-    <div className="w-64 min-h-screen bg-white dark:bg-gray-800 shadow-lg p-5 flex flex-col">
-
-      {/* Logo */}
-      <h2 className="text-2xl font-bold text-blue-600 mb-8">
-        🎓 LMS
+    <div className="w-64 min-h-screen bg-white dark:bg-gray-900 shadow p-4">
+      <h2 className="text-xl font-bold mb-6 dark:text-white">
+        LMS Panel
       </h2>
 
-      {/* Menu */}
-      <nav className="space-y-2 flex-1">
-        {menu.map((item) => {
-          const active = location.pathname === item.path;
+      {/* STUDENT */}
+      <div className="space-y-2">
 
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ${
-                active
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
-      </nav>
+        <NavLink to="/dashboard" className={({ isActive }) =>
+          `${linkClass} ${isActive ? activeClass : ""}`
+        }>
+          Dashboard
+        </NavLink>
 
-      {/* Footer */}
-      <div className="text-sm text-gray-400 text-center">
-        © LMS
+        <NavLink to="/courses" className={({ isActive }) =>
+          `${linkClass} ${isActive ? activeClass : ""}`
+        }>
+          Courses
+        </NavLink>
+
+        <NavLink to="/assignments" className={({ isActive }) =>
+          `${linkClass} ${isActive ? activeClass : ""}`
+        }>
+          Assignments
+        </NavLink>
+
+        <NavLink to="/quiz" className={({ isActive }) =>
+          `${linkClass} ${isActive ? activeClass : ""}`
+        }>
+          Quiz
+        </NavLink>
+
+        <NavLink to="/attendance" className={({ isActive }) =>
+          `${linkClass} ${isActive ? activeClass : ""}`
+        }>
+          Attendance
+        </NavLink>
+
+        <NavLink to="/leaderboard" className={({ isActive }) =>
+          `${linkClass} ${isActive ? activeClass : ""}`
+        }>
+          Leaderboard
+        </NavLink>
+
+        <NavLink to="/profile" className={({ isActive }) =>
+          `${linkClass} ${isActive ? activeClass : ""}`
+        }>
+          Profile
+        </NavLink>
+
       </div>
 
+      {/* ADMIN */}
+      {user?.role === "admin" && (
+        <div className="mt-8">
+          <h3 className="text-sm text-gray-500 mb-2">
+            Admin
+          </h3>
+
+          <div className="space-y-2">
+
+            <NavLink to="/admin/dashboard" className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }>
+              Admin Dashboard
+            </NavLink>
+
+            <NavLink to="/admin/lessons" className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }>
+              Manage Lessons
+            </NavLink>
+
+            <NavLink to="/admin/add-lesson" className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }>
+              Add Lesson
+            </NavLink>
+
+            {/* 🔥 FIXED */}
+            <NavLink to="/admin/quiz" className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }>
+              Quiz Panel
+            </NavLink>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-export const authMiddleware = (req, res, next) => {
+// 🔐 AUTH CHECK
+export const protect = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
 
@@ -10,12 +12,25 @@ export const authMiddleware = (req, res, next) => {
 
     const decoded = jwt.verify(token, "secret");
 
-    // 🔥 FIX
-    req.user = { id: decoded.id };
+    req.user = await User.findById(decoded.id).select("-password");
 
     next();
   } catch (err) {
-    console.log("Auth Error:", err);
-    res.status(401).json({ msg: "Token invalid" });
+    console.log("AUTH ERROR:", err);
+    res.status(401).json({ msg: "Invalid token" });
   }
 };
+
+// 👑 ADMIN ONLY
+export const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    return res.status(403).json({
+      msg: "Access denied (Admin only)",
+    });
+  }
+};
+
+// 🔥 FIX: OLD NAME SUPPORT (IMPORTANT)
+export const authMiddleware = protect;

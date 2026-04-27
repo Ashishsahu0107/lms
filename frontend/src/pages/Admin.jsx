@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom"; // 🔥 ADD THIS
 import api from "../utils/api";
 import toast from "react-hot-toast";
 
 export default function Admin() {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     userId: "",
     title: "",
@@ -11,16 +14,72 @@ export default function Admin() {
     totalLessons: "",
   });
 
-  // 🔹 fetch users
+  const [assignmentForm, setAssignmentForm] = useState({
+    title: "",
+    description: "",
+    course: "",
+    dueDate: "",
+  });
+
   useEffect(() => {
-    api.get("/auth/users").then((res) => setUsers(res.data));
+    const fetchUsers = async () => {
+      try {
+        const res = await api.get("/auth/users");
+        setUsers(res.data);
+      } catch (err) {
+        toast.error("Failed to load users");
+      }
+    };
+
+    fetchUsers();
   }, []);
 
-  // 🔹 enroll course
   const enroll = async () => {
-    await api.post("/courses/enroll", form);
+    if (!form.userId || !form.title) {
+      return toast.error("Select user & enter course title");
+    }
 
-    toast.success("Course Assigned 🎉");
+    try {
+      setLoading(true);
+      await api.post("/courses/enroll", form);
+      toast.success("Course Assigned 🎉");
+
+      setForm({
+        userId: "",
+        title: "",
+        instructor: "",
+        totalLessons: "",
+      });
+    } catch {
+      toast.error("Error assigning course");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createAssignment = async () => {
+    const { title, description, course, dueDate } = assignmentForm;
+
+    if (!title || !description || !course || !dueDate) {
+      return toast.error("Fill all assignment fields");
+    }
+
+    try {
+      setLoading(true);
+      await api.post("/assignments", assignmentForm);
+      toast.success("Assignment Created ✅");
+
+      setAssignmentForm({
+        title: "",
+        description: "",
+        course: "",
+        dueDate: "",
+      });
+    } catch {
+      toast.error("Error creating assignment");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,7 +90,7 @@ export default function Admin() {
 
       <div className="grid md:grid-cols-2 gap-6">
 
-        {/* 🔹 User List */}
+        {/* 🔹 Users */}
         <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
           <h3 className="font-bold mb-4 dark:text-white">
             Users
@@ -60,7 +119,6 @@ export default function Admin() {
 
         {/* 🔹 Assign Course */}
         <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
-
           <h3 className="font-bold mb-4 dark:text-white">
             Assign Course
           </h3>
@@ -94,14 +152,80 @@ export default function Admin() {
 
           <button
             onClick={enroll}
+            disabled={loading}
             className="w-full bg-blue-500 text-white py-2 rounded-lg"
           >
-            Assign Course
+            {loading ? "Processing..." : "Assign Course"}
           </button>
+        </div>
 
+        {/* 🔥 Assignment */}
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow md:col-span-2">
+          <h3 className="font-bold mb-4 dark:text-white">
+            Create Assignment
+          </h3>
+
+          <input
+            placeholder="Title"
+            value={assignmentForm.title}
+            className="w-full border p-2 mb-2 rounded"
+            onChange={(e) =>
+              setAssignmentForm({
+                ...assignmentForm,
+                title: e.target.value,
+              })
+            }
+          />
+
+          <textarea
+            placeholder="Description"
+            value={assignmentForm.description}
+            className="w-full border p-2 mb-2 rounded"
+            onChange={(e) =>
+              setAssignmentForm({
+                ...assignmentForm,
+                description: e.target.value,
+              })
+            }
+          />
+
+          <input
+            placeholder="Course ID"
+            value={assignmentForm.course}
+            className="w-full border p-2 mb-2 rounded"
+            onChange={(e) =>
+              setAssignmentForm({
+                ...assignmentForm,
+                course: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="date"
+            value={assignmentForm.dueDate}
+            className="w-full border p-2 mb-2 rounded"
+            onChange={(e) =>
+              setAssignmentForm({
+                ...assignmentForm,
+                dueDate: e.target.value,
+              })
+            }
+          />
+
+          <button
+            onClick={createAssignment}
+            disabled={loading}
+            className="w-full bg-green-500 text-white py-2 rounded-lg"
+          >
+            {loading ? "Creating..." : "Create Assignment"}
+          </button>
         </div>
 
       </div>
+
+      {/* 🔥 THIS LINE FIXES YOUR PROBLEM */}
+      <Outlet />
     </div>
   );
 }

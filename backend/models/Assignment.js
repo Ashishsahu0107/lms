@@ -1,23 +1,33 @@
-import express from "express";
-import Assignment from "../models/Assignment.js";
+import mongoose from "mongoose";
 
-const router = express.Router();
+const assignmentSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+      required: true,
+    },
+    dueDate: {
+      type: Date,
+      required: true,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-router.get("/", async (req, res) => {
-  const data = await Assignment.find();
-  res.json(data);
-});
-
-router.post("/:id/submit", async (req, res) => {
-  const { text } = req.body;
-
-  const assignment = await Assignment.findById(req.params.id);
-  assignment.submission = text;
-  assignment.status = "Submitted";
-
-  await assignment.save();
-
-  res.json(assignment);
-});
-
-export default router;
+export default mongoose.models.Assignment ||
+  mongoose.model("Assignment", assignmentSchema);

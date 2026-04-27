@@ -30,7 +30,7 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hash,
-      role: "student", // 🔥 default role
+      role: "student",
     });
 
     res.json({
@@ -97,5 +97,19 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+
+// 🔥 NEW: GET ALL USERS (ADMIN PANEL KE LIYE)
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+
+    res.json(users);
+  } catch (err) {
+    console.log("GET USERS ERROR:", err);
+    res.status(500).json({ msg: "Error fetching users" });
+  }
+});
+
 
 export default router;

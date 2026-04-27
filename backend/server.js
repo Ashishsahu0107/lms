@@ -7,6 +7,7 @@ import courseRoutes from "./routes/courseRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
+import assignmentRoutes from "./routes/assignmentRoutes.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/assignments", assignmentRoutes);
 
 
 app.listen(5000, () =>

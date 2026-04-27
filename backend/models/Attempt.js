@@ -15,7 +15,12 @@ const attemptSchema = new mongoose.Schema(
     totalQuestions: Number,
     correctAnswers: Number,
   },
-  { timestamps: true } // 🔥 IMPORTANT
+  { timestamps: true }
 );
 
-export default mongoose.model("Attempt", attemptSchema);
+// 🔥 FIX: duplicate model error solve
+const Attempt =
+  mongoose.models.Attempt ||
+  mongoose.model("Attempt", attemptSchema);
+
+export default Attempt;

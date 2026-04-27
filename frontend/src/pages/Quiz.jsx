@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 
-export default function Quiz() {
+const Quiz = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [quiz, setQuiz] = useState([]);
@@ -9,15 +9,17 @@ export default function Quiz() {
   const [score, setScore] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Fetch courses
+  // courses
   useEffect(() => {
-    api
-      .get("/courses")
-      .then((res) => setCourses(res.data))
-      .catch((err) => console.log("Course Error:", err));
+    api.get("/courses")
+      .then((res) => setCourses(res.data || []))
+      .catch((err) => {
+        console.log("Course Error:", err);
+        setCourses([]);
+      });
   }, []);
 
-  // 🔹 Fetch quiz
+  // quiz
   useEffect(() => {
     if (!selectedCourse) return;
 
@@ -26,98 +28,60 @@ export default function Quiz() {
     setAnswers({});
     setScore(null);
 
-    api
-      .get(`/quiz/${selectedCourse}`)
+    api.get(`/quiz/${selectedCourse}`)
       .then((res) => {
         setQuiz(res.data || []);
       })
       .catch((err) => {
-        console.log("Quiz Error:", err);
+        console.log("Quiz Error:", err?.response?.data || err);
+        alert("Quiz load error (check backend/token)");
         setQuiz([]);
       })
       .finally(() => setLoading(false));
   }, [selectedCourse]);
 
-  // 🔹 Select answer
   const selectAnswer = (qId, index) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [qId]: index,
-    }));
+    setAnswers((prev) => ({ ...prev, [qId]: index }));
   };
 
-  // 🔹 Submit quiz
   const submitQuiz = async () => {
-    if (!selectedCourse) {
-      alert("Please select a course");
-      return;
-    }
-
-    if (quiz.length === 0) {
-      alert("No quiz available");
-      return;
-    }
-
-    if (Object.keys(answers).length !== quiz.length) {
-      alert("Please answer all questions");
-      return;
-    }
+    if (!selectedCourse) return alert("Select course");
+    if (quiz.length === 0) return alert("No quiz available");
 
     try {
-      const res = await api.post(
-        `/quiz/submit/${selectedCourse}`,
-        { answers }
-      );
-
+      const res = await api.post(`/quiz/submit/${selectedCourse}`, { answers });
       setScore(res.data.score);
-
-      // 🔥 Dashboard refresh trigger
       localStorage.setItem("quizUpdated", Date.now());
-
     } catch (err) {
-      console.log("Submit Error:", err?.response?.data || err);
-      alert("Error submitting quiz");
+      console.log(err?.response?.data || err);
+      alert("Submit error");
     }
   };
 
   return (
     <div>
+      <h2 className="text-2xl font-bold mb-4">Quiz Section ❓</h2>
 
-      <h2 className="text-2xl font-bold mb-4">
-        Quiz Section ❓
-      </h2>
-
-      {/* 🔹 Course Select */}
       <select
         value={selectedCourse}
         onChange={(e) => setSelectedCourse(e.target.value)}
         className="border p-2 mb-4"
       >
         <option value="">Select Course</option>
-
         {courses.map((c) => (
-          <option key={c._id} value={c._id}>
-            {c.title}
-          </option>
+          <option key={c._id} value={c._id}>{c.title}</option>
         ))}
       </select>
 
-      {/* 🔹 Loading */}
       {loading && <p>Loading quiz...</p>}
 
-      {/* 🔹 No Quiz */}
       {!loading && selectedCourse && quiz.length === 0 && (
-        <p className="text-gray-500">
-          No quiz available for this course
-        </p>
+        <p>No quiz available</p>
       )}
 
-      {/* 🔹 Quiz */}
-      {quiz.map((q) => (
-        <div key={q._id} className="border p-3 mb-3 rounded">
-
-          <p className="font-semibold">{q.question}</p>
-
+      {!loading && quiz.map((q) => (
+        <div key={q._id} className="border p-3 mb-3">
+          <p>{q.question}</p>
           {q.options.map((opt, i) => (
             <div key={i}>
               <input
@@ -129,27 +93,18 @@ export default function Quiz() {
               {opt}
             </div>
           ))}
-
         </div>
       ))}
 
-      {/* 🔹 Submit */}
-      {quiz.length > 0 && (
-        <button
-          onClick={submitQuiz}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
+      {!loading && quiz.length > 0 && (
+        <button onClick={submitQuiz} className="bg-blue-500 text-white px-4 py-2">
           Submit
         </button>
       )}
 
-      {/* 🔹 Score */}
-      {score !== null && (
-        <p className="mt-3 text-green-500 font-bold">
-          Score: {score}%
-        </p>
-      )}
-
+      {score !== null && <p>Score: {score}%</p>}
     </div>
   );
-}
+};
+
+export default Quiz;
