@@ -10,23 +10,13 @@ export default function Login() {
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
   const login = async () => {
-    if (!form.email || !form.password) {
-      alert("Fill all fields");
-      return;
-    }
-
     try {
-      setLoading(true);
-
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
         form
       );
 
-      // 🔥 SAVE DATA
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
@@ -38,57 +28,34 @@ export default function Login() {
       }
 
     } catch (err) {
-      console.log(err);
-      alert(err?.response?.data?.msg || "Login failed");
-    } finally {
-      setLoading(false);
+      alert(err.response?.data?.msg || "Login failed");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div>
+      <h2>Login</h2>
 
-      <div className="bg-white p-8 rounded-xl shadow w-80">
+      <input
+        placeholder="Email"
+        onChange={(e) =>
+          setForm({ ...form, email: e.target.value })
+        }
+      />
 
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Login
-        </h2>
+      <input
+        type="password"
+        placeholder="Password"
+        onChange={(e) =>
+          setForm({ ...form, password: e.target.value })
+        }
+      />
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="border p-2 w-full mb-3 rounded"
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-        />
+      <button onClick={login}>Login</button>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-2 w-full mb-4 rounded"
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-        />
-
-        <button
-          onClick={login}
-          disabled={loading}
-          className="bg-blue-500 hover:bg-blue-600 text-white w-full py-2 rounded"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-
-        <p className="text-sm mt-4 text-center">
-          Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-500">
-            Register
-          </Link>
-        </p>
-
-      </div>
-
+      <p>
+        Don’t have account? <Link to="/register">Register</Link>
+      </p>
     </div>
   );
-} 
+}
