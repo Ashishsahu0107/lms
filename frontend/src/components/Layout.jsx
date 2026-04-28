@@ -12,7 +12,7 @@ export default function Layout() {
         <Topbar />
 
         <div className="p-6">
-          <Outlet />
+          <Outlet /> {/* 🔥 MUST */}
         </div>
       </div>
 

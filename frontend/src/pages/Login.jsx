@@ -10,8 +10,16 @@ export default function Login() {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const login = async () => {
+    if (!form.email || !form.password) {
+      return alert("Fill all fields");
+    }
+
     try {
+      setLoading(true);
+
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
         form
@@ -20,42 +28,69 @@ export default function Login() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // 🔥 ROLE BASED REDIRECT
+      // ✅ FIXED ROUTE
       if (res.data.user.role === "admin") {
-        navigate("/admin-dashboard");
+        navigate("/admin/dashboard");
       } else {
         navigate("/dashboard");
       }
 
     } catch (err) {
       alert(err.response?.data?.msg || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
 
-      <input
-        placeholder="Email"
-        onChange={(e) =>
-          setForm({ ...form, email: e.target.value })
-        }
-      />
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) =>
-          setForm({ ...form, password: e.target.value })
-        }
-      />
+        {/* 🔥 Title */}
+        <h2 className="text-3xl font-bold text-center mb-6">
+          Welcome Back 👋
+        </h2>
 
-      <button onClick={login}>Login</button>
+        {/* 🔹 Email */}
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full border p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) =>
+            setForm({ ...form, email: e.target.value })
+          }
+        />
 
-      <p>
-        Don’t have account? <Link to="/register">Register</Link>
-      </p>
+        {/* 🔹 Password */}
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) =>
+            setForm({ ...form, password: e.target.value })
+          }
+        />
+
+        {/* 🔥 Button */}
+        <button
+          onClick={login}
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+
+        {/* 🔹 Register */}
+        <p className="text-center mt-4 text-gray-600">
+          Don’t have an account?{" "}
+          <Link to="/register" className="text-blue-600 font-semibold">
+            Register
+          </Link>
+        </p>
+
+      </div>
+
     </div>
   );
-} 
+}

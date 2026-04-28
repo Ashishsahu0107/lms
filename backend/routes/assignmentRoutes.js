@@ -1,15 +1,15 @@
 import express from "express";
 import Assignment from "../models/Assignment.js";
+import Submission from "../models/Submission.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// 👉 CREATE ASSIGNMENT (Admin only)
+// ================= CREATE ASSIGNMENT =================
 router.post("/", protect, adminOnly, async (req, res) => {
   try {
     const { title, description, course, dueDate } = req.body;
 
-    // 🔥 VALIDATION (IMPORTANT)
     if (!title || !description || !course || !dueDate) {
       return res.status(400).json({
         message: "All fields are required",
@@ -27,7 +27,7 @@ router.post("/", protect, adminOnly, async (req, res) => {
     res.status(201).json(assignment);
 
   } catch (err) {
-    console.log("ASSIGNMENT ERROR:", err); // 🔥 VERY IMPORTANT
+    console.log("ASSIGNMENT ERROR:", err);
     res.status(500).json({
       message: err.message || "Error creating assignment",
     });
@@ -35,19 +35,34 @@ router.post("/", protect, adminOnly, async (req, res) => {
 });
 
 
-// 👉 GET ALL ASSIGNMENTS (Student)
+// ================= GET ASSIGNMENTS =================
 router.get("/", protect, async (req, res) => {
   try {
     const assignments = await Assignment.find()
       .populate("course", "title")
       .sort({ createdAt: -1 });
 
-    res.json(assignments);
+    const submissions = await Submission.find({
+      user: req.user._id,
+    });
+
+    const updated = assignments.map((a) => {
+      const submitted = submissions.find(
+        (s) => s.assignment.toString() === a._id.toString()
+      );
+
+      return {
+        ...a._doc,
+        status: submitted ? "Submitted" : "Pending",
+      };
+    });
+
+    res.json(updated);
 
   } catch (err) {
-    console.log("FETCH ASSIGNMENTS ERROR:", err); // 🔥 ADD THIS
+    console.log("FETCH ERROR:", err);
     res.status(500).json({
-      message: err.message || "Error fetching assignments",
+      message: "Error fetching assignments",
     });
   }
 });

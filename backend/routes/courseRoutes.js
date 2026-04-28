@@ -5,134 +5,233 @@ import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 
-// 🔹 GET COURSES (STUDENT)
-router.get("/", authMiddleware, async (req, res) => {
-  const courses = await Course.find({ userId: req.user.id });
-  res.json(courses);
+// ================= CREATE COURSE =================
+router.post("/enroll", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { userId, title, instructor } = req.body;
+
+    if (!userId || !title) {
+      return res.status(400).json({ msg: "userId & title required" });
+    }
+
+    const course = await Course.create({
+      userId,
+      users: [userId],
+      title,
+      instructor,
+      lessons: [],
+    });
+
+    res.json(course);
+
+  } catch (err) {
+    console.log("CREATE COURSE ERROR:", err);
+    res.status(500).json({ msg: "Error creating course" });
+  }
 });
 
 
-// 🔹 COMPLETE LESSON (STUDENT)
-router.put(
-  "/:courseId/lesson/:lessonIndex",
-  authMiddleware,
-  async (req, res) => {
-    const { courseId, lessonIndex } = req.params;
-
-    const course = await Course.findOne({
-      _id: courseId,
-      userId: req.user.id,
+// ================= GET COURSES (STUDENT) =================
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const courses = await Course.find({
+      $or: [
+        { userId: req.user.id },
+        { users: req.user._id },
+      ],
     });
+
+    res.json(courses || []);
+  } catch (err) {
+    console.log("GET COURSES ERROR:", err);
+    res.status(500).json({ msg: "Error fetching courses" });
+  }
+});
+
+
+// ================= GET ALL COURSES (ADMIN) =================
+router.get("/all", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const courses = await Course.find()
+      .populate("userId", "name email")
+      .populate("users", "name email");
+
+    res.json(courses || []);
+  } catch (err) {
+    console.log("GET ALL COURSES ERROR:", err);
+    res.status(500).json({ msg: "Error fetching all courses" });
+  }
+});
+
+
+// ================= ENROLL USER =================
+router.post("/enroll-user", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { courseId, userId } = req.body;
+
+    const course = await Course.findById(courseId);
 
     if (!course) {
       return res.status(404).json({ msg: "Course not found" });
     }
 
-    course.lessons[lessonIndex].completed = true;
+    if (!course.users) course.users = [];
+
+    const already = course.users.some(
+      (u) => u.toString() === userId
+    );
+
+    if (already) {
+      return res.status(400).json({ msg: "Already enrolled" });
+    }
+
+    course.users.push(userId);
+    await course.save();
+
+    res.json({ msg: "User added to course" });
+
+  } catch (err) {
+    console.log("ENROLL ERROR:", err);
+    res.status(500).json({ msg: "Enroll error" });
+  }
+});
+
+
+// ================= REMOVE USER (🔥 FIXED POSITION) =================
+router.post("/remove-user", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { courseId, userId } = req.body;
+
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ msg: "Course not found" });
+    }
+
+    course.users = course.users.filter(
+      (u) => u.toString() !== userId
+    );
 
     await course.save();
 
+    res.json({ msg: "User removed" });
+
+  } catch (err) {
+    console.log("REMOVE USER ERROR:", err);
+    res.status(500).json({ msg: "Remove error" });
+  }
+});
+
+
+// ================= COMPLETE LESSON =================
+router.put("/:courseId/lesson/:lessonIndex", authMiddleware, async (req, res) => {
+  try {
+    const { courseId, lessonIndex } = req.params;
+
+    const course = await Course.findOne({
+      _id: courseId,
+      $or: [
+        { userId: req.user.id },
+        { users: req.user._id },
+      ],
+    });
+
+    if (!course) {
+      return res.status(403).json({ msg: "Access denied" });
+    }
+
+    if (!course.lessons[lessonIndex]) {
+      return res.status(404).json({ msg: "Lesson not found" });
+    }
+
+    course.lessons[lessonIndex].completed = true;
+    await course.save();
+
     res.json(course);
+
+  } catch (err) {
+    console.log("COMPLETE LESSON ERROR:", err);
+    res.status(500).json({ msg: "Error updating lesson" });
   }
-);
+});
 
 
-// 🔥 ADD LESSON (ADMIN ONLY)
-router.post(
-  "/add-lesson/:courseId",
-  authMiddleware,
-  adminOnly,
-  async (req, res) => {
-    try {
-      const { title, notes } = req.body;
+// ================= ADD LESSON =================
+router.post("/add-lesson/:courseId", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { title, notes } = req.body;
 
-      const course = await Course.findById(req.params.courseId);
+    const course = await Course.findById(req.params.courseId);
 
-      if (!course) {
-        return res.status(404).json({ msg: "Course not found" });
-      }
-
-      course.lessons.push({
-        title,
-        notes,
-      });
-
-      await course.save();
-
-      res.json({ msg: "Lesson added", course });
-    } catch (err) {
-      console.log("ADD LESSON ERROR:", err);
-      res.status(500).json({ msg: "Error adding lesson" });
+    if (!course) {
+      return res.status(404).json({ msg: "Course not found" });
     }
+
+    if (!course.lessons) course.lessons = [];
+
+    course.lessons.push({ title, notes });
+
+    await course.save();
+
+    res.json({ msg: "Lesson added", course });
+
+  } catch (err) {
+    console.log("ADD LESSON ERROR:", err);
+    res.status(500).json({ msg: "Error adding lesson" });
   }
-);
+});
 
 
-// ✏️ UPDATE LESSON (ADMIN ONLY)
-router.put(
-  "/update-lesson/:courseId/:lessonIndex",
-  authMiddleware,
-  adminOnly,
-  async (req, res) => {
-    try {
-      const { courseId, lessonIndex } = req.params;
-      const { title, notes } = req.body;
+// ================= UPDATE LESSON =================
+router.put("/update-lesson/:courseId/:lessonIndex", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { courseId, lessonIndex } = req.params;
+    const { title, notes } = req.body;
 
-      const course = await Course.findById(courseId);
+    const course = await Course.findById(courseId);
 
-      if (!course) {
-        return res.status(404).json({ msg: "Course not found" });
-      }
-
-      const lesson = course.lessons[lessonIndex];
-
-      if (!lesson) {
-        return res.status(404).json({ msg: "Lesson not found" });
-      }
-
-      lesson.title = title ?? lesson.title;
-      lesson.notes = notes ?? lesson.notes;
-
-      await course.save();
-
-      res.json({ msg: "Lesson updated", course });
-    } catch (err) {
-      console.log("UPDATE LESSON ERROR:", err);
-      res.status(500).json({ msg: "Error updating lesson" });
+    if (!course || !course.lessons[lessonIndex]) {
+      return res.status(404).json({ msg: "Lesson not found" });
     }
+
+    const lesson = course.lessons[lessonIndex];
+
+    lesson.title = title ?? lesson.title;
+    lesson.notes = notes ?? lesson.notes;
+
+    await course.save();
+
+    res.json({ msg: "Lesson updated", course });
+
+  } catch (err) {
+    console.log("UPDATE LESSON ERROR:", err);
+    res.status(500).json({ msg: "Error updating lesson" });
   }
-);
+});
 
 
-// 🗑️ DELETE LESSON (ADMIN ONLY)
-router.delete(
-  "/delete-lesson/:courseId/:lessonIndex",
-  authMiddleware,
-  adminOnly,
-  async (req, res) => {
-    try {
-      const { courseId, lessonIndex } = req.params;
+// ================= DELETE LESSON =================
+router.delete("/delete-lesson/:courseId/:lessonIndex", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { courseId, lessonIndex } = req.params;
 
-      const course = await Course.findById(courseId);
+    const course = await Course.findById(courseId);
 
-      if (!course) {
-        return res.status(404).json({ msg: "Course not found" });
-      }
-
-      if (!course.lessons[lessonIndex]) {
-        return res.status(404).json({ msg: "Lesson not found" });
-      }
-
-      course.lessons.splice(lessonIndex, 1);
-
-      await course.save();
-
-      res.json({ msg: "Lesson deleted", course });
-    } catch (err) {
-      console.log("DELETE LESSON ERROR:", err);
-      res.status(500).json({ msg: "Error deleting lesson" });
+    if (!course || !course.lessons[lessonIndex]) {
+      return res.status(404).json({ msg: "Lesson not found" });
     }
+
+    course.lessons.splice(lessonIndex, 1);
+
+    await course.save();
+
+    res.json({ msg: "Lesson deleted" });
+
+  } catch (err) {
+    console.log("DELETE LESSON ERROR:", err);
+    res.status(500).json({ msg: "Error deleting lesson" });
   }
-);
+});
+
 
 export default router;

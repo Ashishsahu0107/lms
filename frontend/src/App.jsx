@@ -16,66 +16,60 @@ import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLessons from "./pages/AdminLessons";
 import AddLesson from "./pages/AddLesson";
+import AdminCourses from "./pages/AdminCourses";
 
 import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
 
 import Layout from "./components/Layout";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import StudentRoute from "./components/StudentRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Public */}
+        {/* 🔓 PUBLIC */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          {/* Student */}
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="courses" element={<Courses />} />
-          <Route path="courses/:id" element={<CourseDetail />} />
-          <Route path="assignments" element={<Assignments />} />
-          <Route path="quiz" element={<Quiz />} />
-          <Route path="attendance" element={<Attendance />} />
-          <Route path="support" element={<Support />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="leaderboard" element={<Leaderboard />} />
+        {/* 🔐 AUTH REQUIRED */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
 
-          {/* Admin */}
-          <Route
-            path="admin"
-            element={
-              <AdminRoute>
-                <Admin />
-              </AdminRoute>
-            }
-          >
-            <Route index element={<AdminDashboard />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="lessons" element={<AdminLessons />} />
-            <Route path="add-lesson" element={<AddLesson />} />
+            {/* 🎓 STUDENT */}
+            <Route element={<StudentRoute />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="courses" element={<Courses />} />
+              <Route path="courses/:id" element={<CourseDetail />} />
+              <Route path="assignments" element={<Assignments />} />
+              <Route path="quiz" element={<Quiz />} />
+              <Route path="attendance" element={<Attendance />} />
+              <Route path="support" element={<Support />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
+            </Route>
 
-            {/* 🔥 FIX */}
-            <Route path="quiz" element={<Quiz />} />
+            {/* 👑 ADMIN */}
+            <Route path="admin" element={<AdminRoute />}>
+              <Route element={<Admin />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="courses" element={<AdminCourses />} />
+                <Route path="lessons" element={<AdminLessons />} />
+                <Route path="add-lesson" element={<AddLesson />} />
+                <Route path="quiz" element={<Quiz />} />
+              </Route>
+            </Route>
+
           </Route>
-
-          {/* Redirects */}
-          <Route path="admin-dashboard" element={<Navigate to="/admin/dashboard" />} />
-          <Route path="add-lesson" element={<Navigate to="/admin/add-lesson" />} />
-          <Route path="manage-lessons" element={<Navigate to="/admin/lessons" />} />
-
         </Route>
+
+        {/* 🔁 FALLBACK */}
+        <Route path="*" element={<Navigate to="/" />} />
 
       </Routes>
     </BrowserRouter>

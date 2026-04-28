@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-// 🔐 AUTH CHECK
-export const protect = async (req, res, next) => {
+// 🔐 MAIN AUTH FUNCTION
+const protect = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
 
@@ -14,6 +14,10 @@ export const protect = async (req, res, next) => {
 
     req.user = await User.findById(decoded.id).select("-password");
 
+    if (!req.user) {
+      return res.status(401).json({ msg: "User not found" });
+    }
+
     next();
   } catch (err) {
     console.log("AUTH ERROR:", err);
@@ -21,8 +25,9 @@ export const protect = async (req, res, next) => {
   }
 };
 
+
 // 👑 ADMIN ONLY
-export const adminOnly = (req, res, next) => {
+const adminOnly = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
   } else {
@@ -32,5 +37,10 @@ export const adminOnly = (req, res, next) => {
   }
 };
 
-// 🔥 FIX: OLD NAME SUPPORT (IMPORTANT)
-export const authMiddleware = protect;
+
+// 🔥 EXPORT ALL (IMPORTANT)
+export {
+  protect,
+  adminOnly,
+  protect as authMiddleware // backward compatibility
+};

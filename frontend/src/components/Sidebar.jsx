@@ -95,6 +95,24 @@ export default function Sidebar() {
               Quiz Panel
             </NavLink>
 
+             <NavLink to="/admin/courses" className={({ isActive }) =>
+              `${linkClass} ${isActive ? activeClass : ""}`
+            }>
+              Manage Courses
+            </NavLink>
+
+            <NavLink
+              to="/admin"
+              end
+              className={({ isActive }) =>
+                `${linkClass} ${isActive ? activeClass : ""}`
+              }
+            >
+              Admin Home
+            </NavLink>
+
+           
+
           </div>
         </div>
       )}

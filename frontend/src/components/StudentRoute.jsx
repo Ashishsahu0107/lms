@@ -1,10 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-export default function AdminRoute() {
+export default function StudentRoute() {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (!user || user.role !== "admin") {
-    return <Navigate to="/dashboard" replace />;
+  if (user.role === "admin") {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   return <Outlet />;

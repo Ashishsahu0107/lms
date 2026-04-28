@@ -7,7 +7,20 @@ const lessonSchema = new mongoose.Schema({
 });
 
 const courseSchema = new mongoose.Schema({
-  userId: mongoose.Schema.Types.ObjectId,
+  // 🔹 OLD (keep for backward compatibility)
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  // 🔥 NEW (multi-user enrollment)
+  users: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+
   title: String,
   instructor: String,
   lessons: [lessonSchema],
