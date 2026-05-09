@@ -83,74 +83,108 @@ const Quiz = () => {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8">
+      <div className="w-full max-w-2xl bg-white shadow-xl rounded-lg p-8 space-y-6 border border-gray-100">
+        <h2 className="text-3xl font-extrabold text-blue-700 flex items-center gap-2">
+          <span className="inline-block">❓</span> Quiz Section
+        </h2>
 
-      <h2 className="text-2xl font-bold">Quiz Section ❓</h2>
+        {/* COURSE SELECT */}
+        <div>
+          <label className="block text-gray-700 font-semibold mb-2">Select Course</label>
+          <select
+            value={selectedCourse}
+            onChange={(e) => setSelectedCourse(e.target.value)}
+            className="border border-gray-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">-- Choose a course --</option>
+            {courses.map((c) => (
+              <option key={c._id} value={c._id}>{c.title}</option>
+            ))}
+          </select>
+        </div>
 
-      {/* COURSE SELECT */}
-      <select
-        value={selectedCourse}
-        onChange={(e) => setSelectedCourse(e.target.value)}
-        className="border p-2 mb-4 rounded"
-      >
-        <option value="">Select Course</option>
-        {courses.map((c) => (
-          <option key={c._id} value={c._id}>{c.title}</option>
-        ))}
-      </select>
-
-      {/* TIMER */}
-      {selectedCourse && score === null && (
-        <p className="text-red-500 font-bold">
-          ⏱ Time Left: {timeLeft}s
-        </p>
-      )}
-
-      {/* LOADING */}
-      {loading && <p>Loading quiz...</p>}
-
-      {/* NO QUIZ */}
-      {!loading && selectedCourse && quiz.length === 0 && (
-        <p className="text-red-500">No quiz available</p>
-      )}
-
-      {/* QUESTIONS */}
-      {!loading && quiz.map((q) => (
-        <div key={q._id} className="border p-3 mb-3 rounded">
-          <p className="font-medium">{q.question}</p>
-
-          {q.options.map((opt, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <input
-                type="radio"
-                name={q._id}
-                checked={answers[q._id] === i}
-                disabled={score !== null} // 🔒 lock after submit
-                onChange={() => selectAnswer(q._id, i)}
-              />
-              <span>{opt}</span>
+        {/* TIMER + PROGRESS BAR */}
+        {selectedCourse && score === null && (
+          <div className="mb-2">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium text-blue-700">Time Left</span>
+              <span className="text-sm font-bold text-red-500">{timeLeft}s</span>
             </div>
-          ))}
-        </div>
-      ))}
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div
+                className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${(timeLeft / 60) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
 
-      {/* SUBMIT BUTTON */}
-      {!loading && quiz.length > 0 && score === null && (
-        <button
-          onClick={submitQuiz}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Submit
-        </button>
-      )}
+        {/* LOADING */}
+        {loading && (
+          <div className="flex items-center gap-2 text-blue-600 font-semibold animate-pulse">
+            <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+            Loading quiz...
+          </div>
+        )}
 
-      {/* RESULT */}
-      {score !== null && (
-        <div className="mt-4 p-4 bg-green-100 rounded">
-          🎉 Your Score: <b>{score}%</b>
-        </div>
-      )}
+        {/* NO QUIZ */}
+        {!loading && selectedCourse && quiz.length === 0 && (
+          <div className="text-red-500 bg-red-50 border border-red-200 rounded p-3 text-center font-semibold">
+            No quiz available for this course.
+          </div>
+        )}
 
+        {/* QUESTIONS */}
+        {!loading && quiz.length > 0 && (
+          <div className="space-y-6">
+            {quiz.map((q, idx) => (
+              <div key={q._id} className="border border-gray-200 p-4 rounded-lg bg-gray-50">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="text-lg font-bold text-blue-600">Q{idx + 1}.</span>
+                  <span className="font-medium text-gray-800">{q.question}</span>
+                </div>
+                <div className="space-y-2 mt-2">
+                  {q.options.map((opt, i) => (
+                    <label key={i} className={`flex items-center gap-2 cursor-pointer p-2 rounded transition ${answers[q._id] === i ? 'bg-blue-100' : ''} ${score !== null ? 'opacity-70' : ''}`}>
+                      <input
+                        type="radio"
+                        name={q._id}
+                        checked={answers[q._id] === i}
+                        disabled={score !== null}
+                        onChange={() => selectAnswer(q._id, i)}
+                        className="accent-blue-500"
+                      />
+                      <span className="text-gray-700">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* SUBMIT BUTTON */}
+        {!loading && quiz.length > 0 && score === null && (
+          <div className="flex justify-end">
+            <button
+              onClick={submitQuiz}
+              className="bg-blue-600 hover:bg-blue-700 transition text-white px-6 py-2 rounded-lg font-semibold shadow"
+            >
+              Submit Quiz
+            </button>
+          </div>
+        )}
+
+        {/* RESULT */}
+        {score !== null && (
+          <div className="mt-4 p-5 bg-green-50 border border-green-200 rounded-lg text-center">
+            <span className="text-2xl">🎉</span>
+            <div className="text-lg font-bold text-green-700 mt-2">Your Score: <span className="text-2xl">{score}%</span></div>
+            <div className="text-sm text-gray-600 mt-1">Thank you for participating!</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

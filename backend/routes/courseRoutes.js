@@ -233,5 +233,19 @@ router.delete("/delete-lesson/:courseId/:lessonIndex", authMiddleware, adminOnly
   }
 });
 
+// ================= DELETE COURSE =================
+router.delete("/delete-course/:courseId", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findByIdAndDelete(courseId);
+    if (!course) {
+      return res.status(404).json({ msg: "Course not found" });
+    }
+    res.json({ msg: "Course deleted successfully" });
+  } catch (err) {
+    console.log("DELETE COURSE ERROR:", err);
+    res.status(500).json({ msg: "Error deleting course" });
+  }
+});
 
 export default router;

@@ -83,6 +83,45 @@ export default function AdminLessons() {
     }
   };
 
+  // Add Lesson form state
+  const [lessonTitle, setLessonTitle] = useState("");
+  const [lessonNotes, setLessonNotes] = useState("");
+
+  // Add Lesson handler
+  const handleAddLesson = async () => {
+    if (!selectedCourseId || !lessonTitle || !lessonNotes) {
+      return toast.error("Fill all fields");
+    }
+    try {
+      setLoading(true);
+      await api.post(`/courses/add-lesson/${selectedCourseId}`, {
+        title: lessonTitle,
+        notes: lessonNotes,
+      });
+      toast.success("Lesson added");
+      // Update UI
+      setCourses((prev) =>
+        prev.map((c) =>
+          c._id === selectedCourseId
+            ? {
+                ...c,
+                lessons: [
+                  ...c.lessons,
+                  { title: lessonTitle, notes: lessonNotes, completed: false },
+                ],
+              }
+            : c
+        )
+      );
+      setLessonTitle("");
+      setLessonNotes("");
+    } catch {
+      toast.error("Add failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6 dark:text-white">
@@ -103,6 +142,34 @@ export default function AdminLessons() {
         ))}
       </select>
 
+      {/* Add Lesson Form */}
+      {selectedCourse && (
+        <div className="mb-8 bg-gray-50 p-4 rounded-lg border">
+          <h3 className="font-semibold mb-2">Add Lesson</h3>
+          <input
+            type="text"
+            placeholder="Lesson Title"
+            value={lessonTitle}
+            onChange={(e) => setLessonTitle(e.target.value)}
+            className="w-full border p-2 mb-2 rounded"
+          />
+          <textarea
+            placeholder="Lesson Notes"
+            value={lessonNotes}
+            onChange={(e) => setLessonNotes(e.target.value)}
+            className="w-full border p-2 mb-2 rounded"
+            rows={3}
+          />
+          <button
+            onClick={handleAddLesson}
+            className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
+            disabled={loading}
+          >
+            {loading ? "Adding..." : "Add Lesson"}
+          </button>
+        </div>
+      )}
+
       {/* 🔥 Lessons List */}
       {!selectedCourse ? (
         <p className="text-gray-500">Select a course</p>
@@ -118,11 +185,9 @@ export default function AdminLessons() {
               <h3 className="font-bold text-lg dark:text-white">
                 {lesson.title}
               </h3>
-
               <p className="text-gray-500 text-sm mt-1">
                 {lesson.notes}
               </p>
-
               {/* 🔥 ACTION BUTTONS */}
               <div className="mt-4 flex gap-3">
                 <button
@@ -131,7 +196,6 @@ export default function AdminLessons() {
                 >
                   Edit
                 </button>
-
                 <button
                   onClick={() => handleDelete(index)}
                   className="bg-red-500 text-white px-3 py-1 rounded"
