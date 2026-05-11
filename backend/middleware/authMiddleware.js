@@ -1,104 +1,202 @@
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
-// 🔐 MAIN AUTH FUNCTION
-const protect = async (req, res, next) => {
+// Protect routes - verify JWT token
+const protect = asyncHandler(async (req, res, next) => {
+  let token;
+
+  // Get token from header
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  // Check if token exists
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Access denied. No token provided.'
+    });
+  }
+
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!token) {
-      return res.status(401).json({ msg: "No token" });
-    }
-
-    const decoded = jwt.verify(token, "secret");
-
-    req.user = await User.findById(decoded.id).select("-password");
+    // Get user from token
+    req.user = await User.findById(decoded.id).select('-password');
 
     if (!req.user) {
-      return res.status(401).json({ msg: "User not found" });
+      return res.status(401).json({
+        success: false,
+        message: 'User not found.'
+      });
+    }
+
+    if (req.user.isBlocked) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account is blocked. Contact administrator.'
+      });
     }
 
     next();
-  } catch (err) {
-    console.log("AUTH ERROR:", err);
-    res.status(401).json({ msg: "Invalid token" });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token.'
+    });
   }
-};
+});
 
-
-// ✅ TEACHER ONLY
-const teacherOnly = (req, res, next) => {
-  if (req.user && req.user.role === "teacher") {
-    return next();
-  }
-  return res.status(403).json({ msg: "Access denied (Teacher only)" });
-};
-
-// ✅ SUPER ADMIN ONLY
-const superAdminOnly = (req, res, next) => {
-  if (req.user && req.user.role === "superAdmin") {
-    return next();
-  }
-  return res
-    .status(403)
-    .json({ msg: "Access denied (Super Admin only)" });
-};
-
-// ✅ BACKWARD COMPATIBILITY: old role `admin` -> treat as teacher
-const adminOnly = (req, res, next) => {
-  if (req.user && req.user.role === "teacher") {
-    return next();
-  }
-  return res.status(403).json({ msg: "Access denied (Teacher only)" });
-};
-
-// 🔥 EXPORT ALL (IMPORTANT)
-// ✅ Generic role authorizer (RBAC)
+// Authorize roles
 const authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ msg: "No user" });
-    if (roles.includes(req.user.role)) return next();
-    return res.status(403).json({ msg: "Access denied" });
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access denied. Please login first.'
+      });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Access denied. ${req.user.role} role is not authorized to access this resource.`
+      });
+    }
+
+    next();
   };
 };
 
-// ✅ Teacher-only guard: teacher must own the course (Course.userId)
-const teacherOwnsCourse = async (req, res, next) => {
-  try {
-    if (!req.params.courseId) {
-      return res.status(400).json({ msg: "courseId param required" });
+// Check if user owns the resource or is admin/teacher
+const authorizeOwnerOrAdmin = (resourceField = 'user') => {
+  return async (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access denied. Please login first.'
+      });
     }
 
-    // superAdmin bypass
-    if (req.user?.role === "superAdmin") return next();
-
-    if (req.user?.role !== "teacher") {
-      return res.status(403).json({ msg: "Access denied" });
+    // SuperAdmin can access everything
+    if (req.user.role === 'superAdmin') {
+      return next();
     }
 
-    const { default: Course } = await import("../models/Course.js");
+    // Teachers can access their own resources
+    if (req.user.role === 'teacher') {
+      // For dynamic routes, we need to fetch the resource first
+      // This will be implemented in specific controllers
+      return next();
+    }
 
-    const course = await Course.findById(req.params.courseId);
-    if (!course) return res.status(404).json({ msg: "Course not found" });
-
-    // strict ownership: Course.userId must equal teacher's _id
-    if (course.userId?.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ msg: "Access denied (Not your course)" });
+    // Regular users can only access their own resources
+    if (req.params.id && req.params.id !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. You can only access your own resources.'
+      });
     }
 
     next();
-  } catch (err) {
-    console.log("teacherOwnsCourse error:", err);
-    res.status(500).json({ msg: "Ownership check failed" });
+  };
+};
+
+// Teacher-only middleware
+const teacherOnly = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Access denied. Please login first.'
+    });
+  }
+
+  if (req.user.role !== 'teacher' && req.user.role !== 'superAdmin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Teacher role required.'
+    });
+  }
+
+  next();
+};
+
+// Super Admin-only middleware
+const superAdminOnly = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Access denied. Please login first.'
+    });
+  }
+
+  if (req.user.role !== 'superAdmin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Super Admin role required.'
+    });
+  }
+
+  next();
+};
+
+// Teacher ownership check for courses
+const teacherOwnsCourse = async (req, res, next) => {
+  try {
+    if (!req.params.courseId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Course ID parameter required.'
+      });
+    }
+
+    // SuperAdmin bypass
+    if (req.user.role === 'superAdmin') {
+      return next();
+    }
+
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Teacher role required.'
+      });
+    }
+
+    const { default: Course } = await import('../models/Course.js');
+    const course = await Course.findById(req.params.courseId);
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found.'
+      });
+    }
+
+    // Check ownership
+    if (course.teacher.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. You can only access your own courses.'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Teacher ownership check error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error during ownership verification.'
+    });
   }
 };
 
 export {
   protect,
-  adminOnly,
+  authorizeRoles,
+  authorizeOwnerOrAdmin,
   teacherOnly,
   superAdminOnly,
-  authorizeRoles,
-  teacherOwnsCourse,
-  protect as authMiddleware,
+  teacherOwnsCourse
 };

@@ -1,115 +1,44 @@
-import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import express from 'express';
+import {
+  register,
+  login,
+  getMe,
+  logout,
+  updateProfile,
+  changePassword
+} from '../controllers/authController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// @route   POST /api/auth/register
+// @desc    Register a new user
+// @access   Public
+router.post('/register', register);
 
-// ================= REGISTER =================
-router.post("/register", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+// @route   POST /api/auth/login
+// @desc    Login user & get token
+// @access   Public
+router.post('/login', login);
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        msg: "All fields are required",
-      });
-    }
+// @route   GET /api/auth/me
+// @desc    Get current logged in user
+// @access   Private
+router.get('/me', protect, getMe);
 
-    const exist = await User.findOne({ email });
-    if (exist) {
-      return res.status(400).json({
-        msg: "User already exists",
-      });
-    }
+// @route   GET /api/auth/logout
+// @desc    Logout user
+// @access   Private
+router.get('/logout', protect, logout);
 
-    const hash = await bcrypt.hash(password, 10);
+// @route   PUT /api/auth/updateprofile
+// @desc    Update user profile
+// @access   Private
+router.put('/updateprofile', protect, updateProfile);
 
-    const user = await User.create({
-      name,
-      email,
-      password: hash,
-      role: "student",
-    });
-
-    res.json({
-      msg: "User registered successfully",
-      user,
-    });
-
-  } catch (err) {
-    console.log("REGISTER ERROR:", err);
-    res.status(500).json({
-      msg: "Server error",
-    });
-  }
-});
-
-
-// ================= LOGIN =================
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        msg: "All fields required",
-      });
-    }
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({
-        msg: "User not found",
-      });
-    }
-
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res.status(400).json({
-        msg: "Wrong password",
-      });
-    }
-
-    const token = jwt.sign(
-      { id: user._id },
-      "secret",
-      { expiresIn: "24h" }
-    );
-
-    res.json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-
-  } catch (err) {
-    console.log("LOGIN ERROR:", err);
-    res.status(500).json({
-      msg: "Server error",
-    });
-  }
-});
-
-
-// 🔥 NEW: GET ALL USERS (ADMIN PANEL KE LIYE)
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
-
-    res.json(users);
-  } catch (err) {
-    console.log("GET USERS ERROR:", err);
-    res.status(500).json({ msg: "Error fetching users" });
-  }
-});
-
+// @route   PUT /api/auth/changepassword
+// @desc    Change user password
+// @access   Private
+router.put('/changepassword', protect, changePassword);
 
 export default router;
