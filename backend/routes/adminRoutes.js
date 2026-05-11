@@ -2,8 +2,8 @@ import express from "express";
 import User from "../models/User.js";
 import Course from "../models/Course.js";
 import {
-  authMiddleware,
-  adminMiddleware,
+  protect,
+  authorizeRoles
 } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -11,8 +11,8 @@ const router = express.Router();
 // 🔥 ADMIN ANALYTICS
 router.get(
   "/stats",
-  authMiddleware,
-  adminMiddleware,
+  protect,
+  authorizeRoles('superAdmin'),
   async (req, res) => {
     const users = await User.find();
     const courses = await Course.find();

@@ -1,10 +1,10 @@
 import express from "express";
 import Course from "../models/Course.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/stats", authMiddleware, async (req, res) => {
+router.get("/stats", protect, async (req, res) => {
   const courses = await Course.find({ userId: req.user.id });
 
   const total = courses.length;

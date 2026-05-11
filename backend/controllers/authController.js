@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import generateToken from '../utils/generateToken.js';
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -26,7 +27,7 @@ const register = asyncHandler(async (req, res, next) => {
       email: user.email,
       role: user.role,
       avatar: user.avatar,
-      token: user.generateJWT()
+      token: generateToken(user)
     }
   });
 });

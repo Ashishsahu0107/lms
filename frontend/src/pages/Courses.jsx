@@ -61,6 +61,7 @@ export default function Courses() {
                 </div>
 
                 <p className="text-sm mt-2 dark:text-white">
+                  
                   {completed}/{total} Lessons •{" "}
                   {Math.round(progress)}%
                 </p>

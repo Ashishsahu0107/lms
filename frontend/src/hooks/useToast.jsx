@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, createContext, useContext } from 'react';
 
 let toastId = 0;
 
@@ -96,8 +96,6 @@ export const useToast = () => {
 };
 
 // Global toast context for easier usage
-import { createContext, useContext } from 'react';
-
 const ToastContext = createContext();
 
 export const ToastProvider = ({ children }) => {

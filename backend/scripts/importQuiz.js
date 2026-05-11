@@ -1,12 +1,16 @@
 // Script to import quiz.json into MongoDB
-const mongoose = require('mongoose');
-const fs = require('fs');
-const path = require('path');
-const Quiz = require('./models/Quiz');
-const db = require('./config/db');
+import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Quiz from '../models/Quiz.js';
+
+// Get __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // MongoDB connection
-mongoose.connect(db.mongoURI || 'mongodb://localhost:27017/lms', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lms', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -14,7 +18,7 @@ mongoose.connect(db.mongoURI || 'mongodb://localhost:27017/lms', {
 mongoose.connection.on('connected', async () => {
   console.log('MongoDB connected');
   try {
-    const quizData = JSON.parse(fs.readFileSync(path.join(__dirname, 'quiz.json'), 'utf-8'));
+    const quizData = JSON.parse(fs.readFileSync(path.join(__dirname, '../quiz.json'), 'utf-8'));
     // Insert all quizzes
     await Quiz.insertMany(quizData);
     console.log('Quiz data imported successfully!');

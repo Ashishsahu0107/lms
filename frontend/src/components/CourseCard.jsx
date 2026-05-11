@@ -259,4 +259,5 @@ const CourseCard = ({
   );
 };
 
+export { CourseCard };
 export default CourseCard;

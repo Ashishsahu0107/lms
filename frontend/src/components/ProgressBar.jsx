@@ -271,4 +271,5 @@ const StepProgress = ({
 ProgressBar.Circular = CircularProgress;
 ProgressBar.Step = StepProgress;
 
+export { ProgressBar };
 export default ProgressBar;

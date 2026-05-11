@@ -6,14 +6,14 @@ import mongoose from "mongoose";
 
 import Quiz from "../models/Quiz.js";
 import Attempt from "../models/Attempt.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 
 // ================== 🔥 ATTEMPTS (MUST BE FIRST) ==================
-router.get("/attempts", authMiddleware, async (req, res) => {
+router.get("/attempts", protect, async (req, res) => {
   try {
     const attempts = await Attempt.find({
       userId: req.user._id,
@@ -32,7 +32,7 @@ router.get("/attempts", authMiddleware, async (req, res) => {
 // ================== UPLOAD QUIZ ==================
 router.post(
   "/upload",
-  authMiddleware,
+  protect,
   upload.single("file"),
   async (req, res) => {
     try {
@@ -108,7 +108,7 @@ router.post(
 
 
 // ================== SUBMIT QUIZ ==================
-router.post("/submit/:courseId", authMiddleware, async (req, res) => {
+router.post("/submit/:courseId", protect, async (req, res) => {
   try {
     const { answers } = req.body;
 
@@ -153,7 +153,7 @@ router.post("/submit/:courseId", authMiddleware, async (req, res) => {
 
 
 // ================== GET QUIZ ==================
-router.get("/:courseId", authMiddleware, async (req, res) => {
+router.get("/:courseId", protect, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.courseId)) {
       return res.status(400).json({ msg: "Invalid course ID" });

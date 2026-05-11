@@ -25,11 +25,28 @@ import errorHandler from './middleware/errorMiddleware.js';
 // Initialize express app
 const app = express();
 
-// Middleware
+// Middleware - CORS configuration
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174'];
+
+// Temporary: Allow all origins for debugging
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: '*',  // Allow all origins temporarily
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// Handle preflight requests for all routes
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -56,8 +73,8 @@ app.get('/health', (req, res) => {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-// Handle 404
-app.use('*', (req, res) => {
+// Handle 404 - Must come after error handler
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'Route not found'
