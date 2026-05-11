@@ -16,8 +16,9 @@ export default function Sidebar() {
       </h2>
 
       {/* ================= STUDENT SIDEBAR ================= */}
-      {user?.role !== "admin" && (
+      {user?.role !== "teacher" && user?.role !== "superAdmin" && (
         <div className="space-y-2">
+
 
           <NavLink
             to="/dashboard"
@@ -85,17 +86,20 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* ================= ADMIN SIDEBAR ================= */}
-      {user?.role === "admin" && (
+      {/* ================= TEACHER SIDEBAR (admin -> teacher) ================= */}
+      {user?.role === "teacher" && (
         <div className="space-y-2">
 
+
           <NavLink
-            to="/admin/dashboard"
+            to="/teacher/dashboard"
+
             className={({ isActive }) =>
               `${linkClass} ${isActive ? activeClass : ""}`
             }
           >
-            Admin Dashboard
+            Teacher Dashboard
+
           </NavLink>
 
           <NavLink
@@ -105,6 +109,7 @@ export default function Sidebar() {
             }
           >
             Manage Courses
+
           </NavLink>
 
           <NavLink

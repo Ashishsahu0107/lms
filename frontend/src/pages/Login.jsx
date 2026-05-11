@@ -28,12 +28,15 @@ export default function Login() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // ✅ FIXED ROUTE
-      if (res.data.user.role === "admin") {
-        navigate("/admin/dashboard");
+      // ✅ FIXED ROLE ROUTE
+      if (res.data.user.role === "teacher") {
+        navigate("/teacher/dashboard");
+      } else if (res.data.user.role === "superAdmin") {
+        navigate("/superadmin/dashboard");
       } else {
         navigate("/dashboard");
       }
+
 
     } catch (err) {
       alert(err.response?.data?.msg || "Login failed");

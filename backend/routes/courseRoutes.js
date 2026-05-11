@@ -1,6 +1,12 @@
 import express from "express";
 import Course from "../models/Course.js";
-import { authMiddleware, adminOnly } from "../middleware/authMiddleware.js";
+import {
+  authMiddleware,
+  adminOnly,
+  authorizeRoles,
+  teacherOwnsCourse,
+} from "../middleware/authMiddleware.js";
+
 
 const router = express.Router();
 
@@ -65,7 +71,7 @@ router.get("/all", authMiddleware, adminOnly, async (req, res) => {
 
 
 // ================= ENROLL USER =================
-router.post("/enroll-user", authMiddleware, adminOnly, async (req, res) => {
+router.post("/enroll-user", authMiddleware, authorizeRoles("teacher","superAdmin"), async (req, res) => {
   try {
     const { courseId, userId } = req.body;
 
@@ -98,7 +104,7 @@ router.post("/enroll-user", authMiddleware, adminOnly, async (req, res) => {
 
 
 // ================= REMOVE USER (🔥 FIXED POSITION) =================
-router.post("/remove-user", authMiddleware, adminOnly, async (req, res) => {
+router.post("/remove-user", authMiddleware, authorizeRoles("teacher","superAdmin"), teacherOwnsCourse, async (req, res) => {
   try {
     const { courseId, userId } = req.body;
 
@@ -157,7 +163,7 @@ router.put("/:courseId/lesson/:lessonIndex", authMiddleware, async (req, res) =>
 
 
 // ================= ADD LESSON =================
-router.post("/add-lesson/:courseId", authMiddleware, adminOnly, async (req, res) => {
+router.post("/add-lesson/:courseId", authMiddleware, authorizeRoles("teacher","superAdmin"), teacherOwnsCourse, async (req, res) => {
   try {
     const { title, notes } = req.body;
 
@@ -183,7 +189,7 @@ router.post("/add-lesson/:courseId", authMiddleware, adminOnly, async (req, res)
 
 
 // ================= UPDATE LESSON =================
-router.put("/update-lesson/:courseId/:lessonIndex", authMiddleware, adminOnly, async (req, res) => {
+router.put("/update-lesson/:courseId/:lessonIndex", authMiddleware, authorizeRoles("teacher","superAdmin"), teacherOwnsCourse, async (req, res) => {
   try {
     const { courseId, lessonIndex } = req.params;
     const { title, notes } = req.body;
@@ -211,7 +217,7 @@ router.put("/update-lesson/:courseId/:lessonIndex", authMiddleware, adminOnly, a
 
 
 // ================= DELETE LESSON =================
-router.delete("/delete-lesson/:courseId/:lessonIndex", authMiddleware, adminOnly, async (req, res) => {
+router.delete("/delete-lesson/:courseId/:lessonIndex", authMiddleware, authorizeRoles("teacher","superAdmin"), teacherOwnsCourse, async (req, res) => {
   try {
     const { courseId, lessonIndex } = req.params;
 
@@ -234,7 +240,7 @@ router.delete("/delete-lesson/:courseId/:lessonIndex", authMiddleware, adminOnly
 });
 
 // ================= DELETE COURSE =================
-router.delete("/delete-course/:courseId", authMiddleware, adminOnly, async (req, res) => {
+router.delete("/delete-course/:courseId", authMiddleware, authorizeRoles("teacher","superAdmin"), teacherOwnsCourse, async (req, res) => {
   try {
     const { courseId } = req.params;
     const course = await Course.findByIdAndDelete(courseId);

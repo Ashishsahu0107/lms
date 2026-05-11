@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminLessons from "./pages/AdminLessons";
 import AddLesson from "./pages/AddLesson";
 import AdminCourses from "./pages/AdminCourses";
+import AdminQuiz from "./pages/AdminQuiz";
 
 import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
@@ -24,8 +25,11 @@ import Leaderboard from "./pages/Leaderboard";
 import Layout from "./components/Layout";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
+
 import StudentRoute from "./components/StudentRoute";
+import TeacherRoute from "./components/TeacherRoute";
+import SuperAdminRoute from "./components/SuperAdminRoute";
+
 
 function App() {
   return (
@@ -53,17 +57,26 @@ function App() {
               <Route path="leaderboard" element={<Leaderboard />} />
             </Route>
 
-            {/* 👑 ADMIN */}
-            <Route path="admin" element={<AdminRoute />}>
+            {/* 🎓 TEACHER (admin -> teacher) */}
+            <Route path="teacher" element={<TeacherRoute />}>
               <Route element={<Admin />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="courses" element={<AdminCourses />} />
                 <Route path="lessons" element={<AdminLessons />} />
                 <Route path="add-lesson" element={<AddLesson />} />
-                <Route path="quiz" element={<Quiz />} />
+                <Route path="quiz" element={<AdminQuiz />} />
               </Route>
             </Route>
+
+            {/* 👑 SUPER ADMIN */}
+            <Route path="superadmin" element={<SuperAdminRoute />}>
+              <Route element={<Admin />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+              </Route>
+            </Route>
+
 
           </Route>
         </Route>
@@ -77,3 +90,4 @@ function App() {
 }
 
 export default App;
+

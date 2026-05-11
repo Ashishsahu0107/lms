@@ -2,9 +2,13 @@ import express from "express";
 import Attempt from "../models/Attempt.js";
 import User from "../models/User.js";
 import Course from "../models/Course.js";
-import Assignment from "../models/Assignment.js";     // 🔥 add
-import Submission from "../models/Submission.js";     // 🔥 add
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import Assignment from "../models/Assignment.js";
+import Submission from "../models/Submission.js";
+import {
+  authMiddleware,
+  teacherOnly,
+  superAdminOnly,
+} from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -47,9 +51,9 @@ router.get("/leaderboard", authMiddleware, async (req, res) => {
 });
 
 /**
- * 🔥 ADMIN ANALYTICS (FIXED)
+ * 🔹 SUPER ADMIN OVERVIEW
  */
-router.get("/admin", authMiddleware, async (req, res) => {
+router.get("/superadmin", authMiddleware, superAdminOnly, async (req, res) => {
   try {
     const [
       users,
@@ -62,9 +66,9 @@ router.get("/admin", authMiddleware, async (req, res) => {
       User.countDocuments(),
       Course.countDocuments(),
       Attempt.countDocuments(),
-      Assignment.countDocuments(),                  // 🔥 new
-      Submission.countDocuments(),                  // 🔥 new
-      Submission.countDocuments({ grade: null }),   // 🔥 new
+      Assignment.countDocuments(),
+      Submission.countDocuments(),
+      Submission.countDocuments({ grade: null }),
     ]);
 
     const avg = await Attempt.aggregate([
@@ -81,9 +85,28 @@ router.get("/admin", authMiddleware, async (req, res) => {
       pendingSubmissions,
     });
   } catch (err) {
-    console.log("Analytics Error:", err);
+    console.log("SuperAdmin Analytics Error:", err);
+    res.status(500).json({ msg: "Error" });
+  }
+});
+
+/**
+ * 🔹 TEACHER ANALYTICS
+ */
+router.get("/teacher", authMiddleware, teacherOnly, async (req, res) => {
+  try {
+    const [assignments, submissions, attempts] = await Promise.all([
+      Assignment.countDocuments({ createdBy: req.user._id }),
+      Submission.countDocuments({ user: req.user._id }),
+      Attempt.countDocuments({ userId: req.user._id }),
+    ]);
+
+    res.json({ assignments, submissions, attempts });
+  } catch (err) {
+    console.log("Teacher Analytics Error:", err);
     res.status(500).json({ msg: "Error" });
   }
 });
 
 export default router;
+

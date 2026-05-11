@@ -26,21 +26,79 @@ const protect = async (req, res, next) => {
 };
 
 
-// 👑 ADMIN ONLY
+// ✅ TEACHER ONLY
+const teacherOnly = (req, res, next) => {
+  if (req.user && req.user.role === "teacher") {
+    return next();
+  }
+  return res.status(403).json({ msg: "Access denied (Teacher only)" });
+};
+
+// ✅ SUPER ADMIN ONLY
+const superAdminOnly = (req, res, next) => {
+  if (req.user && req.user.role === "superAdmin") {
+    return next();
+  }
+  return res
+    .status(403)
+    .json({ msg: "Access denied (Super Admin only)" });
+};
+
+// ✅ BACKWARD COMPATIBILITY: old role `admin` -> treat as teacher
 const adminOnly = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+  if (req.user && req.user.role === "teacher") {
+    return next();
+  }
+  return res.status(403).json({ msg: "Access denied (Teacher only)" });
+};
+
+// 🔥 EXPORT ALL (IMPORTANT)
+// ✅ Generic role authorizer (RBAC)
+const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ msg: "No user" });
+    if (roles.includes(req.user.role)) return next();
+    return res.status(403).json({ msg: "Access denied" });
+  };
+};
+
+// ✅ Teacher-only guard: teacher must own the course (Course.userId)
+const teacherOwnsCourse = async (req, res, next) => {
+  try {
+    if (!req.params.courseId) {
+      return res.status(400).json({ msg: "courseId param required" });
+    }
+
+    // superAdmin bypass
+    if (req.user?.role === "superAdmin") return next();
+
+    if (req.user?.role !== "teacher") {
+      return res.status(403).json({ msg: "Access denied" });
+    }
+
+    const { default: Course } = await import("../models/Course.js");
+
+    const course = await Course.findById(req.params.courseId);
+    if (!course) return res.status(404).json({ msg: "Course not found" });
+
+    // strict ownership: Course.userId must equal teacher's _id
+    if (course.userId?.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ msg: "Access denied (Not your course)" });
+    }
+
     next();
-  } else {
-    return res.status(403).json({
-      msg: "Access denied (Admin only)",
-    });
+  } catch (err) {
+    console.log("teacherOwnsCourse error:", err);
+    res.status(500).json({ msg: "Ownership check failed" });
   }
 };
 
-
-// 🔥 EXPORT ALL (IMPORTANT)
 export {
   protect,
   adminOnly,
-  protect as authMiddleware // backward compatibility
+  teacherOnly,
+  superAdminOnly,
+  authorizeRoles,
+  teacherOwnsCourse,
+  protect as authMiddleware,
 };
