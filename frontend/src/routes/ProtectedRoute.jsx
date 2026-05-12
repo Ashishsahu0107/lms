@@ -39,6 +39,11 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
     'user': 1
   };
 
+  if (!user || !user.role) {
+    // If user data is incomplete, redirect to login
+    return <Navigate to="/login" replace />;
+  }
+
   const userLevel = roleHierarchy[user.role] || 0;
   const requiredLevel = roleHierarchy[requiredRole] || 0;
 

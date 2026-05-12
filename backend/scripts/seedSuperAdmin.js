@@ -3,13 +3,13 @@ dotenv.config();
 
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import User from "./models/User.js";
+import User from "../models/User.js";
 
 const DEFAULT_EMAIL = "superadmin@example.com";
 const DEFAULT_PASSWORD = "SuperAdmin@123";
 
 async function main() {
-  const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/lms";
+  const MONGO_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/lms";
   const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL || DEFAULT_EMAIL;
   const SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || DEFAULT_PASSWORD;
 

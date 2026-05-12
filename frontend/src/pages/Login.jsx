@@ -1,9 +1,10 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -11,35 +12,40 @@ export default function Login() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const login = async () => {
     if (!form.email || !form.password) {
-      return alert("Fill all fields");
+      setError("Fill all fields");
+      return;
     }
 
     try {
       setLoading(true);
+      setError("");
 
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        form
-      );
+      // Use AuthContext's login function
+      const result = await authLogin(form.email, form.password);
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      console.log("Login result:", result);
 
       // ✅ FIXED ROLE ROUTE
-      if (res.data.user.role === "teacher") {
+      if (result.data.role === "teacher") {
+        console.log("Navigating to teacher dashboard");
         navigate("/teacher/dashboard");
-      } else if (res.data.user.role === "superAdmin") {
+      } else if (result.data.role === "superAdmin") {
+        console.log("Navigating to superadmin dashboard");
         navigate("/superadmin/dashboard");
       } else {
+        console.log("Navigating to student dashboard");
         navigate("/dashboard");
       }
 
-
     } catch (err) {
-      alert(err.response?.data?.msg || "Login failed");
+      console.error("Login error:", err);
+      const errorMsg = err.response?.data?.message || err.message || "Login failed";
+      setError(errorMsg);
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -59,6 +65,7 @@ export default function Login() {
         <input
           type="email"
           placeholder="Email"
+          value={form.email}
           className="w-full border p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           onChange={(e) =>
             setForm({ ...form, email: e.target.value })
@@ -69,6 +76,7 @@ export default function Login() {
         <input
           type="password"
           placeholder="Password"
+          value={form.password}
           className="w-full border p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           onChange={(e) =>
             setForm({ ...form, password: e.target.value })
