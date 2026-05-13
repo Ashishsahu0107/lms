@@ -1,23 +1,23 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const pageVariants = {
   initial: {
     opacity: 0,
     y: 20,
-    scale: 0.98
+    scale: 0.98,
   },
   in: {
     opacity: 1,
     y: 0,
-    scale: 1
+    scale: 1,
   },
   out: {
     opacity: 0,
     y: -20,
-    scale: 0.98
-  }
+    scale: 0.98,
+  },
 };
+
 
 const pageTransition = {
   type: 'tween',
@@ -26,6 +26,7 @@ const pageTransition = {
 };
 
 const PageTransition = ({ 
+
   children, 
   variant = 'default',
   className = '',
@@ -113,14 +114,25 @@ export const StaggerContainer = ({
       className={className}
       {...props}
     >
-      {React.Children.map(children, (child, index) => (
-        <motion.div key={index} variants={itemVariants}>
-          {child}
-        </motion.div>
-      ))}
+      {children &&
+        // eslint-disable-next-line react/jsx-no-useless-fragment
+        Array.isArray(children)
+          ? children.map((child, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                {child}
+              </motion.div>
+            ))
+          : // React.Children.map fallback (React not imported)
+            // If children is a single element, wrap it
+            [children].map((child, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                {child}
+              </motion.div>
+            ))}
     </motion.div>
   );
 };
+
 
 // Animated list item
 export const AnimatedListItem = ({ 

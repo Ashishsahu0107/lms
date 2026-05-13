@@ -66,6 +66,10 @@ const SuperAdminDashboard = () => {
 
   return (
     <div className="space-y-6 p-6">
+      <div className="p-3 mb-4 rounded bg-blue-50 text-blue-800 border border-blue-200 text-sm">
+        SuperAdminDashboard rendered
+        {error ? ` | error: ${error}` : ''}
+      </div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Super Admin Dashboard

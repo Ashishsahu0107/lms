@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import { motion } from 'framer-motion';
 import { 
   Users, 
@@ -41,9 +42,9 @@ const CourseCard = ({
     totalLessons = 0,
     completedLessons = 0,
     level = 'beginner',
-    price = 0,
+
     isPublished = true,
-    lastAccessed
+
   } = course;
 
   const levelColors = {

@@ -27,9 +27,14 @@ const RoleProtectedRoute = ({
   }
 
   // Check if user has required role(s)
+  const normalizeRole = (r) => (typeof r === 'string' ? r.toLowerCase() : r);
+  const userRole = normalizeRole(user.role);
+  const normalizedAllowedRoles = allowedRoles.map(normalizeRole);
+
   const hasRequiredRole = requireAll
-    ? allowedRoles.every(role => user.role === role)
-    : allowedRoles.includes(user.role);
+    ? normalizedAllowedRoles.every(role => userRole === role)
+    : normalizedAllowedRoles.includes(userRole);
+
 
   if (!hasRequiredRole) {
     // Redirect to appropriate dashboard based on user role
@@ -39,8 +44,9 @@ const RoleProtectedRoute = ({
       'user': '/student/dashboard'
     };
     
-    const redirectPath = roleRedirectMap[user.role] || '/';
+    const redirectPath = roleRedirectMap[userRole] || '/';
     return <Navigate to={redirectPath} replace />;
+
   }
 
   return children;
