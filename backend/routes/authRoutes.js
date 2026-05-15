@@ -3,6 +3,7 @@ import {
   register,
   login,
   getMe,
+  refresh,
   logout,
   updateProfile,
   changePassword
@@ -17,7 +18,7 @@ const router = express.Router();
 router.post('/register', register);
 
 // @route   POST /api/auth/login
-// @desc    Login user & get token
+// @desc    Login user & get token (access token returned + refresh cookie set)
 // @access   Public
 router.post('/login', login);
 
@@ -26,10 +27,15 @@ router.post('/login', login);
 // @access   Private
 router.get('/me', protect, getMe);
 
-// @route   GET /api/auth/logout
-// @desc    Logout user
+// @route   POST /api/auth/refresh
+// @desc    Refresh access token using refresh token cookie
+// @access   Public
+router.post('/refresh', refresh);
+
+// @route   POST /api/auth/logout
+// @desc    Logout user (clears refresh cookie)
 // @access   Private
-router.get('/logout', protect, logout);
+router.post('/logout', protect, logout);
 
 // @route   PUT /api/auth/updateprofile
 // @desc    Update user profile

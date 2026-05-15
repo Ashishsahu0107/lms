@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, 
@@ -11,10 +11,7 @@ import {
   Target,
   Plus,
   Filter,
-  Search,
-  Eye,
-  Edit,
-  Trash2
+  Search
 } from 'lucide-react';
 
 // Import all our components
@@ -23,137 +20,89 @@ import {
   GradientIconWrap, 
   SectionHeading, 
   SaaSButton, 
-  EmptyState,
-  TooltipWrapper
+  EmptyState
 } from '../../components/ui';
 import { 
   StudentGrowthChart, 
-  CourseAnalyticsChart, 
   RevenueChart, 
   ProgressChart 
 } from '../../components/charts';
 import { ActivityTable } from '../../components/tables';
 import { CourseCard } from '../../components/CourseCard';
-import { ProgressBar } from '../../components/ProgressBar';
 import { PageTransition, StaggerContainer } from '../../components/animations';
 import { useResponsive } from '../../hooks/useResponsive';
 import { useToast } from '../../components/Toast';
+import apiService from '../../services/api';
 
 const TeacherDashboard = () => {
   const { isMobile, isTablet } = useResponsive();
   const { success, error } = useToast();
+
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('month');
 
-  // Mock data
   const [stats, setStats] = useState({
-    totalStudents: 1248,
-    totalCourses: 12,
-    totalRevenue: 48750,
-    completionRate: 78
+    totalStudents: 0,
+    totalCourses: 0,
+    totalRevenue: 0,
+    completionRate: 0
   });
 
-  const [recentActivity, setRecentActivity] = useState([
-    {
-      id: 1,
-      student: 'John Doe',
-      email: 'john@example.com',
-      avatar: '/api/placeholder/32/32',
-      activity: 'Completed React Basics Module',
-      course: 'Web Development',
-      time: '2 hours ago',
-      status: 'completed'
-    },
-    {
-      id: 2,
-      student: 'Jane Smith',
-      email: 'jane@example.com',
-      avatar: '/api/placeholder/32/32',
-      activity: 'Submitted Assignment',
-      course: 'JavaScript Advanced',
-      time: '4 hours ago',
-      status: 'in_progress'
-    },
-    {
-      id: 3,
-      student: 'Mike Johnson',
-      email: 'mike@example.com',
-      avatar: '/api/placeholder/32/32',
-      activity: 'Started New Course',
-      course: 'Node.js Masterclass',
-      time: '6 hours ago',
-      status: 'pending'
-    }
-  ]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [courses, setCourses] = useState([]);
 
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: 'React Complete Guide',
-      thumbnail: '/api/placeholder/400/200',
-      instructor: 'Dr. Sarah Wilson',
-      instructorAvatar: '/api/placeholder/32/32',
-      progress: 75,
-      studentsCount: 342,
-      duration: '24 hours',
-      rating: 4.8,
-      totalLessons: 45,
-      completedLessons: 34,
-      level: 'intermediate',
-      price: 89,
-      isPublished: true
-    },
-    {
-      id: 2,
-      title: 'JavaScript Fundamentals',
-      thumbnail: '/api/placeholder/400/200',
-      instructor: 'Dr. Sarah Wilson',
-      instructorAvatar: '/api/placeholder/32/32',
-      progress: 60,
-      studentsCount: 256,
-      duration: '18 hours',
-      rating: 4.6,
-      totalLessons: 32,
-      completedLessons: 19,
-      level: 'beginner',
-      price: 69,
-      isPublished: true
-    },
-    {
-      id: 3,
-      title: 'Advanced CSS Techniques',
-      thumbnail: '/api/placeholder/400/200',
-      instructor: 'Dr. Sarah Wilson',
-      instructorAvatar: '/api/placeholder/32/32',
-      progress: 45,
-      studentsCount: 189,
-      duration: '12 hours',
-      rating: 4.7,
-      totalLessons: 28,
-      completedLessons: 13,
-      level: 'advanced',
-      price: 79,
-      isPublished: false
-    }
-  ]);
+  const canRenderCharts = useMemo(() => {
+    // charts are present already; keep this to avoid rendering on initial empty state
+    return !loading;
+  }, [loading]);
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchDashboard = async () => {
+      setLoading(true);
+      try {
+        const [analyticsRes, coursesRes] = await Promise.all([
+          apiService.analytics.getDashboard(),
+          apiService.courses.getTeacherCourses()
+        ]);
 
-  const handleCourseAction = (action, courseId) => {
+        const analyticsData = analyticsRes?.data?.data ?? analyticsRes?.data ?? {};
+        const teacherCourses = coursesRes?.data?.data ?? coursesRes?.data ?? [];
+
+        // Normalize analytics data to the existing UI expectations.
+        setStats({
+          totalStudents: analyticsData?.totalStudents ?? 0,
+          totalCourses: analyticsData?.totalCourses ?? 0,
+          totalRevenue: analyticsData?.totalRevenue ?? 0,
+          completionRate: analyticsData?.completionRate ?? 0
+        });
+
+        const activity = analyticsData?.recentActivity ?? analyticsData?.activity ?? [];
+        setRecentActivity(Array.isArray(activity) ? activity : []);
+
+        setCourses(Array.isArray(teacherCourses) ? teacherCourses : []);
+      } catch (e) {
+        setRecentActivity([]);
+        setCourses([]);
+        setStats({
+          totalStudents: 0,
+          totalCourses: 0,
+          totalRevenue: 0,
+          completionRate: 0
+        });
+        error(e?.response?.data?.message || 'Failed to load dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, [selectedPeriod]);
+
+  const handleCourseAction = (action) => {
     switch (action) {
       case 'edit':
         success('Opening course editor...');
-        break;
-      case 'delete':
-        success('Course deleted successfully');
-        setCourses(prev => prev.filter(c => c.id !== courseId));
         break;
       case 'analytics':
         success('Loading analytics...');
@@ -163,13 +112,10 @@ const TeacherDashboard = () => {
     }
   };
 
-  const handleActivityAction = (action, item) => {
+  const handleActivityAction = (action) => {
     switch (action) {
       case 'view':
-        success(`Viewing ${item.student}'s details`);
-        break;
-      case 'edit':
-        success(`Editing ${item.student}'s progress`);
+        success('Viewing activity details');
         break;
       default:
         break;

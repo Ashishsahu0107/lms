@@ -1,6 +1,26 @@
 import User from '../models/User.js';
 import asyncHandler from '../utils/asyncHandler.js';
-import generateToken from '../utils/generateToken.js';
+import authService from '../services/authService.js';
+
+// cookie helpers (refresh token persistence)
+const setRefreshCookie = (res, refreshToken) => {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/api/auth/refresh',
+    maxAge: Number(process.env.JWT_REFRESH_MAX_AGE_MS || 30 * 24 * 60 * 60 * 1000) // 30d default
+  });
+};
+
+const clearRefreshCookie = (res) => {
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/api/auth/refresh'
+  });
+};
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -8,16 +28,14 @@ import generateToken from '../utils/generateToken.js';
 const register = asyncHandler(async (req, res, next) => {
   const { name, email, password, role } = req.body;
 
-  // Create user
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role: role || 'user'
-  });
+  const { ok, user, accessToken, refreshToken, message, status } =
+    await authService.registerUser({ name, email, password, role });
 
-  // Update last login
-  await user.updateLastLogin();
+  if (!ok) {
+    return res.status(status || 400).json({ success: false, message });
+  }
+
+  setRefreshCookie(res, refreshToken);
 
   res.status(201).json({
     success: true,
@@ -27,7 +45,7 @@ const register = asyncHandler(async (req, res, next) => {
       email: user.email,
       role: user.role,
       avatar: user.avatar,
-      token: generateToken(user)
+      token: accessToken
     }
   });
 });
@@ -38,7 +56,6 @@ const register = asyncHandler(async (req, res, next) => {
 const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
-  // Validate request
   if (!email || !password) {
     return res.status(400).json({
       success: false,
@@ -46,36 +63,17 @@ const login = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // Check for user
-  const user = await User.findOne({ email }).select('+password');
-
-  if (!user) {
-    return res.status(401).json({
+  const result = await authService.loginWithEmailPassword({ email, password });
+  if (!result.ok) {
+    return res.status(result.status || 401).json({
       success: false,
-      message: 'Invalid credentials'
+      message: result.message
     });
   }
 
-  // Check if password matches
-  const isMatch = await user.comparePassword(password);
+  const { user, accessToken, refreshToken } = result;
 
-  if (!isMatch) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid credentials'
-    });
-  }
-
-  // Check if user is blocked
-  if (user.isBlocked) {
-    return res.status(401).json({
-      success: false,
-      message: 'Account is blocked. Contact administrator.'
-    });
-  }
-
-  // Update last login
-  await user.updateLastLogin();
+  setRefreshCookie(res, refreshToken);
 
   res.status(200).json({
     success: true,
@@ -86,7 +84,7 @@ const login = asyncHandler(async (req, res, next) => {
       role: user.role,
       avatar: user.avatar,
       enrolledCourses: user.enrolledCourses,
-      token: user.generateJWT()
+      token: accessToken
     }
   });
 });
@@ -95,7 +93,11 @@ const login = asyncHandler(async (req, res, next) => {
 // @route   GET /api/auth/me
 // @access  Private
 const getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id).select('-password');
+
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'User not found.' });
+  }
 
   res.status(200).json({
     success: true,
@@ -113,12 +115,43 @@ const getMe = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Log user out / Clear cookie
-// @route   GET /api/auth/logout
+// @desc    Refresh access token
+// @route   POST /api/auth/refresh
+// @access  Public
+const refresh = asyncHandler(async (req, res, next) => {
+  // refresh token from httpOnly cookie
+  const refreshToken = req.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({ success: false, message: 'No refresh token provided.' });
+  }
+
+  try {
+    const decoded = await authService.refreshTokens({ refreshToken });
+
+    // Issue new access token
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user || user.isBlocked) {
+      return res.status(401).json({ success: false, message: 'Invalid refresh token.' });
+    }
+
+    const newAccessToken = authService.signAccessToken(user);
+
+    return res.status(200).json({
+      success: true,
+      data: { token: newAccessToken }
+    });
+  } catch (err) {
+    clearRefreshCookie(res);
+    return res.status(401).json({ success: false, message: 'Refresh token expired or invalid.' });
+  }
+});
+
+// @desc    Log user out
+// @route   POST /api/auth/logout
 // @access  Private
 const logout = asyncHandler(async (req, res, next) => {
-  // In a stateless JWT system, logout is handled on client side
-  // But we can implement token blacklisting if needed
+  clearRefreshCookie(res);
   res.status(200).json({
     success: true,
     message: 'Logged out successfully'
@@ -143,7 +176,7 @@ const updateProfile = asyncHandler(async (req, res, next) => {
       new: true,
       runValidators: true
     }
-  );
+  ).select('-password');
 
   res.status(200).json({
     success: true,
@@ -160,7 +193,7 @@ const updateProfile = asyncHandler(async (req, res, next) => {
 
 // @desc    Change password
 // @route   PUT /api/auth/changepassword
-// @access  Private
+// @access   Private
 const changePassword = asyncHandler(async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -198,6 +231,7 @@ export {
   register,
   login,
   getMe,
+  refresh,
   logout,
   updateProfile,
   changePassword
