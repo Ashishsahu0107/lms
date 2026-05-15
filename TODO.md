@@ -1,8 +1,0 @@
-- [ ] Step 1: Replace TeacherDashboard mock data with real API calls
-- [ ] Step 2: Replace TeacherStudents mock data with real API calls
-- [ ] Step 3: Replace TeacherAnalytics mock data with real API calls
-- [ ] Step 4: Make UploadContent course dropdown dynamic (getTeacherCourses) + ensure upload sends needed metadata
-- [ ] Step 5: Add missing teacher pages: Quizzes, Attendance, Student Progress, Notifications
-- [ ] Step 6: Extend `frontend/src/services/api.js` with missing teacher endpoints (only if backend routes exist)
-- [ ] Step 7: Wire routes + sidebar items for new pages
-- [ ] Step 8: Verify build (lint + compile) and fix any integration issues
