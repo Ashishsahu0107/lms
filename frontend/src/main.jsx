@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import AppRoot from "./app";
 import "./index.css";              // Tailwind
 import { Toaster } from "react-hot-toast";  // Toast
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <>
-    <App />
+    <AppRoot />
     <Toaster position="top-right" />
   </>
 );
