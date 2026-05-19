@@ -1,27 +1,33 @@
-// Simple fetch wrapper scaffold.
-// Swap to axios later if desired.
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
-const DEFAULT_HEADERS = {
-  "Content-Type": "application/json",
-};
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-export async function apiRequest(path, { method = "GET", body, headers } = {}) {
-  const res = await fetch(path, {
-    method,
-    headers: { ...DEFAULT_HEADERS, ...(headers || {}) },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+const client = axios.create({ baseURL: BASE_URL, withCredentials: true });
 
-  const contentType = res.headers.get("content-type") || "";
-  const isJson = contentType.includes("application/json");
-  const data = isJson ? await res.json() : await res.text();
+client.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-  if (!res.ok) {
-    const message =
-      (data && data.message) || `Request failed with status ${res.status}`;
-    throw new Error(message);
+client.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const message = err.response?.data?.message || err.message || "Something went wrong";
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+    toast.error(message);
+    return Promise.reject(err);
   }
+);
 
-  return data;
-}
-
+export const apiGet = (url, params) => client.get(url, { params });
+export const apiPost = (url, data) => client.post(url, data);
+export const apiPut = (url, data) => client.put(url, data);
+export const apiPatch = (url, data) => client.patch(url, data);
+export const apiDelete = (url) => client.delete(url);
+export default client;

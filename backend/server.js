@@ -1,20 +1,15 @@
-/**
- * Production-style Express server bootstrap.
- * - Keeps wiring minimal
- * - Loads env/config
- * - Mounts routes
- */
-
 import express from "express";
 import cors from "cors";
 import http from "http";
 
 import { env } from "./config/env.js";
+import { connectDb } from "./config/db.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 import { rootRouter } from "./routes/index.js";
+import { initSocket } from "./socket/index.js";
 
 export function createServer() {
   const app = express();
@@ -41,6 +36,8 @@ export function createServer() {
   app.use(errorHandler);
 
   const server = http.createServer(app);
+  initSocket(server);
+
   return server;
 }
 
@@ -52,4 +49,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log(`[backend] listening on port ${env.PORT}`);
   });
 }
-

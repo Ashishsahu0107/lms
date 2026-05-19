@@ -1,11 +1,41 @@
-import { apiRequest } from "./apiClient";
+import { apiGet, apiPost } from "./apiClient";
 
 export async function login(payload) {
-  // TODO: wire to backend.
-  return apiRequest("/api/auth/login", { method: "POST", body: payload });
+  const res = await apiPost("/auth/login", payload);
+  if (res.token) {
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("user", JSON.stringify(res.user));
+  }
+  return res;
 }
 
-export async function logout() {
-  return apiRequest("/api/auth/logout", { method: "POST" });
+export async function register(payload) {
+  const res = await apiPost("/auth/register", payload);
+  if (res.token) {
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("user", JSON.stringify(res.user));
+  }
+  return res;
 }
 
+export async function getMe() {
+  return apiGet("/auth/me");
+}
+
+export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+}
+
+export function getStoredUser() {
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getStoredToken() {
+  return localStorage.getItem("token");
+}

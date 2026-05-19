@@ -1,0 +1,27 @@
+import { ROUTES } from "../constants/routes";
+
+export const routesConfig = [
+  // Public routes
+  { path: ROUTES.LOGIN, name: "Login", public: true },
+  { path: ROUTES.REGISTER, name: "Register", public: true },
+
+  // Student routes
+  { path: ROUTES.STUDENT_DASHBOARD, name: "Dashboard", roles: ["student"] },
+  { path: ROUTES.STUDENT_COURSES, name: "My Courses", roles: ["student"] },
+  { path: ROUTES.STUDENT_COURSE_DETAIL, name: "Course Details", roles: ["student"] },
+  { path: ROUTES.STUDENT_COURSE_PLAYER, name: "Course Player", roles: ["student"] },
+  { path: ROUTES.STUDENT_ASSIGNMENTS, name: "Assignments", roles: ["student"] },
+  { path: ROUTES.STUDENT_QUIZZES, name: "Quizzes", roles: ["student"] },
+  { path: ROUTES.STUDENT_MESSAGES, name: "Messages", roles: ["student"] },
+  { path: ROUTES.STUDENT_CERTIFICATES, name: "Certificates", roles: ["student"] },
+  { path: ROUTES.STUDENT_PROFILE, name: "Profile", roles: ["student"] },
+  { path: ROUTES.STUDENT_SETTINGS, name: "Settings", roles: ["student"] },
+
+  // Teacher routes
+  { path: ROUTES.TEACHER_DASHBOARD, name: "Dashboard", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_COURSES, name: "Courses", roles: ["teacher"] },
+
+  // Admin routes
+  { path: ROUTES.ADMIN_DASHBOARD, name: "Dashboard", roles: ["super_admin"] },
+  { path: ROUTES.ADMIN_USERS, name: "Users", roles: ["super_admin"] },
+];

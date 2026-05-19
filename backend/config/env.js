@@ -19,5 +19,9 @@ export const env = {
   JSON_LIMIT: process.env.JSON_LIMIT ?? "1mb",
 
   MONGODB_URI: required("MONGODB_URI", undefined),
+
+  JWT_SECRET: required("JWT_SECRET", undefined),
+
+  UPLOADS_DIR: process.env.UPLOADS_DIR ?? "uploads",
 };
 

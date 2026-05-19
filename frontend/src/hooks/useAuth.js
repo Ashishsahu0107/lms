@@ -1,16 +1,11 @@
-import { useMemo } from "react";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
-// Scaffold hook. Replace with real auth integration.
 export function useAuth() {
-  const auth = useMemo(
-    () => ({
-      user: null,
-      role: null,
-      isAuthenticated: false,
-    }),
-    []
-  );
-
-  return auth;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }
 
