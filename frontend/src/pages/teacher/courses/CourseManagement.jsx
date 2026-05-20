@@ -15,19 +15,19 @@ import {
 import {
   Card,
   CardContent,
-} from "../../components/ui/Card";
-import { Badge } from "../../components/ui/Badge";
-import { Button } from "../../components/ui/Button";
-import { SearchBar } from "../../components/ui/SearchBar";
-import { ProgressBar } from "../../components/ui/ProgressBar";
-import { Modal } from "../../components/ui/Modal";
-import { Input } from "../../components/ui/Input";
+} from "../../../components/ui/Card";
+import { Badge } from "../../../components/ui/Badge";
+import { Button } from "../../../components/ui/Button";
+import { SearchBar } from "../../../components/ui/SearchBar";
+import { ProgressBar } from "../../../components/ui/ProgressBar";
+import { Modal } from "../../../components/ui/Modal";
+import { Input } from "../../../components/ui/Input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../components/ui/DropdownMenu";
+} from "../../../components/ui/DropdownMenu";
 
 const courses = [
   {

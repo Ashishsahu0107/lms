@@ -1,6 +1,7 @@
 // src/app/router.jsx
 
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useState } from "react";
+
 import {
   createBrowserRouter,
   RouterProvider,
@@ -8,6 +9,7 @@ import {
   Outlet,
   Link,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 
 import {
@@ -24,7 +26,12 @@ import {
   Shield,
   Bell,
   BarChart3,
+  Menu,
+  X,
+  ChevronRight,
 } from "lucide-react";
+
+import { motion } from "framer-motion";
 
 import { useAuth } from "../context/AuthContext";
 import { ROLES } from "../constants/roles";
@@ -62,10 +69,6 @@ const Messages = lazy(() =>
 
 const Certificates = lazy(() =>
   import("../pages/student/certificates/Certificates")
-);
-
-const Profile = lazy(() =>
-  import("../pages/student/profile/Profile")
 );
 
 const SettingsPage = lazy(() =>
@@ -127,8 +130,8 @@ const AdminSettings = lazy(() =>
 // ===============================
 function Loader() {
   return (
-    <div className="flex min-h-screen items-center justify-center text-2xl font-bold">
-      Loading...
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="loading loading-spinner loading-lg text-primary"></div>
     </div>
   );
 }
@@ -162,7 +165,7 @@ function RoleGuard({ allowedRoles }) {
 }
 
 // ===============================
-// SIDEBAR ITEMS
+// SIDEBAR CONFIG
 // ===============================
 const sidebarConfig = {
   student: [
@@ -276,91 +279,220 @@ const sidebarConfig = {
 function DashboardLayout() {
   const { user, logout } = useAuth();
 
+  const navigate = useNavigate();
+
   const location = useLocation();
+
+  const [sidebarOpen, setSidebarOpen] =
+    useState(false);
 
   const menuItems =
     sidebarConfig[user?.role] || [];
 
+  const handleLogout = () => {
+    logout();
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login");
+  };
+
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div
+      data-theme="light"
+      className="min-h-screen bg-base-200"
+    >
+      <div className="flex">
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
+        {/* MOBILE OVERLAY */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-        {/* Logo */}
-        <div className="p-6 border-b border-slate-800">
-          <h1 className="text-2xl font-bold">
-            LMS PRO
-          </h1>
-        </div>
+        {/* SIDEBAR */}
+        <aside
+          className={`fixed lg:static z-50 h-screen w-72 transform border-r border-base-300 bg-base-100 transition-all duration-300 ${
+            sidebarOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
+          }`}
+        >
+          {/* LOGO */}
+          <div className="flex items-center justify-between border-b border-base-300 px-6 py-5">
+            <div>
+              <h1 className="text-2xl font-extrabold text-primary">
+                LMS PRO
+              </h1>
 
-        {/* Menu */}
-        <div className="flex-1 p-4 space-y-2">
+              <p className="text-xs text-base-content/60">
+                Learning Platform
+              </p>
+            </div>
 
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-
-            const isActive =
-              location.pathname === item.path;
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition ${
-                  isActive
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-slate-800"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-
-        </div>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-slate-800">
-
-          <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-xl bg-red-500 px-4 py-3 hover:bg-red-600"
-          >
-            <LogOut className="h-5 w-5" />
-
-            Logout
-          </button>
-
-        </div>
-
-      </aside>
-
-      {/* Main */}
-      <main className="flex-1">
-
-        {/* Topbar */}
-        <div className="flex items-center justify-between border-b bg-white px-6 py-4">
-
-          <h2 className="text-xl font-semibold capitalize">
-            {user?.role?.replace("_", " ")}
-          </h2>
-
-          <div className="font-medium">
-            {user?.name || "User"}
+            <button
+              className="btn btn-sm btn-circle btn-ghost lg:hidden"
+              onClick={() =>
+                setSidebarOpen(false)
+              }
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
-        </div>
+          {/* USER */}
+          <div className="border-b border-base-300 p-5">
+            <div className="flex items-center gap-3 rounded-2xl bg-primary/10 p-3">
 
-        {/* Content */}
-        <div className="p-6">
-          <Outlet />
-        </div>
+              <div className="avatar placeholder">
+                <div className="w-12 rounded-full bg-primary text-primary-content">
+                  <span className="text-lg font-bold">
+                    {user?.name?.charAt(0) || "U"}
+                  </span>
+                </div>
+              </div>
 
-      </main>
+              <div>
+                <h3 className="font-semibold">
+                  {user?.name || "User"}
+                </h3>
 
+                <p className="text-sm capitalize text-base-content/60">
+                  {user?.role?.replace("_", " ")}
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* MENU */}
+          <div className="space-y-2 p-4">
+
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+
+              const isActive =
+                location.pathname === item.path;
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() =>
+                    setSidebarOpen(false)
+                  }
+                  className={`group flex items-center justify-between rounded-2xl px-4 py-3 font-medium transition-all duration-200 ${
+                    isActive
+                      ? "bg-primary text-primary-content shadow-lg"
+                      : "hover:bg-base-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="h-5 w-5" />
+
+                    <span>{item.label}</span>
+                  </div>
+
+                  <ChevronRight className="h-4 w-4 opacity-60" />
+                </Link>
+              );
+            })}
+
+          </div>
+
+          {/* LOGOUT */}
+          <div className="absolute bottom-0 w-full border-t border-base-300 p-4">
+
+            <button
+              onClick={handleLogout}
+              className="btn btn-error w-full rounded-2xl text-white"
+            >
+              <LogOut className="h-5 w-5" />
+
+              Logout
+            </button>
+
+          </div>
+        </aside>
+
+        {/* MAIN */}
+        <main className="flex-1">
+
+          {/* TOPBAR */}
+          <header className="sticky top-0 z-30 border-b border-base-300 bg-base-100/80 backdrop-blur-xl">
+
+            <div className="flex items-center justify-between px-4 py-4 lg:px-8">
+
+              {/* LEFT */}
+              <div className="flex items-center gap-4">
+
+                <button
+                  className="btn btn-circle btn-ghost lg:hidden"
+                  onClick={() =>
+                    setSidebarOpen(true)
+                  }
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+
+                <div>
+                  <h2 className="text-xl font-bold capitalize">
+                    {user?.role?.replace("_", " ")}
+                  </h2>
+
+                  <p className="text-sm text-base-content/60">
+                    Welcome back 👋
+                  </p>
+                </div>
+
+              </div>
+
+              {/* RIGHT */}
+              <div className="flex items-center gap-3">
+
+                <button className="btn btn-circle btn-ghost">
+                  <Bell className="h-5 w-5" />
+                </button>
+
+                <div className="hidden text-right md:block">
+                  <h4 className="font-semibold">
+                    {user?.name || "User"}
+                  </h4>
+
+                  <p className="text-xs capitalize text-base-content/60">
+                    {user?.role?.replace("_", " ")}
+                  </p>
+                </div>
+
+                <div className="avatar placeholder">
+                  <div className="w-10 rounded-full bg-primary text-primary-content">
+                    <span>
+                      {user?.name?.charAt(0) || "U"}
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </header>
+
+          {/* CONTENT */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 lg:p-8"
+          >
+            <Outlet />
+          </motion.div>
+
+        </main>
+
+      </div>
     </div>
   );
 }

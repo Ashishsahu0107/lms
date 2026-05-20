@@ -15,9 +15,9 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-} from "../../components/ui/Card";
-import { Badge } from "../../components/ui/Badge";
-import { StatCard } from "../../components/ui/StatCard";
+} from "../../../components/ui/Card";
+import { Badge } from "../../../components/ui/Badge";
+import { StatCard } from "../../../components/ui/StatCard";
 import {
   AreaChart,
   Area,
@@ -29,7 +29,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { ProgressBar } from "../../components/ui/ProgressBar";
+import { ProgressBar } from "../../../components/ui/ProgressBar";
 
 const revenueData = [
   { month: "Jan", revenue: 4200 },

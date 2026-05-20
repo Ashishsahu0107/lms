@@ -15,10 +15,10 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-} from "../../components/ui/Card";
-import { Badge } from "../../components/ui/Badge";
-import { ProgressBar } from "../../components/ui/ProgressBar";
-import { StatCard } from "../../components/ui/StatCard";
+} from "../../../components/ui/Card";
+import { Badge } from "../../../components/ui/Badge";
+import { ProgressBar } from "../../../components/ui/ProgressBar";
+import { StatCard } from "../../../components/ui/StatCard";
 import {
   AreaChart,
   Area,

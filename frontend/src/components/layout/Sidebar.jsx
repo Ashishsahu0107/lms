@@ -1,44 +1,161 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { cn } from "../../utils/cn";
 import { motion, AnimatePresence } from "framer-motion";
+
 import {
-  LayoutDashboard, BookOpen, Users, BarChart3, GraduationCap, ClipboardList,
-  Award, Settings, Bell, MessageSquare, Trophy, CheckSquare, User, DollarSign,
-  ChevronLeft, ChevronRight, Shield, FileText
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  BarChart3,
+  GraduationCap,
+  ClipboardList,
+  Trophy,
+  CheckSquare,
+  User,
+  DollarSign,
+  ChevronLeft,
+  ChevronRight,
+  Shield,
+  FileText,
+  Settings,
+  Bell,
+  MessageSquare,
+  X,
 } from "lucide-react";
 
+import { cn } from "../../utils/cn";
+
+// ============================================
+// STUDENT NAVIGATION
+// ============================================
 const studentNavItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/student/dashboard" },
-  { icon: BookOpen, label: "My Courses", path: "/student/courses" },
-  { icon: ClipboardList, label: "Assignments", path: "/student/assignments" },
-  { icon: CheckSquare, label: "Quizzes", path: "/student/quizzes" },
-  { icon: Trophy, label: "Certificates", path: "/student/certificates" },
-  { icon: MessageSquare, label: "Messages", path: "/student/messages" },
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    path: "/student/dashboard",
+  },
+  {
+    icon: BookOpen,
+    label: "My Courses",
+    path: "/student/courses",
+  },
+  {
+    icon: ClipboardList,
+    label: "Assignments",
+    path: "/student/assignments",
+  },
+  {
+    icon: CheckSquare,
+    label: "Quizzes",
+    path: "/student/quizzes",
+  },
+  {
+    icon: Trophy,
+    label: "Certificates",
+    path: "/student/certificates",
+  },
+  {
+    icon: MessageSquare,
+    label: "Messages",
+    path: "/student/messages",
+  },
 ];
 
+// ============================================
+// TEACHER NAVIGATION
+// ============================================
 const teacherNavItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/teacher/dashboard" },
-  { icon: BookOpen, label: "Manage Courses", path: "/teacher/courses" },
-  { icon: Users, label: "Students", path: "/teacher/students" },
-  { icon: ClipboardList, label: "Assignments", path: "/teacher/assignments" },
-  { icon: BarChart3, label: "Analytics", path: "/teacher/analytics" },
-  { icon: DollarSign, label: "Earnings", path: "/teacher/earnings" },
-  { icon: Bell, label: "Notifications", path: "/teacher/notifications" },
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    path: "/teacher/dashboard",
+  },
+  {
+    icon: BookOpen,
+    label: "Courses",
+    path: "/teacher/courses",
+  },
+  {
+    icon: Users,
+    label: "Students",
+    path: "/teacher/students",
+  },
+  {
+    icon: ClipboardList,
+    label: "Assignments",
+    path: "/teacher/assignments",
+  },
+  {
+    icon: BarChart3,
+    label: "Analytics",
+    path: "/teacher/analytics",
+  },
+  {
+    icon: DollarSign,
+    label: "Earnings",
+    path: "/teacher/earnings",
+  },
+  {
+    icon: Bell,
+    label: "Notifications",
+    path: "/teacher/notifications",
+  },
 ];
 
+// ============================================
+// ADMIN NAVIGATION
+// ============================================
 const adminNavItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
-  { icon: Users, label: "Teachers", path: "/admin/teachers" },
-  { icon: GraduationCap, label: "Students", path: "/admin/students" },
-  { icon: BookOpen, label: "Courses", path: "/admin/courses" },
-  { icon: DollarSign, label: "Payments", path: "/admin/payments" },
-  { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
-  { icon: FileText, label: "Reports", path: "/admin/reports" },
-  { icon: Bell, label: "Notifications", path: "/admin/notifications" },
-  { icon: Shield, label: "Security", path: "/admin/security" },
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    path: "/admin/dashboard",
+  },
+  {
+    icon: Users,
+    label: "Teachers",
+    path: "/admin/teachers",
+  },
+  {
+    icon: GraduationCap,
+    label: "Students",
+    path: "/admin/students",
+  },
+  {
+    icon: BookOpen,
+    label: "Courses",
+    path: "/admin/courses",
+  },
+  {
+    icon: DollarSign,
+    label: "Payments",
+    path: "/admin/payments",
+  },
+  {
+    icon: BarChart3,
+    label: "Analytics",
+    path: "/admin/analytics",
+  },
+  {
+    icon: FileText,
+    label: "Reports",
+    path: "/admin/reports",
+  },
+  {
+    icon: Bell,
+    label: "Notifications",
+    path: "/admin/notifications",
+  },
+  {
+    icon: Shield,
+    label: "Security",
+    path: "/admin/security",
+  },
 ];
 
+// ============================================
+// SIDEBAR
+// ============================================
 export function Sidebar({
   role = "student",
   isCollapsed,
@@ -48,154 +165,284 @@ export function Sidebar({
 }) {
   const location = useLocation();
 
+  // ============================================
+  // ROLE NAVIGATION
+  // ============================================
   const navItems =
-    role === "admin"
+    role === "super_admin"
       ? adminNavItems
       : role === "teacher"
       ? teacherNavItems
       : studentNavItems;
 
+  // ============================================
+  // BOTTOM NAVIGATION
+  // ============================================
   const bottomNavItems =
-    role === "admin"
+    role === "super_admin"
       ? [
-          { icon: Settings, label: "Settings", path: "/admin/settings" },
+          {
+            icon: Settings,
+            label: "Settings",
+            path: "/admin/settings",
+          },
         ]
       : role === "teacher"
       ? [
-          { icon: User, label: "Profile", path: "/teacher/profile" },
-          { icon: Settings, label: "Settings", path: "/teacher/settings" },
+          {
+            icon: User,
+            label: "Profile",
+            path: "/teacher/profile",
+          },
+          {
+            icon: Settings,
+            label: "Settings",
+            path: "/teacher/settings",
+          },
         ]
       : [
-          { icon: User, label: "Profile", path: "/student/profile" },
-          { icon: Settings, label: "Settings", path: "/student/settings" },
+          {
+            icon: User,
+            label: "Profile",
+            path: "/student/profile",
+          },
+          {
+            icon: Settings,
+            label: "Settings",
+            path: "/student/settings",
+          },
         ];
 
+  // ============================================
+  // SIDEBAR CONTENT
+  // ============================================
   const SidebarContent = () => (
-    <div className="flex h-full flex-col">
-      {/* Logo */}
-      <div className="flex h-16 items-center justify-between px-4 border-b">
-        {!isCollapsed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2"
-          >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-              LMS Pro
-            </span>
-          </motion.div>
-        )}
-        {isCollapsed && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 mx-auto">
-            <GraduationCap className="h-5 w-5 text-white" />
+    <div className="flex h-full flex-col bg-base-100">
+
+      {/* LOGO */}
+      <div className="flex h-20 items-center justify-between border-b border-base-300 px-4">
+
+        <div
+          className={cn(
+            "flex items-center gap-3",
+            isCollapsed &&
+              "justify-center w-full"
+          )}
+        >
+
+          {/* LOGO ICON */}
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-content shadow-lg">
+
+            <GraduationCap className="h-6 w-6" />
+
           </div>
-        )}
+
+          {/* LOGO TEXT */}
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+
+              <h1 className="text-xl font-bold text-base-content">
+                LMS Pro
+              </h1>
+
+              <p className="text-xs text-base-content/60 capitalize">
+                {role.replace("_", " ")}
+              </p>
+
+            </motion.div>
+          )}
+
+        </div>
+
+        {/* MOBILE CLOSE */}
+        <button
+          onClick={onMobileClose}
+          className="btn btn-ghost btn-sm lg:hidden"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5", isCollapsed && "mx-auto")} />
-              {!isCollapsed && <span>{item.label}</span>}
-              {isActive && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className="absolute left-0 h-8 w-1 rounded-r-full bg-primary"
-                />
-              )}
-            </NavLink>
-          );
-        })}
-      </nav>
+      {/* NAVIGATION */}
+      <div className="flex-1 overflow-y-auto px-3 py-5">
 
-      {/* Bottom Navigation */}
-      <div className="border-t px-3 py-4 space-y-1">
-        {bottomNavItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5", isCollapsed && "mx-auto")} />
-              {!isCollapsed && <span>{item.label}</span>}
-            </NavLink>
-          );
-        })}
+        <ul className="menu gap-2">
+
+          {navItems.map((item) => {
+            const isActive =
+              location.pathname === item.path;
+
+            return (
+              <li key={item.path}>
+
+                <NavLink
+                  to={item.path}
+                  className={cn(
+                    "group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300",
+                    isActive
+                      ? "bg-primary text-primary-content shadow-md"
+                      : "hover:bg-base-200 text-base-content/70 hover:text-base-content"
+                  )}
+                >
+
+                  {/* ACTIVE INDICATOR */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-pill"
+                      className="absolute inset-0 rounded-2xl bg-primary"
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+
+                  {/* ICON */}
+                  <item.icon
+                    className={cn(
+                      "relative z-10 h-5 w-5 shrink-0",
+                      isCollapsed &&
+                        "mx-auto"
+                    )}
+                  />
+
+                  {/* LABEL */}
+                  {!isCollapsed && (
+                    <span className="relative z-10">
+                      {item.label}
+                    </span>
+                  )}
+
+                </NavLink>
+
+              </li>
+            );
+          })}
+
+        </ul>
+
       </div>
 
-      {/* Collapse Toggle */}
-      <div className="hidden lg:block border-t p-3">
+      {/* BOTTOM NAV */}
+      <div className="border-t border-base-300 px-3 py-4">
+
+        <ul className="menu gap-2">
+
+          {bottomNavItems.map((item) => {
+            const isActive =
+              location.pathname === item.path;
+
+            return (
+              <li key={item.path}>
+
+                <NavLink
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300",
+                    isActive
+                      ? "bg-secondary text-secondary-content"
+                      : "hover:bg-base-200 text-base-content/70 hover:text-base-content"
+                  )}
+                >
+
+                  <item.icon
+                    className={cn(
+                      "h-5 w-5",
+                      isCollapsed &&
+                        "mx-auto"
+                    )}
+                  />
+
+                  {!isCollapsed && (
+                    <span>{item.label}</span>
+                  )}
+
+                </NavLink>
+
+              </li>
+            );
+          })}
+
+        </ul>
+
+      </div>
+
+      {/* COLLAPSE BUTTON */}
+      <div className="hidden border-t border-base-300 p-4 lg:block">
+
         <button
           onClick={onToggle}
-          className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          className="btn btn-outline btn-sm w-full rounded-xl"
         >
+
           {isCollapsed ? (
             <ChevronRight className="h-4 w-4" />
           ) : (
             <>
               <ChevronLeft className="h-4 w-4" />
-              <span>Collapse</span>
+              Collapse
             </>
           )}
+
         </button>
+
       </div>
+
     </div>
   );
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* MOBILE OVERLAY */}
       <AnimatePresence>
+
         {isMobileOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={onMobileClose}
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           />
         )}
+
       </AnimatePresence>
 
-      {/* Mobile Sidebar */}
+      {/* MOBILE SIDEBAR */}
       <motion.aside
-        initial={{ x: -280 }}
-        animate={{ x: isMobileOpen ? 0 : -280 }}
-        className="fixed left-0 top-0 z-50 h-full w-64 bg-card lg:hidden"
+        initial={{ x: -320 }}
+        animate={{
+          x: isMobileOpen ? 0 : -320,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 25,
+        }}
+        className="fixed left-0 top-0 z-50 h-screen w-72 border-r border-base-300 shadow-2xl lg:hidden"
       >
+
         <SidebarContent />
+
       </motion.aside>
 
-      {/* Desktop Sidebar */}
+      {/* DESKTOP SIDEBAR */}
       <aside
         className={cn(
-          "hidden lg:flex h-screen sticky top-0 flex-col bg-card border-r transition-all duration-300",
-          isCollapsed ? "w-20" : "w-64"
+          "fixed left-0 top-0 z-30 hidden h-screen flex-col border-r border-base-300 bg-base-100 shadow-sm transition-all duration-300 lg:flex",
+          isCollapsed
+            ? "w-24"
+            : "w-72"
         )}
       >
+
         <SidebarContent />
+
       </aside>
     </>
   );

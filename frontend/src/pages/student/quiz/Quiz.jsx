@@ -11,12 +11,12 @@ import {
   RotateCcw,
   Eye,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
-import { Badge } from "../../components/ui/Badge";
-import { ProgressBar } from "../../components/ui/ProgressBar";
-import { Modal } from "../../components/ui/Modal";
-import { RadioGroup } from "../../components/ui/Checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { Button } from "../../../components/ui/Button";
+import { Badge } from "../../../components/ui/Badge";
+import { ProgressBar } from "../../../components/ui/ProgressBar";
+import { Modal } from "../../../components/ui/Modal";
+import { RadioGroup } from "../../../components/ui/Checkbox";
 
 const quizData = {
   title: "JavaScript Fundamentals",
@@ -185,20 +185,20 @@ export default function QuizPage() {
           {questions.map((question, index) => {
             const userAnswer = answers[index];
             const isCorrect = userAnswer === question.correctAnswer;
-            const is unanswered = !userAnswer;
+            const isunanswered = !userAnswer;
 
             return (
               <Card
                 key={question.id}
-                className={isCorrect ? "border-emerald-200" : is unanswered ? "border-amber-200" : "border-red-200"}
+                className={isCorrect ? "border-emerald-200" :isunanswered ? "border-amber-200" : "border-red-200"}
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-base">
                       Question {index + 1}
                     </CardTitle>
-                    <Badge variant={isCorrect ? "success" : is unanswered ? "warning" : "destructive"}>
-                      {isCorrect ? "Correct" : is unanswered ? "Skipped" : "Incorrect"}
+                    <Badge variant={isCorrect ? "success" : isunanswered ? "warning" : "destructive"}>
+                      {isCorrect ? "Correct" : isunanswered ? "Skipped" : "Incorrect"}
                     </Badge>
                   </div>
                 </CardHeader>

@@ -1,74 +1,172 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* =======================================================
+   LMS PRO THEME
+======================================================= */
+
 :root {
-  --background: 0 0% 100%;
+
+  /* Base */
+  --background: 222 47% 98%;
   --foreground: 222 47% 11%;
+
+  /* Cards */
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
+
+  /* Popover */
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
-  --primary: 217 91% 60%;
+
+  /* Primary */
+  --primary: 221 83% 53%;
   --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
+
+  /* Secondary */
+  --secondary: 262 83% 58%;
+  --secondary-foreground: 210 40% 98%;
+
+  /* Accent */
+  --accent: 190 95% 39%;
+  --accent-foreground: 210 40% 98%;
+
+  /* Muted */
   --muted: 210 40% 96%;
   --muted-foreground: 215 16% 47%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
+
+  /* Danger */
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
+
+  /* Success */
+  --success: 160 84% 39%;
+
+  /* Warning */
+  --warning: 38 92% 50%;
+
+  /* Borders */
   --border: 214 32% 91%;
   --input: 214 32% 91%;
-  --ring: 217 91% 60%;
-  --radius: 0.75rem;
+  --ring: 221 83% 53%;
+
+  /* Radius */
+  --radius: 1rem;
 }
 
+/* =======================================================
+   DARK MODE
+======================================================= */
+
 .dark {
+
   --background: 222 47% 8%;
   --foreground: 210 40% 98%;
+
   --card: 222 47% 11%;
   --card-foreground: 210 40% 98%;
+
   --popover: 222 47% 11%;
   --popover-foreground: 210 40% 98%;
+
   --primary: 217 91% 65%;
   --primary-foreground: 222 47% 11%;
-  --secondary: 217 19% 16%;
+
+  --secondary: 262 83% 68%;
   --secondary-foreground: 210 40% 98%;
+
+  --accent: 190 95% 45%;
+  --accent-foreground: 210 40% 98%;
+
   --muted: 217 19% 16%;
   --muted-foreground: 215 20% 65%;
-  --accent: 217 19% 16%;
-  --accent-foreground: 210 40% 98%;
+
   --destructive: 0 62% 50%;
   --destructive-foreground: 210 40% 98%;
+
+  --success: 160 84% 39%;
+
+  --warning: 38 92% 50%;
+
   --border: 217 19% 20%;
   --input: 217 19% 20%;
   --ring: 217 91% 65%;
 }
 
+/* =======================================================
+   BASE STYLES
+======================================================= */
+
 @layer base {
+
   * {
-    border-color: hsl(var(--border));
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: 'Inter', system-ui, sans-serif;
+
+    @apply bg-background text-foreground;
+
+    font-family:
+      'Inter',
+      system-ui,
+      sans-serif;
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+
+    background-image:
+      radial-gradient(
+        circle at top left,
+        rgba(37,99,235,0.08),
+        transparent 25%
+      ),
+
+      radial-gradient(
+        circle at bottom right,
+        rgba(124,58,237,0.08),
+        transparent 25%
+      );
   }
 
   ::selection {
-    background-color: hsl(var(--primary) / 0.2);
-    color: hsl(var(--primary));
+    background-color:
+      hsl(var(--primary) / 0.25);
+
+    color:
+      hsl(var(--primary));
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  button {
+    @apply transition-all duration-200;
+  }
+
 }
 
+/* =======================================================
+   SCROLLBAR
+======================================================= */
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
@@ -76,71 +174,251 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(37 99 235),
+      rgb(124 58 237)
+    );
+
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.4);
+  opacity: 0.8;
 }
 
+/* =======================================================
+   UTILITIES
+======================================================= */
+
 @layer utilities {
+
+  /* TEXT GRADIENT */
   .text-gradient {
-    background-clip: text;
+
+    background:
+      linear-gradient(
+        to right,
+        rgb(37 99 235),
+        rgb(79 70 229),
+        rgb(168 85 247)
+      );
+
     -webkit-background-clip: text;
+
+    background-clip: text;
+
     color: transparent;
-    background-image: linear-gradient(to right, rgb(37 99 235), rgb(79 70 229), rgb(168 85 247));
   }
 
+  /* GLASS EFFECT */
   .glass {
-    background-color: hsl(var(--background) / 0.8);
-    backdrop-filter: blur(24px);
-    border: 1px solid hsl(var(--border) / 0.5);
+
+    background:
+      rgba(255,255,255,0.08);
+
+    backdrop-filter:
+      blur(24px);
+
+    border:
+      1px solid rgba(255,255,255,0.1);
   }
 
+  /* DARK GLASS */
+  .glass-dark {
+
+    background:
+      rgba(15,23,42,0.7);
+
+    backdrop-filter:
+      blur(24px);
+
+    border:
+      1px solid rgba(255,255,255,0.05);
+  }
+
+  /* CARD SHADOW */
   .card-shadow {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 40px rgba(0, 0, 0, 0.03);
+
+    box-shadow:
+      0 10px 25px rgba(0,0,0,0.08),
+      0 2px 10px rgba(37,99,235,0.06);
   }
 
+  /* HOVER LIFT */
   .hover-lift {
-    transition: all 0.3s;
+
+    transition:
+      all 0.3s ease;
   }
 
   .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+    transform:
+      translateY(-5px);
+
+    box-shadow:
+      0 20px 40px rgba(0,0,0,0.12);
   }
 
+  /* BUTTON GLOW */
+  .btn-glow:hover {
+
+    box-shadow:
+      0 0 25px rgba(37,99,235,0.35);
+  }
+
+  /* BORDER GRADIENT */
+  .border-gradient {
+
+    border-image:
+      linear-gradient(
+        to right,
+        rgb(37 99 235),
+        rgb(124 58 237)
+      ) 1;
+  }
+
+  /* ANIMATIONS */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+    animation:
+      fadeIn 0.5s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
+    animation:
+      slideUp 0.5s ease-out forwards;
   }
 
   .animate-slide-down {
-    animation: slideDown 0.5s ease-out forwards;
+    animation:
+      slideDown 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation:
+      scaleIn 0.3s ease-out forwards;
+  }
+
+  .animate-float {
+    animation:
+      float 3s ease-in-out infinite;
   }
 }
 
+/* =======================================================
+   KEYFRAMES
+======================================================= */
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.stagger-1 { animation-delay: 0.1s; opacity: 0; }
-.stagger-2 { animation-delay: 0.2s; opacity: 0; }
-.stagger-3 { animation-delay: 0.3s; opacity: 0; }
-.stagger-4 { animation-delay: 0.4s; opacity: 0; }
-.stagger-5 { animation-delay: 0.5s; opacity: 0; }
+@keyframes scaleIn {
+
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* =======================================================
+   STAGGER ANIMATION DELAYS
+======================================================= */
+
+.stagger-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.stagger-5 {
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+/* =======================================================
+   FLYONUI CUSTOM OVERRIDES
+======================================================= */
+
+.btn {
+  @apply rounded-xl font-medium;
+}
+
+.card {
+  @apply rounded-2xl border border-border;
+}
+
+.input {
+  @apply rounded-xl;
+}
+
+.menu li > * {
+  @apply rounded-xl;
+} 

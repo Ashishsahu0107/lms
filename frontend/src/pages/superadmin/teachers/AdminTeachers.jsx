@@ -5,7 +5,9 @@ import {
   Trash2, Edit, Eye, Award, DollarSign, BookOpen, Users,
   ChevronLeft, ChevronRight, X, Check, AlertTriangle
 } from "lucide-react";
-import { Card, CardContent } from "../../../components/ui/Card";
+import {
+  Card, CardHeader, CardTitle, CardContent
+} from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
@@ -13,6 +15,7 @@ import { Avatar } from "../../../components/ui/Avatar";
 import { Modal } from "../../../components/ui/Modal";
 import { Table } from "../../../components/ui/Table";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
+import { StatCard } from "../../../components/ui/StatCard";
 
 const mockTeachers = [
   {
