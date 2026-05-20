@@ -1,22 +1,18 @@
 import React from "react";
 
-export default function Button({
-  variant = "primary",
-  className = "",
+export function Button({
   children,
+  className = "",
+  disabled = false,
   ...props
 }) {
-  const base =
-    "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition";
-  const styles =
-    variant === "primary"
-      ? "bg-indigo-600 text-white hover:bg-indigo-700"
-      : "bg-slate-100 text-slate-900 hover:bg-slate-200";
-
   return (
-    <button className={`${base} ${styles} ${className}`} {...props}>
+    <button
+      disabled={disabled}
+      {...props}
+      className={`w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    >
       {children}
     </button>
   );
 }
-

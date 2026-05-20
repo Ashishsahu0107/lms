@@ -5,7 +5,11 @@ import RoleGuard from "../components/routeGuard/RoleGuard";
 import { ROLES } from "../constants/roles";
 import { ROUTES } from "../constants/routes";
 import { DashboardLayout } from "../components/layout/DashboardLayout";
+import PublicLayout from "../layouts/PublicLayout";
 import { PageLoader } from "../components/ui/Spinner";
+
+// Lazy load login page
+const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 
 // Lazy load all student pages
 const StudentDashboard = lazy(() => import("../pages/student/dashboard/Dashboard"));
@@ -116,13 +120,19 @@ const router = createBrowserRouter([
   // Auth routes (lazy loaded from shared)
   {
     path: "login",
-    element: <Navigate to="/student/dashboard" replace />,
+    element: (
+      <PageWrapper>
+        <PublicLayout>
+          <LoginPage />
+        </PublicLayout>
+      </PageWrapper>
+    ),
   },
 
-  // Catch all - redirect to student dashboard
+  // Catch all - redirect to login
   {
     path: "*",
-    element: <Navigate to="/student/dashboard" replace />,
+    element: <Navigate to="/login" replace />,
   },
 ]);
 

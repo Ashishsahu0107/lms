@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Users, BookOpen, CurrencyDollar, TrendingUp, AlertCircle,
+  Users, BookOpen, TrendingUp, AlertCircle,
   CheckCircle2, Clock, DollarSign, UserPlus, Book, ArrowUpRight,
   ArrowDownRight, Activity, Shield, Bell, Settings, Eye, MoreVertical
 } from "lucide-react";
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
           value={statsData ? `$${(statsData.totalRevenue / 1000).toFixed(1)}K` : "—"}
           change="+12.5% from last month"
           changeType="positive"
-          icon={CurrencyDollar}
+          icon={DollarSign}
           trend={75}
         />
         <StatCard

@@ -43,6 +43,16 @@ export function createServer() {
 
 // If started directly: `node backend/server.js`
 if (import.meta.url === `file://${process.argv[1]}`) {
+  connectDb()
+    .then(() => {
+      // eslint-disable-next-line no-console
+      console.log("[backend] MongoDB connected successfully");
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error("[backend] MongoDB connection failed:", err.message);
+    });
+
   const server = createServer();
   server.listen(env.PORT, () => {
     // eslint-disable-next-line no-console

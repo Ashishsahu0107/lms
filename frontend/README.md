@@ -126,65 +126,131 @@ This project demonstrates full-stack development with real-time data handling, a
 
 ## Folder Structure
 ```
-src/
-├── assets/               # Static assets (e.g., images, icons, fonts)
-├── components/           # Reusable UI components
-│   ├── Sidebar/          # Sidebar component for navigation
-│   ├── Navbar/           # Navbar component
-│   ├── Cards/            # Card components for displaying data
-│   ├── Tables/           # Table components for data display
-│   └── ...
-├── layouts/              # Layout components for different roles
-│   ├── SuperAdminLayout.jsx
-│   ├── TeacherLayout.jsx
+frontend/src/
+├── App.jsx                    # Main App component
+├── main.jsx                   # Entry point
+├── index.css                  # Global styles (Tailwind)
+│
+├── app/                       # Core app configuration
+│   ├── index.jsx              # App root component
+│   ├── AppProvider.jsx        # Global providers (Auth, Theme)
+│   ├── router.jsx             # React Router configuration
+│   ├── store.js               # App state store
+│   └── providers/
+│       └── AppProviders.jsx
+│
+├── components/                # Reusable components
+│   ├── charts/                # Chart components
+│   ├── common/                # Common components
+│   ├── dashboard/             # Dashboard-specific components
+│   │   ├── DashboardSection.jsx
+│   │   ├── RoleTopbar.jsx
+│   │   └── SidebarShell.jsx
+│   ├── forms/                 # Form components
+│   ├── layout/                # Layout components
+│   │   ├── DashboardLayout.jsx
+│   │   ├── Navbar.jsx
+│   │   └── Sidebar.jsx
+│   ├── routeGuard/            # Route protection
+│   │   └── RoleGuard.jsx      # Role-based access control
+│   ├── tables/                # Table components
+│   └── ui/                    # UI component library
+│       ├── Avatar.jsx, Badge.jsx, Button.jsx
+│       ├── Card.jsx, Checkbox.jsx, DropdownMenu.jsx
+│       ├── EmptyState.jsx, Input.jsx, Modal.jsx
+│       ├── ProgressBar.jsx, SearchBar.jsx, Select.jsx
+│       ├── Spinner.jsx, StatCard.jsx, Table.jsx
+│       ├── Tabs.jsx, UserCard.jsx
+│       └── index.js
+│
+├── constants/                 # Application constants
+│   ├── app.js
+│   ├── roles.js              # super_admin, teacher, student
+│   └── routes.js
+│
+├── context/                   # React Context providers
+│   ├── AuthContext.jsx        # Authentication state
+│   └── ThemeContext.jsx       # Theme state
+│
+├── hooks/                     # Custom React hooks
+│   ├── useApi.js
+│   ├── useAuth.js
+│   └── useRole.js
+│
+├── layouts/                   # Page layouts
+│   ├── DashboardLayout.jsx
+│   ├── PublicLayout.jsx       # Login/register layouts
+│   ├── RoleGuardLayout.jsx
 │   ├── StudentLayout.jsx
-│   └── AuthLayout.jsx    # Layout for authentication pages
-├── pages/                # Pages for each route
-│   ├── Dashboard/        # Dashboard pages for each role
-│   │   ├── SuperAdminDashboard.jsx
-│   │   ├── TeacherDashboard.jsx
-│   │   ├── StudentDashboard.jsx
-│   │   └── ...
-│   ├── Auth/             # Authentication pages
-│   │   ├── Login.jsx
-│   │   ├── Register.jsx
-│   │   └── ForgotPassword.jsx
-│   └── ...
-├── routes/               # Route definitions
-│   ├── ProtectedRoute.jsx
-│   ├── RoleProtectedRoute.jsx
-│   └── AppRoutes.jsx     # Centralized route configuration
-├── context/              # Context API for global state management
-│   ├── AuthContext.jsx   # Authentication context
-│   └── ...
-├── hooks/                # Custom React hooks
-│   ├── useAuth.js        # Hook for authentication logic
-│   ├── useRole.js        # Hook for role-based logic
-│   └── ...
-├── services/             # API service layer
-│   ├── api.js            # Axios instance and API calls
-│   ├── authService.js    # Authentication-related API calls
-│   ├── userService.js    # User-related API calls
-│   └── ...
-├── redux/                # Redux store and slices (if using Redux)
-│   ├── store.js          # Redux store configuration
-│   ├── authSlice.js      # Authentication slice
-│   ├── userSlice.js      # User slice
-│   └── ...
-├── utils/                # Utility functions
-│   ├── formatDate.js     # Date formatting utility
-│   ├── validateInput.js  # Input validation utility
-│   └── ...
-├── constants/            # Application-wide constants
-│   ├── roles.js          # Role definitions
-│   ├── apiEndpoints.js   # API endpoint constants
-│   └── ...
-├── styles/               # Global and reusable styles
-│   ├── tailwind.css      # Tailwind CSS imports
-│   ├── variables.css     # CSS variables
-│   └── ...
-├── main.jsx              # Entry point for the React application
-└── index.css             # Global CSS
+│   ├── SuperAdminLayout.jsx
+│   └── TeacherLayout.jsx
+│
+├── lib/
+│   └── env.js                 # Environment variables
+│
+├── pages/                     # Page components
+│   ├── auth/
+│   │   └── LoginPage.jsx
+│   ├── admin/
+│   │   ├── dashboard/AdminDashboard.jsx
+│   │   └── users/UserManagement.jsx
+│   ├── student/
+│   │   ├── assignments/Assignments.jsx
+│   │   ├── certificates/Certificates.jsx
+│   │   ├── courses/          # CourseDetails, CoursePlayer, MyCourses
+│   │   ├── dashboard/Dashboard.jsx
+│   │   ├── messages/Messages.jsx
+│   │   ├── profile/Profile.jsx
+│   │   ├── quiz/Quiz.jsx
+│   │   └── settings/Settings.jsx
+│   ├── superadmin/            # Full admin panel pages
+│   │   ├── analytics/
+│   │   ├── courses/
+│   │   ├── dashboard/
+│   │   ├── notifications/
+│   │   ├── payments/
+│   │   ├── reports/
+│   │   ├── security/
+│   │   ├── settings/
+│   │   ├── students/
+│   │   └── teachers/
+│   └── teacher/
+│       ├── courses/CourseManagement.jsx
+│       └── dashboard/TeacherDashboard.jsx
+│
+├── redux/
+│   └── store.js
+│
+├── routes/                     # Route configurations
+│   ├── index.js                # Router definitions
+│   ├── routesConfig.js
+│   ├── StudentRoutes.jsx
+│   ├── SuperAdminRoutes.jsx
+│   └── TeacherRoutes.jsx
+│
+├── screens/
+│   └── RootScreen.jsx
+│
+├── services/                   # API services
+│   ├── adminService.js
+│   ├── apiClient.js
+│   ├── authService.js
+│   ├── lmsApiClient.js
+│   ├── studentService.js
+│   ├── teacherService.js
+│   └── userService.js
+│
+├── shared/                     # Shared/legacy components
+│   ├── LegacyApp.jsx
+│   └── LegacyAppImpl.jsx
+│
+├── styles/
+│   └── tokens.css              # Design tokens
+│
+└── utils/                      # Utility functions
+    ├── cn.js
+    ├── format.js
+    └── slugify.js
 ```
 
 ## Purpose of Each Folder

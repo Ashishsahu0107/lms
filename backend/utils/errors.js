@@ -18,3 +18,9 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+export class NotFoundError extends AppError {
+  constructor(message, details) {
+    super(message, { statusCode: 404, details });
+  }
+}
+

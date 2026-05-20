@@ -1,2 +1,2 @@
-export { default } from "./shared/LegacyApp";
+export { default } from "./app/index.jsx";
 

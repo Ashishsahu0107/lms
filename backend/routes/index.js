@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { pingRouter } from "./ping.routes.js";
-import { authRouter } from "./auth.routes.js";
+import authRouter from "./auth.routes.js";
 import { healthRouter } from "./health.routes.js";
 import courseRouter from "./course.routes.js";
 import studentRouter from "./student.routes.js";
