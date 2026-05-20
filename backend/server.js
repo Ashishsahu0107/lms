@@ -4,6 +4,7 @@ import http from "http";
 
 import { env } from "./config/env.js";
 import { connectDb } from "./config/db.js";
+
 import { requestLogger } from "./middleware/requestLogger.js";
 import { notFoundHandler } from "./middleware/notFoundHandler.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -11,51 +12,55 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { rootRouter } from "./routes/index.js";
 import { initSocket } from "./socket/index.js";
 
-export function createServer() {
-  const app = express();
+const app = express();
 
-  app.disable("x-powered-by");
+app.disable("x-powered-by");
 
-  app.use(
-    cors({
-      origin: env.CORS_ORIGIN,
-      credentials: true,
-    })
-  );
+// CORS
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN,
+    credentials: true,
+  })
+);
 
-  app.use(express.json({ limit: env.JSON_LIMIT }));
-  app.use(express.urlencoded({ extended: true, limit: env.JSON_LIMIT }));
+// Body Parser
+app.use(express.json({ limit: env.JSON_LIMIT }));
+app.use(express.urlencoded({ extended: true }));
 
-  app.use(requestLogger);
+// Logger
+app.use(requestLogger);
 
-  app.get("/health", (_req, res) => res.json({ ok: true }));
-
-  app.use("/api", rootRouter);
-
-  app.use(notFoundHandler);
-  app.use(errorHandler);
-
-  const server = http.createServer(app);
-  initSocket(server);
-
-  return server;
-}
-
-// If started directly: `node backend/server.js`
-if (import.meta.url === `file://${process.argv[1]}`) {
-  connectDb()
-    .then(() => {
-      // eslint-disable-next-line no-console
-      console.log("[backend] MongoDB connected successfully");
-    })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error("[backend] MongoDB connection failed:", err.message);
-    });
-
-  const server = createServer();
-  server.listen(env.PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`[backend] listening on port ${env.PORT}`);
+// Health Route
+app.get("/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend Running Successfully",
   });
-}
+});
+
+// API Routes
+app.use("/api", rootRouter);
+
+// Error Middleware
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+// HTTP Server
+const server = http.createServer(app);
+
+// Socket
+initSocket(server);
+
+// Database + Server Start
+connectDb()
+  .then(() => {
+    console.log("MongoDB Connected Successfully");
+
+    server.listen(env.PORT, () => {
+      console.log(`Server running on port ${env.PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB Connection Failed:", err.message);
+  });
