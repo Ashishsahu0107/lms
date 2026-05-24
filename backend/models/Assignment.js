@@ -250,26 +250,12 @@ const assignmentSchema = new mongoose.Schema(
 // INDEXES
 // =====================================
 
-// Teacher Assignments
-assignmentSchema.index({
-  teacherId: 1,
-});
-
-// Course Assignments
-assignmentSchema.index({
-  courseId: 1,
-});
-
-// Due Date
-assignmentSchema.index({
-  dueDate: 1,
-});
-
 // Search Optimization
 assignmentSchema.index({
   title: "text",
   description: "text",
 });
+
 
 // =====================================
 // PRE SAVE

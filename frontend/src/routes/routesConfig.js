@@ -20,6 +20,13 @@ export const routesConfig = [
   // Teacher routes
   { path: ROUTES.TEACHER_DASHBOARD, name: "Dashboard", roles: ["teacher"] },
   { path: ROUTES.TEACHER_COURSES, name: "Courses", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_QUIZZES, name: "Quizzes", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_ASSIGNMENTS, name: "Assignments", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_PROGRESS, name: "Student Progress", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_ATTENDANCE, name: "Attendance", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_EARNINGS, name: "Earnings", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_MESSAGES, name: "Messages", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_PROFILE, name: "Profile", roles: ["teacher"] },
 
   // Admin routes
   { path: ROUTES.ADMIN_DASHBOARD, name: "Dashboard", roles: ["super_admin"] },

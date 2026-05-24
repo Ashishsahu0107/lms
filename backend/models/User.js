@@ -165,16 +165,9 @@ const userSchema = new mongoose.Schema(
 // INDEXES
 // =====================================
 userSchema.index({
-  email: 1,
-});
-
-userSchema.index({
-  role: 1,
-});
-
-userSchema.index({
   isOnline: 1,
 });
+
 
 // =====================================
 // REMOVE PASSWORD FROM RESPONSE

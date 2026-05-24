@@ -26,6 +26,11 @@ const Settings = lazy(() => import("../pages/student/settings/Settings"));
 // Lazy load teacher pages
 const TeacherDashboard = lazy(() => import("../pages/teacher/dashboard/TeacherDashboard"));
 const CourseManagement = lazy(() => import("../pages/teacher/courses/CourseManagement"));
+const TeacherQuizzes = lazy(() => import("../pages/teacher/quizzes/TeacherQuizManagement"));
+const TeacherAssignments = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentManagement"));
+const TeacherProgress = lazy(() => import("../pages/teacher/progress/TeacherStudentProgress"));
+const TeacherAttendance = lazy(() => import("../pages/teacher/attendance/TeacherAttendance"));
+const TeacherEarnings = lazy(() => import("../pages/teacher/earnings/TeacherEarnings"));
 
 // Lazy load admin pages
 const AdminDashboard = lazy(() => import("../pages/admin/dashboard/AdminDashboard"));
@@ -65,6 +70,13 @@ const teacherRoutes = {
   routes: [
     { path: "dashboard", element: <TeacherDashboard /> },
     { path: "courses", element: <CourseManagement /> },
+    { path: "quizzes", element: <TeacherQuizzes /> },
+    { path: "assignments", element: <TeacherAssignments /> },
+    { path: "student-progress", element: <TeacherProgress /> },
+    { path: "attendance", element: <TeacherAttendance /> },
+    { path: "earnings", element: <TeacherEarnings /> },
+    { path: "messages", element: <Messages /> },
+    { path: "profile", element: <Profile /> },
   ],
 };
 

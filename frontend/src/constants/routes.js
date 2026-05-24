@@ -16,6 +16,13 @@ export const ROUTES = {
   // Teacher
   TEACHER_DASHBOARD: "/teacher/dashboard",
   TEACHER_COURSES: "/teacher/courses",
+  TEACHER_QUIZZES: "/teacher/quizzes",
+  TEACHER_ASSIGNMENTS: "/teacher/assignments",
+  TEACHER_PROGRESS: "/teacher/student-progress",
+  TEACHER_ATTENDANCE: "/teacher/attendance",
+  TEACHER_EARNINGS: "/teacher/earnings",
+  TEACHER_MESSAGES: "/teacher/messages",
+  TEACHER_PROFILE: "/teacher/profile",
 
   // Admin
   ADMIN_DASHBOARD: "/admin/dashboard",

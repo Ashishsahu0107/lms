@@ -84,6 +84,26 @@ const CourseManagement = lazy(() =>
   import("../pages/teacher/courses/CourseManagement")
 );
 
+const TeacherQuizzes = lazy(() =>
+  import("../pages/teacher/quizzes/TeacherQuizManagement")
+);
+
+const TeacherAssignments = lazy(() =>
+  import("../pages/teacher/assignments/TeacherAssignmentManagement")
+);
+
+const TeacherProgress = lazy(() =>
+  import("../pages/teacher/progress/TeacherStudentProgress")
+);
+
+const TeacherAttendance = lazy(() =>
+  import("../pages/teacher/attendance/TeacherAttendance")
+);
+
+const TeacherEarnings = lazy(() =>
+  import("../pages/teacher/earnings/TeacherEarnings")
+);
+
 // ADMIN
 const AdminDashboard = lazy(() =>
   import("../pages/superadmin/dashboard/AdminDashboard")
@@ -216,6 +236,36 @@ const sidebarConfig = {
       label: "Courses",
       icon: BookOpen,
       path: "/teacher/courses",
+    },
+    {
+      label: "Quizzes",
+      icon: GraduationCap,
+      path: "/teacher/quizzes",
+    },
+    {
+      label: "Assignments",
+      icon: ClipboardList,
+      path: "/teacher/assignments",
+    },
+    {
+      label: "Progress",
+      icon: Users,
+      path: "/teacher/student-progress",
+    },
+    {
+      label: "Attendance",
+      icon: ClipboardList,
+      path: "/teacher/attendance",
+    },
+    {
+      label: "Earnings",
+      icon: CreditCard,
+      path: "/teacher/earnings",
+    },
+    {
+      label: "Messages",
+      icon: MessageSquare,
+      path: "/teacher/messages",
     },
   ],
 
@@ -628,6 +678,69 @@ const router = createBrowserRouter([
             element: (
               <PageWrapper>
                 <CourseManagement />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "quizzes",
+            element: (
+              <PageWrapper>
+                <TeacherQuizzes />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "assignments",
+            element: (
+              <PageWrapper>
+                <TeacherAssignments />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "student-progress",
+            element: (
+              <PageWrapper>
+                <TeacherProgress />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "attendance",
+            element: (
+              <PageWrapper>
+                <TeacherAttendance />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "earnings",
+            element: (
+              <PageWrapper>
+                <TeacherEarnings />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "messages",
+            element: (
+              <PageWrapper>
+                <Messages />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "settings",
+            element: (
+              <PageWrapper>
+                <SettingsPage />
               </PageWrapper>
             ),
           },

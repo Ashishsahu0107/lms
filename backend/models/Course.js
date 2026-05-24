@@ -172,7 +172,7 @@ const courseSchema = new mongoose.Schema(
     // =====================================
     // STUDENTS
     // =====================================
-    enrolledStudents: [
+    students: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -279,16 +279,6 @@ const courseSchema = new mongoose.Schema(
 // INDEXES
 // =====================================
 
-// Teacher Courses
-courseSchema.index({
-  teacherId: 1,
-});
-
-// Published Courses
-courseSchema.index({
-  status: 1,
-});
-
 // Search Optimization
 courseSchema.index({
   title: "text",
@@ -312,7 +302,7 @@ courseSchema.pre("save", function (next) {
 
   // Total Students
   this.totalStudents =
-    this.enrolledStudents.length;
+    this.students.length;
 
   // Average Rating
   if (this.ratings.length > 0) {

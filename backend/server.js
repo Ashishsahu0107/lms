@@ -14,9 +14,10 @@ import { initSocket } from "./socket/index.js";
 
 const app = express();
 
+// Disable signature header for security
 app.disable("x-powered-by");
 
-// CORS
+// CORS Configuration
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
@@ -24,14 +25,14 @@ app.use(
   })
 );
 
-// Body Parser
+// Payload Parsing Limits
 app.use(express.json({ limit: env.JSON_LIMIT }));
 app.use(express.urlencoded({ extended: true }));
 
-// Logger
+// Request Logging
 app.use(requestLogger);
 
-// Health Route
+// Health Check Route
 app.get("/health", (req, res) => {
   res.json({
     success: true,
@@ -39,24 +40,21 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API Routes
+// Mounted API Routes
 app.use("/api", rootRouter);
 
-// Error Middleware
+// Error Fallbacks
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// HTTP Server
+// HTTP + Socket server initialization
 const server = http.createServer(app);
-
-// Socket
 initSocket(server);
-
-// Database + Server Start
+  
+// Database Connection & Server Boot
 connectDb()
   .then(() => {
     console.log("MongoDB Connected Successfully");
-
     server.listen(env.PORT, () => {
       console.log(`Server running on port ${env.PORT}`);
     });
