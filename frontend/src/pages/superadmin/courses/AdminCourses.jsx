@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Filter, Eye, Edit, Trash2, CheckCircle2, XCircle, Star, EyeOff, ChevronLeft, ChevronRight,
-  BookOpen, Users, DollarSign, AlertTriangle, Check, X, Image as ImageIcon
+  BookOpen, Users, DollarSign, AlertTriangle, Check, X, UserPlus, ShieldCheck, Loader2
 } from "lucide-react";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
@@ -10,217 +10,334 @@ import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Avatar } from "../../../components/ui/Avatar";
 import { Modal } from "../../../components/ui/Modal";
-import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/Tabs";
+import toast from "react-hot-toast";
 
-const mockCourses = [
-  { _id: "1", title: "Advanced JavaScript", teacherId: { name: "Dr. James Wilson", avatar: "" }, category: "Programming", price: 99.99, thumbnail: "https://images.unsplash.com/photo-1627392662291-4c2ac9c424e9?w=400", status: "published", students: [], ratings: 4.8, difficulty: "intermediate", createdAt: new Date("2024-01-15") },
-  { _id: "2", title: "Python for Data Science", teacherId: { name: "Prof. Emily Chen", avatar: "" }, category: "Data Science", price: 149.99, thumbnail: "https://images.unsplash.com/photo-1526379095098-d400fd0c9359?w=400", status: "published", students: [], ratings: 4.9, difficulty: "advanced", createdAt: new Date("2024-02-20") },
-  { _id: "3", title: "UI/UX Design Fundamentals", teacherId: { name: "Sarah Johnson", avatar: "" }, category: "Design", price: 79.99, thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400", status: "draft", students: [], ratings: 0, difficulty: "beginner", createdAt: new Date("2024-03-10") },
-  { _id: "4", title: "Machine Learning Basics", teacherId: { name: "Dr. Michael Brown", avatar: "" }, category: "AI & ML", price: 199.99, thumbnail: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400", status: "draft", students: [], ratings: 0, difficulty: "intermediate", createdAt: new Date("2024-04-05") },
-  { _id: "5", title: "React Native Development", teacherId: { name: "Alex Turner", avatar: "" }, category: "Mobile Dev", price: 129.99, thumbnail: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400", status: "published", students: [], ratings: 4.7, difficulty: "intermediate", createdAt: new Date("2024-05-12") },
-];
+import {
+  getCourses,
+  updateCourse,
+  deleteCourse
+} from "../../../services/courseService";
+import { getTeachers, getStudents } from "../../../services/adminService";
+import { assignCourseByEmail } from "../../../services/enrollmentService";
 
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
+const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AdminCourses() {
+  const [courses, setCourses] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [showActionModal, setShowActionModal] = useState(false);
-  const [actionType, setActionType] = useState(null);
 
-  const filteredCourses = mockCourses.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) || c.category.toLowerCase().includes(searchQuery.toLowerCase());
+  // Selection states for Modals
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [showAssignTeacherModal, setShowAssignTeacherModal] = useState(false);
+  const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [actionType, setActionType] = useState(null); // 'approve' | 'archive' | 'delete'
+
+  // Input states
+  const [selectedTeacherId, setSelectedTeacherId] = useState("");
+  const [studentEmail, setStudentEmail] = useState("");
+
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
+  async function loadAllData() {
+    try {
+      setLoading(true);
+      const [coursesRes, teachersRes, studentsRes] = await Promise.all([
+        getCourses(),
+        getTeachers({ limit: 100 }),
+        getStudents({ limit: 100 })
+      ]);
+
+      if (coursesRes.data?.success) setCourses(coursesRes.data.data);
+      if (teachersRes.data?.teachers) setTeachers(teachersRes.data.teachers);
+      if (studentsRes.data?.students) setStudents(studentsRes.data.students);
+    } catch (err) {
+      toast.error("Failed to load platform dashboard data");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Handle Course Approval / Publication
+  const handleUpdateStatus = async (courseId, status) => {
+    try {
+      const res = await updateCourse(courseId, { status });
+      if (res.data?.success) {
+        toast.success(`Course successfully marked as ${status}`);
+        loadAllData();
+      }
+    } catch (err) {
+      toast.error("Failed to update course status");
+    }
+  };
+
+  // Handle Course Deletion
+  const handleDeleteCourse = async (courseId) => {
+    try {
+      const res = await deleteCourse(courseId);
+      if (res.data?.success) {
+        toast.success("Course permanently deleted");
+        loadAllData();
+      }
+    } catch (err) {
+      toast.error("Failed to delete course");
+    }
+  };
+
+  // Handle Assigning Teacher to Course
+  const handleAssignTeacher = async (e) => {
+    e.preventDefault();
+    if (!selectedTeacherId) return toast.error("Please select a teacher");
+
+    try {
+      const res = await updateCourse(selectedCourse._id, { teacherId: selectedTeacherId });
+      if (res.data?.success) {
+        toast.success("Teacher successfully assigned to course");
+        setShowAssignTeacherModal(false);
+        setSelectedTeacherId("");
+        loadAllData();
+      }
+    } catch (err) {
+      toast.error("Failed to assign teacher");
+    }
+  };
+
+  // Handle Manual Student Enrollment
+  const handleEnrollStudent = async (e) => {
+    e.preventDefault();
+    if (!studentEmail) return toast.error("Please enter a student email");
+
+    try {
+      const res = await assignCourseByEmail(studentEmail, selectedCourse._id);
+      if (res.data?.success) {
+        toast.success("Student successfully enrolled in this course");
+        setShowEnrollStudentModal(false);
+        setStudentEmail("");
+        loadAllData();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to enroll student");
+    }
+  };
+
+  const filteredCourses = courses.filter(c => {
+    const matchesSearch = c.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          c.category?.toLowerCase().includes(searchQuery.toLowerCase());
     if (activeTab === "published") return matchesSearch && c.status === "published";
     if (activeTab === "draft") return matchesSearch && c.status === "draft";
     return matchesSearch;
   });
 
-  const handleAction = (course, action) => {
-    setSelectedCourse(course);
-    setActionType(action);
-    setShowActionModal(true);
-  };
+  // Calculate platform aggregate stats
+  const totalCourses = courses.length;
+  const publishedCount = courses.filter(c => c.status === "published").length;
+  const draftCount = courses.filter(c => c.status === "draft").length;
+  const totalEnrollments = courses.reduce((acc, c) => acc + (c.students?.length || 0), 0);
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      {/* Header */}
       <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Course Management</h1>
-          <p className="text-muted-foreground">Moderate and manage all courses on the platform</p>
+          <h1 className="text-2xl font-bold">LMS Course Control Hub</h1>
+          <p className="text-muted-foreground">Moderate courses, assign teachers, and grant student enrollment access.</p>
         </div>
       </motion.div>
 
+      {/* Stats row */}
       <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Courses", value: mockCourses.length, color: "blue" },
-          { label: "Published", value: mockCourses.filter(c => c.status === "published").length, color: "emerald" },
-          { label: "Pending Review", value: mockCourses.filter(c => c.status === "draft").length, color: "amber" },
-          { label: "Total Enrollments", value: mockCourses.reduce((a, c) => a + (c.students?.length || 0), 0), color: "purple" },
+          { label: "Total Courses", value: totalCourses, color: "blue", bg: "bg-blue-500/10", text: "text-blue-500" },
+          { label: "Published", value: publishedCount, color: "emerald", bg: "bg-emerald-500/10", text: "text-emerald-500" },
+          { label: "Draft/Pending", value: draftCount, color: "amber", bg: "bg-amber-500/10", text: "text-amber-500" },
+          { label: "Total Enrolled", value: totalEnrollments, color: "purple", bg: "bg-purple-500/10", text: "text-purple-500" },
         ].map((stat, i) => (
-          <Card key={i}>
+          <Card key={i} className="border border-base-300">
             <CardContent className="flex items-center gap-4 p-4">
-              <div className={`p-3 rounded-xl bg-${stat.color}-100`}><BookOpen className={`h-6 w-6 text-${stat.color}-600`} /></div>
+              <div className={`p-3 rounded-xl ${stat.bg} ${stat.text}`}><BookOpen className="h-6 w-6" /></div>
               <div><p className="text-2xl font-bold">{stat.value}</p><p className="text-sm text-muted-foreground">{stat.label}</p></div>
             </CardContent>
           </Card>
         ))}
       </motion.div>
 
+      {/* Filter and Search */}
       <motion.div variants={item} className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search courses..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <Input className="pl-9 border-base-300" placeholder="Search courses..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
-        <Button variant="outline" className="gap-2"><Filter className="h-4 w-4" />Filters</Button>
+        <Button variant="outline" className="gap-2 border-base-300"><Filter className="h-4 w-4" />Filters</Button>
       </motion.div>
 
+      {/* Tabs */}
       <motion.div variants={item}>
         <Tabs defaultValue="all" onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="all">All ({mockCourses.length})</TabsTrigger>
-            <TabsTrigger value="published">Published ({mockCourses.filter(c => c.status === "published").length})</TabsTrigger>
-            <TabsTrigger value="draft">Pending Review ({mockCourses.filter(c => c.status === "draft").length})</TabsTrigger>
+            <TabsTrigger value="all">All ({totalCourses})</TabsTrigger>
+            <TabsTrigger value="published">Published ({publishedCount})</TabsTrigger>
+            <TabsTrigger value="draft">Pending ({draftCount})</TabsTrigger>
           </TabsList>
         </Tabs>
       </motion.div>
 
-      <motion.div variants={item}>
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Course</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Category</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Teacher</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Price</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Status</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCourses.map((course) => (
-                  <tr key={course._id} className="border-b hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <img src={course.thumbnail} alt={course.title} className="w-12 h-12 rounded-lg object-cover" />
-                        <div>
-                          <p className="font-medium">{course.title}</p>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Star className="h-3 w-3 text-amber-500" />
-                            {course.ratings > 0 ? course.ratings : "No ratings"}
+      {/* Courses List Table */}
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      ) : filteredCourses.length === 0 ? (
+        <Card className="p-12 text-center border bg-base-100/50">
+          <BookOpen className="h-16 w-16 mx-auto mb-4 text-muted-foreground/60" />
+          <h3 className="text-xl font-bold mb-2">No Courses Found</h3>
+          <p className="text-muted-foreground">There are no courses on the platform matching this selection.</p>
+        </Card>
+      ) : (
+        <motion.div variants={item}>
+          <Card className="border border-base-300 bg-base-100 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b bg-base-200/50">
+                    <th className="px-4 py-3.5 text-sm font-semibold text-muted-foreground">Course Details</th>
+                    <th className="px-4 py-3.5 text-sm font-semibold text-muted-foreground">Category</th>
+                    <th className="px-4 py-3.5 text-sm font-semibold text-muted-foreground">Instructor</th>
+                    <th className="px-4 py-3.5 text-sm font-semibold text-muted-foreground">Price</th>
+                    <th className="px-4 py-3.5 text-sm font-semibold text-muted-foreground">Status</th>
+                    <th className="px-4 py-3.5 text-sm font-semibold text-muted-foreground text-center">Manage Access</th>
+                    <th className="px-4 py-3.5 text-sm font-semibold text-muted-foreground text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-base-200">
+                  {filteredCourses.map((course) => (
+                    <tr key={course._id} className="hover:bg-base-200/30 transition-colors">
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <img src={course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=80"} alt={course.title} className="w-12 h-12 rounded-lg object-cover bg-base-300" />
+                          <div>
+                            <p className="font-semibold text-base line-clamp-1">{course.title}</p>
+                            <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mt-0.5">
+                              <Users className="h-3 w-3" /> {course.students?.length || 0} enrolled
+                            </span>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3"><Badge variant="secondary">{course.category}</Badge></td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="w-6 h-6" fallback={course.teacherId.name.charAt(0)} />
-                        <span className="text-sm">{course.teacherId.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3"><span className="font-medium">${course.price}</span></td>
-                    <td className="px-4 py-3">
-                      <Badge variant={course.status === "published" ? "success" : "warning"}>
-                        {course.status === "published" ? "Published" : "Pending"}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedCourse(course)}><Eye className="h-4 w-4" /></Button>
-                        {course.status === "draft" ? (
-                          <>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600" onClick={() => handleAction(course, "approve")}>
-                              <CheckCircle2 className="h-4 w-4" />
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <Badge variant="secondary" className="capitalize">{course.category || "General"}</Badge>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <Avatar className="w-6 h-6" fallback={course.teacherId?.name?.charAt(0) || "T"} />
+                          <span className="text-sm font-medium">{course.teacherId?.name || "Unassigned"}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="font-semibold text-success">${course.price}</span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <Badge variant={course.status === "published" ? "success" : "warning"} className="capitalize">
+                          {course.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex justify-center gap-2">
+                          <Button size="xs" variant="outline" className="gap-1 border-base-300" onClick={() => {
+                            setSelectedCourse(course);
+                            setShowAssignTeacherModal(true);
+                          }}><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Instructor</Button>
+                          <Button size="xs" variant="outline" className="gap-1 border-base-300" onClick={() => {
+                            setSelectedCourse(course);
+                            setShowEnrollStudentModal(true);
+                          }}><UserPlus className="h-3.5 w-3.5 text-success" /> Student</Button>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-right">
+                        <div className="flex justify-end gap-1.5">
+                          {course.status === "draft" ? (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-success hover:bg-success/10" onClick={() => handleUpdateStatus(course._id, "published")}>
+                              <CheckCircle2 className="h-4.5 w-4.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleAction(course, "reject")}>
-                              <XCircle className="h-4 w-4" />
+                          ) : (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-warning hover:bg-warning/10" onClick={() => handleUpdateStatus(course._id, "draft")}>
+                              <EyeOff className="h-4.5 w-4.5" />
                             </Button>
-                          </>
-                        ) : (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleAction(course, "archive")}>
-                            <EyeOff className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleAction(course, "delete")}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 border-t">
-            <p className="text-sm text-muted-foreground">Showing {filteredCourses.length} courses</p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled><ChevronLeft className="h-4 w-4" /></Button>
-              <Button variant="outline" size="sm">1</Button>
-              <Button variant="outline" size="sm"><ChevronRight className="h-4 w-4" /></Button>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-error hover:bg-error/10" onClick={() => {
+                            setSelectedCourse(course);
+                            setActionType("delete");
+                            setShowActionModal(true);
+                          }}><Trash2 className="h-4.5 w-4.5" /></Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </Card>
-      </motion.div>
+          </Card>
+        </motion.div>
+      )}
 
-      {/* Course Detail Modal */}
-      <Modal isOpen={!!selectedCourse && !showActionModal} onClose={() => setSelectedCourse(null)} title="Course Details" size="lg">
-        {selectedCourse && (
-          <div className="space-y-4">
-            <img src={selectedCourse.thumbnail} alt={selectedCourse.title} className="w-full h-40 object-cover rounded-xl" />
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">{selectedCourse.title}</h3>
-                <p className="text-sm text-muted-foreground">{selectedCourse.category} • {selectedCourse.difficulty}</p>
-              </div>
-              <Badge variant={selectedCourse.status === "published" ? "success" : "warning"}>
-                {selectedCourse.status === "published" ? "Published" : "Pending"}
-              </Badge>
-            </div>
-            <div className="grid grid-cols-4 gap-4 pt-4 border-t">
-              <div className="text-center"><p className="text-2xl font-bold">{selectedCourse.students?.length || 0}</p><p className="text-xs text-muted-foreground">Students</p></div>
-              <div className="text-center"><p className="text-2xl font-bold">{selectedCourse.ratings}</p><p className="text-xs text-muted-foreground">Rating</p></div>
-              <div className="text-center"><p className="text-2xl font-bold">${selectedCourse.price}</p><p className="text-xs text-muted-foreground">Price</p></div>
-              <div className="text-center"><p className="text-2xl font-bold">${((selectedCourse.price || 0) * (selectedCourse.students?.length || 0)).toLocaleString()}</p><p className="text-xs text-muted-foreground">Revenue</p></div>
-            </div>
-            <div className="flex gap-2 pt-4 border-t">
-              <Button variant="outline" className="flex-1 gap-2"><Edit className="h-4 w-4" />Edit Course</Button>
-              <Button variant="outline" className="flex-1 gap-2"><Eye className="h-4 w-4" />Preview</Button>
-            </div>
+      {/* ASSIGN TEACHER MODAL */}
+      <Modal isOpen={showAssignTeacherModal} onClose={() => setShowAssignTeacherModal(false)} title="Assign Course Instructor">
+        <form onSubmit={handleAssignTeacher} className="space-y-4">
+          <p className="text-sm text-muted-foreground">Select an instructor for course: <strong>{selectedCourse?.title}</strong></p>
+          <div>
+            <label className="text-sm font-semibold mb-1 block text-foreground/80">Select Teacher</label>
+            <select className="select select-bordered w-full h-10 px-3 bg-card border-base-300 rounded-xl text-sm" value={selectedTeacherId} onChange={(e) => setSelectedTeacherId(e.target.value)}>
+              <option value="">-- Choose Instructor --</option>
+              {teachers.map(t => (
+                <option key={t._id} value={t._id}>{t.name} ({t.email})</option>
+              ))}
+            </select>
           </div>
-        )}
+          <div className="flex gap-3 justify-end pt-4 border-t">
+            <Button type="button" variant="outline" onClick={() => setShowAssignTeacherModal(false)}>Cancel</Button>
+            <Button type="submit">Assign Instructor</Button>
+          </div>
+        </form>
       </Modal>
 
-      {/* Action Modal */}
-      <Modal isOpen={showActionModal} onClose={() => setShowActionModal(false)} title="">
+      {/* MANUALLY ENROLL STUDENT MODAL */}
+      <Modal isOpen={showEnrollStudentModal} onClose={() => setShowEnrollStudentModal(false)} title="Grant Student Enrollment Access">
+        <form onSubmit={handleEnrollStudent} className="space-y-4">
+          <p className="text-sm text-muted-foreground">Grant student access to course: <strong>{selectedCourse?.title}</strong></p>
+          <Input label="Student Email Address *" placeholder="e.g. learner@example.com" value={studentEmail} onChange={(e) => setStudentEmail(e.target.value)} required />
+          <div className="flex gap-3 justify-end pt-4 border-t">
+            <Button type="button" variant="outline" onClick={() => setShowEnrollStudentModal(false)}>Cancel</Button>
+            <Button type="submit">Grant Access (Enroll)</Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      <Modal isOpen={showActionModal} onClose={() => setShowActionModal(false)} title="Delete Course">
         {selectedCourse && (
           <div className="space-y-4">
-            {actionType === "approve" && (
-              <div className="flex gap-3 p-4 rounded-lg bg-emerald-50">
-                <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0" />
-                <p className="text-sm">Approve "<strong>{selectedCourse.title}</strong>" for publication?</p>
+            <div className="flex gap-3 p-4 rounded-lg bg-error/10 border border-error/20">
+              <AlertTriangle className="h-6 w-6 text-error shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-error">Warning: Critical Cascade Deletion</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Deleting "<strong>{selectedCourse.title}</strong>" will permanently erase all nested Modules, Topic lectures, and Student enrollment records from the database.
+                </p>
               </div>
-            )}
-            {actionType === "reject" && (
-              <div className="flex gap-3 p-4 rounded-lg bg-destructive/10">
-                <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
-                <p className="text-sm">Reject "<strong>{selectedCourse.title}</strong>"? The teacher will be notified.</p>
-              </div>
-            )}
-            {actionType === "delete" && (
-              <div className="flex gap-3 p-4 rounded-lg bg-destructive/10">
-                <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
-                <p className="text-sm">Permanently delete "<strong>{selectedCourse.title}</strong>"?</p>
-              </div>
-            )}
+            </div>
             <div className="flex gap-3 justify-end">
               <Button variant="outline" onClick={() => setShowActionModal(false)}>Cancel</Button>
-              <Button variant={actionType === "delete" || actionType === "reject" ? "destructive" : "default"} onClick={() => setShowActionModal(false)}>
-                Confirm
-              </Button>
+              <Button variant="destructive" onClick={() => {
+                handleDeleteCourse(selectedCourse._id);
+                setShowActionModal(false);
+              }}>Confirm Permanent Delete</Button>
             </div>
           </div>
         )}

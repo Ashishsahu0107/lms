@@ -86,9 +86,31 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
+    status: {
+      type: String,
+      enum: ["active", "suspended", "pending"],
+      default: "active",
+      index: true,
+    },
+
     isVerified: {
       type: Boolean,
       default: false,
+    },
+
+    qualification: {
+      type: String,
+      default: "",
+    },
+
+    specialization: {
+      type: String,
+      default: "",
+    },
+
+    experience: {
+      type: Number,
+      default: 0,
     },
 
     // =====================================
@@ -120,6 +142,13 @@ const userSchema = new mongoose.Schema(
     ],
 
     teachingCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
+
+    assignedCourses: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Course",

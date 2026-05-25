@@ -3,12 +3,6 @@ import { authenticate, authorize } from "../middleware/auth.js";
 import {
   getDashboardStatsController,
   getRevenueDataController,
-  getTeachersController,
-  updateTeacherController,
-  deleteTeacherController,
-  getStudentsController,
-  updateStudentController,
-  deleteStudentController,
   getCoursesController,
   updateCourseController,
   deleteCourseController,
@@ -20,6 +14,23 @@ import {
   getAuditLogsController,
 } from "../controllers/admin.controller.js";
 
+import {
+  createTeacherController,
+  getTeachersController,
+  getTeacherByIdController,
+  updateTeacherController,
+  deleteTeacherController,
+  getTeacherAnalyticsController,
+  createStudentController,
+  getStudentsController,
+  getStudentByIdController,
+  updateStudentController,
+  deleteStudentController,
+  getStudentAnalyticsController,
+  bulkImportUsersController,
+  exportUsersController,
+} from "../controllers/adminUser.controller.js";
+
 const router = Router();
 
 // All routes require super_admin authentication
@@ -29,15 +40,33 @@ router.use(authenticate, authorize("super_admin"));
 router.get("/dashboard/stats", getDashboardStatsController);
 router.get("/dashboard/revenue", getRevenueDataController);
 
-// Teachers
+// Teachers REST & Analytics
+router.post("/teachers", createTeacherController);
 router.get("/teachers", getTeachersController);
+router.get("/teachers/analytics", getTeacherAnalyticsController);
+router.get("/teachers/:id", getTeacherByIdController);
+router.put("/teachers/:id", updateTeacherController);
+router.delete("/teachers/:id", deleteTeacherController);
+
+// Backwards compatibility alias routes
 router.put("/teacher/:id", updateTeacherController);
 router.delete("/teacher/:id", deleteTeacherController);
 
-// Students
+// Students REST & Analytics
+router.post("/students", createStudentController);
 router.get("/students", getStudentsController);
+router.get("/students/analytics", getStudentAnalyticsController);
+router.get("/students/:id", getStudentByIdController);
+router.put("/students/:id", updateStudentController);
+router.delete("/students/:id", deleteStudentController);
+
+// Backwards compatibility alias routes
 router.put("/student/:id", updateStudentController);
 router.delete("/student/:id", deleteStudentController);
+
+// Bulk user import & export
+router.post("/users/bulk-import", bulkImportUsersController);
+router.get("/users/export", exportUsersController);
 
 // Courses
 router.get("/courses", getCoursesController);

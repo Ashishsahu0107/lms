@@ -1,7 +1,8 @@
 // src/pages/auth/LoginPage.jsx
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { apiPost } from "../../services/apiClient";
 
 import {
   GraduationCap,
@@ -77,68 +78,39 @@ export default function LoginPage() {
   // HANDLE LOGIN
   // =====================================
   const handleLogin = async (e) => {
-
     e.preventDefault();
-
     setError("");
-
     setLoading(true);
 
-    // Fake API Delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1000)
-    );
+    try {
+      const res = await apiPost("/auth/login", { email, password });
+      if (res.data?.success) {
+        const { token, user } = res.data.data;
 
-    // Find User
-    const user = demoUsers.find(
-      (u) =>
-        u.email === email &&
-        u.password === password
-    );
+        // Save Token & User details
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
 
-    // Invalid User
-    if (!user) {
+        // Save in global Auth Context
+        login(user);
 
-      setError("Invalid email or password");
-
+        // Redirect based on exact role
+        if (user.role === "super_admin") {
+          navigate("/admin/dashboard");
+        } else if (user.role === "teacher") {
+          navigate("/teacher/dashboard");
+        } else {
+          navigate("/student/dashboard");
+        }
+      } else {
+        setError(res.data?.message || "Invalid email or password");
+      }
+    } catch (err) {
+      console.error("Login failure:", err);
+      setError(err.response?.data?.message || err.message || "Failed to log in");
+    } finally {
       setLoading(false);
-
-      return;
     }
-
-    // =====================================
-    // SAVE USER IN AUTH CONTEXT
-    // =====================================
-    login(user);
-
-    // Save Token
-    localStorage.setItem(
-      "token",
-      "demo-token"
-    );
-
-    // =====================================
-    // REDIRECT BASED ON ROLE
-    // =====================================
-    if (user.role === "super_admin") {
-
-      navigate("/admin/dashboard");
-
-    }
-
-    else if (user.role === "teacher") {
-
-      navigate("/teacher/dashboard");
-
-    }
-
-    else if (user.role === "student") {
-
-      navigate("/student/dashboard");
-
-    }
-
-    setLoading(false);
   };
 
   return (
@@ -311,6 +283,16 @@ export default function LoginPage() {
 
             </form>
 
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="font-medium text-blue-400 hover:underline"
+              >
+                Sign Up
+              </Link>
+            </div>
+
             {/* ================================= */}
             {/* DEMO ACCOUNTS */}
             {/* ================================= */}
@@ -322,28 +304,7 @@ export default function LoginPage() {
 
               </p>
 
-              <div className="space-y-2 text-sm">
-
-                <div className="rounded-lg bg-gray-800 p-2">
-
-                  Admin → admin@lmspro.edu / admin123
-
-                </div>
-
-                <div className="rounded-lg bg-gray-800 p-2">
-
-                  Teacher → teacher@lmspro.edu / teacher123
-
-                </div>
-
-                <div className="rounded-lg bg-gray-800 p-2">
-
-                  Student → student@lmspro.edu / student123
-
-                </div>
-
-              </div>
-
+              
             </div>
 
           </CardContent>

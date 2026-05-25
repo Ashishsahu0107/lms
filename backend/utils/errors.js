@@ -24,3 +24,10 @@ export class NotFoundError extends AppError {
   }
 }
 
+export class ForbiddenError extends AppError {
+  constructor(message, details) {
+    super(message, { statusCode: 403, details });
+  }
+}
+
+

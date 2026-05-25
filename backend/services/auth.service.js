@@ -57,7 +57,7 @@ export const authService = {
     // Find User
     const user = await User.findOne({
       email: email.toLowerCase(),
-    });
+    }).select("+password");
 
     // User Not Found
     if (!user) {

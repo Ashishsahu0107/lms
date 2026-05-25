@@ -2,9 +2,11 @@ import jwt from "jsonwebtoken";
 
 import { env } from "../config/env.js";
 import { User } from "../models/User.js";
+import { Course } from "../models/Course.js";
 
 import {
   UnauthorizedError,
+  ForbiddenError,
 } from "../utils/errors.js";
 
 // =====================================
@@ -146,5 +148,38 @@ export async function optionalAuth(
 
   } catch (error) {
     next();
+  }
+}
+
+// =====================================
+// OWNERSHIP AUTHORIZATION
+// =====================================
+export async function ownershipMiddleware(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    // Admins bypass ownership check
+    if (req.user.role === "super_admin") {
+      return next();
+    }
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    // Teachers can only modify their own courses
+    if (course.teacherId.toString() !== req.user._id.toString()) {
+      throw new ForbiddenError(
+        "Access denied: you do not own this course"
+      );
+    }
+
+    next();
+  } catch (err) {
+    next(err);
   }
 }

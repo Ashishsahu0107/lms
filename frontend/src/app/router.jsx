@@ -46,6 +46,14 @@ const LoginPage = lazy(() =>
   import("../pages/auth/LoginPage")
 );
 
+const CourseDetails = lazy(() =>
+  import("../pages/courses/CourseDetails")
+);
+
+const RegisterPage = lazy(() =>
+  import("../pages/auth/RegisterPage")
+);
+
 // STUDENT
 const StudentDashboard = lazy(() =>
   import("../pages/student/dashboard/Dashboard")
@@ -144,6 +152,41 @@ const AdminSecurity = lazy(() =>
 const AdminSettings = lazy(() =>
   import("../pages/superadmin/settings/AdminSettings")
 );
+
+// ASSIGNMENT UPGRADES
+const AssignmentDetails = lazy(() =>
+  import("../pages/assignments/AssignmentDetails")
+);
+
+const ReviewSubmission = lazy(() =>
+  import("../pages/assignments/ReviewSubmission")
+);
+
+const AdminAssignments = lazy(() =>
+  import("../pages/superadmin/assignments/AdminAssignments")
+);
+
+// QUIZ UPGRADES
+const QuizAttempt = lazy(() =>
+  import("../pages/student/quiz/QuizAttempt")
+);
+
+const QuizResult = lazy(() =>
+  import("../pages/student/quiz/QuizResult")
+);
+
+const CreateQuiz = lazy(() =>
+  import("../pages/teacher/quizzes/CreateQuiz")
+);
+
+const QuizAnalytics = lazy(() =>
+  import("../pages/teacher/quizzes/QuizAnalytics")
+);
+
+const AdminQuizzes = lazy(() =>
+  import("../pages/superadmin/quizzes/AdminQuizzes")
+);
+
 
 // ===============================
 // LOADER
@@ -289,6 +332,16 @@ const sidebarConfig = {
       label: "Courses",
       icon: BookOpen,
       path: "/admin/courses",
+    },
+    {
+      label: "Assignments",
+      icon: ClipboardList,
+      path: "/admin/assignments",
+    },
+    {
+      label: "Quizzes",
+      icon: GraduationCap,
+      path: "/admin/quizzes",
     },
     {
       label: "Payments",
@@ -568,6 +621,15 @@ const router = createBrowserRouter([
           </PageWrapper>
         ),
       },
+
+      {
+        path: "register",
+        element: (
+          <PageWrapper>
+            <RegisterPage />
+          </PageWrapper>
+        ),
+      },
     ],
   },
 
@@ -603,6 +665,15 @@ const router = createBrowserRouter([
           },
 
           {
+            path: "courses/:id",
+            element: (
+              <PageWrapper>
+                <CourseDetails />
+              </PageWrapper>
+            ),
+          },
+
+          {
             path: "assignments",
             element: (
               <PageWrapper>
@@ -612,10 +683,37 @@ const router = createBrowserRouter([
           },
 
           {
+            path: "assignments/:id",
+            element: (
+              <PageWrapper>
+                <AssignmentDetails />
+              </PageWrapper>
+            ),
+          },
+
+          {
             path: "quizzes",
             element: (
               <PageWrapper>
                 <Quiz />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "quizzes/attempt/:quizId",
+            element: (
+              <PageWrapper>
+                <QuizAttempt />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "quizzes/result/:attemptId",
+            element: (
+              <PageWrapper>
+                <QuizResult />
               </PageWrapper>
             ),
           },
@@ -683,6 +781,15 @@ const router = createBrowserRouter([
           },
 
           {
+            path: "courses/:id",
+            element: (
+              <PageWrapper>
+                <CourseDetails />
+              </PageWrapper>
+            ),
+          },
+
+          {
             path: "quizzes",
             element: (
               <PageWrapper>
@@ -692,10 +799,55 @@ const router = createBrowserRouter([
           },
 
           {
+            path: "quizzes/create",
+            element: (
+              <PageWrapper>
+                <CreateQuiz />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "quizzes/edit/:id",
+            element: (
+              <PageWrapper>
+                <CreateQuiz />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "quizzes/analytics/:id",
+            element: (
+              <PageWrapper>
+                <QuizAnalytics />
+              </PageWrapper>
+            ),
+          },
+
+          {
             path: "assignments",
             element: (
               <PageWrapper>
                 <TeacherAssignments />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "assignments/:id",
+            element: (
+              <PageWrapper>
+                <AssignmentDetails />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "assignments/submissions/:id",
+            element: (
+              <PageWrapper>
+                <ReviewSubmission />
               </PageWrapper>
             ),
           },
@@ -795,6 +947,51 @@ const router = createBrowserRouter([
             element: (
               <PageWrapper>
                 <AdminCourses />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "courses/:id",
+            element: (
+              <PageWrapper>
+                <CourseDetails />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "assignments",
+            element: (
+              <PageWrapper>
+                <AdminAssignments />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "assignments/:id",
+            element: (
+              <PageWrapper>
+                <AssignmentDetails />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "assignments/submissions/:id",
+            element: (
+              <PageWrapper>
+                <ReviewSubmission />
+              </PageWrapper>
+            ),
+          },
+
+          {
+            path: "quizzes",
+            element: (
+              <PageWrapper>
+                <AdminQuizzes />
               </PageWrapper>
             ),
           },

@@ -1,21 +1,58 @@
 import { Router } from "express";
 import { authenticate, authorize } from "../middleware/auth.js";
+import { Quiz } from "../models/Quiz.js";
 import {
   getQuizzesController,
+  getQuizByIdController,
   createQuizController,
   updateQuizController,
   deleteQuizController,
-  getQuizResultsController,
+  getQuizAnalyticsController,
 } from "../controllers/quiz.controller.js";
 
 const router = Router();
 
-router.use(authenticate, authorize("teacher", "super_admin"));
+// Local ownership middleware for quizzes
+async function quizOwnershipMiddleware(req, res, next) {
+  try {
+    const { id } = req.params;
 
-router.get("/", getQuizzesController);
-router.post("/", createQuizController);
-router.put("/:id", updateQuizController);
-router.delete("/:id", deleteQuizController);
-router.get("/:id/results", getQuizResultsController);
+    if (req.user.role === "super_admin") {
+      return next();
+    }
+
+    const quiz = await Quiz.findById(id);
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: "Quiz not found",
+      });
+    }
+
+    // Teachers can only modify quizzes they created
+    if (quiz.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Access Denied: you do not own this quiz card",
+      });
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Public endpoints (Viewable by students, teachers, admins)
+router.get("/", authenticate, getQuizzesController);
+router.get("/:id", authenticate, getQuizByIdController);
+
+// Creation (Teacher / Admin-only)
+router.post("/", authenticate, authorize("teacher", "super_admin"), createQuizController);
+
+// Modification, Deletion, and Analytics (Teacher / Admin-only, verified by ownership)
+router.put("/:id", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, updateQuizController);
+router.delete("/:id", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, deleteQuizController);
+router.get("/:id/analytics", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, getQuizAnalyticsController);
 
 export default router;

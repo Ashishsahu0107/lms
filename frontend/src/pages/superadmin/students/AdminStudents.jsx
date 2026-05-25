@@ -1,263 +1,318 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Search, Filter, MoreVertical, Mail, Ban, Trash2,
-  Eye, BookOpen, Award, ChevronLeft, ChevronRight,
-  AlertTriangle, CheckCircle2, User, TrendingUp
-} from "lucide-react";
-import {  Card,
-  CardContent,
-  CardHeader,
-  CardTitle, } from "../../../components/ui/Card";
-import { Badge } from "../../../components/ui/Badge";
-import { Button } from "../../../components/ui/Button";
-import { Input } from "../../../components/ui/Input";
-import { Avatar } from "../../../components/ui/Avatar";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { getStudents, createStudent, getStudent, updateStudent, deleteStudent, getStudentAnalytics } from "../../../services/adminService";
+import { getCourses } from "../../../services/courseService";
+import StudentList from "./StudentList";
+import StudentDetails from "./StudentDetails";
+import CreateStudent from "./CreateStudent";
+import EditStudent from "./EditStudent";
+import StudentAnalytics from "./StudentAnalytics";
+import { Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
-import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar
-} from "recharts";
-
-const mockStudents = [
-  { _id: "1", name: "Sarah Johnson", email: "sarah.j@email.com", avatar: "", isActive: true, createdAt: new Date("2024-01-20"), enrolledCourses: 5, completedCourses: 2, progress: 72 },
-  { _id: "2", name: "Michael Chen", email: "mchen@email.com", avatar: "", isActive: true, createdAt: new Date("2024-02-15"), enrolledCourses: 3, completedCourses: 1, progress: 45 },
-  { _id: "3", name: "Emma Davis", email: "emma.d@email.com", avatar: "", isActive: true, createdAt: new Date("2024-03-08"), enrolledCourses: 8, completedCourses: 4, progress: 88 },
-  { _id: "4", name: "James Wilson", email: "jwilson@email.com", avatar: "", isActive: false, createdAt: new Date("2024-04-12"), enrolledCourses: 2, completedCourses: 0, progress: 15 },
-  { _id: "5", name: "Lisa Brown", email: "lbrown@email.com", avatar: "", isActive: true, createdAt: new Date("2024-05-05"), enrolledCourses: 6, completedCourses: 3, progress: 65 },
-  { _id: "6", name: "Robert Taylor", email: "rtaylor@email.com", avatar: "", isActive: true, createdAt: new Date("2024-06-18"), enrolledCourses: 4, completedCourses: 2, progress: 55 },
-];
-
-const mockProgressData = [
-  { month: "Jan", completed: 120, active: 340 },
-  { month: "Feb", completed: 145, active: 420 },
-  { month: "Mar", completed: 180, active: 510 },
-  { month: "Apr", completed: 210, active: 580 },
-  { month: "May", completed: 260, active: 680 },
-  { month: "Jun", completed: 320, active: 780 },
-];
-
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
-const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
+import { Button } from "../../../components/ui/Button";
 
 export default function AdminStudents() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
+  const [view, setView] = useState("list"); // "list" | "details" | "create" | "edit" | "analytics"
+  const [students, setStudents] = useState([]);
+  const [coursesList, setCoursesList] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [showActionModal, setShowActionModal] = useState(false);
-  const [actionType, setActionType] = useState(null);
+  const [studentDetailData, setStudentDetailData] = useState(null);
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const filteredStudents = mockStudents.filter(s => {
-    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.email.toLowerCase().includes(searchQuery.toLowerCase());
-    if (activeTab === "active") return matchesSearch && s.isActive;
-    if (activeTab === "suspended") return matchesSearch && !s.isActive;
-    return matchesSearch;
-  });
+  // Modal triggers
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmActionType, setConfirmActionType] = useState(null); // "suspend" | "activate" | "delete"
+  const [targetStudent, setTargetStudent] = useState(null);
 
-  const handleAction = (student, action) => {
-    setSelectedStudent(student);
-    setActionType(action);
-    setShowActionModal(true);
+  // Bulk Import
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importPayload, setImportPayload] = useState("");
+
+  const loadStudentsList = async () => {
+    try {
+      setLoading(true);
+      const res = await getStudents();
+      if (res.data?.success) {
+        setStudents(res.data.data.students || []);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Unable to sync student records with LMS database.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    loadStudentsList();
+
+    // Preload available courses for syllabus checklists
+    async function fetchCourses() {
+      try {
+        const res = await getCourses();
+        if (res.data?.success) {
+          setCoursesList(res.data.data || []);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchCourses();
+  }, []);
+
+  const handleViewDetails = async (s) => {
+    try {
+      setLoading(true);
+      const res = await getStudent(s._id);
+      if (res.data?.success) {
+        setStudentDetailData(res.data.data);
+        setView("details");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (s) => {
+    setSelectedStudent(s);
+    setView("edit");
+  };
+
+  const handleNavigateToCreate = () => {
+    setView("create");
+  };
+
+  const handleNavigateToAnalytics = async () => {
+    try {
+      setLoading(true);
+      const res = await getStudentAnalytics();
+      if (res.data?.success) {
+        setAnalyticsData(res.data.data);
+        setView("analytics");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTriggerConfirm = (student, action) => {
+    setTargetStudent(student);
+    setConfirmActionType(action);
+    setShowConfirmModal(true);
+  };
+
+  const handleExecuteConfirm = async () => {
+    if (!targetStudent || !confirmActionType) return;
+    try {
+      setLoading(true);
+      setShowConfirmModal(false);
+
+      if (confirmActionType === "delete") {
+        await deleteStudent(targetStudent._id);
+      } else {
+        const status = confirmActionType === "suspend" ? "suspended" : "active";
+        await updateStudent(targetStudent._id, { status });
+      }
+
+      await loadStudentsList();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setTargetStudent(null);
+      setConfirmActionType(null);
+    }
+  };
+
+  const handleCreateSave = async (payload) => {
+    try {
+      setLoading(true);
+      await createStudent(payload);
+      setView("list");
+      await loadStudentsList();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditSave = async (id, payload) => {
+    try {
+      setLoading(true);
+      await updateStudent(id, payload);
+      setView("list");
+      await loadStudentsList();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setSelectedStudent(null);
+    }
+  };
+
+  const handleExportCSV = () => {
+    // Generate browser download link directly to CSV endpoint
+    window.open("http://localhost:5000/api/admin/users/export", "_blank");
+  };
+
+  const handleBulkImportTrigger = () => {
+    setShowImportModal(true);
+  };
+
+  const handleExecuteImport = async () => {
+    try {
+      if (!importPayload) return;
+      const parsed = JSON.parse(importPayload);
+      setLoading(true);
+      setShowImportModal(false);
+
+      // Perform bulk api
+      const usersArray = Array.isArray(parsed) ? parsed : [parsed];
+      await updateStudent("bulk", { bulkUsers: usersArray }); // mapped to import helper in custom bulk routes
+
+      setImportPayload("");
+      await loadStudentsList();
+    } catch (err) {
+      alert("Invalid JSON format. Please upload a correct array of user profiles.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading && view === "list") {
+    return (
+      <div className="flex flex-col justify-center items-center py-32 space-y-4" id="admin-students-loading">
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+        <p className="text-muted-foreground text-sm font-medium animate-pulse">Syncing student archives...</p>
+      </div>
+    );
+  }
+
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      {/* Header */}
-      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Student Management</h1>
-          <p className="text-muted-foreground">Monitor and manage all student accounts</p>
+    <div className="space-y-6" id="admin-students-orchestrator">
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-4 flex items-center gap-3 text-sm">
+          <AlertCircle className="h-5 w-5 shrink-0" />
+          <span>{error}</span>
         </div>
-        <Button variant="outline" className="gap-2"><TrendingUp className="h-4 w-4" />View Analytics</Button>
-      </motion.div>
+      )}
 
-      {/* Stats */}
-      <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Total Students", value: mockStudents.length, color: "blue" },
-          { label: "Active Students", value: mockStudents.filter(s => s.isActive).length, color: "emerald" },
-          { label: "Avg Progress", value: "62%", color: "purple" },
-          { label: "Certificates", value: mockStudents.filter(s => s.completedCourses > 0).length, color: "amber" },
-        ].map((stat, i) => (
-          <Card key={i}>
-            <CardContent className="flex items-center gap-4 p-4">
-              <div className={`p-3 rounded-xl bg-${stat.color}-100`}>
-                <User className={`h-6 w-6 text-${stat.color}-600`} />
+      {/* View Container Switcher */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={view}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.2 }}
+        >
+          {view === "list" && (
+            <StudentList
+              students={students}
+              onViewDetails={handleViewDetails}
+              onEdit={handleEdit}
+              onSuspend={(s) => handleTriggerConfirm(s, "suspend")}
+              onActivate={(s) => handleTriggerConfirm(s, "activate")}
+              onDelete={(s) => handleTriggerConfirm(s, "delete")}
+              onNavigateToCreate={handleNavigateToCreate}
+              onNavigateToAnalytics={handleNavigateToAnalytics}
+              onBulkImport={handleBulkImportTrigger}
+              onExportCSV={handleExportCSV}
+            />
+          )}
+
+          {view === "details" && studentDetailData && (
+            <StudentDetails
+              data={studentDetailData}
+              onBack={() => setView("list")}
+              onSendEmail={(email) => window.location.href = `mailto:${email}`}
+            />
+          )}
+
+          {view === "create" && (
+            <CreateStudent
+              coursesList={coursesList}
+              onSave={handleCreateSave}
+              onCancel={() => setView("list")}
+            />
+          )}
+
+          {view === "edit" && selectedStudent && (
+            <EditStudent
+              student={selectedStudent}
+              coursesList={coursesList}
+              onSave={handleEditSave}
+              onCancel={() => setView("list")}
+            />
+          )}
+
+          {view === "analytics" && analyticsData && (
+            <StudentAnalytics
+              analyticsData={analyticsData}
+              onBack={() => setView("list")}
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Confirmation Action Modal */}
+      <Modal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} title="System Credentials Warning">
+        {targetStudent && (
+          <div className="space-y-4 text-sm" id="confirm-action-modal">
+            {confirmActionType === "delete" ? (
+              <div className="flex gap-3 p-4 rounded-xl bg-red-500/10 text-red-600 border border-red-500/20">
+                <AlertCircle className="h-6 w-6 shrink-0" />
+                <p>
+                  Permanently delete student account <strong>{targetStudent.name}</strong>? This action terminates all enrollments references keys and cannot be undone.
+                </p>
               </div>
-              <div>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </motion.div>
-
-      {/* Progress Chart */}
-      <motion.div variants={item}>
-        <Card>
-          <CardHeader><CardTitle className="text-base">Student Activity Trend</CardTitle></CardHeader>
-          <CardContent>
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={mockProgressData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "0.75rem" }} />
-                  <Bar dataKey="completed" fill="#10b981" name="Completed Courses" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="active" fill="#3b82f6" name="Active Enrollments" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Search and Filters */}
-      <motion.div variants={item} className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search students..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        </div>
-        <Button variant="outline" className="gap-2"><Filter className="h-4 w-4" />Filters</Button>
-      </motion.div>
-
-      {/* Tabs */}
-      <motion.div variants={item}>
-        <Tabs defaultValue="all" onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All ({mockStudents.length})</TabsTrigger>
-            <TabsTrigger value="active">Active ({mockStudents.filter(s => s.isActive).length})</TabsTrigger>
-            <TabsTrigger value="suspended">Suspended ({mockStudents.filter(s => !s.isActive).length})</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </motion.div>
-
-      {/* Students Table */}
-      <motion.div variants={item}>
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Student</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Enrolled</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Completed</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Progress</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Status</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.map((student) => (
-                  <tr key={student._id} className="border-b hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10" src={student.avatar} fallback={student.name.charAt(0)} />
-                        <div>
-                          <p className="font-medium">{student.name}</p>
-                          <p className="text-xs text-muted-foreground">{student.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1"><BookOpen className="h-4 w-4 text-muted-foreground" />{student.enrolledCourses}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1"><Award className="h-4 w-4 text-muted-foreground" />{student.completedCourses}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="w-24">
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-primary rounded-full" style={{ width: `${student.progress}%` }} />
-                        </div>
-                        <span className="text-xs text-muted-foreground mt-1">{student.progress}%</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant={student.isActive ? "success" : "destructive"}>{student.isActive ? "Active" : "Suspended"}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedStudent(student)}><Eye className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAction(student, student.isActive ? "suspend" : "activate")}>
-                          {student.isActive ? <Ban className="h-4 w-4 text-amber-600" /> : <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleAction(student, "delete")}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 border-t">
-            <p className="text-sm text-muted-foreground">Showing {filteredStudents.length} students</p>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled><ChevronLeft className="h-4 w-4" /></Button>
-              <Button variant="outline" size="sm">1</Button>
-              <Button variant="outline" size="sm"><ChevronRight className="h-4 w-4" /></Button>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Student Detail Modal */}
-      <Modal isOpen={!!selectedStudent && !showActionModal} onClose={() => setSelectedStudent(null)} title="Student Details" size="lg">
-        {selectedStudent && (
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <Avatar className="w-16 h-16 text-2xl" src={selectedStudent.avatar} fallback={selectedStudent.name.charAt(0)} />
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold">{selectedStudent.name}</h3>
-                <p className="text-sm text-muted-foreground">{selectedStudent.email}</p>
-                <Badge variant={selectedStudent.isActive ? "success" : "destructive"} className="mt-1">{selectedStudent.isActive ? "Active" : "Suspended"}</Badge>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-4 pt-4 border-t">
-              <div className="text-center"><p className="text-2xl font-bold">{selectedStudent.enrolledCourses}</p><p className="text-xs text-muted-foreground">Enrolled</p></div>
-              <div className="text-center"><p className="text-2xl font-bold">{selectedStudent.completedCourses}</p><p className="text-xs text-muted-foreground">Completed</p></div>
-              <div className="text-center"><p className="text-2xl font-bold">{selectedStudent.progress}%</p><p className="text-xs text-muted-foreground">Progress</p></div>
-              <div className="text-center"><p className="text-2xl font-bold">{selectedStudent.createdAt.toLocaleDateString()}</p><p className="text-xs text-muted-foreground">Joined</p></div>
-            </div>
-            <div className="flex gap-2 pt-4 border-t">
-              <Button variant="outline" className="flex-1 gap-2"><Mail className="h-4 w-4" />Send Email</Button>
-              <Button variant="outline" className="flex-1 gap-2"><BookOpen className="h-4 w-4" />View Courses</Button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* Action Modal */}
-      <Modal isOpen={showActionModal} onClose={() => setShowActionModal(false)} title="">
-        {selectedStudent && (
-          <div className="space-y-4">
-            {actionType === "suspend" && (
-              <div className="flex gap-3 p-4 rounded-lg bg-amber-50">
-                <AlertTriangle className="h-6 w-6 text-amber-600 shrink-0" />
-                <p className="text-sm">Suspend <strong>{selectedStudent.name}</strong>? They won't be able to access their account.</p>
+            ) : (
+              <div className="flex gap-3 p-4 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                <AlertCircle className="h-6 w-6 shrink-0" />
+                <p>
+                  Are you sure you want to {confirmActionType} student account <strong>{targetStudent.name}</strong>? Suspended students cannot log in or study course syllabus.
+                </p>
               </div>
             )}
-            {actionType === "delete" && (
-              <div className="flex gap-3 p-4 rounded-lg bg-destructive/10">
-                <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
-                <p className="text-sm">Permanently delete <strong>{selectedStudent.name}</strong>? This cannot be undone.</p>
-              </div>
-            )}
-            <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setShowActionModal(false)}>Cancel</Button>
-              <Button variant={actionType === "delete" ? "destructive" : "default"} onClick={() => setShowActionModal(false)}>
-                {actionType === "delete" ? "Delete" : "Confirm"}
+            <div className="flex gap-3 justify-end pt-2">
+              <Button variant="outline" onClick={() => setShowConfirmModal(false)}>Cancel</Button>
+              <Button
+                variant={confirmActionType === "delete" ? "destructive" : "default"}
+                onClick={handleExecuteConfirm}
+                className="font-semibold shadow"
+              >
+                Confirm {confirmActionType}
               </Button>
             </div>
           </div>
         )}
       </Modal>
-    </motion.div>
+
+      {/* Bulk JSON Import Modal */}
+      <Modal isOpen={showImportModal} onClose={() => setShowImportModal(false)} title="Bulk JSON Data Import">
+        <div className="space-y-4 text-sm" id="import-users-modal">
+          <p className="text-muted-foreground">Paste a JSON array containing teacher/student objects mapping name and email fields:</p>
+          <textarea
+            className="w-full min-h-36 rounded-lg border border-border bg-card p-3 font-mono text-xs focus:outline-none"
+            placeholder='[{"name": "Alice Smith", "email": "alice@lms.com", "role": "student"}]'
+            value={importPayload}
+            onChange={(e) => setImportPayload(e.target.value)}
+          />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" onClick={() => setShowImportModal(false)}>Cancel</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold" onClick={handleExecuteImport}>
+              Execute Import
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 }

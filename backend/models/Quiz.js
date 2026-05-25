@@ -1,49 +1,98 @@
 import mongoose from "mongoose";
 
-const optionSchema = new mongoose.Schema(
-  {
-    text: { type: String, required: true },
-    isCorrect: { type: Boolean, default: false },
-  },
-  { _id: true }
-);
-
-const questionSchema = new mongoose.Schema(
-  {
-    text: { type: String, required: true },
-    options: { type: [optionSchema], default: [] },
-    points: { type: Number, default: 1 },
-  },
-  { _id: true }
-);
-
-const quizResultSchema = new mongoose.Schema(
-  {
-    studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    score: { type: Number, default: 0 },
-    maxScore: { type: Number, default: 0 },
-    answers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
-    completedAt: { type: Date, default: Date.now },
-  },
-  { _id: true }
-);
-
 const quizSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, trim: true },
-    description: { type: String, default: "" },
-    courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
-    teacherId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    questions: { type: [questionSchema], default: [] },
-    timeLimit: { type: Number, default: 30 }, // minutes
-    status: { type: String, enum: ["draft", "published"], default: "draft" },
-    results: { type: [quizResultSchema], default: [] },
-    totalPoints: { type: Number, default: 0 },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 200,
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    instructions: {
+      type: String,
+      default: "",
+    },
+    courseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+      required: true,
+      index: true,
+    },
+    moduleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Module",
+      default: null,
+      index: true,
+    },
+    topicId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Topic",
+      default: null,
+      index: true,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    duration: {
+      type: Number,
+      default: 30, // in minutes
+      min: 1,
+    },
+    totalMarks: {
+      type: Number,
+      default: 100,
+      min: 0,
+    },
+    passingMarks: {
+      type: Number,
+      default: 40,
+      min: 0,
+    },
+    quizType: {
+      type: String,
+      enum: ["practice", "exam", "homework"],
+      default: "exam",
+      index: true,
+    },
+    attemptLimit: {
+      type: Number,
+      default: 1, // 0 means unlimited
+      min: 0,
+    },
+    shuffleQuestions: {
+      type: Boolean,
+      default: false,
+    },
+    negativeMarking: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: String,
+      enum: ["draft", "published", "closed"],
+      default: "published",
+      index: true,
+    },
+    questions: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Question",
+      },
+    ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-quizSchema.index({ courseId: 1 });
-quizSchema.index({ teacherId: 1 });
+// Search optimization
+quizSchema.index({ title: "text", description: "text" });
 
 export const Quiz = mongoose.model("Quiz", quizSchema);

@@ -51,12 +51,19 @@ export async function registerController(req, res, next) {
       );
     }
 
+    // Restrict registration role strictly to "student"
+    if (role && role !== "student") {
+      throw new BadRequestError(
+        "Self-registration is only allowed for student accounts."
+      );
+    }
+
     // Register Service
     const result = await authService.register({
       name,
       email,
       password,
-      role,
+      role: "student", // Force role to student for extra safety
     });
 
     return res.status(201).json({

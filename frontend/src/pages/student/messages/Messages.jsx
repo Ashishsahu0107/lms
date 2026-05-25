@@ -55,7 +55,7 @@ export default function Messages() {
   const loadConversations = async () => {
     try {
       setLoadingConvs(true);
-      const res = await apiGet("/api/messages/conversations");
+      const res = await apiGet("/messages/conversations");
       if (res.data?.success) {
         setConversations(res.data.data || []);
       }
@@ -74,7 +74,7 @@ export default function Messages() {
   const loadMessages = async (partnerId) => {
     try {
       setLoadingMessages(true);
-      const res = await apiGet(`/api/messages/${partnerId}`);
+      const res = await apiGet(`/messages/${partnerId}`);
       if (res.data?.success) {
         setMessages(res.data.data || []);
       }
@@ -93,7 +93,7 @@ export default function Messages() {
 
     // Call API to mark as read
     try {
-      await apiPatch(`/api/messages/read/${partnerId}`);
+      await apiPatch(`/messages/read/${partnerId}`);
       // Decrement unread counts locally
       setConversations((prev) =>
         prev.map((c) =>
@@ -123,7 +123,7 @@ export default function Messages() {
         
         // Mark as read instantly on the backend
         if (senderId !== currentUser.id) {
-          apiPatch(`/api/messages/read/${otherPartyId}`).catch(console.error);
+          apiPatch(`/messages/read/${otherPartyId}`).catch(console.error);
         }
       }
 
@@ -206,7 +206,7 @@ export default function Messages() {
     }
 
     try {
-      const res = await apiPost("/api/messages", {
+      const res = await apiPost("/messages", {
         recipientId: partnerId,
         content: messageText,
       });
@@ -256,7 +256,7 @@ export default function Messages() {
     try {
       setLoadingContacts(true);
       // Fetch student courses (which populate teachers!)
-      const res = await apiGet("/api/student/courses");
+      const res = await apiGet("/student/courses");
       const courses = res.data || [];
       
       const teacherMap = new Map();

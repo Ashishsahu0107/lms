@@ -1,260 +1,277 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getAdminStats, getAdminAnalytics } from "../../../services/dashboardService";
 import {
-  Users, BookOpen, TrendingUp, AlertCircle,
-  CheckCircle2, Clock, DollarSign, UserPlus, Book, ArrowUpRight,
-  ArrowDownRight, Activity, Shield, Bell, Settings, Eye, MoreVertical
+  Users,
+  BookOpen,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  UserPlus,
+  ArrowRight,
+  Loader2,
+  Bell,
+  Settings,
+  Shield,
+  Activity,
+  Award,
+  Sparkles,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { StatCard } from "../../../components/ui/StatCard";
-import { Avatar } from "../../../components/ui/Avatar";
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  PieChart, Pie, Cell
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
-const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
 
-const mockRevenueData = [
-  { month: "Jan", revenue: 4200, enrollments: 120 },
-  { month: "Feb", revenue: 5800, enrollments: 145 },
-  { month: "Mar", revenue: 7200, enrollments: 180 },
-  { month: "Apr", revenue: 6100, enrollments: 160 },
-  { month: "May", revenue: 8900, enrollments: 210 },
-  { month: "Jun", revenue: 9400, enrollments: 225 },
-  { month: "Jul", revenue: 11200, enrollments: 280 },
-  { month: "Aug", revenue: 10600, enrollments: 260 },
-  { month: "Sep", revenue: 12300, enrollments: 310 },
-  { month: "Oct", revenue: 14800, enrollments: 370 },
-  { month: "Nov", revenue: 13200, enrollments: 340 },
-  { month: "Dec", revenue: 16500, enrollments: 420 },
-];
-
-const mockUserGrowth = [
-  { month: "Jan", teachers: 12, students: 245 },
-  { month: "Feb", teachers: 15, students: 312 },
-  { month: "Mar", teachers: 18, students: 410 },
-  { month: "Apr", teachers: 22, students: 495 },
-  { month: "May", teachers: 28, students: 580 },
-  { month: "Jun", teachers: 35, students: 720 },
-];
-
-const mockCourseDistribution = [
-  { name: "Published", value: 156, color: "#10b981" },
-  { name: "Draft", value: 34, color: "#f59e0b" },
-  { name: "Archived", value: 12, color: "#6b7280" },
-];
-
-const recentTransactions = [
-  { id: 1, user: "Sarah Johnson", course: "Advanced JavaScript", amount: 99.99, date: "2 hours ago", status: "completed" },
-  { id: 2, user: "Michael Chen", course: "Python for Data Science", amount: 149.99, date: "4 hours ago", status: "completed" },
-  { id: 3, user: "Emma Davis", course: "UI/UX Design", amount: 79.99, date: "6 hours ago", status: "pending" },
-  { id: 4, user: "James Wilson", course: "Machine Learning", amount: 199.99, date: "1 day ago", status: "completed" },
-  { id: 5, user: "Lisa Brown", course: "React Native", amount: 129.99, date: "1 day ago", status: "refunded" },
-];
-
-const recentRegistrations = [
-  { id: 1, name: "Dr. James Wilson", email: "james@university.edu", type: "Teacher", date: "Today", status: "pending" },
-  { id: 2, name: "Maria Garcia", email: "maria@email.com", type: "Student", date: "Today", status: "approved" },
-  { id: 3, name: "Prof. David Lee", email: "dlee@stanford.edu", type: "Teacher", date: "Yesterday", status: "pending" },
-  { id: 4, name: "Anna Smith", email: "anna@email.com", type: "Student", date: "Yesterday", status: "approved" },
-  { id: 5, name: "Robert Taylor", email: "rtaylor@email.com", type: "Student", date: "2 days ago", status: "approved" },
-];
-
-const systemAlerts = [
-  { id: 1, type: "warning", message: "3 courses pending review", time: "1 hour ago" },
-  { id: 2, type: "info", message: "2 new teacher applications", time: "3 hours ago" },
-  { id: 3, type: "success", message: "Server performance nominal", time: "6 hours ago" },
-];
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalTeachers: 0,
+    totalCourses: 0,
+    totalRevenue: 0,
+    activeUsers: 0,
+    recentSignups: [],
+    mostEnrolledCourses: [],
+    topTeachers: [],
+  });
+  const [analytics, setAnalytics] = useState({
+    userGrowth: [],
+    revenueGrowth: [],
+    courseEnrollment: [],
+  });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulated loading - in production would call getDashboardStats()
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
+    async function loadAdminData() {
+      try {
+        setLoading(true);
+        const [statsRes, analyticsRes] = await Promise.all([
+          getAdminStats(),
+          getAdminAnalytics(),
+        ]);
+
+        if (statsRes.data?.success) {
+          setStats(statsRes.data.data);
+        }
+        if (analyticsRes.data?.success) {
+          setAnalytics(analyticsRes.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load admin dashboard statistics:", err);
+        setError("Unable to sync global system statistics with the LMS backend.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAdminData();
   }, []);
 
-  const statsData = loading ? null : {
-    totalRevenue: 125480,
-    totalStudents: 2847,
-    totalTeachers: 156,
-    totalCourses: 202,
-    activeUsers: 342,
-    pendingApprovals: 8,
-  };
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center py-32 space-y-4" id="admin-dashboard-loading">
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+        <p className="text-muted-foreground text-sm font-medium animate-pulse">Syncing platform metrics and telemetry logs...</p>
+      </div>
+    );
+  }
+
+  // Define top course
+  const topCourse = stats.mostEnrolledCourses[0];
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+      id="admin-dashboard-root"
+    >
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-4 flex items-center gap-3 text-sm">
+          <AlertCircle className="h-5 w-5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Page Header */}
       <motion.div variants={item}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Platform overview and management</p>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Shield className="h-6 w-6 text-blue-600" /> Super Admin Cockpit
+            </h1>
+            <p className="text-muted-foreground">Global platform telemetry and curriculum deployment logs</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2"><Bell className="h-4 w-4" />Notifications</Button>
-            <Button className="gap-2"><Settings className="h-4 w-4" />Settings</Button>
+            <Link to="/admin/students">
+              <Button variant="outline" className="gap-2">
+                <Users className="h-4 w-4" /> Manage Students
+              </Button>
+            </Link>
+            <Link to="/admin/courses">
+              <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-0">
+                <BookOpen className="h-4 w-4" /> Course Archives
+              </Button>
+            </Link>
           </div>
         </div>
       </motion.div>
 
-      {/* Stats Grid */}
-      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      {/* Analytics Statistics Grid */}
+      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4" id="admin-stats-grid">
         <StatCard
           title="Total Revenue"
-          value={statsData ? `$${(statsData.totalRevenue / 1000).toFixed(1)}K` : "—"}
-          change="+12.5% from last month"
+          value={`$${stats.totalRevenue.toLocaleString()}`}
+          change="+12% enrollment fees"
           changeType="positive"
           icon={DollarSign}
           trend={75}
+          id="stat-revenue"
         />
         <StatCard
           title="Total Students"
-          value={statsData?.totalStudents?.toLocaleString() || "—"}
+          value={stats.totalStudents}
           change="+8.2% this month"
           changeType="positive"
           icon={Users}
-          trend={82}
+          trend={85}
+          id="stat-students"
         />
         <StatCard
           title="Total Teachers"
-          value={statsData?.totalTeachers || "—"}
-          change="+5 new this week"
+          value={stats.totalTeachers}
+          change="+2 new this week"
           changeType="positive"
           icon={UserPlus}
+          id="stat-teachers"
         />
         <StatCard
-          title="Total Courses"
-          value={statsData?.totalCourses || "—"}
-          change="+12 this month"
+          title="Active Courses"
+          value={stats.totalCourses}
+          change="+6 this term"
           changeType="positive"
           icon={BookOpen}
+          id="stat-courses"
         />
         <StatCard
-          title="Active Users"
-          value={statsData?.activeUsers || "—"}
-          change="Live right now"
+          title="Telemetry Users"
+          value={stats.activeUsers}
+          change="Real-time count"
           changeType="positive"
           icon={Activity}
+          id="stat-telemetry"
         />
-        <StatCard
-          title="Pending Approvals"
-          value={statsData?.pendingApprovals || "—"}
-          change="需要审核"
-          changeType="warning"
-          icon={Clock}
-        />
+        <div className="rounded-xl border bg-card p-6 shadow-card hover:shadow-elevated transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-card to-amber-600/5 border-amber-500/20">
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Best Seller</p>
+              <p className="text-sm font-extrabold tracking-tight text-amber-700 dark:text-amber-300 line-clamp-1">
+                {topCourse ? topCourse.title : "None yet"}
+              </p>
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <Sparkles className="h-3 w-3 text-amber-500 fill-current" />
+                <span>{topCourse ? `${topCourse.studentsCount} enrolls` : "No classes yet"}</span>
+              </div>
+            </div>
+            <div className="p-3 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
+              <Award className="h-6 w-6" />
+            </div>
+          </div>
+        </div>
       </motion.div>
 
-      {/* Charts Row */}
-      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Revenue Chart */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className="text-base">Revenue Analytics</CardTitle>
-            <div className="flex gap-2">
-              {["Monthly", "Quarterly", "Yearly"].map((period, i) => (
-                <Button key={period} variant={i === 0 ? "default" : "ghost"} size="sm" className="h-8 text-xs">
-                  {period}
-                </Button>
-              ))}
-            </div>
+      {/* Double Analytics Panel charts */}
+      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="admin-charts-section">
+        {/* Revenue Analytics Curve Area Chart */}
+        <Card className="lg:col-span-2 hover:shadow-md transition-all">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-blue-500" />
+              Monthly Platform Billing Growth ($)
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockRevenueData}>
+                <AreaChart data={analytics.revenueGrowth}>
                   <defs>
-                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="revenueGrowthGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" tickFormatter={(v) => `$${v / 1000}k`} />
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
+                  <YAxis className="text-xs text-muted-foreground font-medium" tickFormatter={(v) => `$${v}`} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "0.75rem",
                     }}
-                    formatter={(value) => [`$${value.toLocaleString()}`, "Revenue"]}
+                    formatter={(val) => [`$${val.toLocaleString()}`, "Billing"]}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#3b82f6"
+                    strokeWidth={2.5}
+                    fill="url(#revenueGrowthGrad)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Course Distribution */}
-        <Card>
-          <CardHeader><CardTitle className="text-base">Course Status</CardTitle></CardHeader>
-          <CardContent>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={mockCourseDistribution}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={75}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {mockCourseDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex justify-center gap-4 mt-2">
-              {mockCourseDistribution.map((entry) => (
-                <div key={entry.name} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                  <span className="text-sm text-muted-foreground">{entry.name}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* User Growth Chart */}
-      <motion.div variants={item}>
-        <Card>
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className="text-base">User Growth</CardTitle>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="text-sm text-muted-foreground">Teachers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className="text-sm text-muted-foreground">Students</span>
-              </div>
-            </div>
+        {/* User Signups Growth Bar Chart */}
+        <Card className="hover:shadow-md transition-all">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-emerald-500" />
+              User Registrations Growth
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={mockUserGrowth}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
+                <BarChart data={analytics.userGrowth}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
+                  <YAxis className="text-xs text-muted-foreground font-medium" />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
@@ -262,8 +279,7 @@ export default function AdminDashboard() {
                       borderRadius: "0.75rem",
                     }}
                   />
-                  <Bar dataKey="teachers" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="students" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="users" fill="#10b981" radius={[4, 4, 0, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -271,111 +287,121 @@ export default function AdminDashboard() {
         </Card>
       </motion.div>
 
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Transactions */}
+      {/* Platform Audits & Rankings section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="admin-auditing-tables">
+        {/* Most Enrolled Courses */}
         <motion.div variants={item}>
-          <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />Recent Transactions
+          <Card className="hover:shadow-md transition-all h-full">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-blue-500" />
+                Top Performing Courses
               </CardTitle>
-              <Button variant="ghost" size="sm" className="text-xs">View All</Button>
+              <Link to="/admin/courses" className="text-xs text-indigo-600 font-semibold hover:underline">
+                View All
+              </Link>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentTransactions.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-8 h-8" fallback={tx.user.charAt(0)} />
-                      <div>
-                        <p className="text-sm font-medium">{tx.user}</p>
-                        <p className="text-xs text-muted-foreground">{tx.course}</p>
+              {stats.mostEnrolledCourses.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground text-xs">
+                  No courses enrolled yet.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {stats.mostEnrolledCourses.map((course, idx) => (
+                    <div key={course._id} className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-sm line-clamp-1 text-foreground">{course.title}</div>
+                        <div className="text-xs text-muted-foreground">Instructor: {course.instructor}</div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-0 text-xs font-semibold">
+                          {course.studentsCount} Students
+                        </Badge>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">${course.price} Fee</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">${tx.amount}</p>
-                      <Badge
-                        variant={tx.status === "completed" ? "success" : tx.status === "pending" ? "warning" : "destructive"}
-                        className="text-xs"
-                      >
-                        {tx.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Recent Registrations */}
+        {/* Top Teachers */}
         <motion.div variants={item}>
-          <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />Recent Registrations
+          <Card className="hover:shadow-md transition-all h-full">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Award className="h-4 w-4 text-amber-500" />
+                Educator Class Rankings
               </CardTitle>
-              <Button variant="ghost" size="sm" className="text-xs">View All</Button>
+              <Link to="/admin/teachers" className="text-xs text-indigo-600 font-semibold hover:underline">
+                View All
+              </Link>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentRegistrations.map((reg) => (
-                  <div key={reg.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-8 h-8" fallback={reg.name.charAt(0)} />
-                      <div>
-                        <p className="text-sm font-medium">{reg.name}</p>
-                        <p className="text-xs text-muted-foreground">{reg.email}</p>
+              {stats.topTeachers.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground text-xs">
+                  No active instructors registered.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {stats.topTeachers.map((teacher, idx) => (
+                    <div key={teacher._id} className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-sm line-clamp-1 text-foreground">{teacher.name}</div>
+                        <div className="text-xs text-muted-foreground">{teacher.email}</div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 border-0 text-xs font-semibold">
+                          {teacher.studentsCount} Students
+                        </Badge>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">Rank #{idx+1}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <Badge variant={reg.type === "Teacher" ? "default" : "secondary"} className="text-xs mb-1">
-                        {reg.type}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground">{reg.date}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* System Alerts */}
+        {/* Audit Feed: Recent Registrations */}
         <motion.div variants={item}>
-          <Card>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Shield className="h-4 w-4" />System Alerts
+          <Card className="hover:shadow-md transition-all h-full">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <UserPlus className="h-4 w-4 text-emerald-500" />
+                Audit Log: Registrations
               </CardTitle>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
+              <Badge variant="secondary" className="text-[10px] uppercase font-semibold">Live Feed</Badge>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {systemAlerts.map((alert) => (
-                  <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                    <div className={`p-1.5 rounded-full ${
-                      alert.type === "warning" ? "bg-amber-100" :
-                      alert.type === "success" ? "bg-emerald-100" : "bg-blue-100"
-                    }`}>
-                      {alert.type === "warning" ? (
-                        <AlertCircle className="h-4 w-4 text-amber-600" />
-                      ) : alert.type === "success" ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                      ) : (
-                        <Bell className="h-4 w-4 text-blue-600" />
-                      )}
+              {stats.recentSignups.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground text-xs">
+                  No recent signups found.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {stats.recentSignups.map((user) => (
+                    <div key={user._id} className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-sm line-clamp-1 text-foreground">{user.name}</div>
+                        <div className="text-xs text-muted-foreground">{user.email}</div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 border-0 text-[10px] font-semibold capitalize">
+                          Student
+                        </Badge>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm">{alert.message}</p>
-                      <p className="text-xs text-muted-foreground">{alert.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

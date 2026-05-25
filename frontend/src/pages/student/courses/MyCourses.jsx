@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Search, Filter, Grid, List, BookOpen, Clock, Star, Play,
+  Search, Filter, Grid, List, BookOpen, Clock, Star, Play, Award, Loader2, BookOpenCheck
 } from "lucide-react";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
@@ -10,59 +10,62 @@ import { Button } from "../../../components/ui/Button";
 import { SearchBar } from "../../../components/ui/SearchBar";
 import { ProgressBar } from "../../../components/ui/ProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/Tabs";
-
-const allCourses = [
-  {
-    id: 1, title: "Advanced JavaScript", instructor: "Dr. James Wilson",
-    category: "Programming", rating: 4.8, students: 1245, duration: "32 hours",
-    lessons: 24, progress: 75, thumbnail: "https://images.unsplash.com/photo-1627392662291-4c2ac9c424e9?w=400",
-    enrolled: true, certificate: true,
-  },
-  {
-    id: 2, title: "Python for Data Science", instructor: "Prof. Emily Chen",
-    category: "Data Science", rating: 4.9, students: 2156, duration: "45 hours",
-    lessons: 32, progress: 45, thumbnail: "https://images.unsplash.com/photo-1526379095098-d400fd0c9359?w=400",
-    enrolled: true, certificate: false,
-  },
-  {
-    id: 3, title: "UI/UX Design Fundamentals", instructor: "Sarah Johnson",
-    category: "Design", rating: 4.7, students: 876, duration: "28 hours",
-    lessons: 18, progress: 20, thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400",
-    enrolled: true, certificate: false,
-  },
-  {
-    id: 4, title: "Machine Learning Basics", instructor: "Dr. Michael Brown",
-    category: "AI & ML", rating: 4.6, students: 1532, duration: "38 hours",
-    lessons: 28, progress: 0, thumbnail: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400",
-    enrolled: false, certificate: false,
-  },
-  {
-    id: 5, title: "React Native Development", instructor: "Alex Turner",
-    category: "Mobile Dev", rating: 4.8, students: 987, duration: "35 hours",
-    lessons: 26, progress: 0, thumbnail: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400",
-    enrolled: false, certificate: false,
-  },
-  {
-    id: 6, title: "Digital Marketing Mastery", instructor: "Rachel Green",
-    category: "Marketing", rating: 4.5, students: 2341, duration: "24 hours",
-    lessons: 20, progress: 100, thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400",
-    enrolled: true, certificate: true,
-  },
-];
+import { getStudentEnrollments } from "../../../services/enrollmentService";
+import { useAuth } from "../../../context/AuthContext";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function MyCourses() {
+  const { user } = useAuth();
+  const [enrollments, setEnrollments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
-  const filteredCourses = allCourses.filter((course) => {
+  useEffect(() => {
+    async function loadEnrollments() {
+      try {
+        if (user?.id) {
+          const res = await getStudentEnrollments(user.id);
+          if (res.data?.success) {
+            setEnrollments(res.data.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load enrolled courses:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadEnrollments();
+  }, [user]);
+
+  // Extract and format courses with progress
+  const courses = enrollments.map((enrollment) => {
+    const course = enrollment.courseId ?? {};
+    return {
+      id: course._id,
+      title: course.title || "Untitled Course",
+      instructor: course.teacherId?.name || "LMS Instructor",
+      category: course.category || "General",
+      price: course.price,
+      difficulty: course.difficulty || "beginner",
+      thumbnail: course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400",
+      progress: enrollment.progress || 0,
+      lessons: course.modules?.reduce((acc, mod) => acc + (mod.topics?.length || 0), 0) || 0,
+      modulesCount: course.modules?.length || 0,
+      enrolled: true,
+      certificate: enrollment.progress === 100,
+    };
+  });
+
+  const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
-    if (activeTab === "enrolled") return matchesSearch && course.enrolled;
+    if (activeTab === "enrolled") return matchesSearch;
     if (activeTab === "completed") return matchesSearch && course.progress === 100;
-    if (activeTab === "inProgress") return matchesSearch && course.enrolled && course.progress > 0 && course.progress < 100;
+    if (activeTab === "inProgress") return matchesSearch && course.progress > 0 && course.progress < 100;
     return matchesSearch;
   });
 
@@ -84,27 +87,46 @@ export default function MyCourses() {
       </motion.div>
 
       <motion.div variants={item} className="flex flex-col sm:flex-row gap-4">
-        <SearchBar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search courses..." className="flex-1" />
+        <SearchBar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search your courses..." className="flex-1" />
         <Button variant="outline" className="gap-2"><Filter className="h-4 w-4" />Filters</Button>
       </motion.div>
 
-      <motion.div variants={item}>
-        <Tabs defaultValue="all" onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All Courses</TabsTrigger>
-            <TabsTrigger value="enrolled">Enrolled</TabsTrigger>
-            <TabsTrigger value="inProgress">In Progress</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-          </TabsList>
-          <TabsContent value={activeTab}>
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {filteredCourses.map((course) => (
-                <CourseCard key={course.id} course={course} viewMode={viewMode} />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      ) : courses.length === 0 ? (
+        <Card className="p-12 text-center border border-base-300 bg-base-100/50">
+          <BookOpen className="h-16 w-16 mx-auto mb-4 text-muted-foreground/60" />
+          <h3 className="text-xl font-bold mb-2">No Courses Enrolled</h3>
+          <p className="text-muted-foreground max-w-sm mx-auto mb-6">
+            You are not currently enrolled in any courses. Please contact your administrator or teacher to assign you access.
+          </p>
+        </Card>
+      ) : (
+        <motion.div variants={item}>
+          <Tabs defaultValue="all" onValueChange={setActiveTab}>
+            <TabsList>
+              <TabsTrigger value="all">All ({courses.length})</TabsTrigger>
+              <TabsTrigger value="inProgress">In Progress ({courses.filter(c => c.progress > 0 && c.progress < 100).length})</TabsTrigger>
+              <TabsTrigger value="completed">Completed ({courses.filter(c => c.progress === 100).length})</TabsTrigger>
+            </TabsList>
+            <TabsContent value={activeTab}>
+              {filteredCourses.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  No courses match your filter selection.
+                </div>
+              ) : (
+                <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+                  {filteredCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} viewMode={viewMode} />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
@@ -112,30 +134,37 @@ export default function MyCourses() {
 function CourseCard({ course, viewMode }) {
   const content = (
     <>
-      <div className="relative overflow-hidden">
+      <div className="relative h-44 overflow-hidden bg-base-300">
         <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        {course.enrolled && course.progress > 0 && (
-          <Badge className="absolute top-3 right-3 bg-blue-600 text-white border-0">{course.progress}% Complete</Badge>
+        {course.progress > 0 && (
+          <Badge className="absolute top-3 right-3 bg-primary text-primary-content border-0">{course.progress}% Complete</Badge>
         )}
-        {course.certificate && course.progress === 100 && (
-          <Badge className="absolute top-3 right-3 bg-emerald-600 text-white border-0">Certified</Badge>
+        {course.certificate && (
+          <Badge className="absolute top-3 right-3 bg-success text-success-content border-0">Completed</Badge>
         )}
       </div>
-      <CardContent className="p-4">
-        <Badge variant="secondary" className="mb-3">{course.category}</Badge>
-        <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors line-clamp-1">{course.title}</h3>
-        <p className="text-sm text-muted-foreground mb-3">{course.instructor}</p>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-          <span className="flex items-center gap-1"><Star className="h-4 w-4 text-amber-500" />{course.rating}</span>
-          <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" />{course.lessons}</span>
-          <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{course.duration}</span>
+      <CardContent className="p-5 flex flex-col justify-between flex-1">
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <Badge variant="secondary" className="capitalize">{course.category}</Badge>
+            <Badge variant="outline" className="capitalize text-xs">{course.difficulty}</Badge>
+          </div>
+          <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors line-clamp-1">{course.title}</h3>
+          <p className="text-sm text-muted-foreground mb-4">Instructor: {course.instructor}</p>
+          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-4">
+            <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" />{course.modulesCount} Modules</span>
+            <span className="flex items-center gap-1"><BookOpenCheck className="h-3.5 w-3.5" />{course.lessons} Topics</span>
+          </div>
         </div>
-        {course.enrolled ? (
+        
+        <div className="space-y-4 pt-2 border-t border-base-200">
           <ProgressBar value={course.progress} size="sm" showLabel />
-        ) : (
-          <Button className="w-full">Enroll Now</Button>
-        )}
+          <Button className="w-full gap-2" variant={course.progress === 100 ? "success" : "default"}>
+            <Play className="h-4 w-4 fill-current" />
+            {course.progress === 0 ? "Start Course" : course.progress === 100 ? "Review Course" : "Continue Learning"}
+          </Button>
+        </div>
       </CardContent>
     </>
   );
@@ -143,32 +172,36 @@ function CourseCard({ course, viewMode }) {
   if (viewMode === "list") {
     return (
       <motion.div variants={item}>
-        <Link to={`/student/course/${course.id}`} className="block">
-          <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
+        <Link to={`/student/courses/${course.id}`} className="block">
+          <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden bg-base-100 border border-base-300">
             <div className="flex flex-col md:flex-row">
-              <div className="md:w-48 h-32 md:h-auto relative">
+              <div className="md:w-60 h-40 md:h-auto relative bg-base-300">
                 <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
               </div>
-              <CardContent className="flex-1 p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">{course.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{course.instructor}</p>
+              <CardContent className="flex-1 p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="flex items-center gap-2">
+                      <Badge variant="secondary" className="capitalize">{course.category}</Badge>
+                      <Badge variant="outline" className="capitalize text-xs">{course.difficulty}</Badge>
+                    </span>
+                    {course.certificate && <Badge variant="success">Completed</Badge>}
                   </div>
-                  <Badge>{course.category}</Badge>
+                  <h3 className="font-bold text-xl mb-1">{course.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Instructor: {course.instructor}</p>
+                  <div className="flex gap-4 text-xs text-muted-foreground mb-4">
+                    <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" />{course.modulesCount} Modules</span>
+                    <span className="flex items-center gap-1"><BookOpenCheck className="h-3.5 w-3.5" />{course.lessons} Topics</span>
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-3">
-                  <span className="flex items-center gap-1"><Star className="h-4 w-4 text-amber-500" />{course.rating}</span>
-                  <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" />{course.lessons} lessons</span>
-                  <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{course.duration}</span>
-                </div>
-                {course.enrolled && <ProgressBar value={course.progress} size="sm" showLabel className="mb-3" />}
-                <div className="flex items-center gap-2">
-                  {course.enrolled ? (
-                    <Button size="sm" className="gap-2"><Play className="h-4 w-4" />{course.progress > 0 ? "Continue" : "Start"}</Button>
-                  ) : (
-                    <Button size="sm">Enroll Now</Button>
-                  )}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 border-t border-base-200">
+                  <div className="flex-1">
+                    <ProgressBar value={course.progress} size="sm" showLabel />
+                  </div>
+                  <Button size="sm" className="gap-2" variant={course.progress === 100 ? "success" : "default"}>
+                    <Play className="h-3.5 w-3.5 fill-current" />
+                    {course.progress === 0 ? "Start" : course.progress === 100 ? "Review" : "Continue"}
+                  </Button>
                 </div>
               </CardContent>
             </div>
@@ -179,9 +212,9 @@ function CourseCard({ course, viewMode }) {
   }
 
   return (
-    <motion.div variants={item}>
-      <Link to={`/student/course/${course.id}`} className="block">
-        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer">
+    <motion.div variants={item} className="flex h-full">
+      <Link to={`/student/courses/${course.id}`} className="block w-full">
+        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer bg-base-100 border border-base-300 h-full flex flex-col">
           {content}
         </Card>
       </Link>
