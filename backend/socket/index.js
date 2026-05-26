@@ -77,6 +77,22 @@ export function initSocket(httpServer) {
       ioInstance.to("teacher:dashboard").emit("payoutProcessed", data);
     });
 
+    // Custom alerts & alerts mapping
+    socket.on("newMessage", (data) => {
+      if (data.recipientId) {
+        ioInstance.to(`user:${data.recipientId}`).emit("newMessage", data);
+        ioInstance.to(`user:${data.recipientId}`).emit("new-message", data);
+      }
+    });
+
+    socket.on("newNotification", (data) => {
+      if (data.courseId) {
+        socket.broadcast.emit("newNotification", data);
+      } else {
+        ioInstance.emit("newNotification", data);
+      }
+    });
+
     // Handle incoming direct messages
     socket.on("send-message", async (data) => {
       try {

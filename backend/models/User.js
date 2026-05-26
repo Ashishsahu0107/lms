@@ -190,6 +190,49 @@ const userSchema = new mongoose.Schema(
       },
       twoFactorEnabled: { type: Boolean, default: false },
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationOTP: {
+      type: String,
+      default: null,
+    },
+    verificationOTPExpires: {
+      type: Date,
+      default: null,
+    },
+    resetPasswordOTP: {
+      type: String,
+      default: null,
+    },
+    resetPasswordOTPExpires: {
+      type: Date,
+      default: null,
+    },
+    xp: {
+      type: Number,
+      default: 0,
+    },
+    streak: {
+      type: Number,
+      default: 0,
+    },
+    lastActiveDate: {
+      type: Date,
+      default: null,
+    },
+    badges: {
+      type: [String],
+      default: [],
+    },
+    achievements: [
+      {
+        title: { type: String, required: true },
+        description: { type: String, default: "" },
+        unlockedAt: { type: Date, default: Date.now }
+      }
+    ]
   },
   {
     timestamps: true,

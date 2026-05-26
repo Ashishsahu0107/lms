@@ -28,6 +28,10 @@ import teacherDashboardRouter from "./teacherDashboard.routes.js";
 import attendanceRouter from "./attendance.routes.js";
 import certificateRouter from "./certificate.routes.js";
 import settingsRouter from "./settings.routes.js";
+import notesRouter from "./notes.routes.js";
+import scheduleRouter from "./schedule.routes.js";
+import searchRouter from "./search.routes.js";
+import aiRouter from "./ai.routes.js";
 
 // =====================================
 // ROOT ROUTER
@@ -71,6 +75,10 @@ rootRouter.use("/teacher", teacherDashboardRouter);
 rootRouter.use("/attendance", attendanceRouter);
 rootRouter.use("/certificates", certificateRouter);
 rootRouter.use("/settings", settingsRouter);
+rootRouter.use("/notes", notesRouter);
+rootRouter.use("/schedules", scheduleRouter);
+rootRouter.use("/search", searchRouter);
+rootRouter.use("/ai", aiRouter);
 
 
 // =====================================
@@ -84,9 +92,12 @@ rootRouter.use("/teacher/analytics", analyticsRouter);
 // =====================================
 // MESSAGES & ADMIN
 // =====================================
+import adminAnalyticsRouter from "./adminAnalytics.routes.js";
+
 rootRouter.use("/messages", messageRouter);
 rootRouter.use("/admin", adminRouter);
 rootRouter.use("/admin", adminModulesRouter);
+rootRouter.use("/admin/analytics", adminAnalyticsRouter);
 
 // =====================================
 // API ROOT DESCRIPTIVE ENDPOINT

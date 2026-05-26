@@ -39,3 +39,19 @@ export function getStoredUser() {
 export function getStoredToken() {
   return localStorage.getItem("token");
 }
+
+export async function sendOtp(email) {
+  return apiPost("/auth/send-otp", { email });
+}
+
+export async function verifyOtp(email, otp) {
+  return apiPost("/auth/verify-otp", { email, otp });
+}
+
+export async function forgotPassword(email) {
+  return apiPost("/auth/forgot-password", { email });
+}
+
+export async function resetPassword(email, otp, newPassword) {
+  return apiPost("/auth/reset-password", { email, otp, newPassword });
+}

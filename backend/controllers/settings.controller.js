@@ -1,4 +1,5 @@
 import { User } from "../models/User.js";
+import { Settings } from "../models/Settings.js";
 import { BadRequestError, UnauthorizedError } from "../utils/errors.js";
 import bcrypt from "bcryptjs";
 
@@ -150,6 +151,60 @@ export async function updateSettingsPreferencesController(req, res, next) {
       success: true,
       message: "Preferences updated successfully",
       data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ======================================================
+// GET /api/settings/global
+// Fetch global platform settings from DB
+// ======================================================
+export async function getGlobalSettingsController(req, res, next) {
+  try {
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = await Settings.create({
+        platformName: "LMS Pro",
+        commissionRate: 20,
+        allowedUploadSizeMB: 100,
+        maintenanceMode: false,
+        brandingLogo: "",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: settings,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ======================================================
+// PUT /api/settings/global
+// Update platform settings (Super Admin only)
+// ======================================================
+export async function updateGlobalSettingsController(req, res, next) {
+  try {
+    const { platformName, commissionRate, allowedUploadSizeMB, maintenanceMode, brandingLogo } = req.body;
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = new Settings();
+    }
+    
+    if (platformName !== undefined) settings.platformName = platformName;
+    if (commissionRate !== undefined) settings.commissionRate = commissionRate;
+    if (allowedUploadSizeMB !== undefined) settings.allowedUploadSizeMB = allowedUploadSizeMB;
+    if (maintenanceMode !== undefined) settings.maintenanceMode = !!maintenanceMode;
+    if (brandingLogo !== undefined) settings.brandingLogo = brandingLogo;
+
+    await settings.save();
+    return res.status(200).json({
+      success: true,
+      message: "Global settings updated successfully",
+      data: settings,
     });
   } catch (err) {
     next(err);

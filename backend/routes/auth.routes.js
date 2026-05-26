@@ -5,6 +5,10 @@ import {
   registerController,
   meController,
   logoutController,
+  sendOtpController,
+  verifyOtpController,
+  forgotPasswordController,
+  resetPasswordController
 } from "../controllers/auth.controller.js";
 
 import {
@@ -28,6 +32,30 @@ router.post(
 router.post(
   "/register",
   registerController
+);
+
+// Send registration OTP
+router.post(
+  "/send-otp",
+  sendOtpController
+);
+
+// Verify registration OTP
+router.post(
+  "/verify-otp",
+  verifyOtpController
+);
+
+// Forgot Password
+router.post(
+  "/forgot-password",
+  forgotPasswordController
+);
+
+// Reset Password
+router.post(
+  "/reset-password",
+  resetPasswordController
 );
 
 // =====================================
