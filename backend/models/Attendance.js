@@ -22,13 +22,22 @@ const attendanceSchema = new mongoose.Schema(
     },
     date: {
       type: Date,
-      default: Date.now,
+      required: true,
       index: true,
     },
     status: {
       type: String,
-      enum: ["present", "absent", "late"],
+      enum: ["present", "absent", "late", "leave"],
       default: "present",
+    },
+    remarks: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    markedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
@@ -36,7 +45,7 @@ const attendanceSchema = new mongoose.Schema(
   }
 );
 
-// Unique student-course-date index (per day)
+// Unique per student per course per day
 attendanceSchema.index({ studentId: 1, courseId: 1, date: 1 }, { unique: true });
 
 export const Attendance = mongoose.model("Attendance", attendanceSchema);

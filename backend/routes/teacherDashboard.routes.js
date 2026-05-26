@@ -3,26 +3,25 @@ import { authenticate, authorize } from "../middleware/auth.js";
 import {
   getProgressController,
   getCourseProgressController,
-  getAttendanceController,
-  getAttendanceStatsController,
-  markAttendanceController,
   getEarningsController,
-  getRevenueStatsController
+  getRevenueStatsController,
 } from "../controllers/teacherDashboard.controller.js";
 
 const router = Router();
 
-// Progress analytics routes
-router.get("/progress", authenticate, authorize("teacher", "super_admin"), getProgressController);
-router.get("/course-progress/:id", authenticate, authorize("teacher", "super_admin"), getCourseProgressController);
+const guard = [authenticate, authorize("teacher", "super_admin")];
 
-// Attendance analytics routes
-router.get("/attendance", authenticate, authorize("teacher", "super_admin"), getAttendanceController);
-router.get("/attendance/stats", authenticate, authorize("teacher", "super_admin"), getAttendanceStatsController);
-router.post("/attendance/mark", authenticate, authorize("teacher", "super_admin"), markAttendanceController);
+// ── Progress Analytics ────────────────────────────────────────────────────────
+router.get("/progress", ...guard, getProgressController);
+router.get("/course-progress/:id", ...guard, getCourseProgressController);
 
-// Earnings analytics routes
-router.get("/earnings", authenticate, authorize("teacher", "super_admin"), getEarningsController);
-router.get("/revenue/stats", authenticate, authorize("teacher", "super_admin"), getRevenueStatsController);
+// ── Earnings Analytics ────────────────────────────────────────────────────────
+router.get("/earnings", ...guard, getEarningsController);
+router.get("/revenue/stats", ...guard, getRevenueStatsController);
+
+// NOTE: Attendance routes are registered under /api/attendance/ (attendance.routes.js)
+// GET  /api/attendance/course/:courseId/students?date=YYYY-MM-DD
+// POST /api/attendance/mark
+// GET  /api/attendance/stats
 
 export default router;

@@ -15,6 +15,11 @@ import {
 } from "../controllers/admin.controller.js";
 
 import {
+  getAdminAttendanceAnalyticsController,
+  getAdminAttendanceReportsController,
+} from "../controllers/adminAttendance.controller.js";
+
+import {
   createTeacherController,
   getTeachersController,
   getTeacherByIdController,
@@ -88,5 +93,9 @@ router.put("/settings", updateSettingsController);
 
 // Audit Logs
 router.get("/audit-logs", getAuditLogsController);
+
+// Attendance Analytics
+router.get("/attendance/analytics", getAdminAttendanceAnalyticsController);
+router.get("/attendance/reports", getAdminAttendanceReportsController);
 
 export default router;

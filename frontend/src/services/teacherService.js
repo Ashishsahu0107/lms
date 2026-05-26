@@ -106,15 +106,15 @@ export async function getLiveCourseProgress(id) {
 }
 
 export async function getLiveAttendance(courseId, date) {
-  return apiGet("/teacher/attendance", { courseId, date });
+  return apiGet(`/attendance/course/${courseId}/students`, { date });
 }
 
 export async function markLiveAttendance(data) {
-  return apiPost("/teacher/attendance/mark", data);
+  return apiPost("/attendance/mark", data);
 }
 
 export async function getLiveAttendanceStats() {
-  return apiGet("/teacher/attendance/stats");
+  return apiGet("/attendance/stats");
 }
 
 export async function getLiveEarnings() {
