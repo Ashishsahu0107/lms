@@ -26,6 +26,8 @@ import adminRouter from "./admin.routes.js";
 import adminModulesRouter from "./adminModules.routes.js";
 import teacherDashboardRouter from "./teacherDashboard.routes.js";
 import attendanceRouter from "./attendance.routes.js";
+import certificateRouter from "./certificate.routes.js";
+import settingsRouter from "./settings.routes.js";
 
 // =====================================
 // ROOT ROUTER
@@ -67,6 +69,8 @@ rootRouter.use("/quiz-attempts", quizAttemptRouter);
 rootRouter.use("/dashboard", dashboardRouter);
 rootRouter.use("/teacher", teacherDashboardRouter);
 rootRouter.use("/attendance", attendanceRouter);
+rootRouter.use("/certificates", certificateRouter);
+rootRouter.use("/settings", settingsRouter);
 
 
 // =====================================

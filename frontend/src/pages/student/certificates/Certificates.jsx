@@ -1,93 +1,94 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Award, Download, Calendar, CheckCircle2, ExternalLink, BookOpen,
-  Star, Clock, Share2
+  Star, Clock, Share2, Shield, RefreshCw
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { Card, CardContent } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
-import { ProgressBar } from "../../../components/ui/ProgressBar";
 import { Modal } from "../../../components/ui/Modal";
-
-const certificates = [
-  {
-    id: 1,
-    courseTitle: "Digital Marketing Mastery",
-    instructor: "Rachel Green",
-    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400",
-    completedDate: "Dec 15, 2025",
-    certificateId: "CERT-DM-2025-001",
-    progress: 100,
-    downloadUrl: "#"
-  },
-  {
-    id: 2,
-    courseTitle: "UI/UX Design Fundamentals",
-    instructor: "Sarah Johnson",
-    thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400",
-    completedDate: null,
-    certificateId: null,
-    progress: 78,
-    downloadUrl: null
-  },
-  {
-    id: 3,
-    courseTitle: "Advanced JavaScript",
-    instructor: "Dr. James Wilson",
-    thumbnail: "https://images.unsplash.com/photo-1627392662291-4c2ac9c424e9?w=400",
-    completedDate: null,
-    certificateId: null,
-    progress: 45,
-    downloadUrl: null
-  }
-];
+import { useAuth } from "../../../context/AuthContext";
+import { getStudentCertificates } from "../../../services/certificateService";
+import toast from "react-hot-toast";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function Certificates() {
+  const { user } = useAuth();
+  const [certs, setCerts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCert, setSelectedCert] = useState(null);
 
-  const earnedCount = certificates.filter(c => c.downloadUrl).length;
+  const fetchCertificates = async () => {
+    try {
+      setLoading(true);
+      const res = await getStudentCertificates(user._id || user.id);
+      if (res.data?.success) {
+        setCerts(res.data.data || []);
+      }
+    } catch (err) {
+      toast.error("Failed to load certificates");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchCertificates();
+    }
+  }, [user]);
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 max-w-6xl mx-auto" id="student-certificates-dashboard">
       {/* Header */}
-      <motion.div variants={item} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
         <div>
-          <h1 className="text-2xl font-bold">Certificates</h1>
-          <p className="text-muted-foreground">Your achievements and earned certificates</p>
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+            My Certificates
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">Your verified course achievements and credentials</p>
         </div>
-        <Button variant="outline" className="gap-2"><Share2 className="h-4 w-4" /> Share All</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchCertificates} disabled={loading} className="gap-2 text-sm">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
       </motion.div>
 
       {/* Stats */}
-      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
+      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <Card className="border-border shadow-sm">
           <CardContent className="flex items-center gap-4 p-4">
-            <div className="p-3 rounded-xl bg-amber-100"><Award className="h-6 w-6 text-amber-600" /></div>
+            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500"><Award className="h-6 w-6" /></div>
             <div>
-              <p className="text-2xl font-bold">{earnedCount}</p>
-              <p className="text-sm text-muted-foreground">Certificates Earned</p>
+              <p className="text-2xl font-bold text-foreground">{loading ? "…" : certs.length}</p>
+              <p className="text-xs text-muted-foreground">Certificates Earned</p>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-border shadow-sm">
           <CardContent className="flex items-center gap-4 p-4">
-            <div className="p-3 rounded-xl bg-blue-100"><BookOpen className="h-6 w-6 text-blue-600" /></div>
+            <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500"><BookOpen className="h-6 w-6" /></div>
             <div>
-              <p className="text-2xl font-bold">{certificates.length}</p>
-              <p className="text-sm text-muted-foreground">Courses Enrolled</p>
+              <p className="text-2xl font-bold text-foreground">{user?.enrolledCourses?.length || 0}</p>
+              <p className="text-xs text-muted-foreground">Courses Enrolled</p>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-border shadow-sm">
           <CardContent className="flex items-center gap-4 p-4">
-            <div className="p-3 rounded-xl bg-emerald-100"><CheckCircle2 className="h-6 w-6 text-emerald-600" /></div>
+            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500"><CheckCircle2 className="h-6 w-6" /></div>
             <div>
-              <p className="text-2xl font-bold">{Math.round(certificates.reduce((a, c) => a + c.progress, 0) / certificates.length)}%</p>
-              <p className="text-sm text-muted-foreground">Average Progress</p>
+              <p className="text-2xl font-bold text-foreground">Verified</p>
+              <p className="text-xs text-muted-foreground">Security Protection</p>
             </div>
           </CardContent>
         </Card>
@@ -95,93 +96,118 @@ export default function Certificates() {
 
       {/* Certificates Grid */}
       <motion.div variants={item}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {certificates.map(cert => (
-            <Card key={cert.id} className="overflow-hidden hover:shadow-xl transition-all duration-300">
-              <div className="relative h-40">
-                <img src={cert.thumbnail} alt={cert.courseTitle} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                {cert.downloadUrl ? (
-                  <div className="absolute top-3 right-3">
-                    <Badge className="bg-emerald-600 text-white border-0">Certified</Badge>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="animate-pulse bg-muted/20 border border-border rounded-2xl h-72" />
+            ))}
+          </div>
+        ) : certs.length === 0 ? (
+          <div className="text-center py-20 bg-muted/10 border border-border border-dashed rounded-3xl space-y-3">
+            <Award className="h-14 w-14 text-muted-foreground/40 mx-auto" />
+            <h3 className="text-lg font-bold text-foreground">No Certificates Yet</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              Complete your course materials up to 90% and ask your instructor to issue your official certificate.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {certs.map((cert) => (
+              <Card key={cert._id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-border group relative">
+                <div className="relative h-40 bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center p-6 text-center text-white">
+                  <div className="absolute inset-0 bg-black/10 opacity-60 backdrop-blur-[1px]" />
+                  <div className="relative z-10 space-y-2">
+                    <Award className="h-10 w-10 text-amber-400 mx-auto drop-shadow-md" />
+                    <h4 className="font-bold text-xs uppercase tracking-widest text-amber-200">Completion Certificate</h4>
+                    <p className="font-semibold text-xs line-clamp-2 max-w-xs">{cert.course?.title}</p>
                   </div>
-                ) : (
-                  <div className="absolute top-3 right-3">
-                    <Badge variant="warning">In Progress</Badge>
-                  </div>
-                )}
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                      <Award className="h-4 w-4 text-white" />
-                    </div>
+                  <div className="absolute top-3 right-3 z-10">
+                    <Badge className="bg-emerald-600 text-white border-0 py-0.5 px-2.5 rounded-full flex items-center gap-1 text-[9px] font-bold uppercase">
+                      <Shield className="h-2.5 w-2.5" /> Verified
+                    </Badge>
                   </div>
                 </div>
-              </div>
-              <CardContent className="p-4 space-y-3">
-                <h3 className="font-semibold line-clamp-1">{cert.courseTitle}</h3>
-                <p className="text-sm text-muted-foreground">{cert.instructor}</p>
-
-                {cert.downloadUrl ? (
-                  <>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      Earned on {cert.completedDate}
-                    </div>
-                    <p className="text-xs text-muted-foreground font-mono">{cert.certificateId}</p>
-                    <div className="flex gap-2 pt-2">
-                      <Button size="sm" className="flex-1 gap-1" onClick={() => setSelectedCert(cert)}>
-                        <ExternalLink className="h-3 w-3" /> View
-                      </Button>
-                      <Button size="sm" variant="outline" className="gap-1">
-                        <Download className="h-3 w-3" /> PDF
-                      </Button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <ProgressBar value={cert.progress} size="sm" showLabel className="pt-1" />
-                    <p className="text-xs text-muted-foreground">{cert.progress}% complete</p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <CardContent className="p-4 space-y-3 bg-card">
+                  <h3 className="font-bold text-sm text-foreground line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                    {cert.course?.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                    Earned on {new Date(cert.issueDate).toLocaleDateString()}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/80 font-mono tracking-tight bg-muted/40 p-1.5 rounded border border-border">
+                    ID: {cert.certificateId}
+                  </p>
+                  <div className="flex gap-2 pt-2">
+                    <Button size="sm" className="flex-1 gap-1 text-xs bg-indigo-600 text-white hover:bg-indigo-700 font-semibold" onClick={() => setSelectedCert(cert)}>
+                      <ExternalLink className="h-3 w-3" /> View Certificate
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </motion.div>
 
-      {/* Certificate Preview Modal */}
+      {/* Premium Visual Certificate Preview Modal */}
       <Modal isOpen={!!selectedCert} onClose={() => setSelectedCert(null)} title="" size="lg">
         {selectedCert && (
-          <div className="relative rounded-xl overflow-hidden border-4 border-amber-200 bg-white p-8 text-center space-y-4">
-            <div className="absolute top-4 right-4">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => window.print()}>
-                <Download className="h-4 w-4" /> Download
+          <div className="rounded-xl overflow-hidden border border-border bg-white text-slate-800 shadow-2xl relative" id="printable-certificate">
+            {/* Action Bar (Not shown in print) */}
+            <div className="p-4 bg-muted/20 border-b border-border flex justify-between items-center print:hidden">
+              <div className="flex items-center gap-2 text-indigo-600">
+                <Shield className="h-5 w-5" />
+                <span className="text-xs font-bold uppercase tracking-wider">Secured Credentials</span>
+              </div>
+              <Button size="sm" className="gap-2 bg-indigo-600 text-white hover:bg-indigo-700 font-semibold" onClick={handlePrint}>
+                <Download className="h-4 w-4" /> Download / Print PDF
               </Button>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-center gap-2 text-amber-600">
-                <Award className="h-8 w-8" />
+
+            {/* Frame Body */}
+            <div className="p-12 text-center space-y-8 relative border-[12px] border-amber-500/20 m-4 rounded bg-amber-50/10">
+              {/* Certificate Seal Background */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                <Award className="w-[300px] h-[300px] text-amber-600" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-800">Certificate of Completion</h2>
-              <p className="text-slate-500">This is to certify that</p>
-              <p className="text-3xl font-bold text-slate-800">Sarah Johnson</p>
-              <p className="text-slate-500">has successfully completed</p>
-              <p className="text-xl font-semibold text-slate-700">{selectedCert.courseTitle}</p>
-              <p className="text-sm text-slate-400">with dedication and excellence</p>
-            </div>
-            <div className="flex justify-between items-end pt-8">
-              <div className="text-left">
-                <p className="text-xs text-slate-400">Instructor</p>
-                <p className="font-medium text-slate-600">{selectedCert.instructor}</p>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-2 text-amber-600">
+                  <Award className="h-16 w-16 drop-shadow" />
+                </div>
+                <h2 className="text-3xl font-extrabold tracking-tight font-serif text-slate-900 uppercase">
+                  Certificate of Completion
+                </h2>
+                <div className="w-24 h-0.5 bg-amber-500 mx-auto" />
+                <p className="text-sm text-slate-500 font-medium">This is officially presented to</p>
+                <p className="text-4xl font-extrabold text-slate-900 tracking-tight font-serif underline decoration-amber-500/40 underline-offset-8">
+                  {selectedCert.student?.name}
+                </p>
+                <p className="text-sm text-slate-500 font-medium pt-2">for successfully completing all syllabus requirements of</p>
+                <p className="text-2xl font-bold text-slate-800 font-serif">
+                  {selectedCert.course?.title}
+                </p>
+                <p className="text-xs text-slate-400 max-w-md mx-auto">
+                  A comprehensive professional course validation, confirming full mastery of core subjects and outstanding overall syllabus participation.
+                </p>
               </div>
-              <div className="border-t-2 border-amber-300 px-8">
-                <p className="text-xs text-slate-400">Date</p>
-                <p className="font-medium text-slate-600">{selectedCert.completedDate}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-slate-400">Certificate ID</p>
-                <p className="font-mono text-sm text-slate-600">{selectedCert.certificateId}</p>
+
+              <div className="flex flex-col sm:flex-row justify-between items-end pt-12 gap-6 border-t border-slate-200">
+                <div className="text-left space-y-1">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Authorized By</p>
+                  <p className="font-bold text-sm text-slate-700 font-serif">{selectedCert.issuedBy?.name || "LMS Platform Team"}</p>
+                  <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">{selectedCert.issuedBy?.role?.replace("_", " ")}</p>
+                </div>
+                <div className="text-center space-y-1 bg-amber-500/5 px-4 py-2 rounded-lg border border-amber-500/10">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Verified Code</p>
+                  <p className="font-mono text-xs text-slate-800 font-bold">{selectedCert.certificateId}</p>
+                </div>
+                <div className="text-right space-y-1">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Date of Issue</p>
+                  <p className="font-bold text-sm text-slate-700">{new Date(selectedCert.issueDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase">Progress: {selectedCert.completionPercentage}%</p>
+                </div>
               </div>
             </div>
           </div>

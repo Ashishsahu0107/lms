@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building, Palette, Mail, Server, Image, RefreshCw } from "lucide-react";
+import { Building, Palette, Mail, Server, Image, RefreshCw, User } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
 import { getSettings, updateSettings } from "../../../services/adminModulesService";
@@ -9,6 +9,8 @@ import ThemeSettings from "./ThemeSettings";
 import EmailSettings from "./EmailSettings";
 import SystemSettings from "./SystemSettings";
 import BrandingSettings from "./BrandingSettings";
+import PersonalSettings from "../../student/settings/Settings";
+
 
 const container = {
   hidden: { opacity: 0 },
@@ -67,6 +69,8 @@ export default function AdminSettings() {
         return <SystemSettings settings={settings} onSave={handleSaveSettings} />;
       case "branding":
         return <BrandingSettings settings={settings} onSave={handleSaveSettings} />;
+      case "personal":
+        return <PersonalSettings />;
       default:
         return <GeneralSettings settings={settings} onSave={handleSaveSettings} />;
     }
@@ -121,6 +125,9 @@ export default function AdminSettings() {
             </TabsTrigger>
             <TabsTrigger value="branding" className="gap-2 text-xs font-semibold">
               <Image className="h-4 w-4" /> Logo & Taglines
+            </TabsTrigger>
+            <TabsTrigger value="personal" className="gap-2 text-xs font-semibold">
+              <User className="h-4 w-4" /> My Profile & Password
             </TabsTrigger>
           </TabsList>
         </Tabs>

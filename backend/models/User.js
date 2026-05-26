@@ -178,11 +178,17 @@ const userSchema = new mongoose.Schema(
         enum: ["light", "dark"],
         default: "light",
       },
-
       notifications: {
-        type: Boolean,
-        default: true,
+        email: { type: Boolean, default: true },
+        quizAlerts: { type: Boolean, default: true },
+        assignmentAlerts: { type: Boolean, default: true },
+        courseNotifications: { type: Boolean, default: true },
       },
+      privacy: {
+        accountVisibility: { type: String, enum: ["public", "private"], default: "public" },
+        activityVisibility: { type: String, enum: ["public", "private"], default: "public" },
+      },
+      twoFactorEnabled: { type: Boolean, default: false },
     },
   },
   {

@@ -23,10 +23,12 @@ export const ROUTES = {
   TEACHER_EARNINGS: "/teacher/earnings",
   TEACHER_MESSAGES: "/teacher/messages",
   TEACHER_PROFILE: "/teacher/profile",
+  TEACHER_CERTIFICATES: "/teacher/certificates",
 
   // Admin
   ADMIN_DASHBOARD: "/admin/dashboard",
   ADMIN_USERS: "/admin/users",
+  ADMIN_CERTIFICATES: "/admin/certificates",
 
   // Auth
   LOGIN: "/login",

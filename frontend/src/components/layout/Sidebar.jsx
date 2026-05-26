@@ -95,6 +95,11 @@ const teacherNavItems = [
     label: "Notifications",
     path: "/teacher/notifications",
   },
+  {
+    icon: Trophy,
+    label: "Certificates",
+    path: "/teacher/certificates",
+  },
 ];
 
 // ============================================
@@ -140,6 +145,11 @@ const adminNavItems = [
     icon: Shield,
     label: "Security",
     path: "/admin/security",
+  },
+  {
+    icon: Trophy,
+    label: "Certificates",
+    path: "/admin/certificates",
   },
 ];
 

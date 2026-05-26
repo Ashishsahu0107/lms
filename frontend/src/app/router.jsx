@@ -145,6 +145,27 @@ const AdminSettings = lazy(() =>
   import("../pages/superadmin/settings/AdminSettings")
 );
 
+// CERTIFICATE UPGRADES
+const TeacherCertificates = lazy(() =>
+  import("../pages/teacher/certificates/StudentCertificates")
+);
+const TeacherIssueCertificate = lazy(() =>
+  import("../pages/teacher/certificates/IssueCertificate")
+);
+const AdminCertificates = lazy(() =>
+  import("../pages/admin/certificates/CertificateDashboard")
+);
+const AdminIssueCertificate = lazy(() =>
+  import("../pages/admin/certificates/IssueCertificate")
+);
+const AdminCertificateTemplates = lazy(() =>
+  import("../pages/admin/certificates/CertificateTemplates")
+);
+const AdminCertificateHistory = lazy(() =>
+  import("../pages/admin/certificates/CertificateHistory")
+);
+
+
 // ASSIGNMENT UPGRADES
 const AssignmentDetails = lazy(() =>
   import("../pages/assignments/AssignmentDetails")
@@ -297,6 +318,11 @@ const sidebarConfig = {
       icon: MessageSquare,
       path: "/teacher/messages",
     },
+    {
+      label: "Certificates",
+      icon: Award,
+      path: "/teacher/certificates",
+    },
   ],
 
   super_admin: [
@@ -349,6 +375,11 @@ const sidebarConfig = {
       label: "Security",
       icon: Shield,
       path: "/admin/security",
+    },
+    {
+      label: "Certificates",
+      icon: Award,
+      path: "/admin/certificates",
     },
     {
       label: "Settings",
@@ -869,6 +900,22 @@ const router = createBrowserRouter([
               </PageWrapper>
             ),
           },
+          {
+            path: "certificates",
+            element: (
+              <PageWrapper>
+                <TeacherCertificates />
+              </PageWrapper>
+            ),
+          },
+          {
+            path: "certificates/issue",
+            element: (
+              <PageWrapper>
+                <TeacherIssueCertificate />
+              </PageWrapper>
+            ),
+          },
         ],
       },
     ],
@@ -1010,6 +1057,38 @@ const router = createBrowserRouter([
             element: (
               <PageWrapper>
                 <AdminSettings />
+              </PageWrapper>
+            ),
+          },
+          {
+            path: "certificates",
+            element: (
+              <PageWrapper>
+                <AdminCertificates />
+              </PageWrapper>
+            ),
+          },
+          {
+            path: "certificates/issue",
+            element: (
+              <PageWrapper>
+                <AdminIssueCertificate />
+              </PageWrapper>
+            ),
+          },
+          {
+            path: "certificates/templates",
+            element: (
+              <PageWrapper>
+                <AdminCertificateTemplates />
+              </PageWrapper>
+            ),
+          },
+          {
+            path: "certificates/history",
+            element: (
+              <PageWrapper>
+                <AdminCertificateHistory />
               </PageWrapper>
             ),
           },
