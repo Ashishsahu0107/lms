@@ -29,6 +29,8 @@ export function logout() {
 
 export function getStoredUser() {
   try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   } catch {

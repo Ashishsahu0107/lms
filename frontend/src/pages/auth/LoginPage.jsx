@@ -85,6 +85,12 @@ export default function LoginPage() {
     try {
       const res = await apiPost("/auth/login", { email, password });
       if (res.data?.success) {
+        if (res.data.needsVerification) {
+          localStorage.setItem("verify_email", res.data.email);
+          navigate(`/verify-email?email=${res.data.email}`);
+          return;
+        }
+
         const { token, user } = res.data.data;
 
         // Save Token & User details
@@ -206,11 +212,17 @@ export default function LoginPage() {
               {/* PASSWORD */}
               <div>
 
-                <label className="mb-2 block text-sm font-medium">
-
-                  Password
-
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium">
+                    Password
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs font-semibold text-blue-400 hover:underline"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
 
                 <div className="relative">
 
@@ -291,20 +303,6 @@ export default function LoginPage() {
               >
                 Sign Up
               </Link>
-            </div>
-
-            {/* ================================= */}
-            {/* DEMO ACCOUNTS */}
-            {/* ================================= */}
-            <div className="mt-6 border-t pt-6">
-
-              <p className="mb-4 text-center text-sm text-gray-500">
-
-                Demo Accounts
-
-              </p>
-
-              
             </div>
 
           </CardContent>

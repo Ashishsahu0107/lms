@@ -1,6 +1,6 @@
 // src/app/router.jsx
 
-import React, { Suspense, lazy, useState } from "react";
+import React, { Suspense, lazy, useState, useEffect } from "react";
 
 import {
   createBrowserRouter,
@@ -214,6 +214,7 @@ const AdminQuizzes = lazy(() =>
 const VerifyEmail = lazy(() => import("../pages/auth/VerifyEmail"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
 const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
+const LandingPage = lazy(() => import("../pages/landing/LandingPage"));
 
 const MyNotes = lazy(() => import("../pages/student/notes/MyNotes"));
 const NotesDashboard = lazy(() => import("../pages/teacher/notes/NotesDashboard"));
@@ -872,12 +873,15 @@ function DashboardLayout() {
 const router = createBrowserRouter([
   {
     path: "/",
+    element: (
+      <PageWrapper>
+        <LandingPage />
+      </PageWrapper>
+    ),
+  },
+  {
     element: <PublicLayout />,
     children: [
-      {
-        index: true,
-        element: <Navigate to="/login" replace />,
-      },
 
       {
         path: "login",
