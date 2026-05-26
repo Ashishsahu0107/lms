@@ -14,6 +14,12 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    teacherId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     date: {
       type: Date,
       default: Date.now,

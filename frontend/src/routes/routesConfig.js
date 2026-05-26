@@ -24,7 +24,6 @@ export const routesConfig = [
   { path: ROUTES.TEACHER_ASSIGNMENTS, name: "Assignments", roles: ["teacher"] },
   { path: ROUTES.TEACHER_PROGRESS, name: "Student Progress", roles: ["teacher"] },
   { path: ROUTES.TEACHER_ATTENDANCE, name: "Attendance", roles: ["teacher"] },
-  { path: ROUTES.TEACHER_EARNINGS, name: "Earnings", roles: ["teacher"] },
   { path: ROUTES.TEACHER_MESSAGES, name: "Messages", roles: ["teacher"] },
   { path: ROUTES.TEACHER_PROFILE, name: "Profile", roles: ["teacher"] },
 

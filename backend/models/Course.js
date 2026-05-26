@@ -66,6 +66,12 @@ const courseSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    teacher: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+    },
+
     modules: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -116,6 +122,16 @@ courseSchema.index({
   title: "text",
   description: "text",
   category: "text",
+});
+
+// Sync teacherId and teacher fields on validation
+courseSchema.pre("validate", function (next) {
+  if (this.teacherId && !this.teacher) {
+    this.teacher = this.teacherId;
+  } else if (this.teacher && !this.teacherId) {
+    this.teacherId = this.teacher;
+  }
+  next();
 });
 
 // Update ratings aggregates on save

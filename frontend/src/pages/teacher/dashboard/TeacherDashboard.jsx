@@ -221,8 +221,8 @@ export default function TeacherDashboard() {
         </Link>
       </motion.div>
 
-      {/* Double Analytics Panel charts */}
-      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6" id="teacher-charts-section">
+      {/* Analytics Panel charts */}
+      <motion.div variants={item} className="grid grid-cols-1 gap-6" id="teacher-charts-section">
         {/* Enrollments Bar Chart */}
         <Card className="hover:shadow-md transition-all">
           <CardHeader className="pb-2">
@@ -255,48 +255,6 @@ export default function TeacherDashboard() {
                 </ResponsiveContainer>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Projected Revenue Curve Area Chart */}
-        <Card className="hover:shadow-md transition-all">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-indigo-500" />
-              Course Pricing Projected Billings ($)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockRevenueTrend}>
-                  <defs>
-                    <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
-                  <YAxis className="text-xs text-muted-foreground font-medium" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "0.75rem",
-                    }}
-                    formatter={(val) => [`$${val}`, "Billing"]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#4f46e5"
-                    strokeWidth={2.5}
-                    fill="url(#revenueGrad)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
           </CardContent>
         </Card>
       </motion.div>

@@ -38,8 +38,44 @@ export function initSocket(httpServer) {
     // Join a private individual room
     socket.join(`user:${userId}`);
 
+    // Join teacher dashboard room if role matches
+    const userRole = socket.user?.role;
+    if (userRole === "teacher" || userRole === "super_admin" || userRole === "admin") {
+      socket.join("teacher:dashboard");
+      console.log(`Teacher Connected to Analytics Channels: ${userId}`);
+    }
+
     // Broadcast online signal
     socket.broadcast.emit("user-online", { userId });
+
+    // Analytics Real-Time Broadcast Triggers
+    socket.on("progressUpdated", (data) => {
+      ioInstance.to("teacher:dashboard").emit("progressUpdated", data);
+    });
+    socket.on("topicCompleted", (data) => {
+      ioInstance.to("teacher:dashboard").emit("topicCompleted", data);
+    });
+    socket.on("quizSubmitted", (data) => {
+      ioInstance.to("teacher:dashboard").emit("quizSubmitted", data);
+    });
+    socket.on("attendanceUpdated", (data) => {
+      ioInstance.to("teacher:dashboard").emit("attendanceUpdated", data);
+    });
+    socket.on("studentJoined", (data) => {
+      ioInstance.to("teacher:dashboard").emit("studentJoined", data);
+    });
+    socket.on("studentAbsent", (data) => {
+      ioInstance.to("teacher:dashboard").emit("studentAbsent", data);
+    });
+    socket.on("paymentCompleted", (data) => {
+      ioInstance.to("teacher:dashboard").emit("paymentCompleted", data);
+    });
+    socket.on("revenueUpdated", (data) => {
+      ioInstance.to("teacher:dashboard").emit("revenueUpdated", data);
+    });
+    socket.on("payoutProcessed", (data) => {
+      ioInstance.to("teacher:dashboard").emit("payoutProcessed", data);
+    });
 
     // Handle incoming direct messages
     socket.on("send-message", async (data) => {

@@ -91,11 +91,6 @@ const teacherNavItems = [
     path: "/teacher/analytics",
   },
   {
-    icon: DollarSign,
-    label: "Earnings",
-    path: "/teacher/earnings",
-  },
-  {
     icon: Bell,
     label: "Notifications",
     path: "/teacher/notifications",
@@ -125,11 +120,6 @@ const adminNavItems = [
     icon: BookOpen,
     label: "Courses",
     path: "/admin/courses",
-  },
-  {
-    icon: DollarSign,
-    label: "Payments",
-    path: "/admin/payments",
   },
   {
     icon: BarChart3,

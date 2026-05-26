@@ -108,10 +108,6 @@ const TeacherAttendance = lazy(() =>
   import("../pages/teacher/attendance/TeacherAttendance")
 );
 
-const TeacherEarnings = lazy(() =>
-  import("../pages/teacher/earnings/TeacherEarnings")
-);
-
 // ADMIN
 const AdminDashboard = lazy(() =>
   import("../pages/superadmin/dashboard/AdminDashboard")
@@ -127,10 +123,6 @@ const AdminStudents = lazy(() =>
 
 const AdminCourses = lazy(() =>
   import("../pages/superadmin/courses/AdminCourses")
-);
-
-const AdminPayments = lazy(() =>
-  import("../pages/superadmin/payments/AdminPayments")
 );
 
 const AdminReports = lazy(() =>
@@ -301,11 +293,6 @@ const sidebarConfig = {
       path: "/teacher/attendance",
     },
     {
-      label: "Earnings",
-      icon: CreditCard,
-      path: "/teacher/earnings",
-    },
-    {
       label: "Messages",
       icon: MessageSquare,
       path: "/teacher/messages",
@@ -342,11 +329,6 @@ const sidebarConfig = {
       label: "Quizzes",
       icon: GraduationCap,
       path: "/admin/quizzes",
-    },
-    {
-      label: "Payments",
-      icon: CreditCard,
-      path: "/admin/payments",
     },
     {
       label: "Reports",
@@ -871,15 +853,6 @@ const router = createBrowserRouter([
           },
 
           {
-            path: "earnings",
-            element: (
-              <PageWrapper>
-                <TeacherEarnings />
-              </PageWrapper>
-            ),
-          },
-
-          {
             path: "messages",
             element: (
               <PageWrapper>
@@ -992,15 +965,6 @@ const router = createBrowserRouter([
             element: (
               <PageWrapper>
                 <AdminQuizzes />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "payments",
-            element: (
-              <PageWrapper>
-                <AdminPayments />
               </PageWrapper>
             ),
           },

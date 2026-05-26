@@ -23,6 +23,8 @@ import dashboardRouter from "./dashboard.routes.js";
 import analyticsRouter from "./analytics.routes.js";
 import messageRouter from "./message.routes.js";
 import adminRouter from "./admin.routes.js";
+import adminModulesRouter from "./adminModules.routes.js";
+import teacherDashboardRouter from "./teacherDashboard.routes.js";
 
 // =====================================
 // ROOT ROUTER
@@ -62,6 +64,7 @@ rootRouter.use("/submissions", submissionRouter);
 rootRouter.use("/quizzes", quizRouter);
 rootRouter.use("/quiz-attempts", quizAttemptRouter);
 rootRouter.use("/dashboard", dashboardRouter);
+rootRouter.use("/teacher", teacherDashboardRouter);
 
 
 // =====================================
@@ -77,6 +80,7 @@ rootRouter.use("/teacher/analytics", analyticsRouter);
 // =====================================
 rootRouter.use("/messages", messageRouter);
 rootRouter.use("/admin", adminRouter);
+rootRouter.use("/admin", adminModulesRouter);
 
 // =====================================
 // API ROOT DESCRIPTIVE ENDPOINT

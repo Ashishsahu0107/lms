@@ -93,3 +93,34 @@ export async function getMessages(otherId) {
 export async function sendMessage(data) {
   return apiPost("/messages", data);
 }
+
+// =====================================
+// REAL-TIME DASHBOARD Telemetry APIs
+// =====================================
+export async function getLiveProgress() {
+  return apiGet("/teacher/progress");
+}
+
+export async function getLiveCourseProgress(id) {
+  return apiGet(`/teacher/course-progress/${id}`);
+}
+
+export async function getLiveAttendance(courseId, date) {
+  return apiGet("/teacher/attendance", { courseId, date });
+}
+
+export async function markLiveAttendance(data) {
+  return apiPost("/teacher/attendance/mark", data);
+}
+
+export async function getLiveAttendanceStats() {
+  return apiGet("/teacher/attendance/stats");
+}
+
+export async function getLiveEarnings() {
+  return apiGet("/teacher/earnings");
+}
+
+export async function getLiveRevenueStats() {
+  return apiGet("/teacher/revenue/stats");
+}

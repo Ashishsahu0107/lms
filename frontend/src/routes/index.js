@@ -30,7 +30,6 @@ const TeacherQuizzes = lazy(() => import("../pages/teacher/quizzes/TeacherQuizMa
 const TeacherAssignments = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentManagement"));
 const TeacherProgress = lazy(() => import("../pages/teacher/progress/TeacherStudentProgress"));
 const TeacherAttendance = lazy(() => import("../pages/teacher/attendance/TeacherAttendance"));
-const TeacherEarnings = lazy(() => import("../pages/teacher/earnings/TeacherEarnings"));
 
 // Lazy load admin pages
 const AdminDashboard = lazy(() => import("../pages/admin/dashboard/AdminDashboard"));
@@ -74,7 +73,6 @@ const teacherRoutes = {
     { path: "assignments", element: <TeacherAssignments /> },
     { path: "student-progress", element: <TeacherProgress /> },
     { path: "attendance", element: <TeacherAttendance /> },
-    { path: "earnings", element: <TeacherEarnings /> },
     { path: "messages", element: <Messages /> },
     { path: "profile", element: <Profile /> },
   ],
