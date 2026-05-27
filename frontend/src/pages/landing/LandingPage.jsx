@@ -25,11 +25,13 @@ import {
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import { useAuthModal } from "../../context/AuthModalContext";
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
   const { user } = useAuth();
+  const { openLogin, openRegister } = useAuthModal();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activePreviewTab, setActivePreviewTab] = useState("student");
 
@@ -111,14 +113,10 @@ export default function LandingPage() {
               </Link>
             ) : (
               <>
-                <Link to="/login">
-                  <button className="text-xs font-bold px-4 py-2.5 hover:text-blue-500 transition">Sign In</button>
-                </Link>
-                <Link to="/register">
-                  <button className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg shadow-blue-500/15">
-                    Register Now
-                  </button>
-                </Link>
+                <button onClick={openLogin} className="text-xs font-bold px-4 py-2.5 hover:text-blue-500 transition">Sign In</button>
+                <button onClick={openRegister} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg shadow-blue-500/15">
+                  Register Now
+                </button>
               </>
             )}
           </div>
@@ -184,14 +182,18 @@ export default function LandingPage() {
                   </Link>
                 ) : (
                   <>
-                    <Link to="/login" className="block" onClick={() => setMobileMenuOpen(false)}>
-                      <button className="w-full py-3 rounded-xl border border-blue-600 text-blue-600 font-bold text-xs">Sign In</button>
-                    </Link>
-                    <Link to="/register" className="block" onClick={() => setMobileMenuOpen(false)}>
-                      <button className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-lg">
-                        Sign Up
-                      </button>
-                    </Link>
+                    <button 
+                      onClick={() => { setMobileMenuOpen(false); openLogin(); }} 
+                      className="w-full py-3 rounded-xl border border-blue-600 text-blue-600 font-bold text-xs text-center"
+                    >
+                      Sign In
+                    </button>
+                    <button 
+                      onClick={() => { setMobileMenuOpen(false); openRegister(); }} 
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-lg text-center"
+                    >
+                      Sign Up
+                    </button>
                   </>
                 )}
               </div>
@@ -224,11 +226,12 @@ export default function LandingPage() {
             Welcome to the modern learning experience. Complete with OTP security, unified classroom schedules, Zoom integrations, dynamic Achievements, XP leaderboards, and a dedicated AI Study chatbot.
           </p>
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-            <Link to="/register">
-              <button className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xl shadow-blue-500/20 flex items-center gap-2 group">
-                Get Started Today <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-              </button>
-            </Link>
+            <button 
+              onClick={openRegister} 
+              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xl shadow-blue-500/20 flex items-center gap-2 group text-left"
+            >
+              Get Started Today <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1 inline" />
+            </button>
             <button onClick={() => scrollToSection("courses")} className={`px-6 py-3.5 rounded-xl font-bold text-xs border transition ${
               isDarkMode ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
             }`}>
@@ -312,7 +315,7 @@ export default function LandingPage() {
               <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Course Manager</h3>
               <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Teachers build structured syllabi with dynamic video lessons and downloadable course summaries.</p>
             </div>
-            <Link to="/register" className="text-[10px] font-bold text-blue-500 hover:underline mt-4 flex items-center gap-1">Learn More <ArrowRight className="h-3 w-3" /></Link>
+            <button onClick={openRegister} className="text-[10px] font-bold text-blue-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
           </div>
 
           {/* Card 2: AI features */}
@@ -324,7 +327,7 @@ export default function LandingPage() {
               <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>AI Chat Buddy</h3>
               <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Concept helper, study recommendation engine, and instant biological terms translation desk.</p>
             </div>
-            <Link to="/register" className="text-[10px] font-bold text-indigo-500 hover:underline mt-4 flex items-center gap-1">Learn More <ArrowRight className="h-3 w-3" /></Link>
+            <button onClick={openRegister} className="text-[10px] font-bold text-indigo-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
           </div>
 
           {/* Card 3: Live classes */}
@@ -336,7 +339,7 @@ export default function LandingPage() {
               <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Live Class Launcher</h3>
               <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Synchronize custom timelines and launch Zoom/Meet classes directly from the schedule timetable.</p>
             </div>
-            <Link to="/register" className="text-[10px] font-bold text-purple-500 hover:underline mt-4 flex items-center gap-1">Learn More <ArrowRight className="h-3 w-3" /></Link>
+            <button onClick={openRegister} className="text-[10px] font-bold text-purple-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
           </div>
 
           {/* Card 4: Gamification */}
@@ -348,7 +351,7 @@ export default function LandingPage() {
               <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Streaks & XP Levels</h3>
               <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Earn badges, complete quizzes to increase XP score, and compete on student rankings leaderboards.</p>
             </div>
-            <Link to="/register" className="text-[10px] font-bold text-emerald-500 hover:underline mt-4 flex items-center gap-1">Learn More <ArrowRight className="h-3 w-3" /></Link>
+            <button onClick={openRegister} className="text-[10px] font-bold text-emerald-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
           </div>
         </div>
       </section>
@@ -413,11 +416,12 @@ export default function LandingPage() {
               </ul>
             )}
 
-            <Link to="/register" className="inline-block mt-4">
-              <button className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg flex items-center gap-1.5 group">
-                Register to Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-              </button>
-            </Link>
+            <button 
+              onClick={openRegister} 
+              className="inline-block mt-4 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg flex items-center gap-1.5 group text-left"
+            >
+              Register to Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5 inline" />
+            </button>
           </div>
 
           <div className="flex-1 w-full">
@@ -463,7 +467,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4 mt-2">
                 <span className="text-xs font-black text-blue-500">$99.00</span>
-                <Link to="/register"><button className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button></Link>
+                <button onClick={openRegister} className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button>
               </div>
             </div>
           </div>
@@ -484,7 +488,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4 mt-2">
                 <span className="text-xs font-black text-blue-500">$129.00</span>
-                <Link to="/register"><button className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button></Link>
+                <button onClick={openRegister} className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button>
               </div>
             </div>
           </div>
@@ -505,7 +509,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4 mt-2">
                 <span className="text-xs font-black text-blue-500">$79.00</span>
-                <Link to="/register"><button className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button></Link>
+                <button onClick={openRegister} className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button>
               </div>
             </div>
           </div>
@@ -568,16 +572,12 @@ export default function LandingPage() {
               Join thousands of students and teachers already collaborating in our unified LMS environment. Registration takes less than a minute!
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-              <Link to="/register">
-                <button className="px-6 py-3 rounded-xl bg-white text-indigo-600 hover:bg-white/95 font-bold text-xs shadow">
-                  Join Platform Now
-                </button>
-              </Link>
-              <Link to="/login">
-                <button className="px-6 py-3 rounded-xl border border-white/30 hover:bg-white/10 text-white font-bold text-xs">
-                  Login Workspace
-                </button>
-              </Link>
+              <button onClick={openRegister} className="px-6 py-3 rounded-xl bg-white text-indigo-600 hover:bg-white/95 font-bold text-xs shadow">
+                Join Platform Now
+              </button>
+              <button onClick={openLogin} className="px-6 py-3 rounded-xl border border-white/30 hover:bg-white/10 text-white font-bold text-xs">
+                Login Workspace
+              </button>
             </div>
           </div>
           <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-xl pointer-events-none" />
@@ -616,7 +616,7 @@ export default function LandingPage() {
           <div>
             <h4 className={`text-xs font-bold uppercase tracking-widest mb-4 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Security</h4>
             <div className="flex flex-col gap-2 text-[11px]">
-              <Link to="/login" className="hover:text-blue-500">OTP Handshake</Link>
+              <button onClick={openLogin} className="hover:text-blue-500 text-left">OTP Handshake</button>
               <span className="cursor-default">JWT Authentication</span>
               <span className="cursor-default">Role Guards</span>
             </div>

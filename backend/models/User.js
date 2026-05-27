@@ -210,6 +210,18 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    resetOTP: {
+      type: String,
+      default: null,
+    },
+    resetOTPExpire: {
+      type: Date,
+      default: null,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
     xp: {
       type: Number,
       default: 0,

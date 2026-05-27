@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Trophy, Star, RefreshCw, BookOpen, Crown, ChevronRight } from "lucide-react";
 import { getPerformanceAnalytics } from "../../../services/adminAnalyticsService";
-import { getCourses } from "../../../services/adminService";
+import { getCourses } from "../../../services/courseService";
 import { toast } from "react-hot-toast";
 
 export default function Leaderboard() {

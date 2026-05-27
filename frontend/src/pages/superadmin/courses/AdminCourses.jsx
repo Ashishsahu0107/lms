@@ -57,8 +57,12 @@ export default function AdminCourses() {
       ]);
 
       if (coursesRes.data?.success) setCourses(coursesRes.data.data);
-      if (teachersRes.data?.teachers) setTeachers(teachersRes.data.teachers);
-      if (studentsRes.data?.students) setStudents(studentsRes.data.students);
+      
+      const teacherList = teachersRes.data?.data?.teachers || teachersRes.data?.teachers || [];
+      setTeachers(teacherList);
+
+      const studentList = studentsRes.data?.data?.students || studentsRes.data?.students || [];
+      setStudents(studentList);
     } catch (err) {
       toast.error("Failed to load platform dashboard data");
       console.error(err);

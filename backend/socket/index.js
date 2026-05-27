@@ -113,6 +113,95 @@ export function initSocket(httpServer) {
       }
     });
 
+    // =====================================
+    // REAL-TIME AI CHATBOT STREAM PIPELINE
+    // =====================================
+    socket.on("send-ai-message", async (data) => {
+      try {
+        const { chatId, content } = data;
+        if (!chatId || !content) {
+          socket.emit("ai-chat-error", { message: "Chat ID and content are required" });
+          return;
+        }
+
+        const { AIChat } = await import("../models/AIChat.js");
+        const { User } = await import("../models/User.js");
+        const { streamAIResponse } = await import("../services/aiChat.service.js");
+
+        // 1. Fetch chat thread
+        const chat = await AIChat.findOne({ _id: chatId, user: userId });
+        if (!chat) {
+          socket.emit("ai-chat-error", { message: "AI conversation thread not found" });
+          return;
+        }
+
+        // 2. Fetch active user bio/name
+        const userRecord = await User.findById(userId);
+
+        // 3. Save User message to thread
+        const userMessage = {
+          sender: "user",
+          content: content.trim(),
+          role: "user",
+          timestamp: new Date()
+        };
+        chat.messages.push(userMessage);
+        
+        // Auto-generate title on first message
+        if (chat.messages.length === 1 || chat.title === "New Conversation") {
+          const firstWords = content.trim().split(" ").slice(0, 4).join(" ");
+          chat.title = firstWords ? `${firstWords}...` : "AI Study Chat";
+        }
+        
+        await chat.save();
+
+        // Echo the user message to keep client in sync
+        socket.emit("ai-message-saved", {
+          chatId,
+          message: chat.messages[chat.messages.length - 1]
+        });
+
+        // 4. Emit typing indicator
+        socket.emit("ai-typing", { chatId });
+
+        // 5. Start streaming response
+        await streamAIResponse(
+          content,
+          userRecord,
+          (word) => {
+            socket.emit("ai-word", { word, chatId });
+          },
+          async (completeReply) => {
+            // Stop typing indicator
+            socket.emit("ai-stop-typing", { chatId });
+
+            // Save AI response to DB
+            const aiMessage = {
+              sender: "ai",
+              content: completeReply,
+              role: "assistant",
+              timestamp: new Date()
+            };
+            
+            const updatedChat = await AIChat.findOne({ _id: chatId, user: userId });
+            if (updatedChat) {
+              updatedChat.messages.push(aiMessage);
+              await updatedChat.save();
+              
+              // Emit completed message back
+              socket.emit("ai-message-complete", {
+                chatId,
+                message: updatedChat.messages[updatedChat.messages.length - 1]
+              });
+            }
+          }
+        );
+      } catch (err) {
+        console.error("AI Chat socket error:", err);
+        socket.emit("ai-chat-error", { message: "An error occurred in the AI communication stream" });
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log(`User Disconnected: ${userId}`);
       socket.broadcast.emit("user-offline", { userId });

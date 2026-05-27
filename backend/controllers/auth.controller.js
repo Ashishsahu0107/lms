@@ -212,6 +212,8 @@ export async function forgotPasswordController(req, res, next) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetPasswordOTP = otp;
     user.resetPasswordOTPExpires = new Date(Date.now() + 15 * 60 * 1000);
+    user.resetOTP = otp;
+    user.resetOTPExpire = new Date(Date.now() + 5 * 60 * 1000); // 5 mins expiry
     await user.save();
 
     await sendOtpEmail(user.email, otp, "Password Recovery OTP Code");
@@ -219,6 +221,70 @@ export async function forgotPasswordController(req, res, next) {
     return res.status(200).json({
       success: true,
       message: "Password reset OTP has been sent to your email.",
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
+// VERIFY RESET OTP
+// =====================================
+export async function verifyResetOtpController(req, res, next) {
+  try {
+    const { email, otp } = req.body ?? {};
+    if (!email || !otp) {
+      throw new BadRequestError("Email and OTP code are required");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      throw new BadRequestError("User account not found");
+    }
+
+    const isOtpValid = (user.resetOTP === otp && new Date() <= user.resetOTPExpire) ||
+                       (user.resetPasswordOTP === otp && new Date() <= user.resetPasswordOTPExpires);
+
+    if (!isOtpValid) {
+      throw new BadRequestError("Invalid or expired password recovery OTP");
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully. You can now reset your password.",
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
+// RESEND OTP
+// =====================================
+export async function resendResetOtpController(req, res, next) {
+  try {
+    const { email } = req.body ?? {};
+    if (!email) {
+      throw new BadRequestError("Email is required");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      throw new BadRequestError("User account not found");
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetPasswordOTP = otp;
+    user.resetPasswordOTPExpires = new Date(Date.now() + 15 * 60 * 1000);
+    user.resetOTP = otp;
+    user.resetOTPExpire = new Date(Date.now() + 5 * 60 * 1000); // 5 mins expiry
+    await user.save();
+
+    await sendOtpEmail(user.email, otp, "Password Recovery OTP Code (Resent)");
+
+    return res.status(200).json({
+      success: true,
+      message: "A new password recovery OTP has been sent to your email.",
     });
   } catch (err) {
     next(err);
@@ -244,7 +310,10 @@ export async function resetPasswordController(req, res, next) {
       throw new BadRequestError("User not found");
     }
 
-    if (user.resetPasswordOTP !== otp || new Date() > user.resetPasswordOTPExpires) {
+    const isOtpValid = (user.resetOTP === otp && new Date() <= user.resetOTPExpire) ||
+                       (user.resetPasswordOTP === otp && new Date() <= user.resetPasswordOTPExpires);
+
+    if (!isOtpValid) {
       throw new BadRequestError("Invalid or expired password reset OTP");
     }
 
@@ -252,6 +321,10 @@ export async function resetPasswordController(req, res, next) {
     user.password = hashedPassword;
     user.resetPasswordOTP = null;
     user.resetPasswordOTPExpires = null;
+    user.resetOTP = null;
+    user.resetOTPExpire = null;
+    user.isEmailVerified = true;
+    user.isVerified = true;
     await user.save();
 
     return res.status(200).json({

@@ -8,7 +8,9 @@ import {
   sendOtpController,
   verifyOtpController,
   forgotPasswordController,
-  resetPasswordController
+  resetPasswordController,
+  verifyResetOtpController,
+  resendResetOtpController
 } from "../controllers/auth.controller.js";
 
 import {
@@ -50,6 +52,18 @@ router.post(
 router.post(
   "/forgot-password",
   forgotPasswordController
+);
+
+// Verify Reset OTP
+router.post(
+  "/verify-reset-otp",
+  verifyResetOtpController
+);
+
+// Resend Recovery OTP
+router.post(
+  "/resend-otp",
+  resendResetOtpController
 );
 
 // Reset Password

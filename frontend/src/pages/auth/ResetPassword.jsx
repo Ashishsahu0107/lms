@@ -12,28 +12,49 @@ export default function ResetPassword() {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [strength, setStrength] = useState("Weak");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const emailParam = params.get("email") || localStorage.getItem("verify_email") || "";
+    const emailParam = params.get("email") || "";
+    const otpParam = params.get("otp") || "";
     setEmail(emailParam);
+    setOtp(otpParam);
 
-    if (!emailParam) {
-      toast.error("Session missing. Please request a new recovery link.");
+    if (!emailParam || !otpParam) {
+      toast.error("Security handshake session missing. Please verify your OTP code first.");
       navigate("/forgot-password");
     }
   }, [location, navigate]);
 
+  useEffect(() => {
+    if (!newPassword) {
+      setStrength("");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setStrength("Weak");
+    } else {
+      const hasNumbers = /\d/.test(newPassword);
+      const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+      if (newPassword.length >= 8 && hasNumbers && hasSpecial) {
+        setStrength("Strong");
+      } else {
+        setStrength("Medium");
+      }
+    }
+  }, [newPassword]);
+
   const handleReset = async (e) => {
     e.preventDefault();
-    if (!otp || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all security fields");
+    if (!newPassword || !confirmPassword) {
+      toast.error("Please fill in both password fields");
       return;
     }
 
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters long");
+      toast.error("Password must be at least 6 characters long");
       return;
     }
 
@@ -79,29 +100,13 @@ export default function ResetPassword() {
           <div className="mx-auto h-12 w-12 rounded-2xl border border-blue-500/20 bg-blue-500/10 flex items-center justify-center text-blue-400">
             <Lock className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-white">Reset Password</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-white">Choose New Password</h1>
           <p className="text-xs text-white/50 px-4">
-            Enter the 6-digit OTP code sent to <span className="font-bold text-white">{email}</span> and configure your new password.
+            Resetting password for <span className="font-bold text-white">{email}</span>. Handshake verified.
           </p>
         </div>
 
         <form onSubmit={handleReset} className="space-y-4">
-          {/* OTP Code */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">6-Digit OTP Code</label>
-            <div className="relative">
-              <Shield className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-white/40" />
-              <input
-                type="text"
-                placeholder="123456"
-                maxLength="6"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/30 py-3 pl-11 pr-4 text-sm text-white placeholder-white/30 tracking-widest focus:border-blue-500/50 focus:outline-none"
-              />
-            </div>
-          </div>
-
           {/* New Password */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">New Password</label>
@@ -115,6 +120,25 @@ export default function ResetPassword() {
                 className="w-full rounded-xl border border-white/10 bg-black/30 py-3 pl-11 pr-4 text-sm text-white placeholder-white/30 focus:border-blue-500/50 focus:outline-none"
               />
             </div>
+
+            {/* Strength Meter */}
+            {newPassword && (
+              <div className="space-y-1 pt-1">
+                <div className="flex items-center justify-between text-[10px] font-bold">
+                  <span className="text-white/40 uppercase tracking-widest">Password Strength:</span>
+                  <span className={`${
+                    strength === "Weak" ? "text-rose-400" : strength === "Medium" ? "text-amber-400" : "text-emerald-400"
+                  }`}>
+                    {strength}
+                  </span>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                  <div className={`h-full transition-all duration-300 ${
+                    strength === "Weak" ? "w-1/3 bg-rose-500" : strength === "Medium" ? "w-2/3 bg-amber-500" : "w-full bg-emerald-500"
+                  }`} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Confirm Password */}

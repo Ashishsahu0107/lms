@@ -95,9 +95,9 @@ rootRouter.use("/teacher/analytics", analyticsRouter);
 import adminAnalyticsRouter from "./adminAnalytics.routes.js";
 
 rootRouter.use("/messages", messageRouter);
+rootRouter.use("/admin/analytics", adminAnalyticsRouter);
 rootRouter.use("/admin", adminRouter);
 rootRouter.use("/admin", adminModulesRouter);
-rootRouter.use("/admin/analytics", adminAnalyticsRouter);
 
 // =====================================
 // API ROOT DESCRIPTIVE ENDPOINT

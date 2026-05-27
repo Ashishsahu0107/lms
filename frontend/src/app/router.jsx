@@ -46,6 +46,7 @@ import { useTheme } from "../context/ThemeContext";
 import { globalSearch } from "../services/searchService";
 import { ROLES } from "../constants/roles";
 import PublicLayout from "../layouts/PublicLayout";
+import { AuthModalProvider } from "../context/AuthModalContext";
 
 // ===============================
 // LAZY IMPORTS
@@ -213,6 +214,7 @@ const AdminQuizzes = lazy(() =>
 // ADVANCED PLATFORM UPGRADES
 const VerifyEmail = lazy(() => import("../pages/auth/VerifyEmail"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
+const VerifyOTP = lazy(() => import("../pages/auth/VerifyOTP"));
 const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
 const LandingPage = lazy(() => import("../pages/landing/LandingPage"));
 
@@ -269,6 +271,17 @@ function RoleGuard({ allowedRoles }) {
   }
 
   return <Outlet />;
+}
+
+// ===============================
+// ROOT LAYOUT
+// ===============================
+function RootLayout() {
+  return (
+    <AuthModalProvider>
+      <Outlet />
+    </AuthModalProvider>
+  );
 }
 
 // ===============================
@@ -872,34 +885,29 @@ function DashboardLayout() {
 }
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: (
-      <PageWrapper>
-        <LandingPage />
-      </PageWrapper>
-    ),
-  },
-  {
-    element: <PublicLayout />,
+    element: <RootLayout />,
     children: [
-
       {
-        path: "login",
+        path: "/",
         element: (
           <PageWrapper>
-            <LoginPage />
+            <LandingPage />
           </PageWrapper>
         ),
       },
-
       {
-        path: "register",
-        element: (
-          <PageWrapper>
-            <RegisterPage />
-          </PageWrapper>
-        ),
-      },
+        element: <PublicLayout />,
+        children: [
+
+          {
+            path: "login",
+            element: <Navigate to="/?auth=login" replace />,
+          },
+
+          {
+            path: "register",
+            element: <Navigate to="/?auth=register" replace />,
+          },
 
       {
         path: "verify-email",
@@ -915,6 +923,15 @@ const router = createBrowserRouter([
         element: (
           <PageWrapper>
             <ForgotPassword />
+          </PageWrapper>
+        ),
+      },
+
+      {
+        path: "verify-otp",
+        element: (
+          <PageWrapper>
+            <VerifyOTP />
           </PageWrapper>
         ),
       },
@@ -1537,6 +1554,8 @@ const router = createBrowserRouter([
   {
     path: "*",
     element: <Navigate to="/login" replace />,
+  },
+    ],
   },
 ]);
 

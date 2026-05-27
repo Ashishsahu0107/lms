@@ -23,7 +23,7 @@ export default function ForgotPassword() {
       if (res && res.success) {
         toast.success(res.message || "OTP code has been sent successfully!");
         localStorage.setItem("verify_email", email);
-        navigate(`/reset-password?email=${encodeURIComponent(email)}`);
+        navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
       }
     } catch (err) {
       console.error(err);

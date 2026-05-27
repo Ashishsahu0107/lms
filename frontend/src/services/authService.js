@@ -54,6 +54,14 @@ export async function forgotPassword(email) {
   return apiPost("/auth/forgot-password", { email });
 }
 
+export async function verifyResetOtp(email, otp) {
+  return apiPost("/auth/verify-reset-otp", { email, otp });
+}
+
+export async function resendResetOtp(email) {
+  return apiPost("/auth/resend-otp", { email });
+}
+
 export async function resetPassword(email, otp, newPassword) {
   return apiPost("/auth/reset-password", { email, otp, newPassword });
 }

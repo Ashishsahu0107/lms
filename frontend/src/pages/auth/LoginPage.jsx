@@ -91,7 +91,17 @@ export default function LoginPage() {
           return;
         }
 
+        if (!res.data || !res.data.data) {
+          setError("Failed to retrieve user details from server response.");
+          return;
+        }
+
         const { token, user } = res.data.data;
+
+        if (!token || !user) {
+          setError("Incomplete user credentials received from the server.");
+          return;
+        }
 
         // Save Token & User details
         localStorage.setItem("token", token);
