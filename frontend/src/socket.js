@@ -1,3 +1,8 @@
 import { io } from "socket.io-client";
 
-export const socket = io("http://localhost:5000");
+const getSocketUrl = () => {
+  const hostname = window.location.hostname;
+  return `http://${hostname}:5000`;
+};
+
+export const socket = io(getSocketUrl());

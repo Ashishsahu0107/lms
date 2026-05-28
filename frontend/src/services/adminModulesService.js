@@ -18,10 +18,11 @@ export async function processRefund(paymentId, status) {
 }
 
 // Reports APIs (Base URLs for direct CSV triggers)
-export const REPORTS_STUDENTS_URL = "http://localhost:5000/api/admin/reports/students";
-export const REPORTS_TEACHERS_URL = "http://localhost:5000/api/admin/reports/teachers";
-export const REPORTS_REVENUE_URL = "http://localhost:5000/api/admin/reports/revenue";
-export const REPORTS_COURSES_URL = "http://localhost:5000/api/admin/reports/courses";
+const hostname = window.location.hostname;
+export const REPORTS_STUDENTS_URL = `http://${hostname}:5000/api/admin/reports/students`;
+export const REPORTS_TEACHERS_URL = `http://${hostname}:5000/api/admin/reports/teachers`;
+export const REPORTS_REVENUE_URL = `http://${hostname}:5000/api/admin/reports/revenue`;
+export const REPORTS_COURSES_URL = `http://${hostname}:5000/api/admin/reports/courses`;
 
 // Analytics APIs
 export async function getPlatformAnalytics() {

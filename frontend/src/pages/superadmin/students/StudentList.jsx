@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Search, Filter, Eye, Edit, Ban, CheckCircle2,
   Trash2, UserPlus, FileSpreadsheet, BookOpen, Award,
-  ChevronLeft, ChevronRight, Sparkles, TrendingUp
+  ChevronLeft, ChevronRight, Sparkles, TrendingUp, Users
 } from "lucide-react";
 import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";

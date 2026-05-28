@@ -24,7 +24,7 @@ export function SocketProvider({ children }) {
     if (!token) return;
 
     // Initialize Socket connection with auth handshake
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || `http://${window.location.hostname}:5000`;
     const newSocket = io(socketUrl, {
       auth: { token },
       autoConnect: true,

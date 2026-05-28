@@ -7,7 +7,17 @@ let ioInstance = null;
 export function initSocket(httpServer) {
   ioInstance = new Server(httpServer, {
     cors: {
-      origin: env.CORS_ORIGIN,
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const isLocal = origin.startsWith("http://localhost:") || 
+                        origin.startsWith("http://127.0.0.1:") || 
+                        /^http:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+):/i.test(origin);
+        if (isLocal || [env.CORS_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"].indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
       credentials: true,
       methods: ["GET", "POST"],
     },

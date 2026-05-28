@@ -159,7 +159,7 @@ export default function AdminTeachers() {
 
   const handleExportCSV = () => {
     // Generate browser download link directly to CSV endpoint
-    window.open("http://localhost:5000/api/admin/users/export", "_blank");
+    window.open(`http://${window.location.hostname}:5000/api/admin/users/export`, "_blank");
   };
 
   const handleBulkImportTrigger = () => {

@@ -1,7 +1,13 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  const hostname = window.location.hostname;
+  return `http://${hostname}:5000/api`;
+};
+
+const BASE_URL = getApiUrl();
 
 const client = axios.create({ baseURL: BASE_URL, withCredentials: true });
 
