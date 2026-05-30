@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
     return saved && token ? JSON.parse(saved) : null;
   });
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
