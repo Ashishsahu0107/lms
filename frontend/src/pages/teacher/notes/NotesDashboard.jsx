@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen, FileText, Upload, Plus, Trash2, RefreshCw, Sparkles, HelpCircle } from "lucide-react";
 import { getNotes, createNote, deleteNote } from "../../../services/notesService";
-import { getCourses } from "../../../services/adminService";
+import { getCourses } from "../../../services/courseService";
+import { useSocket } from "../../../context/SocketContext";
 import { toast } from "react-hot-toast";
 
 export default function NotesDashboard() {
+  const { socket } = useSocket();
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [notes, setNotes] = useState([]);
@@ -53,6 +55,33 @@ export default function NotesDashboard() {
   useEffect(() => {
     loadNotes();
   }, [selectedCourse]);
+
+  useEffect(() => {
+    if (!socket || !selectedCourse) return;
+
+    const handleNoteCreated = (data) => {
+      if (data.courseId === selectedCourse) {
+        setNotes((prevNotes) => {
+          if (prevNotes.some((n) => n._id === data.note._id)) return prevNotes;
+          return [data.note, ...prevNotes];
+        });
+      }
+    };
+
+    const handleNoteDeleted = (data) => {
+      if (data.courseId === selectedCourse) {
+        setNotes((prevNotes) => prevNotes.filter((n) => n._id !== data.noteId));
+      }
+    };
+
+    socket.on("note-created", handleNoteCreated);
+    socket.on("note-deleted", handleNoteDeleted);
+
+    return () => {
+      socket.off("note-created", handleNoteCreated);
+      socket.off("note-deleted", handleNoteDeleted);
+    };
+  }, [socket, selectedCourse]);
 
   const handleUpload = async (e) => {
     e.preventDefault();

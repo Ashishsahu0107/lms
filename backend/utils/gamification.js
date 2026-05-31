@@ -46,6 +46,22 @@ export async function awardXP(userId, xpAmount, reason = "LMS Action") {
 
     await user.save();
     console.log(`[GAMIFICATION] Awarded ${xpAmount} XP to User ${userId}. Reason: ${reason}. Total: ${user.xp}`);
+
+    if (unlockedNew) {
+      try {
+        const { getIO } = await import("../socket/index.js");
+        const io = getIO();
+        io.to(`user:${userId}`).emit("achievement-unlocked", {
+          achievements: user.achievements,
+          xp: user.xp,
+          badges: user.badges,
+          latestAchievement: user.achievements[user.achievements.length - 1],
+        });
+      } catch (e) {
+        console.error("Failed to emit achievement socket event:", e);
+      }
+    }
+
     return { xpAwarded: xpAmount, totalXP: user.xp, unlockedNew };
   } catch (error) {
     console.error("Failed to award XP:", error);
@@ -80,6 +96,7 @@ export async function recordActivityStreak(userId) {
         user.lastActiveDate = now;
         
         // Award badge for 7-day streak
+        let streakUnlocked = false;
         if (user.streak >= 7 && !user.badges.includes("7-Day Fire")) {
           user.badges.push("7-Day Fire");
           user.achievements.push({
@@ -87,6 +104,22 @@ export async function recordActivityStreak(userId) {
             description: "Maintained a consecutive 7-day learning streak!",
             unlockedAt: new Date(),
           });
+          streakUnlocked = true;
+        }
+
+        if (streakUnlocked) {
+          try {
+            const { getIO } = await import("../socket/index.js");
+            const io = getIO();
+            io.to(`user:${userId}`).emit("achievement-unlocked", {
+              achievements: user.achievements,
+              xp: user.xp,
+              badges: user.badges,
+              latestAchievement: user.achievements[user.achievements.length - 1],
+            });
+          } catch (e) {
+            console.error("Failed to emit streak achievement socket event:", e);
+          }
         }
       } else if (diffDays > 1) {
         // Streak broken

@@ -28,24 +28,7 @@ export async function loginController(req, res, next) {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-    // Role is student and email is not verified
-    if (user.role === "student" && !user.isVerified) {
-      // Generate OTP and save
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      user.verificationOTP = otp;
-      user.verificationOTPExpires = new Date(Date.now() + 15 * 60 * 1000);
-      await user.save();
 
-      // Send OTP
-      await sendOtpEmail(user.email, otp, "Verify your LMS Pro Account");
-
-      return res.status(200).json({
-        success: true,
-        needsVerification: true,
-        email: user.email,
-        message: "Email not verified. A verification code has been dispatched to your inbox.",
-      });
-    }
 
     // Check streaks on active logins
     if (user.role === "student") {
@@ -93,24 +76,14 @@ export async function registerController(req, res, next) {
       role: "student",
     });
 
-    // 2. Fetch created user in DB and set unverified
+    // 2. Fetch created user in DB and set verified
     const user = await User.findOne({ email: email.toLowerCase() });
-    user.isVerified = false;
-
-    // 3. Generate verification OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.verificationOTP = otp;
-    user.verificationOTPExpires = new Date(Date.now() + 15 * 60 * 1000);
+    user.isVerified = true;
     await user.save();
-
-    // 4. Send OTP
-    await sendOtpEmail(user.email, otp, "Verify your LMS Pro Account");
 
     return res.status(201).json({
       success: true,
-      needsVerification: true,
-      email: user.email,
-      message: "User registered. A 6-digit OTP code has been sent to your email.",
+      message: "User registered successfully.",
       data: result,
     });
   } catch (err) {

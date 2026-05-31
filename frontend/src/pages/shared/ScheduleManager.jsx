@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Calendar, Video, Clock, Trophy, RefreshCw, BookOpen, ArrowLeft } from "lucide-react";
 import { getCalendarEvents, createSchedule, deleteSchedule } from "../../services/scheduleService";
-import { getCourses } from "../../services/adminService";
+import { getCourses } from "../../services/courseService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 

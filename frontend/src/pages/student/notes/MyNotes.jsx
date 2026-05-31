@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen, FileText, Download, HelpCircle, RefreshCw, Search } from "lucide-react";
 import { getNotes } from "../../../services/notesService";
-import { getCourses } from "../../../services/adminService";
+import { getCourses } from "../../../services/courseService";
+import { useSocket } from "../../../context/SocketContext";
 import { toast } from "react-hot-toast";
 
 export default function MyNotes() {
+  const { socket } = useSocket();
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [notes, setNotes] = useState([]);
@@ -47,6 +49,31 @@ export default function MyNotes() {
     }
     loadNotes();
   }, [selectedCourse]);
+
+  useEffect(() => {
+    if (!socket || !selectedCourse) return;
+
+    const handleNoteCreated = (data) => {
+      if (data.courseId === selectedCourse) {
+        setNotes((prevNotes) => [data.note, ...prevNotes]);
+        toast.success(`New Notes Published: "${data.note.title}"!`, { duration: 4000 });
+      }
+    };
+
+    const handleNoteDeleted = (data) => {
+      if (data.courseId === selectedCourse) {
+        setNotes((prevNotes) => prevNotes.filter((n) => n._id !== data.noteId));
+      }
+    };
+
+    socket.on("note-created", handleNoteCreated);
+    socket.on("note-deleted", handleNoteDeleted);
+
+    return () => {
+      socket.off("note-created", handleNoteCreated);
+      socket.off("note-deleted", handleNoteDeleted);
+    };
+  }, [socket, selectedCourse]);
 
   const filteredNotes = notes.filter(n =>
     n.title.toLowerCase().includes(search.toLowerCase()) ||

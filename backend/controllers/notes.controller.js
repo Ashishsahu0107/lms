@@ -1,6 +1,7 @@
 import { Notes } from "../models/Notes.js";
 import { Course } from "../models/Course.js";
 import { BadRequestError, ForbiddenError } from "../utils/errors.js";
+import { getIO } from "../socket/index.js";
 
 // ============================================
 // GET /api/notes
@@ -57,6 +58,18 @@ export async function createNote(req, res, next) {
       teacherId,
     });
 
+    // Real-time Socket Broadcast
+    try {
+      const io = getIO();
+      io.emit("note-created", {
+        note,
+        courseId,
+        teacherId,
+      });
+    } catch (e) {
+      console.error("Socket emit failed in createNote:", e);
+    }
+
     // Gamification XP Reward to Teacher (simulate positive teacher behaviors)
     try {
       if (req.user.role === "student") {
@@ -101,6 +114,17 @@ export async function deleteNote(req, res, next) {
     }
 
     await Notes.findByIdAndDelete(id);
+
+    // Real-time Socket Broadcast
+    try {
+      const io = getIO();
+      io.emit("note-deleted", {
+        noteId: id,
+        courseId: note.courseId,
+      });
+    } catch (e) {
+      console.error("Socket emit failed in deleteNote:", e);
+    }
 
     return res.status(200).json({
       success: true,

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Trophy, Award, Zap, Sparkles, RefreshCw, Flame, CheckCircle, Gift } from "lucide-react";
 import { getMe } from "../../../services/authService";
+import { useSocket } from "../../../context/SocketContext";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 
 export default function Achievements() {
+  const { socket } = useSocket();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,6 +27,42 @@ export default function Achievements() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleAchievementUnlocked = (data) => {
+      // Show real-time beautiful custom toast!
+      toast(() => (
+        <div className="flex flex-col gap-1 text-xs">
+          <span className="flex items-center gap-1.5 font-bold text-amber-500">
+            <Trophy className="h-4 w-4 animate-bounce text-amber-400" />
+            Milestone Unlocked!
+          </span>
+          <span className="font-semibold text-white/90">
+            Congratulations! You unlocked the **{data.latestAchievement.title}** badge!
+          </span>
+        </div>
+      ), { duration: 5000, position: "top-center" });
+
+      // Update local state dynamically!
+      setUserData((prevData) => {
+        if (!prevData) return null;
+        return {
+          ...prevData,
+          xp: data.xp,
+          badges: data.badges,
+          achievements: data.achievements,
+        };
+      });
+    };
+
+    socket.on("achievement-unlocked", handleAchievementUnlocked);
+
+    return () => {
+      socket.off("achievement-unlocked", handleAchievementUnlocked);
+    };
+  }, [socket]);
 
   const handleClaimReward = (badge) => {
     toast.success(`Claimed reward coupon for unlocking '${badge}' badge! Check your email!`);

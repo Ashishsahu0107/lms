@@ -6,6 +6,7 @@ import {
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
+import { Badge } from "../../../components/ui/Badge";
 import { useAuth } from "../../../context/AuthContext";
 import { getProfile, updateProfile, updatePassword, updatePreferences } from "../../../services/settingsService";
 import toast from "react-hot-toast";
