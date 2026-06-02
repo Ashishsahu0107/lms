@@ -1,109 +1,117 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* =======================================================
-   LMS PRO THEME
-======================================================= */
+/* ======================================================
+   LMS PRO — LUXURY DARK GOLD THEME
+   Primary: #C9A227 (Luxury Gold)
+   BG: #0F172A | Cards: #1E293B
+====================================================== */
 
 :root {
+  --gold:           201 162 39;
+  --gold-light:     245 158 11;
+  --gold-dark:      161 117 16;
 
-  /* Base */
-  --background: 222 47% 98%;
-  --foreground: 222 47% 11%;
+  --background:     15 23 42;
+  --foreground:     255 255 255;
 
-  /* Cards */
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card:           30 41 59;
+  --card-foreground:255 255 255;
 
-  /* Popover */
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --popover:        30 41 59;
+  --popover-foreground: 255 255 255;
 
-  /* Primary */
-  --primary: 221 83% 53%;
-  --primary-foreground: 210 40% 98%;
+  --primary:        201 162 39;
+  --primary-foreground: 15 23 42;
 
-  /* Secondary */
-  --secondary: 262 83% 58%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary:      30 41 59;
+  --secondary-foreground: 203 213 225;
 
-  /* Accent */
-  --accent: 190 95% 39%;
-  --accent-foreground: 210 40% 98%;
+  --muted:          30 41 59;
+  --muted-foreground: 148 163 184;
 
-  /* Muted */
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
+  --accent:         245 158 11;
+  --accent-foreground: 15 23 42;
 
-  /* Danger */
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive:    239 68 68;
+  --destructive-foreground: 255 255 255;
 
-  /* Success */
-  --success: 160 84% 39%;
+  --success:        16 185 129;
+  --warning:        245 158 11;
+  --info:           99 102 241;
 
-  /* Warning */
-  --warning: 38 92% 50%;
+  --border:         rgba(201, 162, 39, 0.15);
+  --input:          rgba(201, 162, 39, 0.1);
+  --ring:           201 162 39;
 
-  /* Borders */
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 221 83% 53%;
-
-  /* Radius */
   --radius: 1rem;
+
+  /* Chart colors */
+  --chart-1: 201 162 39;
+  --chart-2: 245 158 11;
+  --chart-3: 99 102 241;
+  --chart-4: 16 185 129;
+  --chart-5: 239 68 68;
 }
 
-/* =======================================================
-   DARK MODE
-======================================================= */
+/* ======================================================
+   HASHED HSL COMPATIBILITY — For Tailwind hsl(var(...))
+====================================================== */
+:root {
+  --background-hsl: 222 47% 8%;
+  --foreground-hsl: 0 0% 100%;
+  --card-hsl: 217 33% 17%;
+  --card-foreground-hsl: 0 0% 100%;
+  --primary-hsl: 43 67% 47%;
+  --primary-foreground-hsl: 222 47% 8%;
+  --secondary-hsl: 217 33% 17%;
+  --secondary-foreground-hsl: 215 20% 80%;
+  --muted-hsl: 217 33% 17%;
+  --muted-foreground-hsl: 215 20% 58%;
+  --accent-hsl: 38 92% 50%;
+  --accent-foreground-hsl: 222 47% 8%;
+  --destructive-hsl: 0 84% 60%;
+  --destructive-foreground-hsl: 0 0% 100%;
+  --border-hsl: 43 45% 25%;
+  --input-hsl: 43 45% 18%;
+  --ring-hsl: 43 67% 47%;
+}
 
-.dark {
-
+/* Override CSS variables for tailwind compatibility */
+:root {
   --background: 222 47% 8%;
-  --foreground: 210 40% 98%;
-
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-
-  --popover: 222 47% 11%;
-  --popover-foreground: 210 40% 98%;
-
-  --primary: 217 91% 65%;
-  --primary-foreground: 222 47% 11%;
-
-  --secondary: 262 83% 68%;
-  --secondary-foreground: 210 40% 98%;
-
-  --accent: 190 95% 45%;
-  --accent-foreground: 210 40% 98%;
-
-  --muted: 217 19% 16%;
-  --muted-foreground: 215 20% 65%;
-
-  --destructive: 0 62% 50%;
-  --destructive-foreground: 210 40% 98%;
-
-  --success: 160 84% 39%;
-
-  --warning: 38 92% 50%;
-
-  --border: 217 19% 20%;
-  --input: 217 19% 20%;
-  --ring: 217 91% 65%;
+  --foreground: 0 0% 100%;
+  --card: 217 33% 17%;
+  --card-foreground: 0 0% 100%;
+  --popover: 217 33% 17%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 43 67% 47%;
+  --primary-foreground: 222 47% 8%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 215 20% 80%;
+  --muted: 217 19% 20%;
+  --muted-foreground: 215 20% 58%;
+  --accent: 38 92% 50%;
+  --accent-foreground: 222 47% 8%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 43 45% 25%;
+  --input: 43 45% 18%;
+  --ring: 43 67% 47%;
 }
 
-/* =======================================================
+/* ======================================================
    BASE STYLES
-======================================================= */
+====================================================== */
 
 @layer base {
 
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
 
   html {
@@ -111,314 +119,422 @@
   }
 
   body {
-
-    @apply bg-background text-foreground;
-
-    font-family:
-      'Inter',
-      system-ui,
-      sans-serif;
-
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
     min-height: 100vh;
-
     overflow-x: hidden;
-
+    background-color: #0F172A;
+    color: #FFFFFF;
     background-image:
-      radial-gradient(
-        circle at top left,
-        rgba(37,99,235,0.08),
-        transparent 25%
-      ),
-
-      radial-gradient(
-        circle at bottom right,
-        rgba(124,58,237,0.08),
-        transparent 25%
-      );
+      radial-gradient(ellipse at top left, rgba(201, 162, 39, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
   }
 
   ::selection {
-    background-color:
-      hsl(var(--primary) / 0.25);
-
-    color:
-      hsl(var(--primary));
+    background-color: rgba(201, 162, 39, 0.3);
+    color: #C9A227;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
     @apply font-semibold tracking-tight;
   }
 
   button {
     @apply transition-all duration-200;
   }
-
 }
 
-/* =======================================================
-   SCROLLBAR
-======================================================= */
+/* ======================================================
+   SCROLLBAR — LUXURY GOLD
+====================================================== */
 
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(15, 23, 42, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-
-  background:
-    linear-gradient(
-      to bottom,
-      rgb(37 99 235),
-      rgb(124 58 237)
-    );
-
+  background: linear-gradient(to bottom, #C9A227, #F59E0B);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  opacity: 0.8;
+  background: linear-gradient(to bottom, #F59E0B, #C9A227);
 }
 
-/* =======================================================
-   UTILITIES
-======================================================= */
+/* ======================================================
+   UTILITY CLASSES — LUXURY DESIGN SYSTEM
+====================================================== */
 
 @layer utilities {
 
-  /* TEXT GRADIENT */
-  .text-gradient {
-
-    background:
-      linear-gradient(
-        to right,
-        rgb(37 99 235),
-        rgb(79 70 229),
-        rgb(168 85 247)
-      );
-
+  /* ---- GOLD TEXT GRADIENT ---- */
+  .text-gold {
+    background: linear-gradient(135deg, #C9A227, #F59E0B, #C9A227);
     -webkit-background-clip: text;
-
     background-clip: text;
-
     color: transparent;
   }
 
-  /* GLASS EFFECT */
-  .glass {
-
-    background:
-      rgba(255,255,255,0.08);
-
-    backdrop-filter:
-      blur(24px);
-
-    border:
-      1px solid rgba(255,255,255,0.1);
+  .text-gold-solid {
+    color: #C9A227;
   }
 
-  /* DARK GLASS */
+  /* ---- LUXURY GLASS CARD ---- */
+  .glass-luxury {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(201, 162, 39, 0.15);
+  }
+
   .glass-dark {
-
-    background:
-      rgba(15,23,42,0.7);
-
-    backdrop-filter:
-      blur(24px);
-
-    border:
-      1px solid rgba(255,255,255,0.05);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
 
-  /* CARD SHADOW */
-  .card-shadow {
-
+  .glass-card {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(201, 162, 39, 0.12);
+    border-radius: 1.5rem;
     box-shadow:
-      0 10px 25px rgba(0,0,0,0.08),
-      0 2px 10px rgba(37,99,235,0.06);
+      0 25px 50px -12px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(201, 162, 39, 0.08);
   }
 
-  /* HOVER LIFT */
-  .hover-lift {
+  /* ---- GOLD GLOW EFFECTS ---- */
+  .gold-glow {
+    box-shadow: 0 0 20px rgba(201, 162, 39, 0.4), 0 0 60px rgba(201, 162, 39, 0.1);
+  }
 
-    transition:
-      all 0.3s ease;
+  .gold-glow-sm {
+    box-shadow: 0 0 10px rgba(201, 162, 39, 0.3), 0 4px 15px rgba(201, 162, 39, 0.1);
+  }
+
+  .gold-glow-hover:hover {
+    box-shadow: 0 0 25px rgba(201, 162, 39, 0.5), 0 0 80px rgba(201, 162, 39, 0.15);
+  }
+
+  /* ---- LUXURY BUTTONS ---- */
+  .btn-luxury {
+    background: linear-gradient(135deg, #C9A227 0%, #F59E0B 50%, #C9A227 100%);
+    background-size: 200% 100%;
+    color: #0F172A;
+    font-weight: 700;
+    border-radius: 9999px;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+  }
+
+  .btn-luxury:hover {
+    background-position: right center;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(201, 162, 39, 0.5);
+  }
+
+  .btn-luxury-outline {
+    background: transparent;
+    color: #C9A227;
+    font-weight: 700;
+    border-radius: 9999px;
+    border: 1.5px solid rgba(201, 162, 39, 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .btn-luxury-outline:hover {
+    background: rgba(201, 162, 39, 0.1);
+    border-color: #C9A227;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(201, 162, 39, 0.2);
+  }
+
+  /* ---- GRADIENT BACKGROUNDS ---- */
+  .bg-luxury {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  }
+
+  .bg-gold-gradient {
+    background: linear-gradient(135deg, #C9A227 0%, #F59E0B 100%);
+  }
+
+  .bg-dark-gradient {
+    background: linear-gradient(135deg, #0F172A 0%, #0B1120 100%);
+  }
+
+  /* ---- BORDER GOLD ---- */
+  .border-gold {
+    border-color: rgba(201, 162, 39, 0.3);
+  }
+
+  .border-gold-bright {
+    border-color: #C9A227;
+  }
+
+  /* ---- ORB / GLOW DECORATIONS ---- */
+  .orb-gold {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201, 162, 39, 0.15) 0%, transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  /* ---- HOVER LIFT ---- */
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hover-lift:hover {
-
-    transform:
-      translateY(-5px);
-
-    box-shadow:
-      0 20px 40px rgba(0,0,0,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(201, 162, 39, 0.1);
   }
 
-  /* BUTTON GLOW */
-  .btn-glow:hover {
-
-    box-shadow:
-      0 0 25px rgba(37,99,235,0.35);
+  /* ---- GOLD PROGRESS BAR ---- */
+  .progress-gold::-webkit-progress-bar {
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 9999px;
   }
 
-  /* BORDER GRADIENT */
-  .border-gradient {
-
-    border-image:
-      linear-gradient(
-        to right,
-        rgb(37 99 235),
-        rgb(124 58 237)
-      ) 1;
+  .progress-gold::-webkit-progress-value {
+    background: linear-gradient(90deg, #C9A227, #F59E0B);
+    border-radius: 9999px;
   }
 
-  /* ANIMATIONS */
-  .animate-fade-in {
-    animation:
-      fadeIn 0.5s ease-out forwards;
+  /* ---- LUXURY BADGE ---- */
+  .badge-luxury {
+    background: rgba(201, 162, 39, 0.15);
+    color: #C9A227;
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
-  .animate-slide-up {
-    animation:
-      slideUp 0.5s ease-out forwards;
+  /* ---- SHIMMER EFFECT ---- */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(201, 162, 39, 0) 0%,
+      rgba(201, 162, 39, 0.12) 50%,
+      rgba(201, 162, 39, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
   }
 
-  .animate-slide-down {
-    animation:
-      slideDown 0.5s ease-out forwards;
-  }
-
-  .animate-scale-in {
-    animation:
-      scaleIn 0.3s ease-out forwards;
-  }
-
+  /* ---- FLOATING ANIMATION ---- */
   .animate-float {
-    animation:
-      float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delay {
+    animation: float 4s ease-in-out 1s infinite;
+  }
+
+  /* ---- PULSE GOLD ---- */
+  .animate-pulse-gold {
+    animation: pulseGold 2s ease-in-out infinite;
+  }
+
+  /* ---- STAGGER CLASSES ---- */
+  .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+  .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+  .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+  .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+  .stagger-5 { animation-delay: 0.5s; opacity: 0; }
+
+  /* ---- SCROLLBAR NONE ---- */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }
 
-/* =======================================================
+/* ======================================================
    KEYFRAMES
-======================================================= */
+====================================================== */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(201, 162, 39, 0); }
+}
 
 @keyframes fadeIn {
-
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideDown {
-
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
 
-  from {
-    opacity: 0;
-    transform: scale(0.95);
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-5deg) scale(0.95); }
+  to { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+
+@keyframes goldOrb {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
   }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
+  33% {
+    transform: translate(30px, -20px) scale(1.05);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(-20px, 15px) scale(0.97);
+    opacity: 0.5;
   }
 }
 
-@keyframes float {
+/* ======================================================
+   FLYONUI & DAISYUI LUXURY OVERRIDES
+====================================================== */
 
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* =======================================================
-   STAGGER ANIMATION DELAYS
-======================================================= */
-
-.stagger-1 {
-  animation-delay: 0.1s;
-  opacity: 0;
-}
-
-.stagger-2 {
-  animation-delay: 0.2s;
-  opacity: 0;
-}
-
-.stagger-3 {
-  animation-delay: 0.3s;
-  opacity: 0;
-}
-
-.stagger-4 {
-  animation-delay: 0.4s;
-  opacity: 0;
-}
-
-.stagger-5 {
-  animation-delay: 0.5s;
-  opacity: 0;
-}
-
-/* =======================================================
-   FLYONUI CUSTOM OVERRIDES
-======================================================= */
-
+/* Buttons */
 .btn {
-  @apply rounded-xl font-medium;
+  @apply rounded-full font-semibold tracking-wide;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.btn-primary {
+  background: linear-gradient(135deg, #C9A227, #F59E0B) !important;
+  color: #0F172A !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3) !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 30px rgba(201, 162, 39, 0.5) !important;
+}
+
+/* Cards */
 .card {
-  @apply rounded-2xl border border-border;
+  background: rgba(30, 41, 59, 0.8) !important;
+  border: 1px solid rgba(201, 162, 39, 0.12) !important;
+  border-radius: 1.5rem !important;
+  backdrop-filter: blur(16px);
 }
 
-.input {
-  @apply rounded-xl;
+/* Inputs */
+.input, .textarea, .select {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(201, 162, 39, 0.2) !important;
+  color: #fff !important;
+  border-radius: 0.875rem !important;
+  transition: all 0.2s ease;
 }
 
+.input:focus, .textarea:focus, .select:focus {
+  border-color: #C9A227 !important;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15) !important;
+  outline: none !important;
+}
+
+.input::placeholder, .textarea::placeholder {
+  color: rgba(203, 213, 225, 0.4) !important;
+}
+
+/* Menu items */
 .menu li > * {
   @apply rounded-xl;
-} 
+  transition: all 0.2s ease;
+}
+
+.menu li > *:hover {
+  background: rgba(201, 162, 39, 0.08) !important;
+  color: #C9A227 !important;
+}
+
+/* Badges */
+.badge {
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+/* Modal */
+.modal-box {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border: 1px solid rgba(201, 162, 39, 0.2) !important;
+  border-radius: 1.5rem !important;
+  backdrop-filter: blur(24px);
+}
+
+/* Divider */
+.divider:before, .divider:after {
+  background: rgba(201, 162, 39, 0.15) !important;
+}
+
+/* Dropdown */
+.dropdown-content {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(201, 162, 39, 0.15) !important;
+  border-radius: 1rem !important;
+  backdrop-filter: blur(20px);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  color: #C9A227 !important;
+}
+
+/* Progress bar */
+.progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #C9A227, #F59E0B) !important;
+  border-radius: 9999px;
+}
+
+/* Stats */
+.stat {
+  background: rgba(30, 41, 59, 0.6) !important;
+}
+
+/* Tooltips */
+.tooltip::before {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(201, 162, 39, 0.2) !important;
+  color: #C9A227 !important;
+  border-radius: 0.75rem;
+}

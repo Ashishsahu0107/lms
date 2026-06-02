@@ -30,6 +30,7 @@ import {
   X,
   ChevronRight,
   Calendar,
+  Clock,
   FileText,
   Sparkles,
   Video,
@@ -394,7 +395,7 @@ const sidebarConfig = {
     },
     {
       label: "Manage Schedule",
-      icon: Calendar,
+      icon: Clock,
       path: "/teacher/schedule-manager",
     },
     {
@@ -467,7 +468,7 @@ const sidebarConfig = {
     },
     {
       label: "Manage Schedule",
-      icon: Calendar,
+      icon: Clock,
       path: "/admin/schedule-manager",
     },
     {
@@ -532,6 +533,11 @@ function DashboardLayout() {
   const [searchResults, setSearchResults] = useState({});
   const [searchLoading, setSearchLoading] = useState(false);
 
+  const GOLD = "#C9A227";
+  const GOLD_LIGHT = "#F59E0B";
+  const DARK_BG = "#0F172A";
+  const CARD_BG = "#1E293B";
+
   const menuItems = sidebarConfig[user?.role] || [];
 
   const handleLogout = () => {
@@ -579,112 +585,124 @@ function DashboardLayout() {
 
   return (
     <div
-      data-theme={isDarkMode ? "dark" : "light"}
-      className={`min-h-screen font-sans antialiased transition-colors duration-300 ${
-        isDarkMode ? "bg-slate-950 text-slate-100 dark" : "bg-slate-50 text-slate-800"
-      }`}
+      data-theme="luxury"
+      className="min-h-screen font-sans antialiased"
+      style={{ background: "#0F172A", color: "#FFFFFF" }}
     >
-      {/* GLOW DECORATIONS */}
-      <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
+      {/* LUXURY GOLD GLOW ORBS */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-8"
+          style={{ background: "radial-gradient(circle, rgba(201,162,39,0.3) 0%, transparent 70%)", filter: "blur(80px)" }} />
+        <div className="absolute bottom-1/4 right-0 w-80 h-80 rounded-full opacity-6"
+          style={{ background: "radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%)", filter: "blur(70px)" }} />
+      </div>
 
       <div className="flex relative z-10">
         {/* MOBILE OVERLAY */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
-        {/* SIDEBAR */}
+        {/* ── LUXURY SIDEBAR ── */}
         <aside
-          className={`fixed lg:static z-50 h-screen w-72 transform border-r transition-all duration-300 ${
-            isDarkMode
-              ? "border-white/10 bg-black/60 backdrop-blur-xl"
-              : "border-slate-200 bg-white/80 backdrop-blur-xl text-slate-800"
-          } ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+          className="fixed lg:static z-50 h-screen w-72 flex flex-col transition-transform duration-300"
+          style={{
+            background: "rgba(15,23,42,0.95)",
+            backdropFilter: "blur(24px)",
+            borderRight: "1px solid rgba(201,162,39,0.12)",
+            transform: sidebarOpen ? "translateX(0)" : undefined,
+          }}
         >
-          {/* LOGO */}
-          <div className={`flex items-center justify-between border-b px-6 py-5 ${isDarkMode ? "border-white/10" : "border-slate-200"}`}>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-blue-400 animate-pulse" />
+          {/* Logo */}
+          <div className="flex items-center justify-between px-6 py-5"
+            style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)" }}>
+                <Sparkles className="h-5 w-5 text-slate-950" />
+              </div>
               <div>
-                <h1 className="text-xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
-                  LMS PREMIUM
-                </h1>
-                <p className="text-[10px] uppercase font-bold text-slate-505 tracking-wider">
-                  Enterprise Suite
-                </p>
+                <h1 className="text-lg font-black tracking-tight" style={{ color: "#C9A227" }}>LMS <span className="text-white">PRO</span></h1>
+                <p className="text-[9px] uppercase font-bold tracking-widest" style={{ color: "rgba(201,162,39,0.6)" }}>Enterprise Suite</p>
               </div>
             </div>
-
-            <button
-              className={`btn btn-sm btn-circle btn-ghost lg:hidden ${isDarkMode ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800"}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-5 w-5" />
+            <button className="p-1.5 rounded-lg lg:hidden" style={{ background: "rgba(255,255,255,0.05)" }}
+              onClick={() => setSidebarOpen(false)}>
+              <X className="h-4 w-4 text-slate-400" />
             </button>
           </div>
 
-          {/* USER CARD */}
-          <div className="border-b border-white/10 p-5">
-            <div className={`flex items-center gap-3 rounded-2xl border p-3.5 ${isDarkMode ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"}`}>
-              <div className="avatar placeholder">
-                <div className="w-11 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-lg">
-                  <span className="text-md font-bold uppercase">
-                    {user?.name?.charAt(0) || "U"}
-                  </span>
-                </div>
+          {/* User Card */}
+          <div className="px-4 py-4" style={{ borderBottom: "1px solid rgba(201,162,39,0.08)" }}>
+            <div className="flex items-center gap-3 p-3 rounded-2xl"
+              style={{ background: "rgba(201,162,39,0.06)", border: "1px solid rgba(201,162,39,0.12)" }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0"
+                style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A" }}>
+                {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-
               <div className="min-w-0 flex-1">
-                <h3 className={`font-semibold text-sm truncate ${isDarkMode ? "text-white" : "text-slate-800"}`}>
-                  {user?.name || "User"}
-                </h3>
-                <p className="text-[10px] font-bold uppercase text-blue-400 tracking-wider">
+                <p className="text-sm font-bold text-white truncate">{user?.name || "User"}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#C9A227" }}>
                   {user?.role?.replace("_", " ")}
                 </p>
               </div>
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#34D399" }} />
             </div>
           </div>
 
-          {/* MENU LINKS */}
-          <div className="space-y-1 p-4 overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-none">
+          {/* Nav Links */}
+          <div className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5 scrollbar-none">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`group flex items-center justify-between rounded-xl px-4 py-2.5 text-xs font-bold transition-all duration-200 ${
-                    isActive
-                      ? isDarkMode
-                        ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-xl shadow-blue-500/10"
-                        : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/10"
-                      : isDarkMode
-                      ? "text-slate-400 hover:text-white hover:bg-white/5"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                  }`}
+                  className="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200"
+                  style={isActive ? {
+                    background: "linear-gradient(135deg, rgba(201,162,39,0.2), rgba(245,158,11,0.1))",
+                    border: "1px solid rgba(201,162,39,0.3)",
+                    color: "#C9A227",
+                  } : {
+                    border: "1px solid transparent",
+                    color: "#94A3B8",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "rgba(201,162,39,0.06)";
+                      e.currentTarget.style.color = "#CBD5E1";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "#94A3B8";
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`h-4.5 w-4.5 transition-colors ${isActive ? "text-white" : isDarkMode ? "text-slate-400 group-hover:text-blue-400" : "text-slate-500 group-hover:text-blue-600"}`} />
+                    <Icon className="h-4 w-4 shrink-0" style={{ color: isActive ? "#C9A227" : "inherit" }} />
                     <span>{item.label}</span>
                   </div>
-                  <ChevronRight className={`h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 ${isActive ? "opacity-100" : "opacity-40"}`} />
+                  {isActive && <ChevronRight className="h-3.5 w-3.5" style={{ color: "#C9A227" }} />}
                 </Link>
               );
             })}
           </div>
 
-          {/* LOGOUT */}
-          <div className={`absolute bottom-0 w-full border-t p-4 ${isDarkMode ? "border-white/10 bg-black/40" : "border-slate-200 bg-slate-50"}`}>
+          {/* Logout */}
+          <div className="px-4 py-4" style={{ borderTop: "1px solid rgba(201,162,39,0.08)" }}>
             <button
               onClick={handleLogout}
-              className="w-full py-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition text-xs font-bold flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200"
+              style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.15)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
             >
               <LogOut className="h-4 w-4" />
               Sign Out
@@ -692,183 +710,177 @@ function DashboardLayout() {
           </div>
         </aside>
 
-        {/* MAIN CONTENT AREA */}
-        <main className="flex-1 min-w-0 min-h-screen flex flex-col">
-          {/* HEADER TOPBAR */}
-          <header className={`sticky top-0 z-30 border-b py-3 px-4 lg:px-8 backdrop-blur-xl transition-colors duration-300 ${isDarkMode ? "border-white/10 bg-slate-950/80 text-white" : "border-slate-200 bg-white/80 text-slate-800"}`}>
-            <div className="flex items-center justify-between gap-4">
-              
-              {/* LEFT: Menu Toggle & Welcome */}
-              <div className="flex items-center gap-4">
-                <button
-                  className={`p-2 rounded-xl border transition lg:hidden ${isDarkMode ? "bg-white/5 border-white/10 text-slate-400 hover:text-white" : "bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900"}`}
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
+        {/* ── MAIN CONTENT ── */}
+        <main className="flex-1 min-w-0 min-h-screen flex flex-col lg:ml-0">
+          {/* LUXURY TOPBAR */}
+          <header className="sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4"
+            style={{
+              background: "rgba(15,23,42,0.88)",
+              backdropFilter: "blur(20px)",
+              borderBottom: "1px solid rgba(201,162,39,0.1)",
+            }}>
 
-                <div className="hidden sm:block">
-                  <h2 className={`text-md font-bold uppercase tracking-wider ${isDarkMode ? "text-white" : "text-slate-800"}`}>
-                    {user?.role?.replace("_", " ")} Workspace
-                  </h2>
+            {/* Left: Menu + Title */}
+            <div className="flex items-center gap-4">
+              <button
+                className="p-2 rounded-xl lg:hidden transition-all"
+                style={{ background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.15)" }}
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="h-5 w-5" style={{ color: "#C9A227" }} />
+              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="w-1.5 h-5 rounded-full" style={{ background: "linear-gradient(180deg, #C9A227, #F59E0B)" }} />
+                <h2 className="text-sm font-black uppercase tracking-wider text-white">
+                  {user?.role?.replace("_", " ")} <span style={{ color: "#C9A227" }}>Workspace</span>
+                </h2>
+              </div>
+            </div>
+
+            {/* Center: Search */}
+            <div className="flex-1 max-w-md hidden md:block">
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="w-full flex items-center justify-between px-4 py-2 rounded-xl transition-all duration-200"
+                style={{
+                  background: "rgba(201,162,39,0.05)",
+                  border: "1px solid rgba(201,162,39,0.12)",
+                  color: "#94A3B8",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.3)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.12)"; }}
+              >
+                <div className="flex items-center gap-2 text-sm">
+                  <Search className="h-4 w-4" style={{ color: "#C9A227" }} />
+                  <span>Search anything...</span>
                 </div>
+                <kbd className="px-2 py-0.5 rounded text-[9px] font-bold uppercase"
+                  style={{ background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)", color: "#C9A227" }}>
+                  Ctrl+K
+                </kbd>
+              </button>
+            </div>
+
+            {/* Right: Actions */}
+            <div className="flex items-center gap-2">
+              <button onClick={() => setSearchOpen(true)}
+                className="p-2 rounded-xl md:hidden"
+                style={{ background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.15)" }}>
+                <Search className="h-4 w-4" style={{ color: "#C9A227" }} />
+              </button>
+
+              <button onClick={toggleTheme}
+                className="p-2 rounded-xl transition-all"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {isDarkMode
+                  ? <Sun className="h-4 w-4" style={{ color: "#C9A227" }} />
+                  : <Moon className="h-4 w-4 text-indigo-400" />}
+              </button>
+
+              <button className="p-2 rounded-xl relative"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <Bell className="h-4 w-4 text-slate-400" />
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse"
+                  style={{ background: "#C9A227", boxShadow: "0 0 6px rgba(201,162,39,0.6)" }} />
+              </button>
+
+              <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs cursor-pointer"
+                style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A",
+                boxShadow: "0 0 12px rgba(201,162,39,0.4)" }}>
+                {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-
-              {/* SEARCH BAR INPUT RIG */}
-              <div className="flex-1 max-w-md relative hidden md:block">
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className={`w-full flex items-center justify-between px-4 py-2 rounded-xl border transition ${
-                    isDarkMode
-                      ? "border-white/10 hover:border-blue-500/30 bg-white/5 text-slate-400 hover:text-slate-300"
-                      : "border-slate-200 hover:border-blue-600/30 bg-slate-100 text-slate-600 hover:text-slate-800"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Search className="h-4 w-4 text-slate-400" />
-                    <span>Search anything...</span>
-                  </div>
-                  <kbd className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${isDarkMode ? "bg-white/10 text-slate-400 border-white/10" : "bg-slate-200 text-slate-600 border-slate-300"}`}>
-                    Ctrl + K
-                  </kbd>
-                </button>
-              </div>
-
-              {/* RIGHT: Notifications, Search & Profile */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className={`p-2 rounded-xl border transition md:hidden ${isDarkMode ? "bg-white/5 border-white/10 text-slate-400 hover:text-white" : "bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900"}`}
-                >
-                  <Search className="h-4 w-4" />
-                </button>
-
-                <button
-                  onClick={toggleTheme}
-                  className={`p-2 rounded-xl border transition ${
-                    isDarkMode
-                      ? "bg-white/5 border-white/10 text-slate-400 hover:text-white"
-                      : "bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-950"
-                  }`}
-                >
-                  {isDarkMode ? <Sun className="h-4 w-4 text-amber-400 animate-spin-slow" /> : <Moon className="h-4 w-4 text-indigo-600" />}
-                </button>
-
-                <button className={`p-2 rounded-xl border relative transition ${isDarkMode ? "bg-white/5 border-white/10 text-slate-400 hover:text-white" : "bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900"}`}>
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-slate-950 animate-pulse" />
-                </button>
-
-                <div className="avatar placeholder">
-                  <div className="w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white font-bold text-xs uppercase shadow-md animate-pulse">
-                    <span>{user?.name?.charAt(0) || "U"}</span>
-                  </div>
-                </div>
-              </div>
-
             </div>
           </header>
 
-          {/* MAIN OUTLET CONTAINER */}
+          {/* Page Content */}
           <div className="flex-1 p-4 lg:p-8 overflow-x-hidden">
             <Outlet />
           </div>
         </main>
       </div>
 
-      {/* GLOBAL SEARCH DIALOG MODAL */}
+      {/* GLOBAL SEARCH MODAL */}
       {searchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/80 backdrop-blur-md">
-          <div
-            className="absolute inset-0 bg-transparent"
-            onClick={() => setSearchOpen(false)}
-          />
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
+          style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}>
+          <div className="absolute inset-0" onClick={() => setSearchOpen(false)} />
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className={`relative w-full max-w-2xl border shadow-2xl rounded-3xl overflow-hidden flex flex-col max-h-[70vh] z-10 transition-colors ${
-              isDarkMode ? "bg-slate-900 border-white/10" : "bg-white border-slate-200 text-slate-800"
-            }`}
+            className="relative w-full max-w-2xl flex flex-col max-h-[70vh] z-10 overflow-hidden"
+            style={{
+              background: "rgba(15,23,42,0.98)",
+              border: "1px solid rgba(201,162,39,0.2)",
+              borderRadius: "1.5rem",
+              boxShadow: "0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(201,162,39,0.08)",
+            }}
           >
-            {/* Search Input bar */}
-            <div className={`p-4 border-b flex items-center gap-3 bg-black/5 ${isDarkMode ? "border-white/10" : "border-slate-200"}`}>
-              <Search className="h-5 w-5 text-blue-400" />
+            {/* Search Input */}
+            <div className="p-4 flex items-center gap-3"
+              style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}>
+              <Search className="h-5 w-5 shrink-0" style={{ color: "#C9A227" }} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search courses, notes, schedules..."
-                className={`w-full bg-transparent text-sm focus:outline-none placeholder-slate-500 ${isDarkMode ? "text-white" : "text-slate-800"}`}
+                className="flex-1 bg-transparent text-sm text-white focus:outline-none placeholder-slate-600"
                 autoFocus
               />
-              <button
-                onClick={() => setSearchOpen(false)}
-                className="p-1 rounded-full hover:bg-white/5 text-slate-400 hover:text-white transition"
-              >
+              <button onClick={() => setSearchOpen(false)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-white transition"
+                style={{ background: "rgba(255,255,255,0.04)" }}>
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            {/* Results Grid */}
+            {/* Results */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {searchLoading && (
-                <div className="flex flex-col items-center justify-center py-12 gap-2">
-                  <RefreshCw className="h-6 w-6 animate-spin text-blue-500" />
-                  <span className="text-xs text-slate-400">Searching the database...</span>
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <RefreshCw className="h-6 w-6 animate-spin" style={{ color: "#C9A227" }} />
+                  <span className="text-xs text-slate-500">Searching database...</span>
                 </div>
               )}
-              
               {!searchLoading && searchQuery.trim() === "" && (
                 <div className="text-center py-12">
-                  <p className="text-xs text-slate-400">Search for courses, schedules, or classroom summaries...</p>
-                  <p className="text-[10px] text-slate-500 mt-1">Results populate dynamically based on your request.</p>
+                  <Search className="h-10 w-10 mx-auto mb-3 opacity-20" style={{ color: "#C9A227" }} />
+                  <p className="text-xs text-slate-500">Search for courses, schedules, or summaries...</p>
                 </div>
               )}
-
               {!searchLoading && searchQuery.trim() !== "" && Object.keys(searchResults).length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-xs text-rose-400">No records found matching "{searchQuery}"</p>
+                  <p className="text-sm text-slate-500">No results for <span style={{ color: "#C9A227" }}>"{searchQuery}"</span></p>
                 </div>
               )}
-
               {!searchLoading && Object.keys(searchResults).map((category) => {
                 const items = searchResults[category];
                 if (!items || items.length === 0) return null;
                 return (
                   <div key={category} className="space-y-2">
-                    <h3 className="text-[10px] font-bold text-blue-400 uppercase tracking-widest px-2.5">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest px-2" style={{ color: "#C9A227" }}>
                       {category}
                     </h3>
                     <div className="space-y-1.5">
                       {items.map((item, idx) => {
                         let path = "/student/dashboard";
-                        let title = item.name || item.title || "";
-                        let subtitle = item.email || item.description || "";
-                        
-                        if (category === "courses") {
-                          path = user?.role === "student" ? `/student/courses/${item._id}` : `/teacher/courses`;
-                        } else if (category === "notes") {
-                          path = user?.role === "student" ? "/student/notes" : "/teacher/notes";
-                        } else if (category === "schedules") {
-                          path = user?.role === "student" ? "/student/calendar" : "/teacher/calendar";
-                        }
-                        
+                        const title = item.name || item.title || "";
+                        const subtitle = item.email || item.description || "";
+                        if (category === "courses") path = user?.role === "student" ? `/student/courses/${item._id}` : `/teacher/courses`;
+                        else if (category === "notes") path = user?.role === "student" ? "/student/notes" : "/teacher/notes";
+                        else if (category === "schedules") path = user?.role === "student" ? "/student/calendar" : "/teacher/calendar";
                         return (
-                          <Link
-                            key={idx}
-                            to={path}
-                            onClick={() => setSearchOpen(false)}
-                            className={`flex items-center justify-between p-3 rounded-2xl border transition-all ${
-                              isDarkMode
-                                ? "bg-white/5 border-white/5 hover:border-blue-500/20 hover:bg-white/10 text-white"
-                                : "bg-slate-50 border-slate-100 hover:border-blue-600/20 hover:bg-slate-100 text-slate-800"
-                            }`}
+                          <Link key={idx} to={path} onClick={() => setSearchOpen(false)}
+                            className="flex items-center justify-between p-3 rounded-xl transition-all group"
+                            style={{ background: "rgba(201,162,39,0.04)", border: "1px solid rgba(201,162,39,0.08)" }}
+                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.25)"; e.currentTarget.style.background = "rgba(201,162,39,0.08)"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.08)"; e.currentTarget.style.background = "rgba(201,162,39,0.04)"; }}
                           >
                             <div className="min-w-0 flex-1">
-                              <p className={`text-xs font-semibold truncate ${isDarkMode ? "text-white" : "text-slate-800"}`}>{title}</p>
-                              {subtitle && <p className="text-[10px] text-slate-400 truncate max-w-lg mt-0.5">{subtitle}</p>}
+                              <p className="text-xs font-semibold text-white truncate">{title}</p>
+                              {subtitle && <p className="text-[10px] text-slate-500 truncate mt-0.5">{subtitle}</p>}
                             </div>
-                            <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-white ml-2 shrink-0" />
+                            <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-gold shrink-0 ml-2" />
                           </Link>
                         );
                       })}

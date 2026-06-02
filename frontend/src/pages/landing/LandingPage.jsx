@@ -1,12 +1,12 @@
-// Active: 1779901850118@@127.0.0.1@5432@LMS
-import React, { useState, useEffect } from "react";
+// src/pages/landing/LandingPage.jsx — LUXURY GOLD EDITION
+
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import {
   GraduationCap,
   Sparkles,
   BookOpen,
-  GraduationCap as QuizIcon,
   ClipboardList,
   Clock,
   Award,
@@ -23,177 +23,451 @@ import {
   CheckCircle,
   FileText,
   MessageSquare,
+  Shield,
+  Zap,
+  TrendingUp,
+  Play,
+  ChevronDown,
+  ChevronUp,
+  Crown,
+  Gem,
+  Globe,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { useAuthModal } from "../../context/AuthModalContext";
 
+// ─────────────────────────────────────
+// GOLD COLOR CONSTANTS
+// ─────────────────────────────────────
+const GOLD = "#C9A227";
+const GOLD_LIGHT = "#F59E0B";
+const DARK_BG = "#0F172A";
+const CARD_BG = "#1E293B";
+
+// ─────────────────────────────────────
+// ANIMATION VARIANTS
+// ─────────────────────────────────────
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
+};
+
+// ─────────────────────────────────────
+// FEATURES DATA
+// ─────────────────────────────────────
+const features = [
+  {
+    icon: BookOpen,
+    title: "Course Manager",
+    desc: "Build structured syllabi with dynamic video lessons, PDF summaries, and progress tracking.",
+    accent: GOLD,
+    delay: 0,
+  },
+  {
+    icon: BrainCircuit,
+    title: "AI Study Buddy",
+    desc: "Concept helper, study recommendations, and instant explanations powered by AI.",
+    accent: "#818CF8",
+    delay: 0.1,
+  },
+  {
+    icon: Video,
+    title: "Live Classes",
+    desc: "Launch Zoom/Meet sessions directly from your schedule with countdown timers.",
+    accent: "#34D399",
+    delay: 0.2,
+  },
+  {
+    icon: Award,
+    title: "XP & Streaks",
+    desc: "Gamified learning with badges, XP levels, leaderboards, and daily streak rewards.",
+    accent: GOLD_LIGHT,
+    delay: 0.3,
+  },
+  {
+    icon: Shield,
+    title: "Enterprise Security",
+    desc: "OTP email verification, JWT authentication, and role-based access control.",
+    accent: "#F472B6",
+    delay: 0.4,
+  },
+  {
+    icon: BarChart3,
+    title: "Rich Analytics",
+    desc: "Real-time dashboards with charts for student progress, revenue, and engagement.",
+    accent: "#22D3EE",
+    delay: 0.5,
+  },
+  {
+    icon: ClipboardList,
+    title: "Smart Assignments",
+    desc: "Create, assign, submit, and grade assignments with file uploads and rubrics.",
+    accent: "#A78BFA",
+    delay: 0.6,
+  },
+  {
+    icon: Globe,
+    title: "Multi-Role Platform",
+    desc: "Separate dashboards for Students, Teachers, and Admins with tailored workflows.",
+    accent: GOLD,
+    delay: 0.7,
+  },
+];
+
+// ─────────────────────────────────────
+// COURSES DATA
+// ─────────────────────────────────────
+const courses = [
+  {
+    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=80",
+    tag: "Programming",
+    tagColor: GOLD,
+    title: "Advanced Full Stack JavaScript",
+    desc: "Master React.js, Node.js, Express, MongoDB, and real-time socket communications.",
+    rating: 4.9,
+    students: "2.4K",
+    price: "$99",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=600&q=80",
+    tag: "Machine Learning",
+    tagColor: "#818CF8",
+    title: "Python Fundamentals for AI",
+    desc: "Learn tensor mechanics, neural networks, and build predictive ML APIs from scratch.",
+    rating: 4.8,
+    students: "1.9K",
+    price: "$129",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=600&q=80",
+    tag: "UI/UX Design",
+    tagColor: "#F472B6",
+    title: "Advanced UI/UX Product Design",
+    desc: "Build interactive wireframes, master typography, color theory, and SaaS design systems.",
+    rating: 4.9,
+    students: "1.1K",
+    price: "$79",
+  },
+];
+
+// ─────────────────────────────────────
+// PRICING DATA
+// ─────────────────────────────────────
+const pricing = [
+  {
+    name: "Starter",
+    icon: Zap,
+    price: "Free",
+    sub: "forever",
+    desc: "Perfect for individuals getting started",
+    features: ["5 Courses Access", "Basic Analytics", "Community Support", "Mobile App", "OTP Security"],
+    cta: "Get Started Free",
+    highlight: false,
+  },
+  {
+    name: "Professional",
+    icon: Crown,
+    price: "$49",
+    sub: "per month",
+    desc: "For serious learners and growing teams",
+    features: ["Unlimited Courses", "AI Study Buddy", "Live Classes", "Advanced Analytics", "Certificate Generation", "Priority Support", "Custom Assignments"],
+    cta: "Start Pro Trial",
+    highlight: true,
+    badge: "Most Popular",
+  },
+  {
+    name: "Enterprise",
+    icon: Gem,
+    price: "$199",
+    sub: "per month",
+    desc: "For large institutions and organizations",
+    features: ["Everything in Pro", "White-label Branding", "Custom Integrations", "Dedicated Manager", "SLA Guarantee", "Bulk User Import", "API Access"],
+    cta: "Contact Sales",
+    highlight: false,
+  },
+];
+
+// ─────────────────────────────────────
+// TESTIMONIALS
+// ─────────────────────────────────────
+const testimonials = [
+  {
+    quote: "The AI Study coach and Monthly Timetable completely transformed how I organize my studies. Went from failing to a 30-day streak!",
+    name: "Jane Okafor",
+    role: "Computer Science Student",
+    stars: 5,
+    initials: "JO",
+    gradient: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
+  },
+  {
+    quote: "The course summary uploads, MCQ quiz builder, and Zoom countdowns cut my admin work in half. Absolutely unmatched for educators.",
+    name: "Dr. John Matthews",
+    role: "Computer Science Instructor",
+    stars: 5,
+    initials: "JM",
+    gradient: "linear-gradient(135deg, #818CF8, #6366F1)",
+  },
+  {
+    quote: "Our institution saw a 40% improvement in student engagement within the first month of using LMS PRO. The gamification is genius.",
+    name: "Sarah Chen",
+    role: "Academic Director",
+    stars: 5,
+    initials: "SC",
+    gradient: "linear-gradient(135deg, #34D399, #059669)",
+  },
+  {
+    quote: "Finally a platform that feels premium. The analytics dashboard gives me everything I need to track and improve student outcomes.",
+    name: "Michael Torres",
+    role: "Senior Teacher",
+    stars: 5,
+    initials: "MT",
+    gradient: "linear-gradient(135deg, #F472B6, #EC4899)",
+  },
+];
+
+// ─────────────────────────────────────
+// FAQ DATA
+// ─────────────────────────────────────
+const faqs = [
+  {
+    q: "How does the AI Study Buddy work?",
+    a: "Our AI chatbot is powered by advanced language models. It helps students understand concepts, generates quiz questions, recommends study paths, and explains complex topics in simple language — all in real time.",
+  },
+  {
+    q: "Can I use LMS PRO for my entire institution?",
+    a: "Absolutely. Our Enterprise plan supports unlimited teachers, students, and courses. You get a dedicated account manager, white-label branding, custom integrations, and SLA-backed uptime guarantees.",
+  },
+  {
+    q: "How does certificate generation work?",
+    a: "Teachers can issue digitally-signed certificates to students upon course completion. Students can download PDF certificates and share them on LinkedIn. Admins can manage certificate templates and bulk-issue.",
+  },
+  {
+    q: "Is my data secure on LMS PRO?",
+    a: "Yes. We use 256-bit SSL encryption, JWT-based authentication, OTP email verification, and role-based access control. Your data is stored in encrypted MongoDB clusters with daily automated backups.",
+  },
+  {
+    q: "Can I integrate Zoom or Google Meet for live classes?",
+    a: "Yes! Teachers can schedule live classes with Zoom or Google Meet links directly from the Schedule Manager. Students see live countdown timers and get notified when a class is about to start.",
+  },
+  {
+    q: "What's included in the free plan?",
+    a: "The free plan includes access to 5 courses, basic analytics, OTP security, mobile app access, and community support. It's perfect for trying out the platform before upgrading.",
+  },
+];
+
+// ─────────────────────────────────────
+// STATS
+// ─────────────────────────────────────
+const stats = [
+  { value: "12K+", label: "Active Students", color: GOLD },
+  { value: "450+", label: "Syllabus Paths", color: "#818CF8" },
+  { value: "180+", label: "Expert Educators", color: "#34D399" },
+  { value: "99.2%", label: "Success Rating", color: GOLD_LIGHT },
+];
+
+// ═══════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════
 export default function LandingPage() {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
   const { user } = useAuth();
   const { openLogin, openRegister } = useAuthModal();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activePreviewTab, setActivePreviewTab] = useState("student");
+  const [activeTab, setActiveTab] = useState("student");
+  const [openFaq, setOpenFaq] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Scroll to section helper
-  const scrollToSection = (id) => {
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollTo = (id) => {
     setMobileMenuOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
+  const navLinks = [
+    { label: "Features", id: "features" },
+    { label: "Courses", id: "courses" },
+    { label: "Pricing", id: "pricing" },
+    { label: "Testimonials", id: "testimonials" },
+    { label: "FAQ", id: "faq" },
+  ];
 
   return (
     <div
-      data-theme={isDarkMode ? "dark" : "light"}
-      className={`min-h-screen font-sans antialiased transition-colors duration-300 relative overflow-x-hidden ${
-        isDarkMode ? "bg-slate-950 text-slate-100 dark" : "bg-slate-50 text-slate-800"
-      }`}
+      className="min-h-screen font-sans antialiased overflow-x-hidden"
+      style={{ background: DARK_BG, color: "#FFFFFF" }}
     >
-      {/* Background orbs */}
-      <div className="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 h-[500px] w-[500px] rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
+      {/* ══════════════════════════════════════
+          ANIMATED BACKGROUND ORBS (GLOBAL)
+      ══════════════════════════════════════ */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full opacity-10"
+          style={{ background: `radial-gradient(circle, ${GOLD} 0%, transparent 70%)`, filter: "blur(80px)", animation: "goldOrb 12s ease-in-out infinite" }} />
+        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full opacity-8"
+          style={{ background: "radial-gradient(circle, #818CF8 0%, transparent 70%)", filter: "blur(70px)", animation: "float 10s ease-in-out infinite" }} />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full opacity-6"
+          style={{ background: `radial-gradient(circle, ${GOLD_LIGHT} 0%, transparent 70%)`, filter: "blur(90px)", animation: "float 14s ease-in-out 3s infinite" }} />
+      </div>
 
-      {/* ========================================================
-         1. LANDING NAVBAR
-         ======================================================== */}
-      <nav className={`sticky top-0 z-50 border-b backdrop-blur-xl transition-all duration-300 ${
-        isDarkMode ? "border-white/10 bg-slate-950/80 text-white" : "border-slate-200 bg-white/80 text-slate-800"
-      }`}>
+      {/* ══════════════════════════════════════
+          1. NAVBAR
+      ══════════════════════════════════════ */}
+      <motion.nav
+        initial={{ y: -80 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        style={{
+          background: scrolled ? "rgba(15,23,42,0.92)" : "rgba(15,23,42,0.6)",
+          backdropFilter: "blur(24px)",
+          borderBottom: scrolled ? "1px solid rgba(201,162,39,0.15)" : "1px solid transparent",
+        }}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md">
-              <GraduationCap className="h-5 w-5 text-white" />
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-2.5 group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 group-hover:shadow-gold-sm"
+              style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)" }}>
+              <GraduationCap className="h-5 w-5 text-slate-950" />
             </div>
-            <span className={`text-xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent`}>
-              LMS PRO
+            <span className="text-xl font-black tracking-tight" style={{ color: GOLD }}>
+              LMS <span className="text-white">PRO</span>
             </span>
-          </div>
+          </button>
 
-          {/* Desktop Links */}
+          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-xs font-bold hover:text-blue-500 transition">Home</button>
-            <button onClick={() => scrollToSection("features")} className="text-xs font-bold hover:text-blue-500 transition">Features</button>
-            <button onClick={() => scrollToSection("preview")} className="text-xs font-bold hover:text-blue-500 transition">Dashboards</button>
-            <button onClick={() => scrollToSection("courses")} className="text-xs font-bold hover:text-blue-500 transition">Courses</button>
-            <button onClick={() => scrollToSection("testimonials")} className="text-xs font-bold hover:text-blue-500 transition">Testimonials</button>
+            {navLinks.map((link) => (
+              <button
+                key={link.id}
+                onClick={() => scrollTo(link.id)}
+                className="text-sm font-semibold text-slate-400 hover:text-white transition-colors duration-200 relative group"
+              >
+                {link.label}
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 rounded-full transition-all duration-300 group-hover:w-full"
+                  style={{ background: GOLD }} />
+              </button>
+            ))}
           </div>
 
-          {/* Desktop Right Panel */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Desktop CTA */}
+          <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-xl border transition ${
-                isDarkMode ? "bg-white/5 border-white/10 text-slate-400 hover:text-white" : "bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-950"
-              }`}
+              className="p-2 rounded-xl transition-all duration-200"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
             >
-              {isDarkMode ? <Sun className="h-4.5 w-4.5 text-amber-400" /> : <Moon className="h-4.5 w-4.5 text-indigo-600" />}
+              {isDarkMode
+                ? <Sun className="h-4 w-4" style={{ color: GOLD }} />
+                : <Moon className="h-4 w-4 text-indigo-400" />}
             </button>
 
             {user ? (
-              <Link to={user.role === "super_admin" ? "/admin/dashboard" : user.role === "teacher" ? "/teacher/dashboard" : "/student/dashboard"}>
-                <button className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg shadow-blue-500/15">
-                  Go to Dashboard
+              <Link to={
+                user.role === "super_admin" ? "/admin/dashboard"
+                : user.role === "teacher" ? "/teacher/dashboard"
+                : "/student/dashboard"
+              }>
+                <button className="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105"
+                  style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 15px rgba(201,162,39,0.3)" }}>
+                  My Dashboard
                 </button>
               </Link>
             ) : (
               <>
-                <button onClick={openLogin} className="text-xs font-bold px-4 py-2.5 hover:text-blue-500 transition">Sign In</button>
-                <button onClick={openRegister} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg shadow-blue-500/15">
-                  Register Now
+                <button onClick={openLogin}
+                  className="text-sm font-bold text-slate-400 hover:text-white px-4 py-2.5 rounded-xl transition-colors"
+                  style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+                  Sign In
+                </button>
+                <button onClick={openRegister}
+                  className="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105 hover:shadow-gold-sm"
+                  style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 15px rgba(201,162,39,0.3)" }}>
+                  Get Started
                 </button>
               </>
             )}
           </div>
 
-          {/* Mobile Hamburger menu */}
-          <div className="flex items-center gap-3 lg:hidden">
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-xl border transition ${
-                isDarkMode ? "bg-white/5 border-white/10 text-slate-400 hover:text-white" : "bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-950"
-              }`}
-            >
-              {isDarkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-600" />}
+          {/* Mobile Menu Toggle */}
+          <div className="flex lg:hidden items-center gap-2">
+            <button onClick={toggleTheme} className="p-2 rounded-xl"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              {isDarkMode ? <Sun className="h-4 w-4" style={{ color: GOLD }} /> : <Moon className="h-4 w-4 text-indigo-400" />}
             </button>
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className={`p-2 rounded-xl border transition ${
-                isDarkMode ? "bg-white/5 border-white/10 text-slate-400" : "bg-slate-100 border-slate-200 text-slate-600"
-              }`}
-            >
-              <Menu className="h-5 w-5" />
+            <button onClick={() => setMobileMenuOpen(true)} className="p-2 rounded-xl"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <Menu className="h-5 w-5 text-slate-400" />
             </button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex justify-end lg:hidden">
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed inset-0 z-50 lg:hidden">
             <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 20 }}
-              className={`relative w-72 h-full flex flex-col justify-between p-6 border-l shadow-2xl z-10 ${
-                isDarkMode ? "bg-slate-900 border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
-              }`}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25 }}
+              className="absolute right-0 top-0 h-full w-72 flex flex-col p-6"
+              style={{ background: "#0F172A", borderLeft: "1px solid rgba(201,162,39,0.15)" }}
             >
-              <div className="space-y-6">
-                <div className="flex items-center justify-between border-b pb-4 border-slate-200 dark:border-white/10">
-                  <span className="font-black text-lg bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">LMS Menu</span>
-                  <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-full hover:bg-white/5 text-slate-400">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                <div className="flex flex-col gap-4 text-sm font-bold">
-                  <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMobileMenuOpen(false); }} className="text-left hover:text-blue-500">Home</button>
-                  <button onClick={() => scrollToSection("features")} className="text-left hover:text-blue-500">Features</button>
-                  <button onClick={() => scrollToSection("preview")} className="text-left hover:text-blue-500">Dashboards</button>
-                  <button onClick={() => scrollToSection("courses")} className="text-left hover:text-blue-500">Courses</button>
-                  <button onClick={() => scrollToSection("testimonials")} className="text-left hover:text-blue-500">Testimonials</button>
-                </div>
+              <div className="flex items-center justify-between mb-8">
+                <span className="font-black text-lg" style={{ color: GOLD }}>Navigation</span>
+                <button onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+                  style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-
-              <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-white/10">
+              <div className="flex flex-col gap-3 flex-1">
+                {navLinks.map((link) => (
+                  <button key={link.id} onClick={() => scrollTo(link.id)}
+                    className="text-left py-3 px-4 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-all"
+                    style={{ border: "1px solid rgba(255,255,255,0.05)" }}>
+                    {link.label}
+                  </button>
+                ))}
+              </div>
+              <div className="space-y-3 pt-4 border-t" style={{ borderColor: "rgba(201,162,39,0.1)" }}>
                 {user ? (
-                  <Link to={user.role === "super_admin" ? "/admin/dashboard" : user.role === "teacher" ? "/teacher/dashboard" : "/student/dashboard"} className="block" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-lg">
-                      Dashboard
+                  <Link to={user.role === "super_admin" ? "/admin/dashboard" : user.role === "teacher" ? "/teacher/dashboard" : "/student/dashboard"}
+                    onClick={() => setMobileMenuOpen(false)}>
+                    <button className="w-full py-3 rounded-full font-bold text-sm text-center"
+                      style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A" }}>
+                      My Dashboard
                     </button>
                   </Link>
                 ) : (
                   <>
-                    <button 
-                      onClick={() => { setMobileMenuOpen(false); openLogin(); }} 
-                      className="w-full py-3 rounded-xl border border-blue-600 text-blue-600 font-bold text-xs text-center"
-                    >
+                    <button onClick={() => { setMobileMenuOpen(false); openLogin(); }}
+                      className="w-full py-3 rounded-full font-bold text-sm text-center border"
+                      style={{ borderColor: "rgba(201,162,39,0.3)", color: GOLD }}>
                       Sign In
                     </button>
-                    <button 
-                      onClick={() => { setMobileMenuOpen(false); openRegister(); }} 
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-lg text-center"
-                    >
-                      Sign Up
+                    <button onClick={() => { setMobileMenuOpen(false); openRegister(); }}
+                      className="w-full py-3 rounded-full font-bold text-sm text-center"
+                      style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A" }}>
+                      Get Started
                     </button>
                   </>
                 )}
@@ -203,452 +477,738 @@ export default function LandingPage() {
         )}
       </AnimatePresence>
 
-      {/* ========================================================
-         2. HERO SECTION
-         ======================================================== */}
-      <header className="max-w-7xl mx-auto px-6 pt-16 pb-20 text-center lg:text-left lg:flex items-center gap-12">
-        <motion.div
-          initial={{ opacity: 0, x: -25 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex-1 space-y-6 lg:max-w-2xl"
-        >
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-black tracking-wider border ${
-            isDarkMode ? "bg-white/5 border-white/5 text-blue-400" : "bg-blue-50 border-blue-100 text-blue-600"
-          }`}>
-            <Sparkles className="h-3 w-3 fill-current animate-pulse" /> Upgraded Enterprise LMS Suite
-          </div>
-          <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight ${isDarkMode ? "text-white" : "text-slate-800"}`}>
-            Empower Learning. <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Master Your Craft.
-            </span>
-          </h1>
-          <p className={`text-sm sm:text-base leading-relaxed ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-            Welcome to the modern learning experience. Complete with OTP security, unified classroom schedules, Zoom integrations, dynamic Achievements, XP leaderboards, and a dedicated AI Study chatbot.
-          </p>
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-            <button 
-              onClick={openRegister} 
-              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xl shadow-blue-500/20 flex items-center gap-2 group text-left"
+      {/* ══════════════════════════════════════
+          2. HERO SECTION
+      ══════════════════════════════════════ */}
+      <section className="relative pt-32 pb-24 px-6 max-w-7xl mx-auto z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-16">
+          {/* Left: Copy */}
+          <motion.div
+            variants={container} initial="hidden" animate="show"
+            className="flex-1 max-w-2xl text-center lg:text-left"
+          >
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 text-xs font-bold uppercase tracking-widest"
+              style={{ background: "rgba(201,162,39,0.12)", border: "1px solid rgba(201,162,39,0.25)", color: GOLD }}>
+              <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+              Upgraded Enterprise LMS Suite · 2026
+            </motion.div>
+
+            <motion.h1 variants={fadeUp}
+              className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6"
             >
-              Get Started Today <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1 inline" />
-            </button>
-            <button onClick={() => scrollToSection("courses")} className={`px-6 py-3.5 rounded-xl font-bold text-xs border transition ${
-              isDarkMode ? "bg-white/5 border-white/10 hover:bg-white/10 text-white" : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
-            }`}>
-              Explore Courses
-            </button>
-          </div>
-        </motion.div>
+              Empower Learning.{" "}
+              <br className="hidden sm:block" />
+              <span style={{
+                background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT}, ${GOLD})`,
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}>
+                Master Every Craft.
+              </span>
+            </motion.h1>
 
-        {/* Dashboard illustration mockup */}
-        <motion.div
-          initial={{ opacity: 0, x: 25 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex-1 mt-12 lg:mt-0 relative"
-        >
-          <div className={`rounded-3xl border p-4 shadow-2xl backdrop-blur-xl relative overflow-hidden ${
-            isDarkMode ? "border-white/10 bg-slate-900/50" : "border-slate-200 bg-white"
-          }`}>
-            <img
-              src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800"
-              alt="LMS Dashboard Preview"
-              className="w-full rounded-2xl shadow-inner border border-white/5 hover:scale-[1.01] transition duration-500"
-            />
-            {/* Float badges */}
-            <div className={`absolute top-8 left-8 rounded-2xl border p-3 flex items-center gap-2 shadow-lg backdrop-blur animate-float ${
-              isDarkMode ? "bg-slate-950/80 border-white/10" : "bg-white border-slate-200"
-            }`}>
-              <div className="w-3 h-3 rounded-full bg-blue-500 animate-ping" />
-              <span className="text-[10px] font-black uppercase text-blue-400">AI Tutor Online</span>
-            </div>
-            <div className={`absolute bottom-8 right-8 rounded-2xl border p-3 flex items-center gap-2 shadow-lg backdrop-blur animate-float stagger-2 ${
-              isDarkMode ? "bg-slate-950/80 border-white/10" : "bg-white border-slate-200"
-            }`}>
-              <Award className="h-4.5 w-4.5 text-amber-500" />
-              <span className="text-[10px] font-black uppercase text-amber-500">Streak Unlocked</span>
-            </div>
-          </div>
-        </motion.div>
-      </header>
+            <motion.p variants={fadeUp} className="text-lg text-slate-400 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0">
+              The modern learning platform with OTP security, AI Study Buddy, Zoom integrations,
+              dynamic gamification, XP leaderboards — built for enterprise scale.
+            </motion.p>
 
-      {/* ========================================================
-         3. STATS PANEL
-         ======================================================== */}
-      <section className={`border-y transition-colors ${isDarkMode ? "border-white/10 bg-slate-900/40" : "border-slate-200 bg-slate-100/50"}`}>
-        <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div>
-            <h4 className="text-3xl font-extrabold text-blue-500">12K+</h4>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">Active Students</p>
-          </div>
-          <div>
-            <h4 className="text-3xl font-extrabold text-indigo-500">450+</h4>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">Syllabus Paths</p>
-          </div>
-          <div>
-            <h4 className="text-3xl font-extrabold text-purple-500">180+</h4>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">LMS Educators</p>
-          </div>
-          <div>
-            <h4 className="text-3xl font-extrabold text-emerald-500">99.2%</h4>
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">Success Rating</p>
-          </div>
+            <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4 justify-center lg:justify-start">
+              <button onClick={openRegister}
+                className="px-8 py-4 rounded-full font-bold text-sm flex items-center gap-2 group transition-all duration-300 hover:scale-105"
+                style={{
+                  background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+                  color: "#0F172A",
+                  boxShadow: "0 4px 25px rgba(201,162,39,0.4)",
+                }}>
+                Start Learning Today
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </button>
+              <button onClick={() => scrollTo("courses")}
+                className="px-8 py-4 rounded-full font-bold text-sm flex items-center gap-2 transition-all duration-300 hover:scale-105"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#fff",
+                }}>
+                <Play className="h-4 w-4" />
+                Explore Courses
+              </button>
+            </motion.div>
+
+            {/* Trust indicators */}
+            <motion.div variants={fadeUp} className="mt-8 flex items-center gap-6 justify-center lg:justify-start">
+              {[
+                { icon: Shield, label: "SSL Secured" },
+                { icon: Users, label: "12K+ Learners" },
+                { icon: Star, label: "4.9/5 Rated" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <Icon className="h-4 w-4" style={{ color: GOLD }} />
+                  <span className="text-xs font-semibold text-slate-400">{label}</span>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Right: Dashboard Preview */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="flex-1 relative"
+          >
+            <div className="relative rounded-3xl p-3 overflow-hidden"
+              style={{
+                background: "rgba(30,41,59,0.6)",
+                border: "1px solid rgba(201,162,39,0.2)",
+                boxShadow: "0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,162,39,0.08)",
+                backdropFilter: "blur(16px)",
+              }}>
+              <img
+                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&q=90"
+                alt="LMS Dashboard Preview"
+                className="w-full rounded-2xl transition-transform duration-700 hover:scale-[1.01]"
+                style={{ filter: "brightness(0.85) contrast(1.1)" }}
+              />
+              {/* Floating Badges */}
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2.5 rounded-2xl"
+                style={{
+                  background: "rgba(15,23,42,0.9)",
+                  border: "1px solid rgba(201,162,39,0.3)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: GOLD }} />
+                <span className="text-xs font-black uppercase tracking-wide" style={{ color: GOLD }}>AI Tutor Active</span>
+              </motion.div>
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+                className="absolute bottom-6 right-6 flex items-center gap-2 px-4 py-2.5 rounded-2xl"
+                style={{
+                  background: "rgba(15,23,42,0.9)",
+                  border: "1px solid rgba(245,158,11,0.3)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <Award className="h-4 w-4" style={{ color: GOLD_LIGHT }} />
+                <span className="text-xs font-black uppercase tracking-wide" style={{ color: GOLD_LIGHT }}>Streak Unlocked 🔥</span>
+              </motion.div>
+            </div>
+            {/* Glow under card */}
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-2/3 h-16 rounded-full opacity-30 blur-xl"
+              style={{ background: `linear-gradient(90deg, ${GOLD}, ${GOLD_LIGHT})` }} />
+          </motion.div>
         </div>
       </section>
 
-      {/* ========================================================
-         4. FEATURES SECTION
-         ======================================================== */}
-      <section id="features" className="max-w-7xl mx-auto px-6 py-20 space-y-12">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">Powerful Integrations</Badge>
-          <h2 className={`text-3xl font-black ${isDarkMode ? "text-white" : "text-slate-800"}`}>LMS Architecture Core Modules</h2>
-          <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Designed from the ground up to offer the ultimate classroom coordination cockpit.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Card 1: Course Management */}
-          <div className={`p-6 rounded-3xl border hover:scale-[1.02] transition duration-300 flex flex-col justify-between ${
-            isDarkMode ? "bg-white/5 border-white/5 hover:border-blue-500/20" : "bg-white border-slate-200 hover:border-blue-600/20 shadow-sm"
-          }`}>
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4"><BookOpen className="h-5 w-5" /></div>
-              <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Course Manager</h3>
-              <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Teachers build structured syllabi with dynamic video lessons and downloadable course summaries.</p>
-            </div>
-            <button onClick={openRegister} className="text-[10px] font-bold text-blue-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
-          </div>
-
-          {/* Card 2: AI features */}
-          <div className={`p-6 rounded-3xl border hover:scale-[1.02] transition duration-300 flex flex-col justify-between ${
-            isDarkMode ? "bg-white/5 border-white/5 hover:border-indigo-500/20" : "bg-white border-slate-200 hover:border-indigo-600/20 shadow-sm"
-          }`}>
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-4"><BrainCircuit className="h-5 w-5" /></div>
-              <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>AI Chat Buddy</h3>
-              <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Concept helper, study recommendation engine, and instant biological terms translation desk.</p>
-            </div>
-            <button onClick={openRegister} className="text-[10px] font-bold text-indigo-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
-          </div>
-
-          {/* Card 3: Live classes */}
-          <div className={`p-6 rounded-3xl border hover:scale-[1.02] transition duration-300 flex flex-col justify-between ${
-            isDarkMode ? "bg-white/5 border-white/5 hover:border-purple-500/20" : "bg-white border-slate-200 hover:border-purple-600/20 shadow-sm"
-          }`}>
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center mb-4"><Video className="h-5 w-5" /></div>
-              <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Live Class Launcher</h3>
-              <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Synchronize custom timelines and launch Zoom/Meet classes directly from the schedule timetable.</p>
-            </div>
-            <button onClick={openRegister} className="text-[10px] font-bold text-purple-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
-          </div>
-
-          {/* Card 4: Gamification */}
-          <div className={`p-6 rounded-3xl border hover:scale-[1.02] transition duration-300 flex flex-col justify-between ${
-            isDarkMode ? "bg-white/5 border-white/5 hover:border-emerald-500/20" : "bg-white border-slate-200 hover:border-emerald-600/20 shadow-sm"
-          }`}>
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4"><Award className="h-5 w-5" /></div>
-              <h3 className={`font-bold text-sm mb-1 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Streaks & XP Levels</h3>
-              <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Earn badges, complete quizzes to increase XP score, and compete on student rankings leaderboards.</p>
-            </div>
-            <button onClick={openRegister} className="text-[10px] font-bold text-emerald-500 hover:underline mt-4 flex items-center gap-1 text-left">Learn More <ArrowRight className="h-3 w-3 inline" /></button>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================
-         5. DASHBOARD PREVIEW
-         ======================================================== */}
-      <section id="preview" className="max-w-7xl mx-auto px-6 py-20 space-y-12">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <Badge className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20">Dashboard Telemetry</Badge>
-          <h2 className={`text-3xl font-black ${isDarkMode ? "text-white" : "text-slate-800"}`}>Role-Based Cockpit Preview</h2>
-          <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Different interfaces tailored specifically for Students, Teachers, and super administrators.</p>
-        </div>
-
-        {/* Dynamic Tabs */}
-        <div className="flex justify-center gap-3">
-          {["student", "teacher", "admin"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActivePreviewTab(tab)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase transition ${
-                activePreviewTab === tab
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/15"
-                  : isDarkMode
-                  ? "bg-white/5 border border-white/10 text-slate-400 hover:text-white"
-                  : "bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900"
-              }`}
+      {/* ══════════════════════════════════════
+          3. STATS STRIP
+      ══════════════════════════════════════ */}
+      <section className="relative z-10 py-12 border-y" style={{ borderColor: "rgba(201,162,39,0.1)", background: "rgba(30,41,59,0.3)" }}>
+        <motion.div
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+          className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+        >
+          {stats.map(({ value, label, color }, i) => (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
             >
-              {tab} Dashboard
-            </button>
+              <h3 className="text-4xl font-black mb-1" style={{ color }}>{value}</h3>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+            </motion.div>
           ))}
+        </motion.div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          4. FEATURES
+      ══════════════════════════════════════ */}
+      <section id="features" className="relative z-10 py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} className="text-center mb-16 max-w-2xl mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-xs font-bold uppercase tracking-widest"
+              style={{ background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)", color: GOLD }}>
+              Platform Modules
+            </div>
+            <h2 className="text-4xl font-black text-white mb-4">Everything You Need to Succeed</h2>
+            <p className="text-slate-400 leading-relaxed">Designed from the ground up to offer the ultimate classroom coordination cockpit for students, teachers, and administrators.</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {features.map((f, i) => {
+              const Icon = f.icon;
+              return (
+                <motion.div
+                  key={f.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: f.delay }}
+                  whileHover={{ y: -6, scale: 1.01 }}
+                  className="p-6 rounded-3xl flex flex-col gap-4 cursor-default transition-all duration-300 group"
+                  style={{
+                    background: "rgba(30,41,59,0.6)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    backdropFilter: "blur(16px)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.border = `1px solid ${f.accent}30`;
+                    e.currentTarget.style.boxShadow = `0 20px 40px rgba(0,0,0,0.3), 0 0 20px ${f.accent}15`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.border = "1px solid rgba(255,255,255,0.06)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300"
+                    style={{ background: `${f.accent}18` }}>
+                    <Icon className="h-5 w-5" style={{ color: f.accent }} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white mb-2">{f.title}</h3>
+                    <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
+                  </div>
+                  <button onClick={openRegister}
+                    className="text-xs font-bold flex items-center gap-1 mt-auto transition-all duration-200 hover:gap-2"
+                    style={{ color: f.accent }}>
+                    Learn More <ArrowRight className="h-3 w-3" />
+                  </button>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
+      </section>
 
-        {/* Tab content illustration */}
-        <div className={`p-6 rounded-3xl border shadow-xl flex flex-col lg:flex-row gap-8 items-center ${
-          isDarkMode ? "bg-slate-900/40 border-white/10" : "bg-white border-slate-200"
-        }`}>
-          <div className="flex-1 space-y-5">
-            <h3 className={`text-2xl font-black capitalize ${isDarkMode ? "text-white" : "text-slate-800"}`}>{activePreviewTab} Console Overview</h3>
-            
-            {activePreviewTab === "student" && (
-              <ul className="space-y-3.5 text-xs">
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-blue-500" /> View dynamic study metrics and assignment calendars.</li>
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-blue-500" /> Ask the AI Concept tutor questions instantly.</li>
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-blue-500" /> Track daily streaks, earn achievements, and compete on ranks.</li>
-              </ul>
-            )}
+      {/* ══════════════════════════════════════
+          5. DASHBOARD PREVIEW TABS
+      ══════════════════════════════════════ */}
+      <section id="preview" className="relative z-10 py-24 px-6" style={{ background: "rgba(30,41,59,0.2)" }}>
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} className="text-center mb-12 max-w-2xl mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-xs font-bold uppercase tracking-widest"
+              style={{ background: "rgba(129,140,248,0.1)", border: "1px solid rgba(129,140,248,0.2)", color: "#818CF8" }}>
+              Role-Based Dashboards
+            </div>
+            <h2 className="text-4xl font-black text-white mb-4">Three Powerful Cockpits</h2>
+            <p className="text-slate-400">Different interfaces tailored specifically for each user role.</p>
+          </motion.div>
 
-            {activePreviewTab === "teacher" && (
-              <ul className="space-y-3.5 text-xs">
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-indigo-500" /> Create rich courses, manage PDF summary resources, and set timelines.</li>
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-indigo-500" /> Manage student progress, quizzes, and daily attendances.</li>
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-indigo-500" /> Generate student academic certificate credentials.</li>
-              </ul>
-            )}
+          <div className="flex justify-center gap-2 mb-10">
+            {["student", "teacher", "admin"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="px-6 py-2.5 rounded-full font-bold text-sm uppercase tracking-wide transition-all duration-300"
+                style={activeTab === tab
+                  ? { background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 15px rgba(201,162,39,0.3)" }
+                  : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#94A3B8" }
+                }
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
-            {activePreviewTab === "admin" && (
-              <ul className="space-y-3.5 text-xs">
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-purple-500" /> Check system-wide revenue parameters and billing tracking.</li>
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-purple-500" /> Toggle maintenance mode and platform commission rates.</li>
-                <li className="flex items-center gap-2"><CheckCircle className="h-4.5 w-4.5 text-purple-500" /> Execute secure MongoDB cluster backups with single-click triggers.</li>
-              </ul>
-            )}
-
-            <button 
-              onClick={openRegister} 
-              className="inline-block mt-4 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg flex items-center gap-1.5 group text-left"
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="rounded-3xl p-8 flex flex-col lg:flex-row gap-10 items-center"
+              style={{
+                background: "rgba(30,41,59,0.6)",
+                border: "1px solid rgba(201,162,39,0.12)",
+                backdropFilter: "blur(16px)",
+              }}
             >
-              Register to Explore <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5 inline" />
-            </button>
-          </div>
-
-          <div className="flex-1 w-full">
-            <div className={`p-3 rounded-2xl border ${isDarkMode ? "border-white/10 bg-slate-950/80" : "border-slate-200 bg-slate-50"}`}>
-              {activePreviewTab === "student" && (
-                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600" className="rounded-xl w-full shadow" alt="Student Preview" />
-              )}
-              {activePreviewTab === "teacher" && (
-                <img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600" className="rounded-xl w-full shadow" alt="Teacher Preview" />
-              )}
-              {activePreviewTab === "admin" && (
-                <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=600" className="rounded-xl w-full shadow" alt="Admin Preview" />
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================
-         6. COURSES SECTION
-         ======================================================== */}
-      <section id="courses" className="max-w-7xl mx-auto px-6 py-20 space-y-12">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">Dynamic Syllabus showcase</Badge>
-          <h2 className={`text-3xl font-black ${isDarkMode ? "text-white" : "text-slate-800"}`}>Explore Popular Curriculum Paths</h2>
-          <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Accelerate your career track with our top-rated academic programs.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className={`rounded-3xl border overflow-hidden flex flex-col h-full hover:shadow-xl transition duration-300 ${
-            isDarkMode ? "bg-slate-900/40 border-white/10" : "bg-white border-slate-200"
-          }`}>
-            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300" className="w-full h-44 object-cover" alt="Fullstack JavaScript" />
-            <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Programming</span>
-                  <span className="flex items-center text-[10px] text-amber-500 font-bold"><Star className="h-3.5 w-3.5 fill-current mr-0.5" /> 4.9 (2.4K enrolled)</span>
+              <div className="flex-1 space-y-6">
+                <h3 className="text-3xl font-black text-white capitalize">{activeTab} Console</h3>
+                <ul className="space-y-4">
+                  {activeTab === "student" && [
+                    "Track real-time study metrics and assignment calendars",
+                    "Ask the AI Concept Tutor questions instantly",
+                    "Earn daily streaks, XP, badges, and leaderboard ranks",
+                    "Access course videos, notes, and quiz attempts",
+                  ].map((text) => (
+                    <li key={text} className="flex items-start gap-3 text-sm text-slate-300">
+                      <CheckCircle className="h-5 w-5 mt-0.5 shrink-0" style={{ color: GOLD }} />
+                      {text}
+                    </li>
+                  ))}
+                  {activeTab === "teacher" && [
+                    "Create rich courses with videos, PDFs, and structured modules",
+                    "Manage student progress, quizzes, and daily attendance",
+                    "Generate and issue student completion certificates",
+                    "View revenue analytics and quiz performance reports",
+                  ].map((text) => (
+                    <li key={text} className="flex items-start gap-3 text-sm text-slate-300">
+                      <CheckCircle className="h-5 w-5 mt-0.5 shrink-0" style={{ color: "#818CF8" }} />
+                      {text}
+                    </li>
+                  ))}
+                  {activeTab === "admin" && [
+                    "Monitor platform-wide revenue and billing metrics",
+                    "Toggle maintenance mode and commission settings",
+                    "Manage all teachers, students, and course approvals",
+                    "Execute secure database backups with one click",
+                  ].map((text) => (
+                    <li key={text} className="flex items-start gap-3 text-sm text-slate-300">
+                      <CheckCircle className="h-5 w-5 mt-0.5 shrink-0" style={{ color: "#34D399" }} />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={openRegister}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm group transition-all duration-300 hover:scale-105"
+                  style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 15px rgba(201,162,39,0.3)" }}>
+                  Explore {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Dashboard
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
+              <div className="flex-1 w-full">
+                <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(201,162,39,0.1)" }}>
+                  <img
+                    src={
+                      activeTab === "student"
+                        ? "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=700&q=80"
+                        : activeTab === "teacher"
+                        ? "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=700&q=80"
+                        : "https://images.unsplash.com/photo-1551434678-e076c223a692?w=700&q=80"
+                    }
+                    alt={`${activeTab} preview`}
+                    className="w-full object-cover"
+                    style={{ filter: "brightness(0.75) contrast(1.1)" }}
+                  />
                 </div>
-                <h3 className={`font-bold text-sm ${isDarkMode ? "text-white" : "text-slate-800"}`}>Advanced Full Stack JavaScript</h3>
-                <p className={`text-[11px] mt-1 ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Master React.js, Node.js, Express, MongoDB aggregations, and socket messaging protocols.</p>
               </div>
-              <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4 mt-2">
-                <span className="text-xs font-black text-blue-500">$99.00</span>
-                <button onClick={openRegister} className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
 
-          {/* Card 2 */}
-          <div className={`rounded-3xl border overflow-hidden flex flex-col h-full hover:shadow-xl transition duration-300 ${
-            isDarkMode ? "bg-slate-900/40 border-white/10" : "bg-white border-slate-200"
-          }`}>
-            <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=300" className="w-full h-44 object-cover" alt="Python & AI" />
-            <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Machine Learning</span>
-                  <span className="flex items-center text-[10px] text-amber-500 font-bold"><Star className="h-3.5 w-3.5 fill-current mr-0.5" /> 4.8 (1.9K enrolled)</span>
+      {/* ══════════════════════════════════════
+          6. COURSES
+      ══════════════════════════════════════ */}
+      <section id="courses" className="relative z-10 py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-center mb-14 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-xs font-bold uppercase tracking-widest"
+              style={{ background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)", color: GOLD }}>
+              Course Showcase
+            </div>
+            <h2 className="text-4xl font-black text-white mb-4">Explore Popular Curriculum Paths</h2>
+            <p className="text-slate-400">Accelerate your career with our top-rated academic programs.</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {courses.map((course, i) => (
+              <motion.div
+                key={course.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                whileHover={{ y: -6 }}
+                className="rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-300 group cursor-default"
+                style={{
+                  background: "rgba(30,41,59,0.8)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.border = "1px solid rgba(201,162,39,0.25)";
+                  e.currentTarget.style.boxShadow = "0 25px 50px rgba(0,0,0,0.4), 0 0 25px rgba(201,162,39,0.1)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.border = "1px solid rgba(255,255,255,0.06)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <img src={course.img} alt={course.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    style={{ filter: "brightness(0.75)" }} />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(15,23,42,0.8), transparent)" }} />
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide"
+                    style={{ background: `${course.tagColor}20`, border: `1px solid ${course.tagColor}40`, color: course.tagColor }}>
+                    {course.tag}
+                  </div>
                 </div>
-                <h3 className={`font-bold text-sm ${isDarkMode ? "text-white" : "text-slate-800"}`}>Python Fundamentals for AI Architects</h3>
-                <p className={`text-[11px] mt-1 ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Learn object-oriented Python, tensor mechanics, neural grids, and construct predictive APIs.</p>
-              </div>
-              <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4 mt-2">
-                <span className="text-xs font-black text-blue-500">$129.00</span>
-                <button onClick={openRegister} className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className={`rounded-3xl border overflow-hidden flex flex-col h-full hover:shadow-xl transition duration-300 ${
-            isDarkMode ? "bg-slate-900/40 border-white/10" : "bg-white border-slate-200"
-          }`}>
-            <img src="https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=300" className="w-full h-44 object-cover" alt="UI/UX Design" />
-            <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest">UI/UX Design</span>
-                  <span className="flex items-center text-[10px] text-amber-500 font-bold"><Star className="h-3.5 w-3.5 fill-current mr-0.5" /> 4.9 (1.1K enrolled)</span>
+                <div className="p-6 flex flex-col flex-1 gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, j) => (
+                          <Star key={j} className="h-3.5 w-3.5 fill-current" style={{ color: GOLD_LIGHT }} />
+                        ))}
+                        <span className="text-xs font-bold text-slate-400 ml-1">{course.rating} · {course.students}</span>
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-white text-lg mb-2 leading-snug">{course.title}</h3>
+                    <p className="text-sm text-slate-400 leading-relaxed line-clamp-2">{course.desc}</p>
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                    <span className="text-2xl font-black" style={{ color: GOLD }}>{course.price}</span>
+                    <button onClick={openRegister}
+                      className="px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105"
+                      style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 10px rgba(201,162,39,0.3)" }}>
+                      Enroll Now
+                    </button>
+                  </div>
                 </div>
-                <h3 className={`font-bold text-sm ${isDarkMode ? "text-white" : "text-slate-800"}`}>Advanced UI/UX Product Design</h3>
-                <p className={`text-[11px] mt-1 ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>Build interactive wireframes, master typography hierarchy, color variables, and SaaS designs.</p>
-              </div>
-              <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4 mt-2">
-                <span className="text-xs font-black text-blue-500">$79.00</span>
-                <button onClick={openRegister} className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px]">Enroll Now</button>
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ========================================================
-         7. TESTIMONIALS SECTION
-         ======================================================== */}
-      <section id="testimonials" className="max-w-7xl mx-auto px-6 py-20 space-y-12">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">User Endorsements</Badge>
-          <h2 className={`text-3xl font-black ${isDarkMode ? "text-white" : "text-slate-800"}`}>Student & Teacher Reviews</h2>
-          <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>See what members of the LMS Pro community have to say about our platform.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Review 1 */}
-          <div className={`p-6 rounded-3xl border flex flex-col justify-between gap-4 ${
-            isDarkMode ? "bg-slate-900/40 border-white/10" : "bg-white border-slate-200"
-          }`}>
-            <p className={`text-xs leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
-              "The custom Monthly Timetable calendar and AI Study coach have changed how I organize my studies completely! I went from failing courses to completing full stack paths with a continuous 30-day streak!"
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white flex items-center justify-center font-bold text-xs">JS</div>
-              <div>
-                <h4 className={`font-bold text-xs ${isDarkMode ? "text-white" : "text-slate-800"}`}>Jane Student</h4>
-                <p className="text-[10px] text-slate-500">Sophomore Learner</p>
-              </div>
+      {/* ══════════════════════════════════════
+          7. TESTIMONIALS
+      ══════════════════════════════════════ */}
+      <section id="testimonials" className="relative z-10 py-24 px-6" style={{ background: "rgba(30,41,59,0.2)" }}>
+        <div className="max-w-7xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-center mb-14 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-xs font-bold uppercase tracking-widest"
+              style={{ background: "rgba(244,114,182,0.1)", border: "1px solid rgba(244,114,182,0.2)", color: "#F472B6" }}>
+              User Reviews
             </div>
+            <h2 className="text-4xl font-black text-white mb-4">What Our Community Says</h2>
+            <p className="text-slate-400">Real experiences from students, teachers, and administrators worldwide.</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -4 }}
+                className="p-7 rounded-3xl flex flex-col gap-5 transition-all duration-300"
+                style={{
+                  background: "rgba(30,41,59,0.7)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(16px)",
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: t.stars }).map((_, j) => (
+                    <Star key={j} className="h-4 w-4 fill-current" style={{ color: GOLD_LIGHT }} />
+                  ))}
+                </div>
+                <p className="text-slate-300 leading-relaxed text-sm italic">"{t.quote}"</p>
+                <div className="flex items-center gap-3 pt-2 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-slate-950 shrink-0"
+                    style={{ background: t.gradient }}>
+                    {t.initials}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-white">{t.name}</p>
+                    <p className="text-xs text-slate-500">{t.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* Review 2 */}
-          <div className={`p-6 rounded-3xl border flex flex-col justify-between gap-4 ${
-            isDarkMode ? "bg-slate-900/40 border-white/10" : "bg-white border-slate-200"
-          }`}>
-            <p className={`text-xs leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
-              "As an educator, I find the course-wise summary note uploads, automatic MCQ quiz builders, and integrated Zoom live class countdowns absolutely unmatched. My administration overhead has literally cut in half!"
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center font-bold text-xs">JT</div>
-              <div>
-                <h4 className={`font-bold text-xs ${isDarkMode ? "text-white" : "text-slate-800"}`}>John Teacher</h4>
-                <p className="text-[10px] text-slate-500">Computer Science Instructor</p>
-              </div>
+      {/* ══════════════════════════════════════
+          8. PRICING
+      ══════════════════════════════════════ */}
+      <section id="pricing" className="relative z-10 py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-center mb-14 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-xs font-bold uppercase tracking-widest"
+              style={{ background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)", color: GOLD }}>
+              Pricing Plans
             </div>
+            <h2 className="text-4xl font-black text-white mb-4">Transparent, Flexible Pricing</h2>
+            <p className="text-slate-400">Choose a plan that fits your learning goals. Upgrade anytime.</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+            {pricing.map((plan, i) => {
+              const Icon = plan.icon;
+              return (
+                <motion.div
+                  key={plan.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: plan.highlight ? -8 : -4 }}
+                  className="relative p-8 rounded-3xl flex flex-col gap-6 transition-all duration-300"
+                  style={{
+                    background: plan.highlight
+                      ? "linear-gradient(135deg, rgba(201,162,39,0.12), rgba(245,158,11,0.06))"
+                      : "rgba(30,41,59,0.7)",
+                    border: plan.highlight
+                      ? "1px solid rgba(201,162,39,0.4)"
+                      : "1px solid rgba(255,255,255,0.06)",
+                    boxShadow: plan.highlight ? "0 0 40px rgba(201,162,39,0.15), 0 25px 50px rgba(0,0,0,0.3)" : "none",
+                    backdropFilter: "blur(16px)",
+                  }}
+                >
+                  {plan.badge && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs font-black uppercase tracking-widest"
+                      style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A" }}>
+                      {plan.badge}
+                    </div>
+                  )}
+
+                  <div>
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+                      style={{ background: plan.highlight ? "rgba(201,162,39,0.2)" : "rgba(255,255,255,0.06)" }}>
+                      <Icon className="h-6 w-6" style={{ color: plan.highlight ? GOLD : "#94A3B8" }} />
+                    </div>
+                    <h3 className="text-xl font-black text-white">{plan.name}</h3>
+                    <p className="text-slate-400 text-sm mt-1">{plan.desc}</p>
+                  </div>
+
+                  <div className="flex items-end gap-1">
+                    <span className="text-5xl font-black" style={{ color: plan.highlight ? GOLD : "#fff" }}>{plan.price}</span>
+                    {plan.sub !== "forever" && (
+                      <span className="text-slate-500 text-sm pb-2">/{plan.sub}</span>
+                    )}
+                    {plan.sub === "forever" && (
+                      <span className="text-slate-500 text-sm pb-2">{plan.sub}</span>
+                    )}
+                  </div>
+
+                  <ul className="space-y-3 flex-1">
+                    {plan.features.map((feat) => (
+                      <li key={feat} className="flex items-center gap-2.5 text-sm text-slate-300">
+                        <CheckCircle className="h-4 w-4 shrink-0" style={{ color: plan.highlight ? GOLD : "#34D399" }} />
+                        {feat}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button onClick={openRegister}
+                    className="w-full py-3.5 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105"
+                    style={plan.highlight
+                      ? { background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 20px rgba(201,162,39,0.4)" }
+                      : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }
+                    }>
+                    {plan.cta}
+                  </button>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ========================================================
-         8. CTA BANNER SECTION
-         ======================================================== */}
-      <section className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 sm:p-12 text-center text-white relative overflow-hidden shadow-2xl">
-          <div className="relative z-10 max-w-xl mx-auto space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-black leading-tight">Elevate Your Academics Today</h2>
-            <p className="text-sm text-white/80">
-              Join thousands of students and teachers already collaborating in our unified LMS environment. Registration takes less than a minute!
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-              <button onClick={openRegister} className="px-6 py-3 rounded-xl bg-white text-indigo-600 hover:bg-white/95 font-bold text-xs shadow">
-                Join Platform Now
-              </button>
-              <button onClick={openLogin} className="px-6 py-3 rounded-xl border border-white/30 hover:bg-white/10 text-white font-bold text-xs">
-                Login Workspace
-              </button>
+      {/* ══════════════════════════════════════
+          9. FAQ
+      ══════════════════════════════════════ */}
+      <section id="faq" className="relative z-10 py-24 px-6" style={{ background: "rgba(30,41,59,0.15)" }}>
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-xs font-bold uppercase tracking-widest"
+              style={{ background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)", color: "#34D399" }}>
+              FAQ
             </div>
+            <h2 className="text-4xl font-black text-white mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-400">Everything you need to know about LMS PRO.</p>
+          </motion.div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07 }}
+                className="rounded-2xl overflow-hidden transition-all duration-300"
+                style={{
+                  background: "rgba(30,41,59,0.7)",
+                  border: openFaq === i ? "1px solid rgba(201,162,39,0.3)" : "1px solid rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(16px)",
+                }}
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-6 text-left"
+                >
+                  <span className="font-bold text-white text-sm pr-4">{faq.q}</span>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200"
+                    style={{ background: openFaq === i ? "rgba(201,162,39,0.15)" : "rgba(255,255,255,0.05)" }}>
+                    {openFaq === i
+                      ? <ChevronUp className="h-4 w-4" style={{ color: GOLD }} />
+                      : <ChevronDown className="h-4 w-4 text-slate-400" />
+                    }
+                  </div>
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      <p className="px-6 pb-6 text-sm text-slate-400 leading-relaxed">{faq.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
           </div>
-          <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-xl pointer-events-none" />
-          <div className="absolute -right-10 -top-10 w-44 h-44 bg-purple-500/20 rounded-full blur-xl pointer-events-none" />
         </div>
       </section>
 
-      {/* ========================================================
-         9. PROFESSIONAL FOOTER
-         ======================================================== */}
-      <footer className={`border-t py-12 transition-colors ${
-        isDarkMode ? "border-white/10 bg-slate-950 text-slate-400" : "border-slate-200 bg-white text-slate-600"
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600">
-                <GraduationCap className="h-4.5 w-4.5 text-white" />
+      {/* ══════════════════════════════════════
+          10. CTA BANNER
+      ══════════════════════════════════════ */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative rounded-3xl p-12 text-center overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, rgba(201,162,39,0.15) 0%, rgba(15,23,42,0.8) 50%, rgba(245,158,11,0.1) 100%)",
+              border: "1px solid rgba(201,162,39,0.3)",
+              boxShadow: "0 0 60px rgba(201,162,39,0.1)",
+            }}
+          >
+            {/* Glow orbs inside banner */}
+            <div className="absolute -left-8 -top-8 w-48 h-48 rounded-full opacity-20 pointer-events-none"
+              style={{ background: `radial-gradient(circle, ${GOLD} 0%, transparent 70%)`, filter: "blur(30px)" }} />
+            <div className="absolute -right-8 -bottom-8 w-48 h-48 rounded-full opacity-15 pointer-events-none"
+              style={{ background: `radial-gradient(circle, ${GOLD_LIGHT} 0%, transparent 70%)`, filter: "blur(30px)" }} />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px"
+              style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
+
+            <div className="relative z-10 max-w-2xl mx-auto space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest"
+                style={{ background: "rgba(201,162,39,0.15)", border: "1px solid rgba(201,162,39,0.3)", color: GOLD }}>
+                <Crown className="h-3.5 w-3.5" />
+                Join 12,000+ Learners
               </div>
-              <span className={`text-md font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent`}>LMS PRO</span>
+              <h2 className="text-4xl sm:text-5xl font-black leading-tight text-white">
+                Elevate Your Academics <br />
+                <span style={{ color: GOLD }}>Starting Today</span>
+              </h2>
+              <p className="text-slate-400 text-lg">
+                Join thousands of students and teachers already collaborating.
+                Registration takes less than 60 seconds.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <button onClick={openRegister}
+                  className="px-8 py-4 rounded-full font-black text-sm transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                  style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 25px rgba(201,162,39,0.5)" }}>
+                  <Sparkles className="h-4 w-4" />
+                  Join Platform Now
+                </button>
+                <button onClick={openLogin}
+                  className="px-8 py-4 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
+                  Sign In
+                </button>
+              </div>
             </div>
-            <p className="text-[11px] leading-relaxed">
-              Enterprise Suite designed for modern classrooms, comprehensive progress monitoring, and dynamic AI-powered education support.
-            </p>
-          </div>
-
-          <div>
-            <h4 className={`text-xs font-bold uppercase tracking-widest mb-4 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Platform</h4>
-            <div className="flex flex-col gap-2 text-[11px]">
-              <button onClick={() => scrollToSection("features")} className="text-left hover:text-blue-500">Features</button>
-              <button onClick={() => scrollToSection("preview")} className="text-left hover:text-blue-500">Dashboards</button>
-              <button onClick={() => scrollToSection("courses")} className="text-left hover:text-blue-500">Curriculums</button>
-            </div>
-          </div>
-
-          <div>
-            <h4 className={`text-xs font-bold uppercase tracking-widest mb-4 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Security</h4>
-            <div className="flex flex-col gap-2 text-[11px]">
-              <button onClick={openLogin} className="hover:text-blue-500 text-left">OTP Handshake</button>
-              <span className="cursor-default">JWT Authentication</span>
-              <span className="cursor-default">Role Guards</span>
-            </div>
-          </div>
-
-          <div>
-            <h4 className={`text-xs font-bold uppercase tracking-widest mb-4 ${isDarkMode ? "text-white" : "text-slate-800"}`}>Contact Us</h4>
-            <p className="text-[11px]">Email: support@lmspro.edu</p>
-            <p className="text-[11px] mt-1">Telemetry Status: Active</p>
-          </div>
+          </motion.div>
         </div>
+      </section>
 
-        <div className={`max-w-7xl mx-auto px-6 border-t mt-8 pt-6 text-center text-[10px] text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-4 ${
-          isDarkMode ? "border-white/5" : "border-slate-100"
-        }`}>
-          <span>© 2026 LMS PRO Systems Inc. All rights reserved.</span>
-          <div className="flex gap-4">
-            <span className="hover:underline cursor-pointer">Privacy Policy</span>
-            <span className="hover:underline cursor-pointer">Terms of Service</span>
+      {/* ══════════════════════════════════════
+          11. FOOTER
+      ══════════════════════════════════════ */}
+      <footer className="relative z-10 py-16 px-6 border-t" style={{ borderColor: "rgba(201,162,39,0.1)", background: "rgba(15,23,42,0.95)" }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+            {/* Brand */}
+            <div className="lg:col-span-2">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)" }}>
+                  <GraduationCap className="h-4.5 w-4.5 text-slate-950" />
+                </div>
+                <span className="text-lg font-black" style={{ color: GOLD }}>LMS PRO</span>
+              </div>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
+                Enterprise learning suite designed for modern classrooms with AI-powered education support, gamification, and live class integrations.
+              </p>
+              <div className="flex items-center gap-3 mt-5">
+                {["Twitter", "LinkedIn", "GitHub"].map((s) => (
+                  <button key={s} className="text-xs font-bold text-slate-500 hover:text-gold transition-colors px-3 py-1.5 rounded-lg"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Platform */}
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-widest text-white mb-4">Platform</h4>
+              <div className="flex flex-col gap-2.5 text-sm">
+                {[{ label: "Features", id: "features" }, { label: "Dashboards", id: "preview" }, { label: "Curriculums", id: "courses" }].map((l) => (
+                  <button key={l.id} onClick={() => scrollTo(l.id)}
+                    className="text-left text-slate-500 hover:text-gold transition-colors font-medium">{l.label}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Security */}
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-widest text-white mb-4">Security</h4>
+              <div className="flex flex-col gap-2.5 text-sm">
+                {["OTP Verification", "JWT Authentication", "Role-Based Guards", "SSL Encryption"].map((s) => (
+                  <span key={s} className="text-slate-500 font-medium">{s}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-widest text-white mb-4">Contact</h4>
+              <div className="flex flex-col gap-2.5 text-sm">
+                <span className="text-slate-500">support@lmspro.edu</span>
+                <span className="text-slate-500">+1 (800) LMS-PRO</span>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#34D399" }} />
+                  <span className="text-xs font-semibold text-emerald-400">All Systems Operational</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t" style={{ borderColor: "rgba(201,162,39,0.08)" }}>
+            <p className="text-xs text-slate-600">© 2026 LMS PRO Systems Inc. All rights reserved.</p>
+            <div className="flex items-center gap-5">
+              {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((item) => (
+                <button key={item} className="text-xs text-slate-600 hover:text-gold transition-colors">{item}</button>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
     </div>
-  );
-}
-
-// Small Badge helper
-function Badge({ children, className = "" }) {
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${className}`}>
-      {children}
-    </span>
   );
 }
