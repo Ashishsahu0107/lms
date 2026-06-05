@@ -190,10 +190,6 @@ const userSchema = new mongoose.Schema(
       },
       twoFactorEnabled: { type: Boolean, default: false },
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
     verificationOTP: {
       type: String,
       default: null,

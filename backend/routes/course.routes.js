@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate, authorize, ownershipMiddleware } from "../middleware/auth.js";
+import { uploadThumbnail } from "../middleware/upload.js";
 import {
   getCoursesController,
   createCourseController,
@@ -10,15 +11,38 @@ import {
 
 const router = Router();
 
-// Viewing courses requires basic authentication (student/teacher/admin viewing is allowed)
-router.get("/", authenticate, getCoursesController);
+// ── READ (all authenticated roles)
+router.get("/",    authenticate, getCoursesController);
 router.get("/:id", authenticate, getCourseByIdController);
 
-// Creating courses (Teacher/Admin only)
-router.post("/", authenticate, authorize("teacher", "super_admin"), createCourseController);
+// ── CREATE  — teacher/admin only
+// uploadThumbnail.single("thumbnail") must come BEFORE the controller
+// so that multer parses multipart/form-data and populates req.body + req.file
+router.post(
+  "/",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  uploadThumbnail.single("thumbnail"),
+  createCourseController
+);
 
-// Updating and Deleting courses (Teacher/Admin only, must own the course or be super admin)
-router.put("/:id", authenticate, authorize("teacher", "super_admin"), ownershipMiddleware, updateCourseController);
-router.delete("/:id", authenticate, authorize("teacher", "super_admin"), ownershipMiddleware, deleteCourseController);
+// ── UPDATE  — teacher (own course) / admin
+router.put(
+  "/:id",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  ownershipMiddleware,
+  uploadThumbnail.single("thumbnail"),
+  updateCourseController
+);
+
+// ── DELETE  — teacher (own course) / admin
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  ownershipMiddleware,
+  deleteCourseController
+);
 
 export default router;

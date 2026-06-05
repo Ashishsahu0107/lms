@@ -3,6 +3,20 @@ import { Module } from "../models/Module.js";
 import { Topic } from "../models/Topic.js";
 
 // =====================================
+// GET TOPIC BY ID
+// =====================================
+export async function getTopicByIdController(req, res, next) {
+  try {
+    const { id } = req.params;
+    const topic = await Topic.findById(id);
+    if (!topic) throw new NotFoundError("Topic not found");
+    return res.status(200).json({ success: true, message: "Topic fetched", data: topic });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
 // CREATE TOPIC
 // =====================================
 export async function createTopicController(req, res, next) {

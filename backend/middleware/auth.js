@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { User } from "../models/User.js";
 import { Course } from "../models/Course.js";
+import { Module } from "../models/Module.js";
+import { Topic } from "../models/Topic.js";
 
 import {
   UnauthorizedError,
@@ -176,6 +178,67 @@ export async function ownershipMiddleware(req, res, next) {
       throw new ForbiddenError(
         "Access denied: you do not own this course"
       );
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
+// MODULE OWNERSHIP GUARD
+// =====================================
+export async function moduleOwnershipMiddleware(req, res, next) {
+  try {
+    if (req.user.role === "super_admin") return next();
+
+    const { id } = req.params;
+    const mod = await Module.findById(id);
+    if (!mod) {
+      return res.status(404).json({ success: false, message: "Module not found" });
+    }
+
+    const course = await Course.findById(mod.courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Parent course not found" });
+    }
+
+    if (course.teacherId.toString() !== req.user._id.toString()) {
+      throw new ForbiddenError("Access denied: you do not own this module's course");
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
+// TOPIC OWNERSHIP GUARD
+// =====================================
+export async function topicOwnershipMiddleware(req, res, next) {
+  try {
+    if (req.user.role === "super_admin") return next();
+
+    const { id } = req.params;
+    const topic = await Topic.findById(id);
+    if (!topic) {
+      return res.status(404).json({ success: false, message: "Topic not found" });
+    }
+
+    const mod = await Module.findById(topic.moduleId);
+    if (!mod) {
+      return res.status(404).json({ success: false, message: "Parent module not found" });
+    }
+
+    const course = await Course.findById(mod.courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Parent course not found" });
+    }
+
+    if (course.teacherId.toString() !== req.user._id.toString()) {
+      throw new ForbiddenError("Access denied: you do not own this topic's course");
     }
 
     next();

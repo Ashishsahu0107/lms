@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../middleware/auth.js";
+import { authenticate, authorize, topicOwnershipMiddleware } from "../middleware/auth.js";
 import {
+  getTopicByIdController,
   createTopicController,
   updateTopicController,
   deleteTopicController,
@@ -8,11 +9,17 @@ import {
 
 const router = Router();
 
-// Only teachers and admins can manage topics
+// All topic routes require auth + teacher/admin role
 router.use(authenticate, authorize("teacher", "super_admin"));
 
+// GET single topic (needed for player page & edit prefill)
+router.get("/:id", getTopicByIdController);
+
+// Create topic (parent module ownership validated inside controller)
 router.post("/", createTopicController);
-router.put("/:id", updateTopicController);
-router.delete("/:id", deleteTopicController);
+
+// Update & Delete require topic ownership verification (traverses topic → module → course → teacherId)
+router.put("/:id", topicOwnershipMiddleware, updateTopicController);
+router.delete("/:id", topicOwnershipMiddleware, deleteTopicController);
 
 export default router;

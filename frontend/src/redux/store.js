@@ -1,7 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
+import courseReducer from "./slices/courseSlice";
 
-// Placeholder store. Add slices as LMS grows.
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    courses: courseReducer,
+  },
 });
 

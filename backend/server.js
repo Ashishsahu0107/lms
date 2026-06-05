@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import http from "http";
+import path from "path";
 import compression from "compression";
 
 import { env } from "./config/env.js";
@@ -22,13 +23,20 @@ app.use(compression());
 app.disable("x-powered-by");
 
 // CORS Configuration
-const allowedOrigins = [env.CORS_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = [
+  env.CORS_ORIGIN,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    const isLocal = origin.startsWith("http://localhost:") || 
-                    origin.startsWith("http://127.0.0.1:") || 
-                    /^http:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+):/i.test(origin);
+    const isLocal =
+      origin.startsWith("http://localhost:") ||
+      origin.startsWith("http://127.0.0.1:") ||
+      /^http:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+):/i.test(
+        origin,
+      );
     if (isLocal || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -57,6 +65,12 @@ app.get("/health", (req, res) => {
 // Mounted API Routes
 app.use("/api", rootRouter);
 
+// Static file serving — uploaded thumbnails, documents etc.
+app.use(
+  "/uploads",
+  express.static(path.resolve(process.env.UPLOADS_DIR || "uploads")),
+);
+
 // Error Fallbacks
 app.use(notFoundHandler);
 app.use(errorHandler);
@@ -64,7 +78,7 @@ app.use(errorHandler);
 // HTTP + Socket server initialization
 const server = http.createServer(app);
 initSocket(server);
-  
+
 // Database Connection & Server Boot
 connectDb()
   .then(() => {

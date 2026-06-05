@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Zap, CheckCircle2, UserPlus, CreditCard, Award, Wifi, WifiOff } from "lucide-react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip, CartesianGrid } from "recharts";
 import { useSocket } from "../../../context/SocketContext";
 import { getRealtimeAnalytics } from "../../../services/adminAnalyticsService";
 

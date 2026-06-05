@@ -4,6 +4,20 @@ import { Module } from "../models/Module.js";
 import { Topic } from "../models/Topic.js";
 
 // =====================================
+// GET MODULE BY ID
+// =====================================
+export async function getModuleByIdController(req, res, next) {
+  try {
+    const { id } = req.params;
+    const mod = await Module.findById(id).populate("topics");
+    if (!mod) throw new NotFoundError("Module not found");
+    return res.status(200).json({ success: true, message: "Module fetched", data: mod });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
 // CREATE MODULE
 // =====================================
 export async function createModuleController(req, res, next) {
