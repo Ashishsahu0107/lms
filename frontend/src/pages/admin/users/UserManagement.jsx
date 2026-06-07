@@ -96,6 +96,27 @@ const users = [
   },
 ];
 
+const getStatusBadge = (status) => {
+  switch (status) {
+    case "active":
+      return <Badge variant="success">Active</Badge>;
+    case "inactive":
+      return <Badge variant="warning">Inactive</Badge>;
+    case "blocked":
+      return <Badge variant="destructive">Blocked</Badge>;
+    default:
+      return null;
+  }
+};
+
+const getRoleBadge = (role) => {
+  return (
+    <Badge variant={role === "teacher" ? "default" : "secondary"}>
+      {role}
+    </Badge>
+  );
+};
+
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -126,26 +147,7 @@ export default function UserManagement() {
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "active":
-        return <Badge variant="success">Active</Badge>;
-      case "inactive":
-        return <Badge variant="warning">Inactive</Badge>;
-      case "blocked":
-        return <Badge variant="destructive">Blocked</Badge>;
-      default:
-        return null;
-    }
-  };
 
-  const getRoleBadge = (role) => {
-    return (
-      <Badge variant={role === "teacher" ? "default" : "secondary"}>
-        {role}
-      </Badge>
-    );
-  };
 
   return (
     <motion.div

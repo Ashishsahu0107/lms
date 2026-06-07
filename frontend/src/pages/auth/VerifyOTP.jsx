@@ -8,22 +8,21 @@ import { toast } from "react-hot-toast";
 export default function VerifyOTP() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("email") || localStorage.getItem("verify_email") || "";
+  });
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const emailParam = params.get("email") || localStorage.getItem("verify_email") || "";
-    setEmail(emailParam);
-
-    if (!emailParam) {
+    if (!email) {
       toast.error("Recovery session missing. Please request a new recovery link.");
       navigate("/forgot-password");
     }
-  }, [location, navigate]);
+  }, [email, navigate]);
 
   useEffect(() => {
     if (timer > 0) {

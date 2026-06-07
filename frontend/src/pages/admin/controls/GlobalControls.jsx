@@ -39,10 +39,6 @@ export default function GlobalControls() {
     secure: false,
   });
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
   const fetchSettings = async () => {
     try {
       setLoading(true);
@@ -63,6 +59,10 @@ export default function GlobalControls() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   const handleSave = async (e) => {
     e.preventDefault();

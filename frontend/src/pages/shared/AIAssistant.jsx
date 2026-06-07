@@ -114,29 +114,7 @@ export default function AIAssistant() {
     };
   }, [selectedChatId]);
 
-  // Fetch all chat threads on mount
-  useEffect(() => {
-    loadChatThreads(true);
-  }, []);
-
-  // Fetch single chat details when selectedChatId changes
-  useEffect(() => {
-    if (selectedChatId) {
-      loadChatDetails(selectedChatId);
-    } else {
-      setActiveChat(null);
-      setMessages([]);
-    }
-    setStreamText("");
-    setAiTyping(false);
-  }, [selectedChatId]);
-
-  // Scroll to chat feed bottom automatically
-  useEffect(() => {
-    feedEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streamText, aiTyping]);
-
-  const loadChatThreads = async (selectFirst = false) => {
+  async function loadChatThreads(selectFirst = false) {
     try {
       const res = await getAiChats();
       if (res && res.success) {
@@ -148,9 +126,9 @@ export default function AIAssistant() {
     } catch (err) {
       console.error("Failed to load AI threads:", err);
     }
-  };
+  }
 
-  const loadChatDetails = async (id) => {
+  async function loadChatDetails(id) {
     try {
       setLoading(true);
       const res = await getAiChatDetails(id);
@@ -163,7 +141,32 @@ export default function AIAssistant() {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  // Fetch all chat threads on mount
+  useEffect(() => {
+    loadChatThreads(true);
+  }, []);
+
+  // Fetch single chat details when selectedChatId changes
+  useEffect(() => {
+    if (selectedChatId) {
+      loadChatDetails(selectedChatId);
+    } else {
+      const timer = setTimeout(() => {
+        setActiveChat(null);
+        setMessages([]);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    setStreamText("");
+    setAiTyping(false);
+  }, [selectedChatId]);
+
+  // Scroll to chat feed bottom automatically
+  useEffect(() => {
+    feedEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, streamText, aiTyping]);
 
   const handleStartNewChat = async () => {
     try {

@@ -1,20 +1,14 @@
-// src/pages/teacher/quizzes/QuizAnalytics.jsx
-
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Calendar,
   Award,
   Users,
-  Clock,
   CheckCircle,
   HelpCircle,
   TrendingUp,
   Sparkles,
   ChevronRight,
-  Eye,
 } from "lucide-react";
 import { getQuizAnalytics } from "../../../services/quizService";
 import { Card, CardContent } from "../../../components/ui/Card";

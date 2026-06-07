@@ -103,7 +103,7 @@ export default function AccessLogs({
                         </div>
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
-                        {new Date(log.createdAt || Date.now()).toLocaleString()}
+                        {log.createdAt ? new Date(log.createdAt).toLocaleString() : "—"}
                       </td>
                     </tr>
                   ))

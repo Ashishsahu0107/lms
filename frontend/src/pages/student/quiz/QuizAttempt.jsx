@@ -1,15 +1,13 @@
 // src/pages/student/quiz/QuizAttempt.jsx
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock,
   Flag,
   ArrowRight,
   ArrowLeft,
   CheckCircle,
-  HelpCircle,
   AlertTriangle,
   Maximize,
   Minimize,
@@ -19,6 +17,7 @@ import { startAttempt, saveAttemptAnswers, submitAttempt } from "../../../servic
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Modal } from "../../../components/ui/Modal";
+import { Input } from "../../../components/ui/Input";
 import toast from "react-hot-toast";
 
 export default function QuizAttempt() {
@@ -49,6 +48,50 @@ export default function QuizAttempt() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Submission Execution
+  const executeSubmission = useCallback(async () => {
+    if (!attemptId) return;
+
+    try {
+      setSubmitting(true);
+      clearInterval(timerRef.current);
+
+      // Convert answers state to backend array format
+      const formattedAnswers = Object.keys(userAnswers).map((qId) => ({
+        questionId: qId,
+        selectedAnswers: userAnswers[qId].selectedAnswers,
+        isFlagged: userAnswers[qId].isFlagged,
+      }));
+
+      const res = await submitAttempt(attemptId, {
+        answers: formattedAnswers,
+        timeSpent,
+      });
+
+      if (res.data?.success) {
+        toast.success("Assessment submitted successfully!");
+        setShowSubmitModal(false);
+        // Exits fullscreen if active
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+        navigate(`/student/quizzes/result/${attemptId}`);
+      } else {
+        toast.error("Failed to post quiz answers");
+      }
+    } catch {
+      toast.error("Encountered error posting quiz solutions");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [attemptId, userAnswers, timeSpent, navigate]);
+
+  // Auto submit when time hits 0
+  const handleAutoSubmit = useCallback(async () => {
+    toast.error("Time limit reached! Submitting answers automatically.");
+    await executeSubmission();
+  }, [executeSubmission]);
+
   // 1. Initialize Attempt on mount
   useEffect(() => {
     async function initQuizAttempt() {
@@ -57,14 +100,44 @@ export default function QuizAttempt() {
         const res = await startAttempt(quizId);
         if (res.data?.success) {
           const attemptData = res.data.data;
+
+          // Check date bounds
+          const now = new Date();
+          if (attemptData.startDate && now < new Date(attemptData.startDate)) {
+            toast.error(`This quiz starts on ${new Date(attemptData.startDate).toLocaleString()}.`);
+            navigate(-1);
+            return;
+          }
+          if (attemptData.endDate && now > new Date(attemptData.endDate)) {
+            toast.error(`This quiz ended on ${new Date(attemptData.endDate).toLocaleString()}.`);
+            navigate(-1);
+            return;
+          }
+
           setAttemptId(attemptData.attemptId);
           setQuizTitle(attemptData.title);
-          setQuestions(attemptData.questions || []);
           setTimeRemaining(attemptData.duration * 60);
+
+          // If shuffleOptions is enabled, shuffle the options once
+          let processedQuestions = attemptData.questions || [];
+          if (attemptData.shuffleOptions) {
+            processedQuestions = processedQuestions.map((q) => {
+              if (q.options && q.options.length > 0) {
+                const shuffled = [...q.options];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                  const j = Math.floor(Math.random() * (i + 1));
+                  [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return { ...q, options: shuffled };
+              }
+              return q;
+            });
+          }
+          setQuestions(processedQuestions);
 
           // Populate empty selections
           const initialAnswers = {};
-          attemptData.questions.forEach((q) => {
+          processedQuestions.forEach((q) => {
             initialAnswers[q._id] = { selectedAnswers: [], isFlagged: false };
           });
           setUserAnswers(initialAnswers);
@@ -102,16 +175,10 @@ export default function QuizAttempt() {
     }, 1000);
 
     return () => clearInterval(timerRef.current);
-  }, [loading, attemptId, timeRemaining]);
-
-  // Auto submit when time hits 0
-  const handleAutoSubmit = async () => {
-    toast.error("Time limit reached! Submitting answers automatically.");
-    await executeSubmission(true);
-  };
+  }, [loading, attemptId, timeRemaining, handleAutoSubmit]);
 
   // 3. Background Auto-Save Daemon
-  const triggerAutoSave = async (updatedAnswers) => {
+  async function triggerAutoSave(updatedAnswers) {
     if (!attemptId) return;
 
     // Convert state to backend format
@@ -126,14 +193,14 @@ export default function QuizAttempt() {
     } catch (err) {
       console.error("Background autosave failed:", err);
     }
-  };
+  }
 
   // Fullscreen Handlers
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       playerRef.current.requestFullscreen().then(() => {
         setIsFullscreen(true);
-      }).catch(err => {
+      }).catch(() => {
         toast.error("Fullscreen mode blocked by browser safety rules");
       });
     } else {
@@ -196,44 +263,7 @@ export default function QuizAttempt() {
     triggerAutoSave(updated);
   };
 
-  // Submission Execution
-  const executeSubmission = async (forceAuto = false) => {
-    if (!attemptId) return;
-
-    try {
-      setSubmitting(true);
-      clearInterval(timerRef.current);
-
-      // Convert answers state to backend array format
-      const formattedAnswers = Object.keys(userAnswers).map((qId) => ({
-        questionId: qId,
-        selectedAnswers: userAnswers[qId].selectedAnswers,
-        isFlagged: userAnswers[qId].isFlagged,
-      }));
-
-      const res = await submitAttempt(attemptId, {
-        answers: formattedAnswers,
-        timeSpent,
-      });
-
-      if (res.data?.success) {
-        toast.success("Assessment submitted successfully!");
-        setShowSubmitModal(false);
-        // Exits fullscreen if active
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-        }
-        navigate(`/student/quizzes/result/${attemptId}`);
-      } else {
-        toast.error("Failed to post quiz answers");
-      }
-    } catch (err) {
-      console.error("Error submitting quiz attempts:", err);
-      toast.error("Encountered error posting quiz solutions");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // executeSubmission callback defined above
 
   if (loading) {
     return (

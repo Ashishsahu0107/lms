@@ -1,27 +1,20 @@
-// src/pages/teacher/quizzes/CreateQuiz.jsx
-
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Plus,
   Trash2,
-  CheckCircle,
-  HelpCircle,
-  Award,
   Calendar,
   Sparkles,
-  ChevronRight,
   PlusCircle,
   CheckCircle2,
-  AlertTriangle,
 } from "lucide-react";
 import { getCourses } from "../../../services/courseService";
-import { getQuizById, createQuiz, updateQuiz } from "../../../services/quizService";
+import { getQuizById, createQuiz, updateQuiz, getQuestionBank } from "../../../services/quizService";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
+import { Modal } from "../../../components/ui/Modal";
 import toast from "react-hot-toast";
 
 export default function CreateQuiz() {
@@ -45,8 +38,17 @@ export default function CreateQuiz() {
   const [quizType, setQuizType] = useState("exam");
   const [attemptLimit, setAttemptLimit] = useState(1);
   const [shuffleQuestions, setShuffleQuestions] = useState(false);
+  const [shuffleOptions, setShuffleOptions] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [negativeMarking, setNegativeMarking] = useState(false);
   const [status, setStatus] = useState("published");
+
+  // Question Bank States
+  const [showBankModal, setShowBankModal] = useState(false);
+  const [bankQuestions, setBankQuestions] = useState([]);
+  const [loadingBank, setLoadingBank] = useState(false);
+  const [selectedBankIds, setSelectedBankIds] = useState(new Set());
 
   // Questions Canvas Array
   // Question Structure: { id: String (temp), type: String, question: String, options: [String], correctAnswer: [String], explanation: String, marks: Number, difficulty: String }
@@ -81,6 +83,9 @@ export default function CreateQuiz() {
             setQuizType(quiz.quizType || "exam");
             setAttemptLimit(quiz.attemptLimit);
             setShuffleQuestions(!!quiz.shuffleQuestions);
+            setShuffleOptions(!!quiz.shuffleOptions);
+            setStartDate(quiz.startDate ? new Date(quiz.startDate).toISOString().slice(0, 16) : "");
+            setEndDate(quiz.endDate ? new Date(quiz.endDate).toISOString().slice(0, 16) : "");
             setNegativeMarking(!!quiz.negativeMarking);
             setStatus(quiz.status || "published");
 
@@ -128,6 +133,56 @@ export default function CreateQuiz() {
     setQuestions([...questions, newQ]);
   };
 
+  // Open Question Bank and load options
+  const handleOpenQuestionBank = async () => {
+    try {
+      setLoadingBank(true);
+      setShowBankModal(true);
+      const res = await getQuestionBank();
+      if (res.data?.success) {
+        setBankQuestions(res.data.data || []);
+      } else {
+        toast.error("Failed to load question bank");
+      }
+    } catch (err) {
+      console.error("Failed to fetch question bank:", err);
+      toast.error("Error fetching question bank");
+    } finally {
+      setLoadingBank(false);
+    }
+  };
+
+  // Toggle selection inside Question Bank
+  const toggleBankSelection = (id) => {
+    setSelectedBankIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Import selected bank questions to questions list
+  const handleImportSelected = () => {
+    if (selectedBankIds.size === 0) return;
+    const toImport = bankQuestions.filter((q) => selectedBankIds.has(q._id));
+    const formatted = toImport.map((q) => ({
+      id: `bank-${q._id}-${Date.now()}`,
+      type: q.type,
+      question: q.question,
+      options: q.options || [],
+      correctAnswer: q.correctAnswer || [],
+      explanation: q.explanation || "",
+      marks: q.marks || 5,
+      difficulty: q.difficulty || "medium",
+    }));
+
+    setQuestions([...questions, ...formatted]);
+    setSelectedBankIds(new Set());
+    setShowBankModal(false);
+    toast.success(`Successfully imported ${formatted.length} question(s) from bank!`);
+  };
+
   const removeQuestionCard = (tempId) => {
     setQuestions(questions.filter((q) => q.id !== tempId));
   };
@@ -138,7 +193,7 @@ export default function CreateQuiz() {
         if (q.id === tempId) {
           // Adjust defaults based on type shift
           if (field === "type") {
-            let defaults = {};
+            let defaults;
             if (value === "true_false") {
               defaults = { options: ["True", "False"], correctAnswer: ["True"] };
             } else if (value === "mcq") {
@@ -183,7 +238,7 @@ export default function CreateQuiz() {
     setQuestions(
       questions.map((q) => {
         if (q.id === qId) {
-          let updatedCorrect = [];
+          let updatedCorrect;
           if (!isMultiple) {
             // Radio behavior: single correct answer
             updatedCorrect = [optionText];
@@ -239,6 +294,11 @@ export default function CreateQuiz() {
       return;
     }
 
+    if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+      toast.error("Quiz Start Date must be before Quiz End Date.");
+      return;
+    }
+
     if (questions.length === 0) {
       toast.error("Assessment canvas requires at least one question card.");
       return;
@@ -280,6 +340,9 @@ export default function CreateQuiz() {
         quizType,
         attemptLimit: Number(attemptLimit),
         shuffleQuestions,
+        shuffleOptions,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
         negativeMarking,
         status,
         questions,
@@ -424,7 +487,33 @@ export default function CreateQuiz() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-base-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3 border-t border-base-300">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" /> Start Date / Time
+                </label>
+                <Input
+                  type="datetime-local"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="h-10 bg-base-200 border-none rounded-lg pl-4 text-xs font-semibold"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" /> End Date / Time
+                </label>
+                <Input
+                  type="datetime-local"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="h-10 bg-base-200 border-none rounded-lg pl-4 text-xs font-semibold"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-3 border-t border-base-300">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -434,7 +523,20 @@ export default function CreateQuiz() {
                   id="toggle-shuffle"
                 />
                 <label htmlFor="toggle-shuffle" className="text-xs font-bold text-muted-foreground cursor-pointer select-none">
-                  Randomize / Shuffle Questions
+                  Randomize Questions
+                </label>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={shuffleOptions}
+                  onChange={(e) => setShuffleOptions(e.target.checked)}
+                  className="checkbox checkbox-primary rounded-lg"
+                  id="toggle-shuffle-opts"
+                />
+                <label htmlFor="toggle-shuffle-opts" className="text-xs font-bold text-muted-foreground cursor-pointer select-none">
+                  Randomize Options
                 </label>
               </div>
 
@@ -447,12 +549,12 @@ export default function CreateQuiz() {
                   id="toggle-negative"
                 />
                 <label htmlFor="toggle-negative" className="text-xs font-bold text-muted-foreground cursor-pointer select-none">
-                  Enable Negative Marking (25%)
+                  Negative Marking (25%)
                 </label>
               </div>
 
               <div className="flex items-center gap-3">
-                <label className="text-xs font-bold text-muted-foreground mr-2">Publish Status:</label>
+                <label className="text-xs font-bold text-muted-foreground mr-2">Status:</label>
                 <select
                   className="select select-bordered border-base-300 select-xs h-9 rounded-lg px-2 bg-base-200 text-xs font-bold"
                   value={status}
@@ -485,13 +587,22 @@ export default function CreateQuiz() {
               <p className="text-xs text-muted-foreground">Add question sheets, options selections, and scores.</p>
             </div>
 
-            <Button
-              type="button"
-              onClick={addQuestionCard}
-              className="btn btn-primary gap-1.5 rounded-xl text-white text-xs h-10 px-4"
-            >
-              <PlusCircle className="h-4.5 w-4.5" /> Append Question
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                onClick={handleOpenQuestionBank}
+                className="btn btn-outline border-primary text-primary hover:bg-primary hover:text-white gap-1.5 rounded-xl text-xs h-10 px-4"
+              >
+                <Sparkles className="h-4.5 w-4.5 animate-pulse" /> Reusable Bank
+              </Button>
+              <Button
+                type="button"
+                onClick={addQuestionCard}
+                className="btn btn-primary gap-1.5 rounded-xl text-white text-xs h-10 px-4"
+              >
+                <PlusCircle className="h-4.5 w-4.5" /> Append Question
+              </Button>
+            </div>
           </div>
 
           {/* Canvas cards list */}
@@ -702,6 +813,63 @@ export default function CreateQuiz() {
           </Button>
         </div>
       </form>
+
+      {/* QUESTION BANK IMPORT MODAL */}
+      <Modal
+        isOpen={showBankModal}
+        onClose={() => setShowBankModal(false)}
+        title="Question Bank Portal"
+        description="Select reusable question cards compiled from your past quizzes."
+      >
+        <div className="space-y-4">
+          <div className="max-h-[300px] overflow-y-auto space-y-2 border border-base-300 p-3 rounded-2xl bg-base-200">
+            {loadingBank ? (
+              <div className="flex flex-col items-center justify-center py-10 gap-2">
+                <span className="loading loading-spinner text-primary"></span>
+                <span className="text-xs text-muted-foreground animate-pulse">Loading question library...</span>
+              </div>
+            ) : bankQuestions.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic text-center py-10">No questions found in library.</p>
+            ) : (
+              bankQuestions.map((q) => {
+                const isSelected = selectedBankIds.has(q._id);
+                return (
+                  <div
+                    key={q._id}
+                    onClick={() => toggleBankSelection(q._id)}
+                    className={`p-3 rounded-xl border transition-all text-xs cursor-pointer flex items-center justify-between ${
+                      isSelected
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-base-100 border-base-300 hover:bg-base-300"
+                    }`}
+                  >
+                    <div className="space-y-1 max-w-[85%]">
+                      <span className="block font-bold text-foreground line-clamp-2">{q.question}</span>
+                      <span className="block text-[10px] text-muted-foreground">
+                        Quiz: <span className="font-bold">{q.quizId?.title || "Previous quiz"}</span> | Type: {q.type.toUpperCase()} | Points: {q.marks}
+                      </span>
+                    </div>
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected ? "border-primary bg-primary text-white" : "border-muted-foreground"}`}>
+                      {isSelected && <span className="text-[10px] font-black">✓</span>}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <div className="flex justify-end gap-3 pt-3 border-t border-base-300">
+            <Button variant="ghost" onClick={() => setShowBankModal(false)}>Close</Button>
+            <Button
+              onClick={handleImportSelected}
+              disabled={selectedBankIds.size === 0}
+              className="btn btn-primary text-white"
+            >
+              Import Selected ({selectedBankIds.size})
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

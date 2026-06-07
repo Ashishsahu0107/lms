@@ -1,6 +1,4 @@
-// src/pages/teacher/quizzes/TeacherQuizManagement.jsx
-
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -15,12 +13,14 @@ import {
   Sparkles,
   BarChart2,
   AlertTriangle,
+  Copy,
+  FileDown,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/Card";
+import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
-import { Badge } from "../../../components/ui/Badge";
-import { getQuizzes, deleteQuiz } from "../../../services/quizService";
+import { Modal } from "../../../components/ui/Modal";
+import { getQuizzes, deleteQuiz, cloneQuiz, bulkImportQuestions } from "../../../services/quizService";
 import toast from "react-hot-toast";
 
 export default function TeacherQuizManagement() {
@@ -51,6 +51,11 @@ export default function TeacherQuizManagement() {
     loadQuizzes();
   }, []);
 
+  // Bulk import state
+  const [importQuizId, setImportQuizId] = useState(null);
+  const [jsonText, setJsonText] = useState("");
+  const [importing, setImporting] = useState(false);
+
   const handleDelete = async (id) => {
     if (!window.confirm("WARNING: Are you absolutely sure you want to permanently delete this quiz? All associated question cards and student attempt score sheets will be cascade deleted. This action cannot be undone.")) {
       return;
@@ -67,6 +72,49 @@ export default function TeacherQuizManagement() {
     } catch (err) {
       console.error("Error deleting quiz:", err);
       toast.error("Encountered database delete error");
+    }
+  };
+
+  const handleClone = async (id) => {
+    try {
+      const res = await cloneQuiz(id);
+      if (res.data?.success) {
+        setQuizzes((prev) => [res.data.data, ...prev]);
+        toast.success("Quiz duplicated successfully as draft!");
+      } else {
+        toast.error("Failed to clone quiz");
+      }
+    } catch (err) {
+      console.error("Error cloning quiz:", err);
+      toast.error("Failed to clone quiz");
+    }
+  };
+
+  const handleImportQuestions = async () => {
+    try {
+      setImporting(true);
+      const parsed = JSON.parse(jsonText);
+      if (!Array.isArray(parsed)) {
+        toast.error("Questions must be a JSON array.");
+        return;
+      }
+      const res = await bulkImportQuestions(importQuizId, parsed);
+      if (res.data?.success) {
+        // Reload quizzes list
+        const quizzesRes = await getQuizzes();
+        if (quizzesRes.data?.success) {
+          setQuizzes(quizzesRes.data.data || []);
+        }
+        setImportQuizId(null);
+        setJsonText("");
+        toast.success("Questions imported successfully!");
+      } else {
+        toast.error("Failed to import questions");
+      }
+    } catch {
+      toast.error("Invalid JSON layout. Please verify syntax.");
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -228,6 +276,24 @@ export default function TeacherQuizManagement() {
                             <BarChart2 className="h-4 w-4" />
                           </Button>
                           <Button
+                            onClick={() => handleClone(quiz._id)}
+                            size="icon"
+                            variant="ghost"
+                            className="hover:text-primary rounded-full bg-base-200 p-2"
+                            title="Clone/Duplicate assessment"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => setImportQuizId(quiz._id)}
+                            size="icon"
+                            variant="ghost"
+                            className="hover:text-primary rounded-full bg-base-200 p-2"
+                            title="Bulk Import questions JSON"
+                          >
+                            <FileDown className="h-4 w-4" />
+                          </Button>
+                          <Button
                             onClick={() => navigate(`/teacher/quizzes/edit/${quiz._id}`)}
                             size="icon"
                             variant="ghost"
@@ -255,6 +321,50 @@ export default function TeacherQuizManagement() {
           )}
         </div>
       </Card>
+
+      {/* BULK IMPORT QUESTIONS MODAL */}
+      <Modal
+        isOpen={!!importQuizId}
+        onClose={() => setImportQuizId(null)}
+        title="Bulk Question Import"
+        description="Paste a valid JSON array of questions to append to this quiz."
+      >
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-muted-foreground block uppercase">JSON Array Format:</span>
+            <pre className="text-[9px] bg-base-200 p-3 rounded-lg overflow-auto leading-relaxed border border-base-300 font-mono text-muted-foreground">
+{`[
+  {
+    "type": "mcq",
+    "question": "What is 2 + 2?",
+    "options": ["3", "4", "5"],
+    "correctAnswer": ["4"],
+    "marks": 5,
+    "difficulty": "easy"
+  }
+]`}
+            </pre>
+          </div>
+
+          <textarea
+            value={jsonText}
+            onChange={(e) => setJsonText(e.target.value)}
+            placeholder="Paste your questions JSON here..."
+            className="textarea textarea-bordered border-base-300 w-full h-[180px] rounded-2xl bg-base-200 text-xs font-mono p-4"
+          />
+
+          <div className="flex justify-end gap-3 pt-3 border-t border-base-300">
+            <Button variant="ghost" onClick={() => setImportQuizId(null)}>Cancel</Button>
+            <Button
+              onClick={handleImportQuestions}
+              disabled={importing || !jsonText.trim()}
+              className="btn btn-primary text-white"
+            >
+              {importing ? <span className="loading loading-spinner loading-sm"></span> : "Import questions"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </motion.div>
   );
 }

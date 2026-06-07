@@ -423,11 +423,11 @@ export default function Messages() {
                   <p className="text-xs text-muted-foreground/80">Send a message to start the conversation.</p>
                 </div>
               ) : (
-                messages.map((msg) => {
+                messages.map((msg, index) => {
                   const isMe = (msg.senderId?._id || msg.senderId) === currentUser.id;
                   const senderName = msg.senderId?.name || selectedConv.participant?.name;
                   return (
-                    <div key={msg._id || Math.random()} className={`flex gap-2.5 ${isMe ? "justify-end" : ""}`}>
+                    <div key={msg._id || index} className={`flex gap-2.5 ${isMe ? "justify-end" : ""}`}>
                       {!isMe && (
                         <Avatar className="w-8 h-8 border shrink-0">
                           <AvatarImage src={selectedConv.participant?.avatar} />
