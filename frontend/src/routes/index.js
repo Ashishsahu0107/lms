@@ -22,6 +22,8 @@ const Messages = lazy(() => import("../pages/student/messages/Messages"));
 const Certificates = lazy(() => import("../pages/student/certificates/Certificates"));
 const Profile = lazy(() => import("../pages/student/profile/Profile"));
 const Settings = lazy(() => import("../pages/student/settings/Settings"));
+const MyAttendance = lazy(() => import("../pages/student/attendance/MyAttendance"));
+const StudentAttendanceCalendar = lazy(() => import("../pages/student/attendance/StudentAttendanceCalendar"));
 
 // Lazy load teacher pages
 const TeacherDashboard = lazy(() => import("../pages/teacher/dashboard/TeacherDashboard"));
@@ -30,7 +32,9 @@ const TeacherQuizzes = lazy(() => import("../pages/teacher/quizzes/TeacherQuizMa
 const TeacherAssignments = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentManagement"));
 const TeacherAssignmentDetails = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentDetails"));
 const TeacherProgress = lazy(() => import("../pages/teacher/progress/TeacherStudentProgress"));
-const TeacherAttendance = lazy(() => import("../pages/teacher/attendance/TeacherAttendance"));
+const DailyAttendance = lazy(() => import("../pages/teacher/attendance/DailyAttendance"));
+const AttendanceHistory = lazy(() => import("../pages/teacher/attendance/AttendanceHistory"));
+const CourseAttendanceReport = lazy(() => import("../pages/teacher/attendance/CourseAttendanceReport"));
 
 // Lazy load admin pages
 const AdminDashboard = lazy(() => import("../pages/admin/dashboard/AdminDashboard"));
@@ -61,6 +65,8 @@ const studentRoutes = {
     { path: "certificates", element: <Certificates /> },
     { path: "profile", element: <Profile /> },
     { path: "settings", element: <Settings /> },
+    { path: "attendance", element: <MyAttendance /> },
+    { path: "attendance/calendar", element: <StudentAttendanceCalendar /> },
   ],
 };
 
@@ -75,7 +81,9 @@ const teacherRoutes = {
     { path: "assignments", element: <TeacherAssignments /> },
     { path: "assignments/:id", element: <TeacherAssignmentDetails /> },
     { path: "student-progress", element: <TeacherProgress /> },
-    { path: "attendance", element: <TeacherAttendance /> },
+    { path: "attendance", element: <DailyAttendance /> },
+    { path: "attendance/history", element: <AttendanceHistory /> },
+    { path: "attendance/report", element: <CourseAttendanceReport /> },
     { path: "messages", element: <Messages /> },
     { path: "profile", element: <Profile /> },
   ],

@@ -17,6 +17,8 @@ export const routesConfig = [
   { path: ROUTES.STUDENT_CERTIFICATES, name: "Certificates", roles: ["student"] },
   { path: ROUTES.STUDENT_PROFILE, name: "Profile", roles: ["student"] },
   { path: ROUTES.STUDENT_SETTINGS, name: "Settings", roles: ["student"] },
+  { path: ROUTES.STUDENT_ATTENDANCE, name: "Attendance", roles: ["student"] },
+  { path: ROUTES.STUDENT_ATTENDANCE_CALENDAR, name: "Attendance Calendar", roles: ["student"] },
 
   // Teacher routes
   { path: ROUTES.TEACHER_DASHBOARD, name: "Dashboard", roles: ["teacher"] },
@@ -26,6 +28,8 @@ export const routesConfig = [
   { path: ROUTES.TEACHER_ASSIGNMENT_DETAIL, name: "Assignment Details", roles: ["teacher"] },
   { path: ROUTES.TEACHER_PROGRESS, name: "Student Progress", roles: ["teacher"] },
   { path: ROUTES.TEACHER_ATTENDANCE, name: "Attendance", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_ATTENDANCE_HISTORY, name: "Attendance History", roles: ["teacher"] },
+  { path: ROUTES.TEACHER_ATTENDANCE_REPORT, name: "Attendance Report", roles: ["teacher"] },
   { path: ROUTES.TEACHER_MESSAGES, name: "Messages", roles: ["teacher"] },
   { path: ROUTES.TEACHER_PROFILE, name: "Profile", roles: ["teacher"] },
   { path: ROUTES.TEACHER_CERTIFICATES, name: "Certificates", roles: ["teacher"] },

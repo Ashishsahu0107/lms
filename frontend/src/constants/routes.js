@@ -13,6 +13,8 @@ export const ROUTES = {
   STUDENT_CERTIFICATES: "/student/certificates",
   STUDENT_PROFILE: "/student/profile",
   STUDENT_SETTINGS: "/student/settings",
+  STUDENT_ATTENDANCE: "/student/attendance",
+  STUDENT_ATTENDANCE_CALENDAR: "/student/attendance/calendar",
 
   // Teacher
   TEACHER_DASHBOARD: "/teacher/dashboard",
@@ -22,6 +24,8 @@ export const ROUTES = {
   TEACHER_ASSIGNMENT_DETAIL: "/teacher/assignments/:id",
   TEACHER_PROGRESS: "/teacher/student-progress",
   TEACHER_ATTENDANCE: "/teacher/attendance",
+  TEACHER_ATTENDANCE_HISTORY: "/teacher/attendance/history",
+  TEACHER_ATTENDANCE_REPORT: "/teacher/attendance/report",
   TEACHER_EARNINGS: "/teacher/earnings",
   TEACHER_MESSAGES: "/teacher/messages",
   TEACHER_PROFILE: "/teacher/profile",

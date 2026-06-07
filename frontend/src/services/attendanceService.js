@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from "./apiClient";
+import { apiGet, apiPost, apiPut, apiDelete } from "./apiClient";
 
 // ── Teacher Attendance Services ───────────────────────────────────────────────
 
@@ -77,3 +77,25 @@ export const getAdminAttendanceAnalytics = () => apiGet("/admin/attendance/analy
  */
 export const getAdminAttendanceReports = (params = {}) =>
   apiGet("/admin/attendance/reports", params);
+
+// ── Attendance Session Services ───────────────────────────────────────────────
+
+/**
+ * Create a new attendance session for a course
+ * POST /api/attendance/sessions
+ */
+export const createAttendanceSession = (data) => apiPost("/attendance/sessions", data);
+
+/**
+ * Get all attendance sessions for a course
+ * GET /api/attendance/course/:courseId/sessions
+ */
+export const getCourseAttendanceSessions = (courseId) =>
+  apiGet(`/attendance/course/${courseId}/sessions`);
+
+/**
+ * Delete an attendance session
+ * DELETE /api/attendance/session/:sessionId
+ */
+export const deleteAttendanceSession = (sessionId) =>
+  apiDelete(`/attendance/session/${sessionId}`);

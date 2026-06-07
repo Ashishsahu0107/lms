@@ -1,4 +1,5 @@
 import { Attendance } from "../models/Attendance.js";
+import { AttendanceSession } from "../models/AttendanceSession.js";
 import { Course } from "../models/Course.js";
 import { Enrollment } from "../models/Enrollment.js";
 import { getIO, ROOMS, emitAttendanceMarked } from "../socket/index.js";
@@ -41,13 +42,13 @@ function dayRange(dateStr) {
 }
 
 // ======================================================
-// GET /api/attendance/course/:courseId/students?date=YYYY-MM-DD
-// Enrolled students with attendance status overlay for a date
+// GET /api/attendance/course/:courseId/students?date=YYYY-MM-DD&sessionId=
+// Enrolled students with attendance status overlay for a date or session
 // ======================================================
 export async function getCourseStudentsAttendanceController(req, res, next) {
   try {
     const { courseId } = req.params;
-    const { date = new Date().toISOString().split("T")[0] } = req.query;
+    const { date = new Date().toISOString().split("T")[0], sessionId } = req.query;
 
     await verifyTeacherCourse(courseId, req.user);
 
@@ -56,12 +57,16 @@ export async function getCourseStudentsAttendanceController(req, res, next) {
       "name email avatar"
     );
 
-    const { start, end } = dayRange(date);
-
-    const records = await Attendance.find({
-      courseId,
-      date: { $gte: start, $lte: end },
-    });
+    let records = [];
+    if (sessionId && mongoose.Types.ObjectId.isValid(sessionId)) {
+      records = await Attendance.find({ sessionId });
+    } else {
+      const { start, end } = dayRange(date);
+      records = await Attendance.find({
+        courseId,
+        date: { $gte: start, $lte: end },
+      });
+    }
 
     const attendanceMap = {};
     const remarksMap = {};
@@ -99,7 +104,7 @@ export async function getCourseStudentsAttendanceController(req, res, next) {
     return res.status(200).json({
       success: true,
       data: students,
-      meta: { courseId, date, ...summary },
+      meta: { courseId, date, sessionId, ...summary },
     });
   } catch (err) {
     next(err);
@@ -108,25 +113,30 @@ export async function getCourseStudentsAttendanceController(req, res, next) {
 
 // ======================================================
 // POST /api/attendance/mark-daily
-// Save full attendance register for course+date (bulk replace)
+// Save full attendance register for course+date or session (bulk replace)
 // ======================================================
 export async function markCourseAttendanceController(req, res, next) {
   try {
-    const { courseId, date, students = [] } = req.body;
+    const { courseId, date, sessionId, students = [] } = req.body;
 
     if (!courseId || !date) throw new BadRequestError("courseId and date are required.");
     if (students.length === 0) throw new BadRequestError("Student list is empty.");
 
     await verifyTeacherCourse(courseId, req.user);
 
-    const { start, end } = dayRange(date);
     const targetDate = toUTCDate(date);
 
-    // Full-replace: delete existing records for this course+date
-    await Attendance.deleteMany({
-      courseId,
-      date: { $gte: start, $lte: end },
-    });
+    if (sessionId && mongoose.Types.ObjectId.isValid(sessionId)) {
+      // Session replacement: delete by sessionId
+      await Attendance.deleteMany({ sessionId });
+    } else {
+      // Date replacement: delete by date range
+      const { start, end } = dayRange(date);
+      await Attendance.deleteMany({
+        courseId,
+        date: { $gte: start, $lte: end },
+      });
+    }
 
     const validStatuses = ["present", "absent", "late", "leave"];
     const records = students
@@ -139,6 +149,7 @@ export async function markCourseAttendanceController(req, res, next) {
         date: targetDate,
         status: validStatuses.includes(s.status) ? s.status : "present",
         remarks: s.remarks || "",
+        sessionId: (sessionId && mongoose.Types.ObjectId.isValid(sessionId)) ? sessionId : undefined,
       }));
 
     let saved = [];
@@ -146,9 +157,14 @@ export async function markCourseAttendanceController(req, res, next) {
       saved = await Attendance.insertMany(records);
     }
 
+    if (sessionId && mongoose.Types.ObjectId.isValid(sessionId)) {
+      await AttendanceSession.findByIdAndUpdate(sessionId, { marked: true });
+    }
+
     const payload = {
       courseId,
       date,
+      sessionId,
       count: saved.length,
       teacherId: req.user._id.toString(),
     };
@@ -158,7 +174,7 @@ export async function markCourseAttendanceController(req, res, next) {
     return res.status(200).json({
       success: true,
       message: `Attendance saved for ${saved.length} student(s).`,
-      data: { courseId, date, savedCount: saved.length },
+      data: { courseId, date, sessionId, savedCount: saved.length },
     });
   } catch (err) {
     next(err);
@@ -395,6 +411,93 @@ export async function getAttendanceStatsController(req, res, next) {
         lateCount: counts.late,
         leaveCount: counts.leave,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ======================================================
+// POST /api/attendance/sessions
+// Create a new attendance session
+// ======================================================
+export async function createAttendanceSessionController(req, res, next) {
+  try {
+    const { courseId, title, date, startTime, endTime, description } = req.body;
+
+    if (!courseId || !title || !date || !startTime || !endTime) {
+      throw new BadRequestError("courseId, title, date, startTime, and endTime are required.");
+    }
+
+    await verifyTeacherCourse(courseId, req.user);
+
+    const session = await AttendanceSession.create({
+      courseId,
+      teacherId: req.user._id,
+      title,
+      date: toUTCDate(date),
+      startTime,
+      endTime,
+      description: description || "",
+      marked: false,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Attendance session created successfully.",
+      data: session,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ======================================================
+// GET /api/attendance/course/:courseId/sessions
+// Get all attendance sessions for a course
+// ======================================================
+export async function getCourseSessionsController(req, res, next) {
+  try {
+    const { courseId } = req.params;
+
+    await verifyTeacherCourse(courseId, req.user);
+
+    const sessions = await AttendanceSession.find({ courseId }).sort({ date: -1, startTime: -1 });
+
+    return res.status(200).json({
+      success: true,
+      data: sessions,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ======================================================
+// DELETE /api/attendance/session/:sessionId
+// Delete an attendance session and its marked records
+// ======================================================
+export async function deleteAttendanceSessionController(req, res, next) {
+  try {
+    const { sessionId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(sessionId)) {
+      throw new BadRequestError("Invalid sessionId.");
+    }
+
+    const session = await AttendanceSession.findById(sessionId);
+    if (!session) throw new NotFoundError("Attendance session not found.");
+
+    await verifyTeacherCourse(session.courseId, req.user);
+
+    // Delete session records
+    await Attendance.deleteMany({ sessionId });
+    // Delete session
+    await AttendanceSession.findByIdAndDelete(sessionId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Attendance session and associated records deleted successfully.",
     });
   } catch (err) {
     next(err);

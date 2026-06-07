@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Check, X, Clock, Plane, Search, CheckCircle, AlertTriangle,
+  Check, X, Clock, Plane, Search,
   Users, Save, RefreshCw, ClipboardList, History, BarChart3,
-  ChevronDown, TrendingUp, BookOpen
+  TrendingUp, BookOpen
 } from "lucide-react";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
@@ -14,10 +14,14 @@ import { Avatar, AvatarFallback } from "../../../components/ui/Avatar";
 import {
   getCourseAttendanceStudents,
   markDailyAttendance,
+  createAttendanceSession,
+  getCourseAttendanceSessions,
+  deleteAttendanceSession,
 } from "../../../services/attendanceService";
 import { getTeacherCourses } from "../../../services/teacherService";
 import { useSocket } from "../../../context/SocketContext";
 import toast from "react-hot-toast";
+import { Plus, Trash2 } from "lucide-react";
 
 // ─── Status Config ────────────────────────────────────────────────────────────
 const STATUSES = [
@@ -58,7 +62,19 @@ export default function DailyAttendance() {
   const [studentsLoading, setStudentsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [bulkStatus, setBulkStatus] = useState("present");
+
+  // Session state variables
+  const [sessions, setSessions] = useState([]);
+  const [selectedSession, setSelectedSession] = useState("");
+  const [sessionModalOpen, setSessionModalOpen] = useState(false);
+  const [creatingSession, setCreatingSession] = useState(false);
+  const [newSessionData, setNewSessionData] = useState({
+    title: "",
+    date: new Date().toISOString().split("T")[0],
+    startTime: "09:00",
+    endTime: "10:00",
+    description: "",
+  });
 
   // ── Load Courses ──────────────────────────────────────────────────────────
   const loadCourses = useCallback(async () => {
@@ -78,13 +94,26 @@ export default function DailyAttendance() {
     }
   }, []);
 
+  // ── Load Sessions ──────────────────────────────────────────────────────────
+  const loadSessions = useCallback(async (courseId) => {
+    if (!courseId) return;
+    try {
+      const res = await getCourseAttendanceSessions(courseId);
+      if (res.data?.success) {
+        setSessions(res.data.data || []);
+      }
+    } catch {
+      toast.error("Failed to load sessions");
+    }
+  }, []);
+
   // ── Load Students ─────────────────────────────────────────────────────────
-  const loadStudents = useCallback(async (courseId, d) => {
+  const loadStudents = useCallback(async (courseId, d, sessId) => {
     if (!courseId) { setStudents([]); return; }
     try {
       setStudentsLoading(true);
       setDirty(false);
-      const res = await getCourseAttendanceStudents(courseId, d);
+      const res = await getCourseAttendanceStudents(courseId, d, sessId);
       if (res.data?.success) {
         setStudents(res.data.data || []);
       } else {
@@ -98,20 +127,103 @@ export default function DailyAttendance() {
     }
   }, []);
 
-  useEffect(() => { loadCourses(); }, [loadCourses]);
   useEffect(() => {
-    if (selectedCourse) loadStudents(selectedCourse, date);
-  }, [selectedCourse, date, loadStudents]);
+    const timer = setTimeout(() => {
+      loadCourses();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [loadCourses]);
+
+  useEffect(() => {
+    if (selectedCourse) {
+      const timer = setTimeout(() => {
+        loadSessions(selectedCourse);
+        setSelectedSession("");
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedCourse, loadSessions]);
+
+  useEffect(() => {
+    if (selectedCourse) {
+      const timer = setTimeout(() => {
+        loadStudents(selectedCourse, date, selectedSession);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedCourse, date, selectedSession, loadStudents]);
+
+  // ── Session Handlers ──────────────────────────────────────────────────────
+  const handleSessionChange = (sessId) => {
+    setSelectedSession(sessId);
+    if (sessId) {
+      const sess = sessions.find((s) => s._id === sessId);
+      if (sess) {
+        const dStr = new Date(sess.date).toISOString().split("T")[0];
+        setDate(dStr);
+      }
+    }
+  };
+
+  const handleCreateSessionSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedCourse) return toast.error("Please select a course first.");
+    if (!newSessionData.title.trim()) return toast.error("Session Title is required.");
+    try {
+      setCreatingSession(true);
+      const res = await createAttendanceSession({
+        courseId: selectedCourse,
+        ...newSessionData,
+      });
+      if (res.data?.success) {
+        toast.success("Session created successfully!");
+        setSessionModalOpen(false);
+        setNewSessionData({
+          title: "",
+          date: new Date().toISOString().split("T")[0],
+          startTime: "09:00",
+          endTime: "10:00",
+          description: "",
+        });
+        await loadSessions(selectedCourse);
+        setSelectedSession(res.data.data._id);
+        const dStr = new Date(res.data.data.date).toISOString().split("T")[0];
+        setDate(dStr);
+      } else {
+        toast.error(res.data?.message || "Failed to create session.");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to create session.");
+    } finally {
+      setCreatingSession(false);
+    }
+  };
+
+  const handleDeleteSessionClick = async (sessId) => {
+    if (!window.confirm("Are you sure you want to delete this session and all its marked attendance?")) return;
+    try {
+      const res = await deleteAttendanceSession(sessId);
+      if (res.data?.success) {
+        toast.success("Session deleted successfully!");
+        setSelectedSession("");
+        loadSessions(selectedCourse);
+      } else {
+        toast.error(res.data?.message || "Delete failed");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Delete failed");
+    }
+  };
 
   // ── Socket Sync ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (!socket) return;
     const handler = (data) => {
-      if (data.courseId === selectedCourse) loadStudents(selectedCourse, date);
+      if (data.courseId === selectedCourse) loadStudents(selectedCourse, date, selectedSession);
     };
     socket.on("attendanceUpdated", handler);
     return () => socket.off("attendanceUpdated", handler);
-  }, [socket, selectedCourse, date, loadStudents]);
+  }, [socket, selectedCourse, date, selectedSession, loadStudents]);
 
   // ── Change individual student status ─────────────────────────────────────
   const handleStatusChange = (id, status) => {
@@ -137,11 +249,13 @@ export default function DailyAttendance() {
     if (students.length === 0) return toast.error("No students to save.");
     try {
       setSaving(true);
-      const res = await markDailyAttendance({ courseId: selectedCourse, date, students });
+      const res = await markDailyAttendance({ courseId: selectedCourse, date, sessionId: selectedSession, students });
       if (res.data?.success) {
         toast.success(res.data.message || "Attendance saved!");
         setDirty(false);
-        socket?.emit("attendanceUpdated", { courseId: selectedCourse, date });
+        socket?.emit("attendanceUpdated", { courseId: selectedCourse, date, sessionId: selectedSession });
+        // Refresh session list to show marked as true
+        loadSessions(selectedCourse);
       } else {
         toast.error(res.data?.message || "Save failed.");
       }
@@ -221,7 +335,7 @@ export default function DailyAttendance() {
       </div>
 
       {/* ── Controls Row ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-card border border-border p-4 rounded-xl items-end shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 bg-card border border-border p-4 rounded-xl items-end shadow-sm">
         {/* Course */}
         <div>
           <label className="text-xs font-semibold mb-1.5 block text-muted-foreground uppercase tracking-wider">Course</label>
@@ -238,12 +352,59 @@ export default function DailyAttendance() {
             </select>
           )}
         </div>
+
+        {/* Session Dropdown & Management */}
+        <div>
+          <div className="flex justify-between items-center mb-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Session</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setSessionModalOpen(true)}
+                className="text-[10px] text-emerald-500 hover:text-emerald-600 font-bold transition-colors"
+              >
+                + Create
+              </button>
+              {selectedSession && (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteSessionClick(selectedSession)}
+                  className="text-[10px] text-red-500 hover:text-red-600 font-bold transition-colors"
+                >
+                  <Trash2 className="h-3 w-3 inline text-red-500" />
+                </button>
+              )}
+            </div>
+          </div>
+          <select
+            className="w-full h-10 rounded-lg border border-border bg-card text-foreground px-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            value={selectedSession}
+            onChange={(e) => handleSessionChange(e.target.value)}
+            id="session-select"
+          >
+            <option value="">Default Daily Roll Call</option>
+            {sessions.map((s) => (
+              <option key={s._id} value={s._id}>
+                {s.title} ({new Date(s.date).toLocaleDateString([], { month: "short", day: "numeric" })} {s.startTime}) {s.marked ? "✓" : "⚠"}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Date */}
         <div>
           <label className="text-xs font-semibold mb-1.5 block text-muted-foreground uppercase tracking-wider">Date</label>
-          <Input type="date" value={date} max={new Date().toISOString().split("T")[0]}
-            onChange={(e) => setDate(e.target.value)} className="h-10 text-sm" id="date-picker" />
+          <Input
+            type="date"
+            value={date}
+            max={new Date().toISOString().split("T")[0]}
+            onChange={(e) => setDate(e.target.value)}
+            className="h-10 text-sm"
+            id="date-picker"
+            disabled={!!selectedSession}
+          />
         </div>
+
         {/* Search */}
         <div>
           <label className="text-xs font-semibold mb-1.5 block text-muted-foreground uppercase tracking-wider">Search Student</label>
@@ -420,6 +581,115 @@ export default function DailyAttendance() {
               <Save className="h-3.5 w-3.5 mr-1" />
               Save Now
             </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Create Session Modal ── */}
+      <AnimatePresence>
+        {sessionModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-card border border-border rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
+            >
+              <div className="px-6 py-4 border-b border-border bg-muted/20 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <Plus className="h-5 w-5 text-emerald-500" />
+                  Create Attendance Session
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setSessionModalOpen(false)}
+                  className="text-muted-foreground hover:text-foreground text-sm font-semibold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateSessionSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-semibold mb-1 block text-muted-foreground">Session Title *</label>
+                  <Input
+                    required
+                    placeholder="e.g. Lecture 1: Course Overview"
+                    value={newSessionData.title}
+                    onChange={(e) => setNewSessionData(prev => ({ ...prev, title: e.target.value }))}
+                    className="h-10 text-sm border-border bg-background"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block text-muted-foreground">Date *</label>
+                    <Input
+                      type="date"
+                      required
+                      value={newSessionData.date}
+                      onChange={(e) => setNewSessionData(prev => ({ ...prev, date: e.target.value }))}
+                      className="h-10 text-sm border-border bg-background"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block text-muted-foreground">Start Time *</label>
+                    <Input
+                      type="time"
+                      required
+                      value={newSessionData.startTime}
+                      onChange={(e) => setNewSessionData(prev => ({ ...prev, startTime: e.target.value }))}
+                      className="h-10 text-sm border-border bg-background"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold mb-1 block text-muted-foreground">End Time *</label>
+                  <Input
+                    type="time"
+                    required
+                    value={newSessionData.endTime}
+                    onChange={(e) => setNewSessionData(prev => ({ ...prev, endTime: e.target.value }))}
+                    className="h-10 text-sm border-border bg-background"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold mb-1 block text-muted-foreground">Description</label>
+                  <textarea
+                    placeholder="Provide details about the session topics..."
+                    value={newSessionData.description}
+                    onChange={(e) => setNewSessionData(prev => ({ ...prev, description: e.target.value }))}
+                    rows={3}
+                    className="w-full text-sm p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                  />
+                </div>
+
+                <div className="flex gap-2 justify-end pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setSessionModalOpen(false)}
+                    className="h-10 text-sm"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={creatingSession}
+                    className="h-10 text-sm bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                  >
+                    {creatingSession ? "Creating..." : "Create Session"}
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

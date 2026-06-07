@@ -7,10 +7,23 @@ import {
   getAttendanceHistoryController,
   getAttendanceByDateController,
   getAttendanceStatsController,
+  createAttendanceSessionController,
+  getCourseSessionsController,
+  deleteAttendanceSessionController,
 } from "../controllers/attendance.controller.js";
 
 const router = Router();
 const teacherGuard = [authenticate, authorize("teacher", "super_admin")];
+
+// ── Attendance Session Management ─────────────────────────────────────────────
+// POST   /api/attendance/sessions
+router.post("/sessions", ...teacherGuard, createAttendanceSessionController);
+
+// GET    /api/attendance/course/:courseId/sessions
+router.get("/course/:courseId/sessions", ...teacherGuard, getCourseSessionsController);
+
+// DELETE /api/attendance/session/:sessionId
+router.delete("/session/:sessionId", ...teacherGuard, deleteAttendanceSessionController);
 
 // ── Student/Course Attendance ─────────────────────────────────────────────────
 // GET  /api/attendance/course/:courseId/students?date=YYYY-MM-DD

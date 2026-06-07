@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -12,7 +11,6 @@ import {
   Trophy,
   CheckSquare,
   User,
-  DollarSign,
   ChevronLeft,
   ChevronRight,
   Shield,
@@ -21,6 +19,7 @@ import {
   Bell,
   MessageSquare,
   X,
+  Calendar,
 } from "lucide-react";
 
 import { cn } from "../../utils/cn";
@@ -53,6 +52,11 @@ const studentNavItems = [
     icon: Trophy,
     label: "Certificates",
     path: "/student/certificates",
+  },
+  {
+    icon: Calendar,
+    label: "Attendance",
+    path: "/student/attendance",
   },
   {
     icon: MessageSquare,
@@ -99,6 +103,11 @@ const teacherNavItems = [
     icon: Trophy,
     label: "Certificates",
     path: "/teacher/certificates",
+  },
+  {
+    icon: Calendar,
+    label: "Attendance",
+    path: "/teacher/attendance",
   },
 ];
 
