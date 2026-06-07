@@ -1,6 +1,6 @@
 import { messageService } from "../services/message.service.js";
 
-import { getIO } from "../socket/index.js";
+import { getIO, ROOMS } from "../socket/index.js";
 
 // =====================================
 // GET ALL CONVERSATIONS
@@ -56,7 +56,7 @@ export async function getMessagesController(
     // Realtime Read Receipt
     const io = getIO();
 
-    io.to(`user:${otherId}`).emit(
+    io.to(ROOMS.student(otherId)).emit(
       "messages-read",
       {
         readerId: req.user._id,
@@ -103,13 +103,13 @@ export async function sendMessageController(
     const io = getIO();
 
     // Send To Recipient
-    io.to(`user:${recipientId}`).emit(
+    io.to(ROOMS.student(recipientId)).emit(
       "new-message",
       message
     );
 
     // Send To Sender
-    io.to(`user:${req.user._id}`).emit(
+    io.to(ROOMS.student(req.user._id)).emit(
       "message-sent",
       message
     );
@@ -145,7 +145,7 @@ export async function markMessagesReadController(
     // Realtime Read Receipt
     const io = getIO();
 
-    io.to(`user:${otherId}`).emit(
+    io.to(ROOMS.student(otherId)).emit(
       "messages-read",
       {
         readerId: req.user._id,

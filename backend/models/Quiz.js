@@ -70,6 +70,18 @@ const quizSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    shuffleOptions: {
+      type: Boolean,
+      default: false,
+    },
+    startDate: {
+      type: Date,
+      default: null,
+    },
+    endDate: {
+      type: Date,
+      default: null,
+    },
     negativeMarking: {
       type: Boolean,
       default: false,

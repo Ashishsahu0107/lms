@@ -42,7 +42,16 @@ const storage = multer.diskStorage({
 function fileFilter(_req, file, cb) {
   const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
   const videoTypes = ["video/mp4", "video/webm", "video/quicktime"];
-  const docTypes   = ["application/pdf"];
+  const docTypes   = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/zip",
+    "application/x-zip-compressed",
+    "application/x-zip"
+  ];
 
   const allowed = [...imageTypes, ...videoTypes, ...docTypes];
 

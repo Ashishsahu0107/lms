@@ -1,6 +1,39 @@
 import { BadRequestError, NotFoundError } from "../utils/errors.js";
 import { Assignment } from "../models/Assignment.js";
 import { Submission } from "../models/Submission.js";
+import { buildFileUrl } from "../middleware/upload.js";
+import { emitAssignmentGraded } from "../socket/index.js";
+
+// =====================================
+// UPLOAD FILE SUBMISSION (Student-facing, returns uploaded file URL)
+// =====================================
+export async function uploadSubmissionFileController(req, res, next) {
+  try {
+    if (!req.file) {
+      throw new BadRequestError("No file provided for upload");
+    }
+
+    let subdir = "documents";
+    if (req.file.mimetype.startsWith("image/")) {
+      subdir = "thumbnails";
+    } else if (req.file.mimetype.startsWith("video/")) {
+      subdir = "videos";
+    }
+
+    const fileUrl = buildFileUrl(req, req.file.filename, subdir);
+
+    return res.status(200).json({
+      success: true,
+      message: "File uploaded successfully",
+      data: {
+        filename: req.file.originalname,
+        url: fileUrl,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 
 // =====================================
 // SUBMIT ASSIGNMENT (Student-facing, handles resubmission)
@@ -45,6 +78,23 @@ export async function submitAssignmentController(req, res, next) {
         submittedAt: new Date(),
         status: submissionStatus,
       });
+    }
+
+    // Emit real-time submission alert to the teacher
+    try {
+      const teacherId = assignment.createdBy.toString();
+      const payload = {
+        submissionId: submission._id,
+        assignmentId: assignment._id,
+        studentId: req.user._id,
+        studentName: req.user.name,
+        title: assignment.title,
+        submittedAt: submission.submittedAt,
+      };
+      const { emitAssignmentSubmitted } = await import("../socket/index.js");
+      emitAssignmentSubmitted(teacherId, payload);
+    } catch (e) {
+      console.error("Failed to emit assignment submission socket event:", e);
     }
 
     return res.status(201).json({
@@ -126,11 +176,7 @@ export async function getSubmissionByIdController(req, res, next) {
 export async function reviewSubmissionController(req, res, next) {
   try {
     const { id } = req.params;
-    const { marks, feedback } = req.body ?? {};
-
-    if (marks === undefined || marks === null) {
-      throw new BadRequestError("Marks/Grade score is required");
-    }
+    const { marks, feedback, rubricEvaluation } = req.body ?? {};
 
     const submission = await Submission.findById(id).populate("assignmentId");
     if (!submission) {
@@ -138,18 +184,42 @@ export async function reviewSubmissionController(req, res, next) {
     }
 
     const assignment = submission.assignmentId;
-    
+    let finalMarks = marks;
+
+    // If rubricEvaluation is provided, calculate finalMarks from sum of scores
+    if (Array.isArray(rubricEvaluation) && rubricEvaluation.length > 0) {
+      finalMarks = rubricEvaluation.reduce((sum, item) => sum + (Number(item.score) || 0), 0);
+      submission.rubricEvaluation = rubricEvaluation;
+    } else if (marks === undefined || marks === null) {
+      throw new BadRequestError("Marks/Grade score or Rubric evaluation breakdown is required");
+    }
+
     // Verify score boundary
-    if (Number(marks) > assignment.totalMarks) {
+    if (Number(finalMarks) > assignment.totalMarks) {
       throw new BadRequestError(
-        `Grade score (${marks}) cannot exceed total marks of ${assignment.totalMarks} allowed for this assignment.`
+        `Grade score (${finalMarks}) cannot exceed total marks of ${assignment.totalMarks} allowed for this assignment.`
       );
     }
 
-    submission.marks = Number(marks);
+    submission.marks = Number(finalMarks);
     submission.feedback = feedback || "";
     submission.status = "graded";
     await submission.save();
+
+    // Emit real-time graded alert to the student
+    try {
+      const payload = {
+        submissionId: submission._id,
+        assignmentId: assignment._id,
+        title: assignment.title,
+        marks: submission.marks,
+        feedback: submission.feedback,
+        rubricEvaluation: submission.rubricEvaluation,
+      };
+      emitAssignmentGraded(submission.studentId.toString(), payload);
+    } catch (e) {
+      console.error("Failed to emit assignment graded socket event:", e);
+    }
 
     return res.status(200).json({
       success: true,

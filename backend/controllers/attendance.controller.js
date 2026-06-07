@@ -1,7 +1,7 @@
 import { Attendance } from "../models/Attendance.js";
 import { Course } from "../models/Course.js";
 import { Enrollment } from "../models/Enrollment.js";
-import { getIO } from "../socket/index.js";
+import { getIO, ROOMS, emitAttendanceMarked } from "../socket/index.js";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../utils/errors.js";
 import mongoose from "mongoose";
 
@@ -146,9 +146,14 @@ export async function markCourseAttendanceController(req, res, next) {
       saved = await Attendance.insertMany(records);
     }
 
-    getIO().to("teacher:dashboard").emit("attendanceUpdated", {
-      courseId, date, count: saved.length, teacherId: req.user._id.toString(),
-    });
+    const payload = {
+      courseId,
+      date,
+      count: saved.length,
+      teacherId: req.user._id.toString(),
+    };
+    getIO().to(ROOMS.TEACHER_DASHBOARD).emit("attendanceUpdated", payload);
+    emitAttendanceMarked(courseId, payload);
 
     return res.status(200).json({
       success: true,
@@ -194,9 +199,12 @@ export async function updateAttendanceController(req, res, next) {
     record.markedBy = req.user._id;
     await record.save();
 
-    getIO().to("teacher:dashboard").emit("attendanceUpdated", {
-      attendanceId, status: record.status,
-    });
+    const payload = {
+      attendanceId,
+      status: record.status,
+    };
+    getIO().to(ROOMS.TEACHER_DASHBOARD).emit("attendanceUpdated", payload);
+    emitAttendanceMarked(record.courseId.toString(), payload);
 
     return res.status(200).json({
       success: true,

@@ -41,6 +41,25 @@ const submissionSchema = new mongoose.Schema(
       default: "pending",
       index: true,
     },
+    rubricEvaluation: [
+      {
+        criterionTitle: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        score: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        feedback: {
+          type: String,
+          default: "",
+          trim: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

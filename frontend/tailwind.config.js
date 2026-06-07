@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import flyonui from "flyonui";
 
 export default {
   darkMode: ["class"],
@@ -193,6 +194,6 @@ export default {
   },
 
   plugins: [
-    require("flyonui"),
+    flyonui,
   ],
 };

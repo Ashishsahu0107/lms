@@ -95,6 +95,9 @@ export async function createQuizController(req, res, next) {
       quizType,
       attemptLimit,
       shuffleQuestions,
+      shuffleOptions,
+      startDate,
+      endDate,
       negativeMarking,
       status,
       questions, // Array of Question objects
@@ -119,6 +122,9 @@ export async function createQuizController(req, res, next) {
       quizType: quizType || "exam",
       attemptLimit: attemptLimit !== undefined ? Number(attemptLimit) : 1,
       shuffleQuestions: !!shuffleQuestions,
+      shuffleOptions: !!shuffleOptions,
+      startDate: startDate || null,
+      endDate: endDate || null,
       negativeMarking: !!negativeMarking,
       status: status || "published",
       questions: [],
@@ -146,6 +152,17 @@ export async function createQuizController(req, res, next) {
       await quiz.save();
     }
 
+    // Emit live socket events
+    try {
+      const { emitQuizCreated, emitQuizPublished } = await import("../socket/index.js");
+      emitQuizCreated(quiz);
+      if (quiz.status === "published") {
+        emitQuizPublished(quiz);
+      }
+    } catch (e) {
+      console.error("Failed to emit quizCreated socket event:", e);
+    }
+
     return res.status(201).json({
       success: true,
       message: "Quiz and question cards created successfully",
@@ -168,6 +185,8 @@ export async function updateQuizController(req, res, next) {
     if (!quiz) {
       throw new NotFoundError("Quiz not found");
     }
+
+    const oldStatus = quiz.status;
 
     // Apply updates on base Quiz
     Object.assign(quiz, quizUpdates);
@@ -194,6 +213,17 @@ export async function updateQuizController(req, res, next) {
     }
 
     await quiz.save();
+
+    // Emit live socket events
+    try {
+      const { emitQuizUpdated, emitQuizPublished } = await import("../socket/index.js");
+      emitQuizUpdated(quiz);
+      if (quiz.status === "published" && oldStatus !== "published") {
+        emitQuizPublished(quiz);
+      }
+    } catch (e) {
+      console.error("Failed to emit quizUpdated socket event:", e);
+    }
 
     return res.status(200).json({
       success: true,
@@ -308,6 +338,164 @@ export async function getQuizAnalyticsController(req, res, next) {
         leaderboard,
         attemptsHistory: attempts.slice(0, 30), // Return recent 30 attempts for logs
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
+// GET QUESTION BANK (Teacher only)
+// =====================================
+export async function getQuestionBankController(req, res, next) {
+  try {
+    let query = {};
+    if (req.user.role !== "super_admin") {
+      const quizzes = await Quiz.find({ createdBy: req.user._id }).select("_id");
+      const quizIds = quizzes.map(q => q._id);
+      query = { quizId: { $in: quizIds } };
+    }
+    const questions = await Question.find(query).populate("quizId", "title");
+    return res.status(200).json({
+      success: true,
+      message: "Question bank fetched successfully",
+      data: questions,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
+// CLONE QUIZ
+// =====================================
+export async function cloneQuizController(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const originalQuiz = await Quiz.findById(id);
+    if (!originalQuiz) {
+      throw new NotFoundError("Quiz to clone not found");
+    }
+
+    // Create cloned quiz document
+    const cloneData = {
+      title: `Copy of ${originalQuiz.title}`,
+      description: originalQuiz.description,
+      instructions: originalQuiz.instructions,
+      courseId: originalQuiz.courseId,
+      moduleId: originalQuiz.moduleId,
+      topicId: originalQuiz.topicId,
+      createdBy: req.user._id,
+      duration: originalQuiz.duration,
+      totalMarks: originalQuiz.totalMarks,
+      passingMarks: originalQuiz.passingMarks,
+      quizType: originalQuiz.quizType,
+      attemptLimit: originalQuiz.attemptLimit,
+      shuffleQuestions: originalQuiz.shuffleQuestions,
+      shuffleOptions: originalQuiz.shuffleOptions,
+      startDate: originalQuiz.startDate,
+      endDate: originalQuiz.endDate,
+      negativeMarking: originalQuiz.negativeMarking,
+      status: "draft", // default to draft
+      questions: [],
+    };
+
+    const clonedQuiz = await Quiz.create(cloneData);
+
+    // Fetch and clone questions
+    const originalQuestions = await Question.find({ quizId: id });
+    if (originalQuestions.length > 0) {
+      const clonedQuestionsData = originalQuestions.map((q) => ({
+        quizId: clonedQuiz._id,
+        type: q.type,
+        question: q.question,
+        options: q.options || [],
+        correctAnswer: q.correctAnswer || [],
+        explanation: q.explanation || "",
+        marks: q.marks,
+        difficulty: q.difficulty,
+      }));
+
+      const createdQuestions = await Question.insertMany(clonedQuestionsData);
+      clonedQuiz.questions = createdQuestions.map(q => q._id);
+      await clonedQuiz.save();
+    }
+
+    // Emit socket event for quiz creation
+    try {
+      const { emitQuizCreated } = await import("../socket/index.js");
+      emitQuizCreated(clonedQuiz);
+    } catch (e) {
+      console.error("Failed to emit quizCreated socket event for clone:", e);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Quiz cloned successfully",
+      data: clonedQuiz,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// =====================================
+// BULK IMPORT QUESTIONS
+// =====================================
+export async function bulkImportQuestionsController(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { questions } = req.body ?? {};
+
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      throw new BadRequestError("Questions array is required and must not be empty");
+    }
+
+    const quiz = await Quiz.findById(id);
+    if (!quiz) {
+      throw new NotFoundError("Quiz not found");
+    }
+
+    const questionsData = questions.map((q) => {
+      if (!q.question || !q.type) {
+        throw new BadRequestError("Each imported question must contain a 'question' and a 'type' field");
+      }
+      return {
+        quizId: id,
+        type: q.type,
+        question: q.question,
+        options: q.options || [],
+        correctAnswer: q.correctAnswer || [],
+        explanation: q.explanation || "",
+        marks: Number(q.marks) || 5,
+        difficulty: q.difficulty || "medium",
+      };
+    });
+
+    const createdQuestions = await Question.insertMany(questionsData);
+    const questionRefs = createdQuestions.map((q) => q._id);
+
+    quiz.questions = [...(quiz.questions || []), ...questionRefs];
+    
+    // Increment total marks by newly added questions marks
+    const sumMarks = createdQuestions.reduce((sum, q) => sum + q.marks, 0);
+    quiz.totalMarks = (quiz.totalMarks || 0) + sumMarks;
+
+    await quiz.save();
+
+    // Emit socket event for quiz update
+    try {
+      const { emitQuizUpdated } = await import("../socket/index.js");
+      emitQuizUpdated(quiz);
+    } catch (e) {
+      console.error("Failed to emit quizUpdated socket event for bulk import:", e);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `${createdQuestions.length} questions imported successfully`,
+      data: quiz,
     });
   } catch (err) {
     next(err);

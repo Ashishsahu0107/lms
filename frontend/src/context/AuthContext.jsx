@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
     return saved && token ? JSON.parse(saved) : null;
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(false);
   
   useEffect(() => {
     if (user) {
@@ -18,7 +18,6 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     }
-    setIsLoading(false);
   }, [user]);
 
   const login = (userData) => {

@@ -67,6 +67,19 @@ export async function startAttemptController(req, res, next) {
       timeSpent: 0,
     });
 
+    // Emit quizStarted event
+    try {
+      const { emitQuizStarted } = await import("../socket/index.js");
+      emitQuizStarted(quiz.courseId.toString(), {
+        attemptId: attempt._id,
+        quizId: quiz._id,
+        studentId: req.user._id,
+        studentName: req.user.name,
+      });
+    } catch (e) {
+      console.error("Failed to emit quizStarted socket event:", e);
+    }
+
     // Strip correctAnswer and explanation keys from questions to prevent cheating in devtools!
     const secureQuestions = questionsList.map((q) => ({
       _id: q._id,
@@ -87,6 +100,9 @@ export async function startAttemptController(req, res, next) {
         passingMarks: quiz.passingMarks,
         title: quiz.title,
         instructions: quiz.instructions,
+        shuffleOptions: !!quiz.shuffleOptions,
+        startDate: quiz.startDate,
+        endDate: quiz.endDate,
         questions: secureQuestions,
       },
     });
@@ -219,6 +235,31 @@ export async function submitAttemptController(req, res, next) {
     attempt.submittedAt = new Date();
 
     await attempt.save();
+
+    // Emit real-time quiz submission event
+    try {
+      let teacherId = null;
+      const { Course } = await import("../models/Course.js");
+      const course = await Course.findById(quiz.courseId);
+      if (course) {
+        teacherId = course.teacherId.toString();
+      }
+
+      const { emitQuizSubmitted } = await import("../socket/index.js");
+      emitQuizSubmitted(quiz.courseId.toString(), teacherId, {
+        attemptId: attempt._id,
+        quizId: quiz._id,
+        quizTitle: quiz.title,
+        studentId: req.user._id,
+        studentName: req.user.name,
+        score: attempt.score,
+        totalMarks: quiz.totalMarks,
+        accuracy: attempt.accuracy,
+        submittedAt: attempt.submittedAt,
+      });
+    } catch (e) {
+      console.error("Failed to emit quiz submission socket event:", e);
+    }
 
     return res.status(200).json({
       success: true,

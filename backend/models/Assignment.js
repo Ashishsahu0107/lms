@@ -71,6 +71,25 @@ const assignmentSchema = new mongoose.Schema(
       default: "published",
       index: true,
     },
+    rubric: [
+      {
+        criterion: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        maxPoints: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        description: {
+          type: String,
+          default: "",
+          trim: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

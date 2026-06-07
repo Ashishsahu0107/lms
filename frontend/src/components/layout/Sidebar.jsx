@@ -216,7 +216,7 @@ export function Sidebar({
   // ============================================
   // SIDEBAR CONTENT
   // ============================================
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <div className="flex h-full flex-col bg-base-100">
 
       {/* LOGO */}
@@ -427,7 +427,7 @@ export function Sidebar({
         className="fixed left-0 top-0 z-50 h-screen w-72 border-r border-base-300 shadow-2xl lg:hidden"
       >
 
-        <SidebarContent />
+        {renderSidebarContent()}
 
       </motion.aside>
 
@@ -441,7 +441,7 @@ export function Sidebar({
         )}
       >
 
-        <SidebarContent />
+        {renderSidebarContent()}
 
       </aside>
     </>

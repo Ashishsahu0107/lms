@@ -65,6 +65,22 @@ export async function assignCourseController(req, res, next) {
       await course.save();
     }
 
+    // Emit live student enrollment socket event
+    try {
+      const student = await User.findById(targetStudentId).select("name").lean();
+      const studentName = student ? student.name : "A student";
+      const { emitStudentJoined } = await import("../socket/index.js");
+      emitStudentJoined({
+        studentId: targetStudentId,
+        studentName,
+        courseId,
+        courseTitle: course.title,
+        enrolledAt: enrollment.createdAt || new Date(),
+      });
+    } catch (e) {
+      console.error("Failed to emit studentJoined socket event:", e);
+    }
+
     return res.status(201).json({
       success: true,
       message: "Course successfully assigned to student",
@@ -151,6 +167,21 @@ export async function markTopicProgressController(req, res, next) {
     }
 
     await enrollment.save();
+
+    // Emit live student topic progress update socket event
+    try {
+      const { emitProgressUpdated } = await import("../socket/index.js");
+      emitProgressUpdated(req.user._id.toString(), {
+        studentId: req.user._id.toString(),
+        studentName: req.user.name,
+        courseId,
+        progress: enrollment.progress,
+        completed: !!completed,
+        topicId,
+      });
+    } catch (e) {
+      console.error("Failed to emit progressUpdated socket event:", e);
+    }
 
     return res.status(200).json({
       success: true,

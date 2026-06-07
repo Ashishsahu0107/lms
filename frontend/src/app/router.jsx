@@ -38,6 +38,7 @@ import {
   Search,
   Sun,
   Moon,
+  RefreshCw,
 } from "lucide-react";
 
 import { motion } from "framer-motion";
@@ -544,8 +545,10 @@ function DashboardLayout() {
 
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setSearchResults({});
-      return;
+      const timer = setTimeout(() => {
+        setSearchResults({});
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
     setSearchLoading(true);

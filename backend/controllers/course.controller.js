@@ -4,7 +4,7 @@ import { Course } from "../models/Course.js";
 import { Module } from "../models/Module.js";
 import { Topic } from "../models/Topic.js";
 import { Enrollment } from "../models/Enrollment.js";
-import { getIO } from "../socket/index.js";
+import { getIO, emitCourseCreated, emitCourseUpdated, emitCourseDeleted } from "../socket/index.js";
 import { deleteUploadedFile, buildFileUrl } from "../middleware/upload.js";
 
 // ──────────────────────────────────────────────────────────
@@ -169,8 +169,7 @@ export async function createCourseController(req, res, next) {
       students:    [],
     });
 
-    const io = getIO();
-    io.emit("course-created", { courseId: course._id, teacherId: req.user._id });
+    emitCourseCreated(course);
 
     return res.status(201).json({
       success: true,
@@ -239,8 +238,7 @@ export async function updateCourseController(req, res, next) {
 
     if (!course) throw new NotFoundError("Course not found");
 
-    const io = getIO();
-    io.emit("course-updated", { courseId: course._id, updatedBy: req.user._id });
+    emitCourseUpdated(course);
 
     return res.status(200).json({
       success: true,
@@ -277,8 +275,7 @@ export async function deleteCourseController(req, res, next) {
       deleteUploadedFile(course.thumbnailKey);
     }
 
-    const io = getIO();
-    io.emit("course-deleted", { courseId: id, deletedBy: req.user._id });
+    emitCourseDeleted(id, req.user._id);
 
     return res.status(200).json({
       success: true,

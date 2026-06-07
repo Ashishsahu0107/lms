@@ -3,7 +3,7 @@ import { Assignment } from "../models/Assignment.js";
 import { Course } from "../models/Course.js";
 import { Enrollment } from "../models/Enrollment.js";
 import { Submission } from "../models/Submission.js";
-import { getIO } from "../socket/index.js";
+import { getIO, emitAssignmentCreated } from "../socket/index.js";
 
 // =====================================
 // GET COURSE-WISE ASSIGNMENTS
@@ -102,6 +102,7 @@ export async function createAssignmentController(req, res, next) {
       totalMarks,
       assignmentType,
       generatedFromDocument,
+      rubric,
     } = req.body ?? {};
 
     if (!title || !courseId || !dueDate) {
@@ -121,14 +122,15 @@ export async function createAssignmentController(req, res, next) {
       assignmentType: assignmentType || "written",
       generatedFromDocument: !!generatedFromDocument,
       createdBy: req.user._id,
+      rubric: rubric || [],
     });
 
     // Notify clients in real-time
-    const io = getIO();
-    io.emit("assignment-created", {
-      assignment,
-      courseId,
-    });
+    try {
+      emitAssignmentCreated(courseId.toString(), assignment);
+    } catch (e) {
+      console.error("Socket emit failed in createAssignmentController:", e);
+    }
 
     return res.status(201).json({
       success: true,

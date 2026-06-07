@@ -23,20 +23,17 @@ export function DashboardLayout({
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] =
     useState(false);
 
-  const [isDarkMode, setIsDarkMode] =
-    useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme === "dark";
+  });
 
   // =========================
   // THEME
   // =========================
   useEffect(() => {
-    const savedTheme =
-      localStorage.getItem("theme");
-
-    const isDark =
-      savedTheme === "dark";
-
-    setIsDarkMode(isDark);
+    const savedTheme = localStorage.getItem("theme");
+    const isDark = savedTheme === "dark";
 
     document.documentElement.classList.toggle(
       "dark",
