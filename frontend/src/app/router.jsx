@@ -54,162 +54,141 @@ import { AuthModalProvider } from "../context/AuthModalContext";
 // ===============================
 
 // AUTH
-const LoginPage = lazy(() =>
-  import("../pages/auth/LoginPage")
-);
+const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 
-const CourseDetails = lazy(() =>
-  import("../pages/courses/CourseDetails")
-);
+const CourseDetails = lazy(() => import("../pages/courses/CourseDetails"));
 
-const RegisterPage = lazy(() =>
-  import("../pages/auth/RegisterPage")
-);
+const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
 
 // STUDENT
-const StudentDashboard = lazy(() =>
-  import("../pages/student/dashboard/Dashboard")
+const StudentDashboard = lazy(
+  () => import("../pages/student/dashboard/Dashboard"),
 );
 
-const MyCourses = lazy(() =>
-  import("../pages/student/courses/MyCourses")
+const MyCourses = lazy(() => import("../pages/student/courses/MyCourses"));
+
+const Assignments = lazy(
+  () => import("../pages/student/assignments/Assignments"),
 );
 
-const Assignments = lazy(() =>
-  import("../pages/student/assignments/Assignments")
+const Quiz = lazy(() => import("../pages/student/quiz/Quiz"));
+
+const Messages = lazy(() => import("../pages/student/messages/Messages"));
+
+const Certificates = lazy(
+  () => import("../pages/student/certificates/Certificates"),
 );
 
-const Quiz = lazy(() =>
-  import("../pages/student/quiz/Quiz")
-);
-
-const Messages = lazy(() =>
-  import("../pages/student/messages/Messages")
-);
-
-const Certificates = lazy(() =>
-  import("../pages/student/certificates/Certificates")
-);
-
-const SettingsPage = lazy(() =>
-  import("../pages/student/settings/Settings")
-);
+const SettingsPage = lazy(() => import("../pages/student/settings/Settings"));
 
 // TEACHER
-const TeacherDashboard = lazy(() =>
-  import("../pages/teacher/dashboard/TeacherDashboard")
+const TeacherDashboard = lazy(
+  () => import("../pages/teacher/dashboard/TeacherDashboard"),
 );
 
-const CourseManagement = lazy(() =>
-  import("../pages/teacher/courses/CourseManagement")
+const CourseManagement = lazy(
+  () => import("../pages/teacher/courses/CourseManagement"),
 );
 
-const TeacherQuizzes = lazy(() =>
-  import("../pages/teacher/quizzes/TeacherQuizManagement")
+const TeacherQuizzes = lazy(
+  () => import("../pages/teacher/quizzes/TeacherQuizManagement"),
 );
 
-const TeacherAssignments = lazy(() =>
-  import("../pages/teacher/assignments/TeacherAssignmentManagement")
+const TeacherAssignments = lazy(
+  () => import("../pages/teacher/assignments/TeacherAssignmentManagement"),
 );
 
-const TeacherProgress = lazy(() =>
-  import("../pages/teacher/progress/TeacherStudentProgress")
+const TeacherProgress = lazy(
+  () => import("../pages/teacher/progress/TeacherStudentProgress"),
 );
 
-const TeacherAttendance = lazy(() =>
-  import("../pages/teacher/attendance/TeacherAttendance")
+const TeacherAttendance = lazy(
+  () => import("../pages/teacher/attendance/TeacherAttendance"),
 );
 
 // ADMIN
-const AdminDashboard = lazy(() =>
-  import("../pages/superadmin/dashboard/AdminDashboard")
+const AdminDashboard = lazy(
+  () => import("../pages/superadmin/dashboard/AdminDashboard"),
 );
 
-const AdminTeachers = lazy(() =>
-  import("../pages/superadmin/teachers/AdminTeachers")
+const AdminTeachers = lazy(
+  () => import("../pages/superadmin/teachers/AdminTeachers"),
 );
 
-const AdminStudents = lazy(() =>
-  import("../pages/superadmin/students/AdminStudents")
+const AdminStudents = lazy(
+  () => import("../pages/superadmin/students/AdminStudents"),
 );
 
-const AdminCourses = lazy(() =>
-  import("../pages/superadmin/courses/AdminCourses")
+const AdminCourses = lazy(
+  () => import("../pages/superadmin/courses/AdminCourses"),
 );
 
-const AdminReports = lazy(() =>
-  import("../pages/superadmin/reports/AdminReports")
+const AdminReports = lazy(
+  () => import("../pages/superadmin/reports/AdminReports"),
 );
 
-const AdminAnalytics = lazy(() =>
-  import("../pages/admin/analytics/AnalyticsDashboard")
+const AdminAnalytics = lazy(
+  () => import("../pages/admin/analytics/AnalyticsDashboard"),
 );
 
-const AdminNotifications = lazy(() =>
-  import("../pages/superadmin/notifications/AdminNotifications")
+const AdminNotifications = lazy(
+  () => import("../pages/superadmin/notifications/AdminNotifications"),
 );
 
-const AdminSecurity = lazy(() =>
-  import("../pages/superadmin/security/AdminSecurity")
+const AdminSecurity = lazy(
+  () => import("../pages/superadmin/security/AdminSecurity"),
 );
 
-const AdminSettings = lazy(() =>
-  import("../pages/superadmin/settings/AdminSettings")
+const AdminSettings = lazy(
+  () => import("../pages/superadmin/settings/AdminSettings"),
 );
 
 // CERTIFICATE UPGRADES
-const TeacherCertificates = lazy(() =>
-  import("../pages/teacher/certificates/StudentCertificates")
+const TeacherCertificates = lazy(
+  () => import("../pages/teacher/certificates/StudentCertificates"),
 );
-const TeacherIssueCertificate = lazy(() =>
-  import("../pages/teacher/certificates/IssueCertificate")
+const TeacherIssueCertificate = lazy(
+  () => import("../pages/teacher/certificates/IssueCertificate"),
 );
-const AdminCertificates = lazy(() =>
-  import("../pages/admin/certificates/CertificateDashboard")
+const AdminCertificates = lazy(
+  () => import("../pages/admin/certificates/CertificateDashboard"),
 );
-const AdminIssueCertificate = lazy(() =>
-  import("../pages/admin/certificates/IssueCertificate")
+const AdminIssueCertificate = lazy(
+  () => import("../pages/admin/certificates/IssueCertificate"),
 );
-const AdminCertificateTemplates = lazy(() =>
-  import("../pages/admin/certificates/CertificateTemplates")
+const AdminCertificateTemplates = lazy(
+  () => import("../pages/admin/certificates/CertificateTemplates"),
 );
-const AdminCertificateHistory = lazy(() =>
-  import("../pages/admin/certificates/CertificateHistory")
+const AdminCertificateHistory = lazy(
+  () => import("../pages/admin/certificates/CertificateHistory"),
 );
-
 
 // ASSIGNMENT UPGRADES
-const AssignmentDetails = lazy(() =>
-  import("../pages/assignments/AssignmentDetails")
+const AssignmentDetails = lazy(
+  () => import("../pages/assignments/AssignmentDetails"),
 );
 
-const ReviewSubmission = lazy(() =>
-  import("../pages/assignments/ReviewSubmission")
+const ReviewSubmission = lazy(
+  () => import("../pages/assignments/ReviewSubmission"),
 );
 
-const AdminAssignments = lazy(() =>
-  import("../pages/superadmin/assignments/AdminAssignments")
+const AdminAssignments = lazy(
+  () => import("../pages/superadmin/assignments/AdminAssignments"),
 );
 
 // QUIZ UPGRADES
-const QuizAttempt = lazy(() =>
-  import("../pages/student/quiz/QuizAttempt")
+const QuizAttempt = lazy(() => import("../pages/student/quiz/QuizAttempt"));
+
+const QuizResult = lazy(() => import("../pages/student/quiz/QuizResult"));
+
+const CreateQuiz = lazy(() => import("../pages/teacher/quizzes/CreateQuiz"));
+
+const QuizAnalytics = lazy(
+  () => import("../pages/teacher/quizzes/QuizAnalytics"),
 );
 
-const QuizResult = lazy(() =>
-  import("../pages/student/quiz/QuizResult")
-);
-
-const CreateQuiz = lazy(() =>
-  import("../pages/teacher/quizzes/CreateQuiz")
-);
-
-const QuizAnalytics = lazy(() =>
-  import("../pages/teacher/quizzes/QuizAnalytics")
-);
-
-const AdminQuizzes = lazy(() =>
-  import("../pages/superadmin/quizzes/AdminQuizzes")
+const AdminQuizzes = lazy(
+  () => import("../pages/superadmin/quizzes/AdminQuizzes"),
 );
 
 // ADVANCED PLATFORM UPGRADES
@@ -220,20 +199,29 @@ const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
 const LandingPage = lazy(() => import("../pages/landing/LandingPage"));
 
 const MyNotes = lazy(() => import("../pages/student/notes/MyNotes"));
-const NotesDashboard = lazy(() => import("../pages/teacher/notes/NotesDashboard"));
+const NotesDashboard = lazy(
+  () => import("../pages/teacher/notes/NotesDashboard"),
+);
 
-const CalendarDashboard = lazy(() => import("../pages/shared/CalendarDashboard"));
+const CalendarDashboard = lazy(
+  () => import("../pages/shared/CalendarDashboard"),
+);
 const ScheduleManager = lazy(() => import("../pages/shared/ScheduleManager"));
 const LiveClasses = lazy(() => import("../pages/shared/LiveClasses"));
 
-const Achievements = lazy(() => import("../pages/student/gamification/Achievements"));
-const Leaderboard = lazy(() => import("../pages/student/gamification/Leaderboard"));
+const Achievements = lazy(
+  () => import("../pages/student/gamification/Achievements"),
+);
+const Leaderboard = lazy(
+  () => import("../pages/student/gamification/Leaderboard"),
+);
 
 const AIAssistant = lazy(() => import("../pages/shared/AIAssistant"));
 const AIAnalytics = lazy(() => import("../pages/shared/AIAnalytics"));
 
-const GlobalControls = lazy(() => import("../pages/admin/controls/GlobalControls"));
-
+const GlobalControls = lazy(
+  () => import("../pages/admin/controls/GlobalControls"),
+);
 
 // ===============================
 // LOADER
@@ -250,11 +238,7 @@ function Loader() {
 // PAGE WRAPPER
 // ===============================
 function PageWrapper({ children }) {
-  return (
-    <Suspense fallback={<Loader />}>
-      {children}
-    </Suspense>
-  );
+  return <Suspense fallback={<Loader />}>{children}</Suspense>;
 }
 
 // ===============================
@@ -591,10 +575,22 @@ function DashboardLayout() {
     >
       {/* LUXURY GOLD GLOW ORBS */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-8"
-          style={{ background: "radial-gradient(circle, rgba(201,162,39,0.3) 0%, transparent 70%)", filter: "blur(80px)" }} />
-        <div className="absolute bottom-1/4 right-0 w-80 h-80 rounded-full opacity-6"
-          style={{ background: "radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%)", filter: "blur(70px)" }} />
+        <div
+          className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-8"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(201,162,39,0.3) 0%, transparent 70%)",
+            filter: "blur(80px)",
+          }}
+        />
+        <div
+          className="absolute bottom-1/4 right-0 w-80 h-80 rounded-full opacity-6"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%)",
+            filter: "blur(70px)",
+          }}
+        />
       </div>
 
       <div className="flex relative z-10">
@@ -617,39 +613,79 @@ function DashboardLayout() {
           }}
         >
           {/* Logo */}
-          <div className="flex items-center justify-between px-6 py-5"
-            style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}>
+          <div
+            className="flex items-center justify-between px-6 py-5"
+            style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}
+          >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)" }}>
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{
+                  background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+                }}
+              >
                 <Sparkles className="h-5 w-5 text-slate-950" />
               </div>
               <div>
-                <h1 className="text-lg font-black tracking-tight" style={{ color: "#C9A227" }}>LMS <span className="text-white">PRO</span></h1>
-                <p className="text-[9px] uppercase font-bold tracking-widest" style={{ color: "rgba(201,162,39,0.6)" }}>Enterprise Suite</p>
+                <h1
+                  className="text-lg font-black tracking-tight"
+                  style={{ color: "#C9A227" }}
+                >
+                  LMS <span className="text-white">PRO</span>
+                </h1>
+                <p
+                  className="text-[9px] uppercase font-bold tracking-widest"
+                  style={{ color: "rgba(201,162,39,0.6)" }}
+                >
+                  Enterprise Suite
+                </p>
               </div>
             </div>
-            <button className="p-1.5 rounded-lg lg:hidden" style={{ background: "rgba(255,255,255,0.05)" }}
-              onClick={() => setSidebarOpen(false)}>
+            <button
+              className="p-1.5 rounded-lg lg:hidden"
+              style={{ background: "rgba(255,255,255,0.05)" }}
+              onClick={() => setSidebarOpen(false)}
+            >
               <X className="h-4 w-4 text-slate-400" />
             </button>
           </div>
 
           {/* User Card */}
-          <div className="px-4 py-4" style={{ borderBottom: "1px solid rgba(201,162,39,0.08)" }}>
-            <div className="flex items-center gap-3 p-3 rounded-2xl"
-              style={{ background: "rgba(201,162,39,0.06)", border: "1px solid rgba(201,162,39,0.12)" }}>
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0"
-                style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A" }}>
+          <div
+            className="px-4 py-4"
+            style={{ borderBottom: "1px solid rgba(201,162,39,0.08)" }}
+          >
+            <div
+              className="flex items-center gap-3 p-3 rounded-2xl"
+              style={{
+                background: "rgba(201,162,39,0.06)",
+                border: "1px solid rgba(201,162,39,0.12)",
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0"
+                style={{
+                  background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+                  color: "#0F172A",
+                }}
+              >
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-white truncate">{user?.name || "User"}</p>
-                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#C9A227" }}>
+                <p className="text-sm font-bold text-white truncate">
+                  {user?.name || "User"}
+                </p>
+                <p
+                  className="text-[10px] font-bold uppercase tracking-wider"
+                  style={{ color: "#C9A227" }}
+                >
                   {user?.role?.replace("_", " ")}
                 </p>
               </div>
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#34D399" }} />
+              <div
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{ background: "#34D399" }}
+              />
             </div>
           </div>
 
@@ -664,17 +700,23 @@ function DashboardLayout() {
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200"
-                  style={isActive ? {
-                    background: "linear-gradient(135deg, rgba(201,162,39,0.2), rgba(245,158,11,0.1))",
-                    border: "1px solid rgba(201,162,39,0.3)",
-                    color: "#C9A227",
-                  } : {
-                    border: "1px solid transparent",
-                    color: "#94A3B8",
-                  }}
+                  style={
+                    isActive
+                      ? {
+                          background:
+                            "linear-gradient(135deg, rgba(201,162,39,0.2), rgba(245,158,11,0.1))",
+                          border: "1px solid rgba(201,162,39,0.3)",
+                          color: "#C9A227",
+                        }
+                      : {
+                          border: "1px solid transparent",
+                          color: "#94A3B8",
+                        }
+                  }
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.background = "rgba(201,162,39,0.06)";
+                      e.currentTarget.style.background =
+                        "rgba(201,162,39,0.06)";
                       e.currentTarget.style.color = "#CBD5E1";
                     }
                   }}
@@ -686,23 +728,42 @@ function DashboardLayout() {
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className="h-4 w-4 shrink-0" style={{ color: isActive ? "#C9A227" : "inherit" }} />
+                    <Icon
+                      className="h-4 w-4 shrink-0"
+                      style={{ color: isActive ? "#C9A227" : "inherit" }}
+                    />
                     <span>{item.label}</span>
                   </div>
-                  {isActive && <ChevronRight className="h-3.5 w-3.5" style={{ color: "#C9A227" }} />}
+                  {isActive && (
+                    <ChevronRight
+                      className="h-3.5 w-3.5"
+                      style={{ color: "#C9A227" }}
+                    />
+                  )}
                 </Link>
               );
             })}
           </div>
 
           {/* Logout */}
-          <div className="px-4 py-4" style={{ borderTop: "1px solid rgba(201,162,39,0.08)" }}>
+          <div
+            className="px-4 py-4"
+            style={{ borderTop: "1px solid rgba(201,162,39,0.08)" }}
+          >
             <button
               onClick={handleLogout}
               className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200"
-              style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.15)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
+              style={{
+                background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.2)",
+                color: "#F87171",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(239,68,68,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+              }}
             >
               <LogOut className="h-4 w-4" />
               Sign Out
@@ -713,26 +774,36 @@ function DashboardLayout() {
         {/* ── MAIN CONTENT ── */}
         <main className="flex-1 min-w-0 min-h-screen flex flex-col lg:ml-0">
           {/* LUXURY TOPBAR */}
-          <header className="sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4"
+          <header
+            className="sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4"
             style={{
               background: "rgba(15,23,42,0.88)",
               backdropFilter: "blur(20px)",
               borderBottom: "1px solid rgba(201,162,39,0.1)",
-            }}>
-
+            }}
+          >
             {/* Left: Menu + Title */}
             <div className="flex items-center gap-4">
               <button
                 className="p-2 rounded-xl lg:hidden transition-all"
-                style={{ background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.15)" }}
+                style={{
+                  background: "rgba(201,162,39,0.08)",
+                  border: "1px solid rgba(201,162,39,0.15)",
+                }}
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu className="h-5 w-5" style={{ color: "#C9A227" }} />
               </button>
               <div className="hidden sm:flex items-center gap-2">
-                <div className="w-1.5 h-5 rounded-full" style={{ background: "linear-gradient(180deg, #C9A227, #F59E0B)" }} />
+                <div
+                  className="w-1.5 h-5 rounded-full"
+                  style={{
+                    background: "linear-gradient(180deg, #C9A227, #F59E0B)",
+                  }}
+                />
                 <h2 className="text-sm font-black uppercase tracking-wider text-white">
-                  {user?.role?.replace("_", " ")} <span style={{ color: "#C9A227" }}>Workspace</span>
+                  {user?.role?.replace("_", " ")}{" "}
+                  <span style={{ color: "#C9A227" }}>Workspace</span>
                 </h2>
               </div>
             </div>
@@ -747,15 +818,25 @@ function DashboardLayout() {
                   border: "1px solid rgba(201,162,39,0.12)",
                   color: "#94A3B8",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.3)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.12)"; }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(201,162,39,0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(201,162,39,0.12)";
+                }}
               >
                 <div className="flex items-center gap-2 text-sm">
                   <Search className="h-4 w-4" style={{ color: "#C9A227" }} />
                   <span>Search anything...</span>
                 </div>
-                <kbd className="px-2 py-0.5 rounded text-[9px] font-bold uppercase"
-                  style={{ background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.2)", color: "#C9A227" }}>
+                <kbd
+                  className="px-2 py-0.5 rounded text-[9px] font-bold uppercase"
+                  style={{
+                    background: "rgba(201,162,39,0.1)",
+                    border: "1px solid rgba(201,162,39,0.2)",
+                    color: "#C9A227",
+                  }}
+                >
                   Ctrl+K
                 </kbd>
               </button>
@@ -763,30 +844,57 @@ function DashboardLayout() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
-              <button onClick={() => setSearchOpen(true)}
+              <button
+                onClick={() => setSearchOpen(true)}
                 className="p-2 rounded-xl md:hidden"
-                style={{ background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.15)" }}>
+                style={{
+                  background: "rgba(201,162,39,0.08)",
+                  border: "1px solid rgba(201,162,39,0.15)",
+                }}
+              >
                 <Search className="h-4 w-4" style={{ color: "#C9A227" }} />
               </button>
 
-              <button onClick={toggleTheme}
+              <button
+                onClick={toggleTheme}
                 className="p-2 rounded-xl transition-all"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                {isDarkMode
-                  ? <Sun className="h-4 w-4" style={{ color: "#C9A227" }} />
-                  : <Moon className="h-4 w-4 text-indigo-400" />}
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                {isDarkMode ? (
+                  <Sun className="h-4 w-4" style={{ color: "#C9A227" }} />
+                ) : (
+                  <Moon className="h-4 w-4 text-indigo-400" />
+                )}
               </button>
 
-              <button className="p-2 rounded-xl relative"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <button
+                className="p-2 rounded-xl relative"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
                 <Bell className="h-4 w-4 text-slate-400" />
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse"
-                  style={{ background: "#C9A227", boxShadow: "0 0 6px rgba(201,162,39,0.6)" }} />
+                <span
+                  className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse"
+                  style={{
+                    background: "#C9A227",
+                    boxShadow: "0 0 6px rgba(201,162,39,0.6)",
+                  }}
+                />
               </button>
 
-              <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs cursor-pointer"
-                style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A",
-                boxShadow: "0 0 12px rgba(201,162,39,0.4)" }}>
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs cursor-pointer"
+                style={{
+                  background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+                  color: "#0F172A",
+                  boxShadow: "0 0 12px rgba(201,162,39,0.4)",
+                }}
+              >
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
             </div>
@@ -801,9 +909,17 @@ function DashboardLayout() {
 
       {/* GLOBAL SEARCH MODAL */}
       {searchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
-          style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}>
-          <div className="absolute inset-0" onClick={() => setSearchOpen(false)} />
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
+          style={{
+            background: "rgba(0,0,0,0.85)",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <div
+            className="absolute inset-0"
+            onClick={() => setSearchOpen(false)}
+          />
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -812,13 +928,19 @@ function DashboardLayout() {
               background: "rgba(15,23,42,0.98)",
               border: "1px solid rgba(201,162,39,0.2)",
               borderRadius: "1.5rem",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(201,162,39,0.08)",
+              boxShadow:
+                "0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(201,162,39,0.08)",
             }}
           >
             {/* Search Input */}
-            <div className="p-4 flex items-center gap-3"
-              style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}>
-              <Search className="h-5 w-5 shrink-0" style={{ color: "#C9A227" }} />
+            <div
+              className="p-4 flex items-center gap-3"
+              style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}
+            >
+              <Search
+                className="h-5 w-5 shrink-0"
+                style={{ color: "#C9A227" }}
+              />
               <input
                 type="text"
                 value={searchQuery}
@@ -827,9 +949,11 @@ function DashboardLayout() {
                 className="flex-1 bg-transparent text-sm text-white focus:outline-none placeholder-slate-600"
                 autoFocus
               />
-              <button onClick={() => setSearchOpen(false)}
+              <button
+                onClick={() => setSearchOpen(false)}
                 className="p-1.5 rounded-lg text-slate-500 hover:text-white transition"
-                style={{ background: "rgba(255,255,255,0.04)" }}>
+                style={{ background: "rgba(255,255,255,0.04)" }}
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -838,56 +962,109 @@ function DashboardLayout() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {searchLoading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
-                  <RefreshCw className="h-6 w-6 animate-spin" style={{ color: "#C9A227" }} />
-                  <span className="text-xs text-slate-500">Searching database...</span>
+                  <RefreshCw
+                    className="h-6 w-6 animate-spin"
+                    style={{ color: "#C9A227" }}
+                  />
+                  <span className="text-xs text-slate-500">
+                    Searching database...
+                  </span>
                 </div>
               )}
               {!searchLoading && searchQuery.trim() === "" && (
                 <div className="text-center py-12">
-                  <Search className="h-10 w-10 mx-auto mb-3 opacity-20" style={{ color: "#C9A227" }} />
-                  <p className="text-xs text-slate-500">Search for courses, schedules, or summaries...</p>
+                  <Search
+                    className="h-10 w-10 mx-auto mb-3 opacity-20"
+                    style={{ color: "#C9A227" }}
+                  />
+                  <p className="text-xs text-slate-500">
+                    Search for courses, schedules, or summaries...
+                  </p>
                 </div>
               )}
-              {!searchLoading && searchQuery.trim() !== "" && Object.keys(searchResults).length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-sm text-slate-500">No results for <span style={{ color: "#C9A227" }}>"{searchQuery}"</span></p>
-                </div>
-              )}
-              {!searchLoading && Object.keys(searchResults).map((category) => {
-                const items = searchResults[category];
-                if (!items || items.length === 0) return null;
-                return (
-                  <div key={category} className="space-y-2">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest px-2" style={{ color: "#C9A227" }}>
-                      {category}
-                    </h3>
-                    <div className="space-y-1.5">
-                      {items.map((item, idx) => {
-                        let path = "/student/dashboard";
-                        const title = item.name || item.title || "";
-                        const subtitle = item.email || item.description || "";
-                        if (category === "courses") path = user?.role === "student" ? `/student/courses/${item._id}` : `/teacher/courses`;
-                        else if (category === "notes") path = user?.role === "student" ? "/student/notes" : "/teacher/notes";
-                        else if (category === "schedules") path = user?.role === "student" ? "/student/calendar" : "/teacher/calendar";
-                        return (
-                          <Link key={idx} to={path} onClick={() => setSearchOpen(false)}
-                            className="flex items-center justify-between p-3 rounded-xl transition-all group"
-                            style={{ background: "rgba(201,162,39,0.04)", border: "1px solid rgba(201,162,39,0.08)" }}
-                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.25)"; e.currentTarget.style.background = "rgba(201,162,39,0.08)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(201,162,39,0.08)"; e.currentTarget.style.background = "rgba(201,162,39,0.04)"; }}
-                          >
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-semibold text-white truncate">{title}</p>
-                              {subtitle && <p className="text-[10px] text-slate-500 truncate mt-0.5">{subtitle}</p>}
-                            </div>
-                            <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-gold shrink-0 ml-2" />
-                          </Link>
-                        );
-                      })}
-                    </div>
+              {!searchLoading &&
+                searchQuery.trim() !== "" &&
+                Object.keys(searchResults).length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-sm text-slate-500">
+                      No results for{" "}
+                      <span style={{ color: "#C9A227" }}>"{searchQuery}"</span>
+                    </p>
                   </div>
-                );
-              })}
+                )}
+              {!searchLoading &&
+                Object.keys(searchResults).map((category) => {
+                  const items = searchResults[category];
+                  if (!items || items.length === 0) return null;
+                  return (
+                    <div key={category} className="space-y-2">
+                      <h3
+                        className="text-[10px] font-black uppercase tracking-widest px-2"
+                        style={{ color: "#C9A227" }}
+                      >
+                        {category}
+                      </h3>
+                      <div className="space-y-1.5">
+                        {items.map((item, idx) => {
+                          let path = "/student/dashboard";
+                          const title = item.name || item.title || "";
+                          const subtitle = item.email || item.description || "";
+                          if (category === "courses")
+                            path =
+                              user?.role === "student"
+                                ? `/student/courses/${item._id}`
+                                : `/teacher/courses`;
+                          else if (category === "notes")
+                            path =
+                              user?.role === "student"
+                                ? "/student/notes"
+                                : "/teacher/notes";
+                          else if (category === "schedules")
+                            path =
+                              user?.role === "student"
+                                ? "/student/calendar"
+                                : "/teacher/calendar";
+                          return (
+                            <Link
+                              key={idx}
+                              to={path}
+                              onClick={() => setSearchOpen(false)}
+                              className="flex items-center justify-between p-3 rounded-xl transition-all group"
+                              style={{
+                                background: "rgba(201,162,39,0.04)",
+                                border: "1px solid rgba(201,162,39,0.08)",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor =
+                                  "rgba(201,162,39,0.25)";
+                                e.currentTarget.style.background =
+                                  "rgba(201,162,39,0.08)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor =
+                                  "rgba(201,162,39,0.08)";
+                                e.currentTarget.style.background =
+                                  "rgba(201,162,39,0.04)";
+                              }}
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-semibold text-white truncate">
+                                  {title}
+                                </p>
+                                {subtitle && (
+                                  <p className="text-[10px] text-slate-500 truncate mt-0.5">
+                                    {subtitle}
+                                  </p>
+                                )}
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-gold shrink-0 ml-2" />
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </motion.div>
         </div>
@@ -910,7 +1087,6 @@ const router = createBrowserRouter([
       {
         element: <PublicLayout />,
         children: [
-
           {
             path: "login",
             element: <Navigate to="/?auth=login" replace />,
@@ -921,652 +1097,640 @@ const router = createBrowserRouter([
             element: <Navigate to="/?auth=register" replace />,
           },
 
-      {
-        path: "verify-email",
-        element: (
-          <PageWrapper>
-            <VerifyEmail />
-          </PageWrapper>
-        ),
-      },
-
-      {
-        path: "forgot-password",
-        element: (
-          <PageWrapper>
-            <ForgotPassword />
-          </PageWrapper>
-        ),
-      },
-
-      {
-        path: "verify-otp",
-        element: (
-          <PageWrapper>
-            <VerifyOTP />
-          </PageWrapper>
-        ),
-      },
-
-      {
-        path: "reset-password",
-        element: (
-          <PageWrapper>
-            <ResetPassword />
-          </PageWrapper>
-        ),
-      },
-    ],
-  },
-
-  // STUDENT
-  {
-    path: "/student",
-    element: (
-      <RoleGuard
-        allowedRoles={[ROLES.STUDENT]}
-      />
-    ),
-
-    children: [
-      {
-        element: <DashboardLayout />,
-        children: [
           {
-            path: "dashboard",
+            path: "verify-email",
             element: (
               <PageWrapper>
-                <StudentDashboard />
+                <VerifyEmail />
               </PageWrapper>
             ),
           },
 
           {
-            path: "courses",
+            path: "forgot-password",
             element: (
               <PageWrapper>
-                <MyCourses />
+                <ForgotPassword />
               </PageWrapper>
             ),
           },
 
           {
-            path: "courses/:id",
+            path: "verify-otp",
             element: (
               <PageWrapper>
-                <CourseDetails />
+                <VerifyOTP />
               </PageWrapper>
             ),
           },
 
           {
-            path: "assignments",
+            path: "reset-password",
             element: (
               <PageWrapper>
-                <Assignments />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "assignments/:id",
-            element: (
-              <PageWrapper>
-                <AssignmentDetails />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "quizzes",
-            element: (
-              <PageWrapper>
-                <Quiz />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "quizzes/attempt/:quizId",
-            element: (
-              <PageWrapper>
-                <QuizAttempt />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "quizzes/result/:attemptId",
-            element: (
-              <PageWrapper>
-                <QuizResult />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "messages",
-            element: (
-              <PageWrapper>
-                <Messages />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "certificates",
-            element: (
-              <PageWrapper>
-                <Certificates />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "settings",
-            element: (
-              <PageWrapper>
-                <SettingsPage />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "notes",
-            element: (
-              <PageWrapper>
-                <MyNotes />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "calendar",
-            element: (
-              <PageWrapper>
-                <CalendarDashboard />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "achievements",
-            element: (
-              <PageWrapper>
-                <Achievements />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "leaderboard",
-            element: (
-              <PageWrapper>
-                <Leaderboard />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "live-classes",
-            element: (
-              <PageWrapper>
-                <LiveClasses />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "ai-assistant",
-            element: (
-              <PageWrapper>
-                <AIAssistant />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "ai-analytics",
-            element: (
-              <PageWrapper>
-                <AIAnalytics />
+                <ResetPassword />
               </PageWrapper>
             ),
           },
         ],
       },
-    ],
-  },
 
-  // TEACHER
-  {
-    path: "/teacher",
-    element: (
-      <RoleGuard
-        allowedRoles={[ROLES.TEACHER]}
-      />
-    ),
-
-    children: [
+      // STUDENT
       {
-        element: <DashboardLayout />,
-        children: [
-          {
-            path: "dashboard",
-            element: (
-              <PageWrapper>
-                <TeacherDashboard />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "courses",
-            element: (
-              <PageWrapper>
-                <CourseManagement />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "courses/:id",
-            element: (
-              <PageWrapper>
-                <CourseDetails />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "quizzes",
-            element: (
-              <PageWrapper>
-                <TeacherQuizzes />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "quizzes/create",
-            element: (
-              <PageWrapper>
-                <CreateQuiz />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "quizzes/edit/:id",
-            element: (
-              <PageWrapper>
-                <CreateQuiz />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "quizzes/analytics/:id",
-            element: (
-              <PageWrapper>
-                <QuizAnalytics />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "assignments",
-            element: (
-              <PageWrapper>
-                <TeacherAssignments />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "assignments/:id",
-            element: (
-              <PageWrapper>
-                <AssignmentDetails />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "assignments/submissions/:id",
-            element: (
-              <PageWrapper>
-                <ReviewSubmission />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "student-progress",
-            element: (
-              <PageWrapper>
-                <TeacherProgress />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "attendance",
-            element: (
-              <PageWrapper>
-                <TeacherAttendance />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "messages",
-            element: (
-              <PageWrapper>
-                <Messages />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "settings",
-            element: (
-              <PageWrapper>
-                <SettingsPage />
-              </PageWrapper>
-            ),
-          },
-          {
-            path: "certificates",
-            element: (
-              <PageWrapper>
-                <TeacherCertificates />
-              </PageWrapper>
-            ),
-          },
-          {
-            path: "certificates/issue",
-            element: (
-              <PageWrapper>
-                <TeacherIssueCertificate />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "notes",
-            element: (
-              <PageWrapper>
-                <NotesDashboard />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "calendar",
-            element: (
-              <PageWrapper>
-                <CalendarDashboard />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "schedule-manager",
-            element: (
-              <PageWrapper>
-                <ScheduleManager />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "live-classes",
-            element: (
-              <PageWrapper>
-                <LiveClasses />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "ai-assistant",
-            element: (
-              <PageWrapper>
-                <AIAssistant />
-              </PageWrapper>
-            ),
-          },
-        ],
-      },
-    ],
-  },
-
-  // ADMIN
-  {
-    path: "/admin",
-    element: (
-      <RoleGuard
-        allowedRoles={[ROLES.SUPER_ADMIN]}
-      />
-    ),
-
-    children: [
-      {
-        element: <DashboardLayout />,
+        path: "/student",
+        element: <RoleGuard allowedRoles={[ROLES.STUDENT]} />,
 
         children: [
           {
-            path: "dashboard",
-            element: (
-              <PageWrapper>
-                <AdminDashboard />
-              </PageWrapper>
-            ),
-          },
+            element: <DashboardLayout />,
+            children: [
+              {
+                path: "dashboard",
+                element: (
+                  <PageWrapper>
+                    <StudentDashboard />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "teachers",
-            element: (
-              <PageWrapper>
-                <AdminTeachers />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "courses",
+                element: (
+                  <PageWrapper>
+                    <MyCourses />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "students",
-            element: (
-              <PageWrapper>
-                <AdminStudents />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "courses/:id",
+                element: (
+                  <PageWrapper>
+                    <CourseDetails />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "courses",
-            element: (
-              <PageWrapper>
-                <AdminCourses />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "assignments",
+                element: (
+                  <PageWrapper>
+                    <Assignments />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "courses/:id",
-            element: (
-              <PageWrapper>
-                <CourseDetails />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "assignments/:id",
+                element: (
+                  <PageWrapper>
+                    <AssignmentDetails />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "assignments",
-            element: (
-              <PageWrapper>
-                <AdminAssignments />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "quizzes",
+                element: (
+                  <PageWrapper>
+                    <Quiz />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "assignments/:id",
-            element: (
-              <PageWrapper>
-                <AssignmentDetails />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "quizzes/attempt/:quizId",
+                element: (
+                  <PageWrapper>
+                    <QuizAttempt />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "assignments/submissions/:id",
-            element: (
-              <PageWrapper>
-                <ReviewSubmission />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "quizzes/result/:attemptId",
+                element: (
+                  <PageWrapper>
+                    <QuizResult />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "quizzes",
-            element: (
-              <PageWrapper>
-                <AdminQuizzes />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "messages",
+                element: (
+                  <PageWrapper>
+                    <Messages />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "reports",
-            element: (
-              <PageWrapper>
-                <AdminReports />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "certificates",
+                element: (
+                  <PageWrapper>
+                    <Certificates />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "analytics",
-            element: (
-              <PageWrapper>
-                <AdminAnalytics />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "settings",
+                element: (
+                  <PageWrapper>
+                    <SettingsPage />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "notifications",
-            element: (
-              <PageWrapper>
-                <AdminNotifications />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "notes",
+                element: (
+                  <PageWrapper>
+                    <MyNotes />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "security",
-            element: (
-              <PageWrapper>
-                <AdminSecurity />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "calendar",
+                element: (
+                  <PageWrapper>
+                    <CalendarDashboard />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "settings",
-            element: (
-              <PageWrapper>
-                <AdminSettings />
-              </PageWrapper>
-            ),
-          },
-          {
-            path: "certificates",
-            element: (
-              <PageWrapper>
-                <AdminCertificates />
-              </PageWrapper>
-            ),
-          },
-          {
-            path: "certificates/issue",
-            element: (
-              <PageWrapper>
-                <AdminIssueCertificate />
-              </PageWrapper>
-            ),
-          },
-          {
-            path: "certificates/templates",
-            element: (
-              <PageWrapper>
-                <AdminCertificateTemplates />
-              </PageWrapper>
-            ),
-          },
-          {
-            path: "certificates/history",
-            element: (
-              <PageWrapper>
-                <AdminCertificateHistory />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "achievements",
+                element: (
+                  <PageWrapper>
+                    <Achievements />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "calendar",
-            element: (
-              <PageWrapper>
-                <CalendarDashboard />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "leaderboard",
+                element: (
+                  <PageWrapper>
+                    <Leaderboard />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "schedule-manager",
-            element: (
-              <PageWrapper>
-                <ScheduleManager />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "live-classes",
+                element: (
+                  <PageWrapper>
+                    <LiveClasses />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "live-classes",
-            element: (
-              <PageWrapper>
-                <LiveClasses />
-              </PageWrapper>
-            ),
-          },
+              {
+                path: "ai-assistant",
+                element: (
+                  <PageWrapper>
+                    <AIAssistant />
+                  </PageWrapper>
+                ),
+              },
 
-          {
-            path: "ai-assistant",
-            element: (
-              <PageWrapper>
-                <AIAssistant />
-              </PageWrapper>
-            ),
-          },
-
-          {
-            path: "global-controls",
-            element: (
-              <PageWrapper>
-                <GlobalControls />
-              </PageWrapper>
-            ),
+              {
+                path: "ai-analytics",
+                element: (
+                  <PageWrapper>
+                    <AIAnalytics />
+                  </PageWrapper>
+                ),
+              },
+            ],
           },
         ],
       },
-    ],
-  },
 
-  {
-    path: "*",
-    element: <Navigate to="/login" replace />,
-  },
+      // TEACHER
+      {
+        path: "/teacher",
+        element: <RoleGuard allowedRoles={[ROLES.TEACHER]} />,
+
+        children: [
+          {
+            element: <DashboardLayout />,
+            children: [
+              {
+                path: "dashboard",
+                element: (
+                  <PageWrapper>
+                    <TeacherDashboard />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "courses",
+                element: (
+                  <PageWrapper>
+                    <CourseManagement />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "courses/:id",
+                element: (
+                  <PageWrapper>
+                    <CourseDetails />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "quizzes",
+                element: (
+                  <PageWrapper>
+                    <TeacherQuizzes />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "quizzes/create",
+                element: (
+                  <PageWrapper>
+                    <CreateQuiz />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "quizzes/edit/:id",
+                element: (
+                  <PageWrapper>
+                    <CreateQuiz />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "quizzes/analytics/:id",
+                element: (
+                  <PageWrapper>
+                    <QuizAnalytics />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "assignments",
+                element: (
+                  <PageWrapper>
+                    <TeacherAssignments />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "assignments/:id",
+                element: (
+                  <PageWrapper>
+                    <AssignmentDetails />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "assignments/submissions/:id",
+                element: (
+                  <PageWrapper>
+                    <ReviewSubmission />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "student-progress",
+                element: (
+                  <PageWrapper>
+                    <TeacherProgress />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "attendance",
+                element: (
+                  <PageWrapper>
+                    <TeacherAttendance />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "messages",
+                element: (
+                  <PageWrapper>
+                    <Messages />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "settings",
+                element: (
+                  <PageWrapper>
+                    <SettingsPage />
+                  </PageWrapper>
+                ),
+              },
+              {
+                path: "certificates",
+                element: (
+                  <PageWrapper>
+                    <TeacherCertificates />
+                  </PageWrapper>
+                ),
+              },
+              {
+                path: "certificates/issue",
+                element: (
+                  <PageWrapper>
+                    <TeacherIssueCertificate />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "notes",
+                element: (
+                  <PageWrapper>
+                    <NotesDashboard />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "calendar",
+                element: (
+                  <PageWrapper>
+                    <CalendarDashboard />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "schedule-manager",
+                element: (
+                  <PageWrapper>
+                    <ScheduleManager />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "live-classes",
+                element: (
+                  <PageWrapper>
+                    <LiveClasses />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "ai-assistant",
+                element: (
+                  <PageWrapper>
+                    <AIAssistant />
+                  </PageWrapper>
+                ),
+              },
+            ],
+          },
+        ],
+      },
+
+      // ADMIN
+      {
+        path: "/admin",
+        element: <RoleGuard allowedRoles={[ROLES.SUPER_ADMIN]} />,
+
+        children: [
+          {
+            element: <DashboardLayout />,
+
+            children: [
+              {
+                path: "dashboard",
+                element: (
+                  <PageWrapper>
+                    <AdminDashboard />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "teachers",
+                element: (
+                  <PageWrapper>
+                    <AdminTeachers />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "students",
+                element: (
+                  <PageWrapper>
+                    <AdminStudents />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "courses",
+                element: (
+                  <PageWrapper>
+                    <AdminCourses />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "courses/:id",
+                element: (
+                  <PageWrapper>
+                    <CourseDetails />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "assignments",
+                element: (
+                  <PageWrapper>
+                    <AdminAssignments />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "assignments/:id",
+                element: (
+                  <PageWrapper>
+                    <AssignmentDetails />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "assignments/submissions/:id",
+                element: (
+                  <PageWrapper>
+                    <ReviewSubmission />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "quizzes",
+                element: (
+                  <PageWrapper>
+                    <AdminQuizzes />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "reports",
+                element: (
+                  <PageWrapper>
+                    <AdminReports />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "analytics",
+                element: (
+                  <PageWrapper>
+                    <AdminAnalytics />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "notifications",
+                element: (
+                  <PageWrapper>
+                    <AdminNotifications />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "security",
+                element: (
+                  <PageWrapper>
+                    <AdminSecurity />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "settings",
+                element: (
+                  <PageWrapper>
+                    <AdminSettings />
+                  </PageWrapper>
+                ),
+              },
+              {
+                path: "certificates",
+                element: (
+                  <PageWrapper>
+                    <AdminCertificates />
+                  </PageWrapper>
+                ),
+              },
+              {
+                path: "certificates/issue",
+                element: (
+                  <PageWrapper>
+                    <AdminIssueCertificate />
+                  </PageWrapper>
+                ),
+              },
+              {
+                path: "certificates/templates",
+                element: (
+                  <PageWrapper>
+                    <AdminCertificateTemplates />
+                  </PageWrapper>
+                ),
+              },
+              {
+                path: "certificates/history",
+                element: (
+                  <PageWrapper>
+                    <AdminCertificateHistory />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "calendar",
+                element: (
+                  <PageWrapper>
+                    <CalendarDashboard />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "schedule-manager",
+                element: (
+                  <PageWrapper>
+                    <ScheduleManager />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "live-classes",
+                element: (
+                  <PageWrapper>
+                    <LiveClasses />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "ai-assistant",
+                element: (
+                  <PageWrapper>
+                    <AIAssistant />
+                  </PageWrapper>
+                ),
+              },
+
+              {
+                path: "global-controls",
+                element: (
+                  <PageWrapper>
+                    <GlobalControls />
+                  </PageWrapper>
+                ),
+              },
+            ],
+          },
+        ],
+      },
+
+      {
+        path: "*",
+        element: <Navigate to="/login" replace />,
+      },
     ],
   },
 ]);
