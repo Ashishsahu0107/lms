@@ -50,7 +50,7 @@ export default function TeacherDetails({
               )}
               <div className="flex items-center gap-2.5 text-muted-foreground">
                 <Calendar className="h-4.5 w-4.5 text-amber-500" />
-                <span className="text-foreground font-medium">Joined {new Date(teacher.createdAt || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                <span className="text-foreground font-medium">Joined {teacher.createdAt ? new Date(teacher.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</span>
               </div>
             </div>
           </div>

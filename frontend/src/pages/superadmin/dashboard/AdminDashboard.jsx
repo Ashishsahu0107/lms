@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { getAdminStats, getAdminAnalytics } from "../../../services/dashboardService";
+import {
+  getAdminStats,
+  getAdminAnalytics,
+} from "../../../services/dashboardService";
 import {
   Users,
   BookOpen,
@@ -90,7 +93,9 @@ export default function AdminDashboard() {
         }
       } catch (err) {
         console.error("Failed to load admin dashboard statistics:", err);
-        setError("Unable to sync global system statistics with the LMS backend.");
+        setError(
+          "Unable to sync global system statistics with the LMS backend.",
+        );
       } finally {
         setLoading(false);
       }
@@ -101,9 +106,14 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center py-32 space-y-4" id="admin-dashboard-loading">
+      <div
+        className="flex flex-col justify-center items-center py-32 space-y-4"
+        id="admin-dashboard-loading"
+      >
         <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-        <p className="text-muted-foreground text-sm font-medium animate-pulse">Syncing platform metrics and telemetry logs...</p>
+        <p className="text-muted-foreground text-sm font-medium animate-pulse">
+          Syncing platform metrics and telemetry logs...
+        </p>
       </div>
     );
   }
@@ -133,7 +143,9 @@ export default function AdminDashboard() {
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Shield className="h-6 w-6 text-blue-600" /> Super Admin Cockpit
             </h1>
-            <p className="text-muted-foreground">Global platform telemetry and curriculum deployment logs</p>
+            <p className="text-muted-foreground">
+              Global platform telemetry and curriculum deployment logs
+            </p>
           </div>
           <div className="flex gap-2">
             <Link to="/admin/students">
@@ -151,7 +163,11 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Analytics Statistics Grid */}
-      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4" id="admin-stats-grid">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4"
+        id="admin-stats-grid"
+      >
         <StatCard
           title="Total Revenue"
           value={`$${stats.totalRevenue.toLocaleString()}`}
@@ -197,13 +213,19 @@ export default function AdminDashboard() {
         <div className="rounded-xl border bg-card p-6 shadow-card hover:shadow-elevated transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-card to-amber-600/5 border-amber-500/20">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Best Seller</p>
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                Best Seller
+              </p>
               <p className="text-sm font-extrabold tracking-tight text-amber-700 dark:text-amber-300 line-clamp-1">
                 {topCourse ? topCourse.title : "None yet"}
               </p>
               <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                 <Sparkles className="h-3 w-3 text-amber-500 fill-current" />
-                <span>{topCourse ? `${topCourse.studentsCount} enrolls` : "No classes yet"}</span>
+                <span>
+                  {topCourse
+                    ? `${topCourse.studentsCount} enrolls`
+                    : "No classes yet"}
+                </span>
               </div>
             </div>
             <div className="p-3 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
@@ -214,7 +236,11 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Double Analytics Panel charts */}
-      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="admin-charts-section">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        id="admin-charts-section"
+      >
         {/* Revenue Analytics Curve Area Chart */}
         <Card className="lg:col-span-2 hover:shadow-md transition-all">
           <CardHeader className="pb-2">
@@ -228,14 +254,29 @@ export default function AdminDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={analytics.revenueGrowth}>
                   <defs>
-                    <linearGradient id="revenueGrowthGrad" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="revenueGrowthGrad"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
-                  <YAxis className="text-xs text-muted-foreground font-medium" tickFormatter={(v) => `$${v}`} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted/30"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    className="text-xs text-muted-foreground font-medium"
+                  />
+                  <YAxis
+                    className="text-xs text-muted-foreground font-medium"
+                    tickFormatter={(v) => `$${v}`}
+                  />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
@@ -269,8 +310,14 @@ export default function AdminDashboard() {
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={analytics.userGrowth}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted/30"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    className="text-xs text-muted-foreground font-medium"
+                  />
                   <YAxis className="text-xs text-muted-foreground font-medium" />
                   <Tooltip
                     contentStyle={{
@@ -279,7 +326,12 @@ export default function AdminDashboard() {
                       borderRadius: "0.75rem",
                     }}
                   />
-                  <Bar dataKey="users" fill="#10b981" radius={[4, 4, 0, 0]} barSize={24} />
+                  <Bar
+                    dataKey="users"
+                    fill="#10b981"
+                    radius={[4, 4, 0, 0]}
+                    barSize={24}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -288,7 +340,10 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Platform Audits & Rankings section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="admin-auditing-tables">
+      <div
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        id="admin-auditing-tables"
+      >
         {/* Most Enrolled Courses */}
         <motion.div variants={item}>
           <Card className="hover:shadow-md transition-all h-full">
@@ -297,7 +352,10 @@ export default function AdminDashboard() {
                 <BookOpen className="h-4 w-4 text-blue-500" />
                 Top Performing Courses
               </CardTitle>
-              <Link to="/admin/courses" className="text-xs text-indigo-600 font-semibold hover:underline">
+              <Link
+                to="/admin/courses"
+                className="text-xs text-indigo-600 font-semibold hover:underline"
+              >
                 View All
               </Link>
             </CardHeader>
@@ -309,16 +367,25 @@ export default function AdminDashboard() {
               ) : (
                 <div className="space-y-4">
                   {stats.mostEnrolledCourses.map((course, idx) => (
-                    <div key={course._id} className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0">
+                    <div
+                      key={course._id}
+                      className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0"
+                    >
                       <div className="min-w-0 flex-1">
-                        <div className="font-semibold text-sm line-clamp-1 text-foreground">{course.title}</div>
-                        <div className="text-xs text-muted-foreground">Instructor: {course.instructor}</div>
+                        <div className="font-semibold text-sm line-clamp-1 text-foreground">
+                          {course.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Instructor: {course.instructor}
+                        </div>
                       </div>
                       <div className="text-right ml-4">
                         <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-0 text-xs font-semibold">
                           {course.studentsCount} Students
                         </Badge>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">${course.price} Fee</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          ${course.price} Fee
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -336,7 +403,10 @@ export default function AdminDashboard() {
                 <Award className="h-4 w-4 text-amber-500" />
                 Educator Class Rankings
               </CardTitle>
-              <Link to="/admin/teachers" className="text-xs text-indigo-600 font-semibold hover:underline">
+              <Link
+                to="/admin/teachers"
+                className="text-xs text-indigo-600 font-semibold hover:underline"
+              >
                 View All
               </Link>
             </CardHeader>
@@ -348,16 +418,25 @@ export default function AdminDashboard() {
               ) : (
                 <div className="space-y-4">
                   {stats.topTeachers.map((teacher, idx) => (
-                    <div key={teacher._id} className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0">
+                    <div
+                      key={teacher._id}
+                      className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0"
+                    >
                       <div className="min-w-0 flex-1">
-                        <div className="font-semibold text-sm line-clamp-1 text-foreground">{teacher.name}</div>
-                        <div className="text-xs text-muted-foreground">{teacher.email}</div>
+                        <div className="font-semibold text-sm line-clamp-1 text-foreground">
+                          {teacher.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {teacher.email}
+                        </div>
                       </div>
                       <div className="text-right ml-4">
                         <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 border-0 text-xs font-semibold">
                           {teacher.studentsCount} Students
                         </Badge>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">Rank #{idx+1}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          Rank #{idx + 1}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -375,7 +454,12 @@ export default function AdminDashboard() {
                 <UserPlus className="h-4 w-4 text-emerald-500" />
                 Audit Log: Registrations
               </CardTitle>
-              <Badge variant="secondary" className="text-[10px] uppercase font-semibold">Live Feed</Badge>
+              <Badge
+                variant="secondary"
+                className="text-[10px] uppercase font-semibold"
+              >
+                Live Feed
+              </Badge>
             </CardHeader>
             <CardContent>
               {stats.recentSignups.length === 0 ? (
@@ -385,17 +469,27 @@ export default function AdminDashboard() {
               ) : (
                 <div className="space-y-4">
                   {stats.recentSignups.map((user) => (
-                    <div key={user._id} className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0">
+                    <div
+                      key={user._id}
+                      className="flex items-center justify-between border-b border-muted/30 pb-3 last:border-0 last:pb-0"
+                    >
                       <div className="min-w-0 flex-1">
-                        <div className="font-semibold text-sm line-clamp-1 text-foreground">{user.name}</div>
-                        <div className="text-xs text-muted-foreground">{user.email}</div>
+                        <div className="font-semibold text-sm line-clamp-1 text-foreground">
+                          {user.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {user.email}
+                        </div>
                       </div>
                       <div className="text-right ml-4">
                         <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 border-0 text-[10px] font-semibold capitalize">
                           Student
                         </Badge>
                         <div className="text-[10px] text-muted-foreground mt-0.5">
-                          {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                          {new Date(user.createdAt).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric" },
+                          )}
                         </div>
                       </div>
                     </div>

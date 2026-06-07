@@ -55,7 +55,7 @@ export default function StudentDetails({
               )}
               <div className="flex items-center gap-2.5 text-muted-foreground">
                 <Calendar className="h-4.5 w-4.5 text-amber-500" />
-                <span className="text-foreground font-medium">Registered {new Date(student.createdAt || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                <span className="text-foreground font-medium">Registered {student.createdAt ? new Date(student.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}</span>
               </div>
             </div>
           </div>

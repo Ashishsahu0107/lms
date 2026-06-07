@@ -23,3 +23,15 @@ export async function deleteQuiz(id) {
 export async function getQuizAnalytics(id) {
   return apiGet(`/quizzes/${id}/analytics`);
 }
+
+export async function cloneQuiz(id) {
+  return apiPost(`/quizzes/${id}/clone`);
+}
+
+export async function bulkImportQuestions(id, questions) {
+  return apiPost(`/quizzes/${id}/import-questions`, { questions });
+}
+
+export async function getQuestionBank() {
+  return apiGet("/quizzes/bank/questions");
+}

@@ -30,10 +30,6 @@ export default function CourseDetails() {
   // Accordion state (expanded modules)
   const [expandedModules, setExpandedModules] = useState({});
 
-  useEffect(() => {
-    loadCourseDetails();
-  }, [courseId, user]);
-
   async function loadCourseDetails() {
     try {
       setLoading(true);
@@ -75,6 +71,10 @@ export default function CourseDetails() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    loadCourseDetails();
+  }, [courseId, user]);
 
   // Toggle Module Accordion
   const toggleModule = (moduleId) => {

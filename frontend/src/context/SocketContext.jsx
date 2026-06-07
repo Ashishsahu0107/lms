@@ -14,7 +14,10 @@ export function SocketProvider({ children }) {
     if (!user) {
       if (socket) {
         socket.disconnect();
-        setSocket(null);
+        const timer = setTimeout(() => {
+          setSocket(null);
+        }, 0);
+        return () => clearTimeout(timer);
       }
       setIsConnected(false);
       return;

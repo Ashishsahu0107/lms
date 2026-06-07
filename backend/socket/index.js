@@ -32,8 +32,14 @@ export const EVENTS = {
   ATTENDANCE_MARKED: "attendanceMarked",
 
   // Assessments
+  QUIZ_CREATED: "quizCreated",
+  QUIZ_UPDATED: "quizUpdated",
+  QUIZ_PUBLISHED: "quizPublished",
+  QUIZ_STARTED: "quizStarted",
   QUIZ_SUBMITTED: "quizSubmitted",
+  ASSIGNMENT_CREATED: "assignmentCreated",
   ASSIGNMENT_SUBMITTED: "assignmentSubmitted",
+  ASSIGNMENT_GRADED: "assignmentGraded",
 
   // Payment / Revenue
   PAYMENT_COMPLETED: "paymentCompleted",
@@ -349,6 +355,28 @@ export function emitAttendanceMarked(courseId, payload) {
   getIO().to(ROOMS.course(courseId)).emit(EVENTS.ATTENDANCE_MARKED, payload);
 }
 
+/** Quiz created — notify all */
+export function emitQuizCreated(quiz) {
+  getIO().emit(EVENTS.QUIZ_CREATED, { quiz });
+}
+
+/** Quiz updated — notify course room and teacher dashboard */
+export function emitQuizUpdated(quiz) {
+  getIO().to(ROOMS.course(quiz.courseId.toString())).emit(EVENTS.QUIZ_UPDATED, { quiz });
+  getIO().emit(EVENTS.QUIZ_UPDATED, { quiz });
+}
+
+/** Quiz published — notify all */
+export function emitQuizPublished(quiz) {
+  getIO().emit(EVENTS.QUIZ_PUBLISHED, { quiz });
+}
+
+/** Quiz started — notify course room + teacher dashboard */
+export function emitQuizStarted(courseId, payload) {
+  getIO().to(ROOMS.course(courseId)).emit(EVENTS.QUIZ_STARTED, payload);
+  getIO().to(ROOMS.TEACHER_DASHBOARD).emit(EVENTS.QUIZ_STARTED, payload);
+}
+
 /** Quiz submitted — notify teacher + the course room */
 export function emitQuizSubmitted(courseId, teacherId, payload) {
   getIO().to(ROOMS.teacher(teacherId)).emit(EVENTS.QUIZ_SUBMITTED, payload);
@@ -364,6 +392,21 @@ export function emitAssignmentSubmitted(teacherId, payload) {
   getIO()
     .to(ROOMS.TEACHER_DASHBOARD)
     .emit(EVENTS.ASSIGNMENT_SUBMITTED, payload);
+}
+
+/** Assignment created — broadcast to course room and student dashboard */
+export function emitAssignmentCreated(courseId, assignment) {
+  getIO()
+    .to(ROOMS.course(courseId))
+    .emit(EVENTS.ASSIGNMENT_CREATED, { assignment });
+  getIO().emit(EVENTS.ASSIGNMENT_CREATED, { assignment });
+}
+
+/** Assignment graded — notify the student */
+export function emitAssignmentGraded(studentId, payload) {
+  getIO()
+    .to(ROOMS.student(studentId))
+    .emit(EVENTS.ASSIGNMENT_GRADED, payload);
 }
 
 /** Payment completed — notify admin + student */

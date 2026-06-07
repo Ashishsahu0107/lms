@@ -8,8 +8,16 @@ import RegisterModal from "../components/auth/RegisterModal";
 const AuthModalContext = createContext(null);
 
 export function AuthModalProvider({ children }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [modalType, setModalType] = useState(null); // 'login' | 'register'
+  const [isOpen, setIsOpen] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authType = params.get("auth");
+    return authType === "login" || authType === "register";
+  });
+  const [modalType, setModalType] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authType = params.get("auth");
+    return authType === "login" || authType === "register" ? authType : null;
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,12 +25,12 @@ export function AuthModalProvider({ children }) {
   // Open modals based on URL query parameter (?auth=login or ?auth=register)
   useEffect(() => {
     const authType = searchParams.get("auth");
-    if (authType === "login") {
-      setModalType("login");
-      setIsOpen(true);
-    } else if (authType === "register") {
-      setModalType("register");
-      setIsOpen(true);
+    if (authType === "login" || authType === "register") {
+      const timer = setTimeout(() => {
+        setModalType(authType);
+        setIsOpen(true);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [searchParams]);
 

@@ -1,9 +1,8 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from "react-router-dom";
 
 import RoleGuard from "../components/routeGuard/RoleGuard";
 import { ROLES } from "../constants/roles";
-import { ROUTES } from "../constants/routes";
 import { DashboardLayout } from "../components/layout/DashboardLayout";
 import PublicLayout from "../layouts/PublicLayout";
 import { PageLoader } from "../components/ui/Spinner";
@@ -17,6 +16,7 @@ const MyCourses = lazy(() => import("../pages/student/courses/MyCourses"));
 const CourseDetails = lazy(() => import("../pages/student/courses/CourseDetails"));
 const CoursePlayer = lazy(() => import("../pages/student/courses/CoursePlayer"));
 const Assignments = lazy(() => import("../pages/student/assignments/Assignments"));
+const AssignmentDetails = lazy(() => import("../pages/student/assignments/AssignmentDetails"));
 const Quiz = lazy(() => import("../pages/student/quiz/Quiz"));
 const Messages = lazy(() => import("../pages/student/messages/Messages"));
 const Certificates = lazy(() => import("../pages/student/certificates/Certificates"));
@@ -28,6 +28,7 @@ const TeacherDashboard = lazy(() => import("../pages/teacher/dashboard/TeacherDa
 const CourseManagement = lazy(() => import("../pages/teacher/courses/CourseManagement"));
 const TeacherQuizzes = lazy(() => import("../pages/teacher/quizzes/TeacherQuizManagement"));
 const TeacherAssignments = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentManagement"));
+const TeacherAssignmentDetails = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentDetails"));
 const TeacherProgress = lazy(() => import("../pages/teacher/progress/TeacherStudentProgress"));
 const TeacherAttendance = lazy(() => import("../pages/teacher/attendance/TeacherAttendance"));
 
@@ -54,6 +55,7 @@ const studentRoutes = {
     { path: "course/:id", element: <CourseDetails /> },
     { path: "course/:courseId/player/:lectureId", element: <CoursePlayer /> },
     { path: "assignments", element: <Assignments /> },
+    { path: "assignments/:id", element: <AssignmentDetails /> },
     { path: "quizzes", element: <Quiz /> },
     { path: "messages", element: <Messages /> },
     { path: "certificates", element: <Certificates /> },
@@ -71,6 +73,7 @@ const teacherRoutes = {
     { path: "courses", element: <CourseManagement /> },
     { path: "quizzes", element: <TeacherQuizzes /> },
     { path: "assignments", element: <TeacherAssignments /> },
+    { path: "assignments/:id", element: <TeacherAssignmentDetails /> },
     { path: "student-progress", element: <TeacherProgress /> },
     { path: "attendance", element: <TeacherAttendance /> },
     { path: "messages", element: <Messages /> },

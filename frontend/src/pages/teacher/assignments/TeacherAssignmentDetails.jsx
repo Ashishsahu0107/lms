@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
   Clock,
-  CheckCircle2,
-  Calendar,
   AlertTriangle,
   X,
   ChevronLeft,

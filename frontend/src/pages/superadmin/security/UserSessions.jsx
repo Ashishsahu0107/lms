@@ -69,7 +69,7 @@ export default function UserSessions({
                         IP: <span className="font-mono text-foreground font-semibold">{session.ip || "127.0.0.1"}</span> • Browser: <span className="text-foreground font-semibold">{session.device || "Chrome / MacOS"}</span>
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">
-                        Last Active: {new Date(session.lastSeen || session.createdAt || Date.now()).toLocaleString()}
+                        Last Active: {session.lastSeen || session.createdAt ? new Date(session.lastSeen || session.createdAt).toLocaleString() : "Just now"}
                       </p>
                     </div>
                   </div>
