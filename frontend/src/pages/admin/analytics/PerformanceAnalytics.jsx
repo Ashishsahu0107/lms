@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Trophy, CheckCircle2, XCircle, RefreshCw, Star, HelpCircle, FileCheck } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
+import { Trophy, CheckCircle2, XCircle, RefreshCw, Star, HelpCircle, FileCheck, Clock, AlertTriangle, TrendingUp } from "lucide-react";
+import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
 import { getPerformanceAnalytics } from "../../../services/adminAnalyticsService";
 import AnalyticsCard from "./components/AnalyticsCard";
 import FilterSystem from "./components/FilterSystem";
@@ -79,68 +79,88 @@ export default function PerformanceAnalytics() {
       <FilterSystem onFilterChange={handleFilterChange} />
 
       {/* Analytics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         <AnalyticsCard
           title="Avg Quiz Accuracy"
           value={`${data?.metrics?.avgQuizAccuracy ?? 0}%`}
-          trendValue="Strong aggregate"
+          trendValue="Overall accuracy"
           trendDirection="up"
           color="blue"
           icon={HelpCircle}
           loading={loading}
         />
         <AnalyticsCard
-          title="Passing Ratio"
+          title="Quiz Pass Rate"
           value={`${data?.metrics?.passRate ?? 0}%`}
-          trendValue="Target 80% passing"
+          trendValue="Target 80%"
           trendDirection="up"
           color="emerald"
           icon={CheckCircle2}
           loading={loading}
         />
         <AnalyticsCard
-          title="Assignment Submissions"
-          value={data?.metrics?.totalSubmissions ?? 0}
-          trendValue="Graded/Pending"
+          title="Submission Rate"
+          value={`${data?.metrics?.submissionRate ?? 0}%`}
+          trendValue="Submitted count"
           trendDirection="up"
           color="purple"
           icon={FileCheck}
           loading={loading}
         />
         <AnalyticsCard
-          title="Grading Pending Rate"
-          value={data?.metrics?.pendingSubmissions ?? 0}
-          trendValue="Teacher action required"
+          title="Average Grade"
+          value={`${data?.metrics?.averageGrade ?? 0}/100`}
+          trendValue="Graded works"
+          trendDirection="up"
+          color="amber"
+          icon={Trophy}
+          loading={loading}
+        />
+        <AnalyticsCard
+          title="Late Submissions"
+          value={data?.metrics?.lateSubmissionsCount ?? 0}
+          trendValue="Past deadline"
           trendDirection="down"
           color="rose"
+          icon={Clock}
+          loading={loading}
+        />
+        <AnalyticsCard
+          title="Pending Grading"
+          value={data?.metrics?.pendingSubmissions ?? 0}
+          trendValue="Teacher action"
+          trendDirection="up"
+          color="blue"
           icon={XCircle}
           loading={loading}
         />
       </div>
 
-      {/* Charts Panel */}
+      {/* Charts Panel Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Quiz Distribution */}
+        {/* Quiz Attempts Trend */}
         <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
           <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-1.5">
-            <Trophy className="h-4 w-4 text-amber-400" /> Quiz Grade Accuracy Distribution
+            <TrendingUp className="h-4 w-4 text-emerald-400" /> Quiz Attempts Trend
           </h3>
           <div className="h-80 w-full">
             {loading ? (
-              <div className="h-full flex items-center justify-center text-white/30">Loading score distributions...</div>
+              <div className="h-full flex items-center justify-center text-white/30">Loading attempts trend...</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.quizDistribution}>
+                <AreaChart data={data?.attemptsTrend}>
+                  <defs>
+                    <linearGradient id="attemptsGlow" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-                  <XAxis dataKey="range" stroke="#ffffff40" fontSize={11} />
+                  <XAxis dataKey="date" stroke="#ffffff40" fontSize={11} />
                   <YAxis stroke="#ffffff40" fontSize={11} />
                   <Tooltip contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }} />
-                  <Bar dataKey="count" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
-                    {data?.quizDistribution?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={DIST_COLORS[index % DIST_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
+                  <Area type="monotone" dataKey="attempts" stroke="#10B981" fillOpacity={1} fill="url(#attemptsGlow)" strokeWidth={2} />
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </div>
@@ -179,6 +199,74 @@ export default function PerformanceAnalytics() {
               <span className="text-2xl font-black text-white">{data?.metrics?.passRate}%</span>
               <p className="text-[10px] text-white/40 uppercase font-semibold">Pass Compliance</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Panel Row 2 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quiz Distribution */}
+        <div className="rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
+          <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-1.5">
+            <Trophy className="h-4 w-4 text-amber-400" /> Quiz Grade Accuracy Distribution
+          </h3>
+          <div className="h-80 w-full">
+            {loading ? (
+              <div className="h-full flex items-center justify-center text-white/30">Loading score distributions...</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data?.quizDistribution}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                  <XAxis dataKey="range" stroke="#ffffff40" fontSize={11} />
+                  <YAxis stroke="#ffffff40" fontSize={11} />
+                  <Tooltip contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }} />
+                  <Bar dataKey="count" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
+                    {data?.quizDistribution?.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={DIST_COLORS[index % DIST_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Most Difficult Questions */}
+        <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl flex flex-col justify-between">
+          <div>
+            <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-1.5">
+              <AlertTriangle className="h-4 w-4 text-rose-500" /> Most Difficult Questions
+            </h3>
+            <div className="space-y-4">
+              {loading ? (
+                <div className="text-white/30 text-center py-12">Loading difficult questions...</div>
+              ) : !data?.mostDifficultQuestions || data.mostDifficultQuestions.length === 0 ? (
+                <div className="text-white/30 text-center py-12">No questions data available.</div>
+              ) : (
+                data.mostDifficultQuestions.map((q, idx) => (
+                  <div key={idx} className="p-4 rounded-xl border border-white/5 bg-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-white/90">{q.questionText}</p>
+                      <span className="text-xs text-white/40">{q.quizTitle}</span>
+                    </div>
+                    <div className="flex items-center gap-2 self-start sm:self-center">
+                      <div className="text-right">
+                        <span className="text-sm font-bold text-rose-400">{q.failureRate}%</span>
+                        <p className="text-[10px] text-white/40 uppercase">Failure Rate</p>
+                      </div>
+                      <div className="w-16 bg-white/10 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-rose-500 h-1.5 rounded-full" style={{ width: `${q.failureRate}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-white/5">
+            <p className="text-xs text-white/40">
+              💡 Tip: Review concepts related to these questions to optimize curriculum performance.
+            </p>
           </div>
         </div>
       </div>

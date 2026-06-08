@@ -24,6 +24,10 @@ const Profile = lazy(() => import("../pages/student/profile/Profile"));
 const Settings = lazy(() => import("../pages/student/settings/Settings"));
 const MyAttendance = lazy(() => import("../pages/student/attendance/MyAttendance"));
 const StudentAttendanceCalendar = lazy(() => import("../pages/student/attendance/StudentAttendanceCalendar"));
+const ProgressAnalytics = lazy(() => import("../pages/student/dashboard/ProgressAnalytics"));
+
+// Lazy load public pages
+const VerifyCertificate = lazy(() => import("../pages/shared/VerifyCertificate"));
 
 // Lazy load teacher pages
 const TeacherDashboard = lazy(() => import("../pages/teacher/dashboard/TeacherDashboard"));
@@ -57,12 +61,13 @@ const studentRoutes = {
     { path: "dashboard", element: <StudentDashboard /> },
     { path: "courses", element: <MyCourses /> },
     { path: "course/:id", element: <CourseDetails /> },
-    { path: "course/:courseId/player/:lectureId", element: <CoursePlayer /> },
+    { path: "course/:courseId/player/:topicId", element: <CoursePlayer /> }, // Map player with topicId
     { path: "assignments", element: <Assignments /> },
     { path: "assignments/:id", element: <AssignmentDetails /> },
     { path: "quizzes", element: <Quiz /> },
     { path: "messages", element: <Messages /> },
     { path: "certificates", element: <Certificates /> },
+    { path: "analytics", element: <ProgressAnalytics /> }, // Added ProgressAnalytics
     { path: "profile", element: <Profile /> },
     { path: "settings", element: <Settings /> },
     { path: "attendance", element: <MyAttendance /> },
@@ -145,6 +150,18 @@ const router = createBrowserRouter([
       <PageWrapper>
         <PublicLayout>
           <LoginPage />
+        </PublicLayout>
+      </PageWrapper>
+    ),
+  },
+
+  // Public certificate verification route (lazy loaded)
+  {
+    path: "verify-certificate/:certificateId",
+    element: (
+      <PageWrapper>
+        <PublicLayout>
+          <VerifyCertificate />
         </PublicLayout>
       </PageWrapper>
     ),

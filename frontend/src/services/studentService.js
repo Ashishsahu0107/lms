@@ -58,3 +58,11 @@ export async function sendMessage(recipientId, content, attachments = []) {
 export async function getStudentAnalytics() {
   return apiGet("/student/analytics");
 }
+
+export async function getProgressDetails(courseId) {
+  return apiGet(`/student/progress/course/${courseId}`);
+}
+
+export async function getStudentAnalyticsInsights() {
+  return apiGet("/student/analytics/insights");
+}

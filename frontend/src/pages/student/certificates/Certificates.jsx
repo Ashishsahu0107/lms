@@ -199,9 +199,16 @@ export default function Certificates() {
                   <p className="font-bold text-sm text-slate-700 font-serif">{selectedCert.issuedBy?.name || "LMS Platform Team"}</p>
                   <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">{selectedCert.issuedBy?.role?.replace("_", " ")}</p>
                 </div>
-                <div className="text-center space-y-1 bg-amber-500/5 px-4 py-2 rounded-lg border border-amber-500/10">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Verified Code</p>
-                  <p className="font-mono text-xs text-slate-800 font-bold">{selectedCert.certificateId}</p>
+                <div className="text-center space-y-1 bg-amber-500/5 px-4 py-2 rounded-lg border border-amber-500/10 flex flex-col items-center justify-center gap-1.5 shrink-0">
+                  <div className="w-14 h-14 bg-white p-0.5 rounded border border-amber-500/15 flex items-center justify-center shrink-0">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${encodeURIComponent(window.location.origin + "/verify-certificate/" + selectedCert.certificateId)}&color=0f172a&bgcolor=f8fafc`}
+                      alt="Verify QR"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <p className="text-[8px] text-slate-400 uppercase tracking-widest font-semibold">Verify Code</p>
+                  <p className="font-mono text-[9px] text-slate-800 font-bold">{selectedCert.certificateId}</p>
                 </div>
                 <div className="text-right space-y-1">
                   <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Date of Issue</p>
