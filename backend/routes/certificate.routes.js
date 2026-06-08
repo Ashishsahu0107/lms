@@ -7,11 +7,15 @@ import {
   getAllCertificatesController,
   deleteCertificateController,
   getCourseStudentsController,
+  verifyCertificateController,
 } from "../controllers/certificate.controller.js";
 
 const router = Router();
 
-// All certificate operations require authenticated user
+// Public unauthenticated route for certificate QR validation
+router.get("/verify/:certificateId", verifyCertificateController);
+
+// All certificate operations below require authenticated user
 router.use(authenticate);
 
 // GET /api/certificates -> Retrieve all certificates (Admin see all, Teacher see own)

@@ -11,7 +11,14 @@ import {
   sendMessageController,
   markMessagesReadController,
   deleteMessageController,
+  uploadAttachmentController,
+  createGroupController,
+  getGroupsController,
+  getGroupMessagesController,
+  sendGroupMessageController,
 } from "../controllers/message.controller.js";
+
+import { upload } from "../middleware/upload.js";
 
 const router = Router();
 
@@ -56,6 +63,38 @@ router.patch(
 router.delete(
   "/:messageId",
   deleteMessageController
+);
+
+// =====================================
+// ATTACHMENTS
+// =====================================
+router.post(
+  "/upload",
+  upload.single("file"),
+  uploadAttachmentController
+);
+
+// =====================================
+// GROUP CHATS
+// =====================================
+router.post(
+  "/groups",
+  createGroupController
+);
+
+router.get(
+  "/groups",
+  getGroupsController
+);
+
+router.get(
+  "/group/:groupId",
+  getGroupMessagesController
+);
+
+router.post(
+  "/group/:groupId",
+  sendGroupMessageController
 );
 
 // =====================================

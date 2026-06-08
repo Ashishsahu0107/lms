@@ -3,7 +3,10 @@ import { authenticate } from "../middleware/auth.js";
 import {
   getAiRecommendations,
   generateAiQuiz,
-  aiAssistant
+  aiAssistant,
+  aiChatController,
+  aiSummarizeController,
+  generateAiNotesController,
 } from "../controllers/ai.controller.js";
 import {
   getAiChats,
@@ -20,6 +23,9 @@ router.use(authenticate);
 router.post("/recommendations", getAiRecommendations);
 router.post("/generate-quiz", generateAiQuiz);
 router.post("/assistant", aiAssistant);
+router.post("/chat", aiChatController);
+router.post("/summarize", aiSummarizeController);
+router.post("/generate-notes", generateAiNotesController);
 
 // AI Chat Thread History Routes
 router.get("/chats", getAiChats);

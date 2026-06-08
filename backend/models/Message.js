@@ -48,7 +48,14 @@ const messageSchema = new mongoose.Schema(
     recipientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
+      index: true,
+    },
+
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ChatGroup",
+      required: false,
       index: true,
     },
 

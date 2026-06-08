@@ -22,6 +22,7 @@ import quizAttemptRouter from "./quizAttempt.routes.js";
 import dashboardRouter from "./dashboard.routes.js";
 import analyticsRouter from "./analytics.routes.js";
 import messageRouter from "./message.routes.js";
+import notificationRouter from "./notification.routes.js";
 import adminRouter from "./admin.routes.js";
 import adminModulesRouter from "./adminModules.routes.js";
 import teacherDashboardRouter from "./teacherDashboard.routes.js";
@@ -95,6 +96,7 @@ rootRouter.use("/teacher/analytics", analyticsRouter);
 import adminAnalyticsRouter from "./adminAnalytics.routes.js";
 
 rootRouter.use("/messages", messageRouter);
+rootRouter.use("/notifications", notificationRouter);
 rootRouter.use("/admin/analytics", adminAnalyticsRouter);
 rootRouter.use("/admin", adminRouter);
 rootRouter.use("/admin", adminModulesRouter);

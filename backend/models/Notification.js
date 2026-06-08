@@ -5,9 +5,26 @@ const notificationSchema = new mongoose.Schema(
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
       index: true,
     },
+    recipientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+      index: true,
+    },
+    read: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    readBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     targetRole: {
       type: String,
       enum: ["student", "teacher", "all"],
