@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, GraduationCap, Clock, AlertTriangle, RefreshCw, BarChart2 } from "lucide-react";
+import { BookOpen, GraduationCap, Clock, AlertTriangle, RefreshCw, BarChart2, Star } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, FunnelChart, Funnel, LabelList } from "recharts";
 import { getCourseAnalytics } from "../../../services/adminAnalyticsService";
 import AnalyticsCard from "./components/AnalyticsCard";
@@ -172,6 +172,8 @@ export default function CourseAnalytics() {
                 <th className="py-3 px-6">Instructor Name</th>
                 <th className="py-3 px-6 text-center">Enrolled Students</th>
                 <th className="py-3 px-6 text-center">Avg Progress Rate</th>
+                <th className="py-3 px-6 text-center">Rating</th>
+                <th className="py-3 px-6 text-center">Watch Time</th>
                 <th className="py-3 px-6 text-center">Retail Price</th>
                 <th className="py-3 px-6 text-center">Publishing State</th>
               </tr>
@@ -179,11 +181,11 @@ export default function CourseAnalytics() {
             <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-white/30">Loading courses matrix...</td>
+                  <td colSpan="8" className="py-8 text-center text-white/30">Loading courses matrix...</td>
                 </tr>
               ) : data?.popularCourses?.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-white/30">No courses match selected filters.</td>
+                  <td colSpan="8" className="py-8 text-center text-white/30">No courses match selected filters.</td>
                 </tr>
               ) : (
                 data?.popularCourses?.map((course) => (
@@ -199,6 +201,14 @@ export default function CourseAnalytics() {
                         </div>
                       </div>
                     </td>
+                    <td className="py-4 px-6 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                        <span className="font-bold text-amber-400">{course.averageRating?.toFixed(1) ?? "0.0"}</span>
+                        <span className="text-xs text-white/40">({course.totalRatings ?? 0})</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-center text-white/70 font-semibold">{course.totalWatchTime ?? 0} hrs</td>
                     <td className="py-4 px-6 text-center font-semibold text-amber-400">${course.price}</td>
                     <td className="py-4 px-6 text-center">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${

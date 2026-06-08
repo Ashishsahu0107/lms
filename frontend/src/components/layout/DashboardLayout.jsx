@@ -10,6 +10,7 @@ import { cn } from "../../utils/cn";
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
 import { useAuth } from "../../context/AuthContext";
+import FloatingAIChat from "../ai/FloatingAIChat";
 
 export function DashboardLayout({
   role = "student",
@@ -240,6 +241,8 @@ export function DashboardLayout({
         </main>
 
       </div>
+
+      <FloatingAIChat />
 
     </div>
   );

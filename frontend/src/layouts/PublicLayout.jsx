@@ -2,9 +2,9 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import { GraduationCap } from "lucide-react";
 
-export default function PublicLayout() {
+export default function PublicLayout({ children }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex flex-col justify-center">
       {/* Top Bar */}
       <div className="absolute top-0 left-0 right-0 z-10">
         <div className="flex items-center justify-between px-6 py-4">
@@ -22,7 +22,9 @@ export default function PublicLayout() {
       </div>
 
       {/* Content */}
-      <Outlet />
+      <div className="pt-20 pb-12 flex-1 flex items-center justify-center px-4">
+        {children || <Outlet />}
+      </div>
     </div>
   );
 }

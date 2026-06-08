@@ -122,12 +122,18 @@ export const messageService = {
       );
     }
 
+    let messageType = "text";
+    if (attachments && attachments.length > 0) {
+      messageType = attachments[0].type || "file";
+    }
+
     // Create Message
     const message = await Message.create({
       senderId,
       recipientId,
       content,
       attachments,
+      messageType,
       read: false,
     });
 
@@ -162,6 +168,7 @@ export const messageService = {
       {
         $set: {
           read: true,
+          readAt: new Date(),
         },
       }
     );
@@ -208,5 +215,85 @@ export const messageService = {
     await message.deleteOne();
 
     return true;
+  },
+
+  // =====================================
+  // GROUPS SERVICES
+  // =====================================
+  async getGroups(userId) {
+    const { ChatGroup } = await import("../models/ChatGroup.js");
+    return ChatGroup.find({ members: userId })
+      .populate("members", "name avatar role isOnline")
+      .populate("createdBy", "name")
+      .sort({ updatedAt: -1 });
+  },
+
+  async createGroup(name, description, members, createdBy) {
+    const { ChatGroup } = await import("../models/ChatGroup.js");
+    
+    // Ensure creator is in the members list
+    const memberIds = new Set(members.map(m => m.toString()));
+    memberIds.add(createdBy.toString());
+
+    const group = await ChatGroup.create({
+      name,
+      description,
+      members: Array.from(memberIds),
+      createdBy,
+    });
+
+    return group.populate("members", "name avatar role isOnline");
+  },
+
+  async getGroupMessages(groupId, userId) {
+    const { ChatGroup } = await import("../models/ChatGroup.js");
+    const group = await ChatGroup.findById(groupId);
+    if (!group) {
+      throw new BadRequestError("Group not found");
+    }
+
+    if (!group.members.includes(userId)) {
+      throw new UnauthorizedError("You are not a member of this group");
+    }
+
+    const messages = await Message.find({ groupId })
+      .populate("senderId", "name avatar role isOnline")
+      .sort({ createdAt: 1 });
+
+    return messages;
+  },
+
+  async sendGroupMessage(senderId, groupId, content, attachments = []) {
+    const { ChatGroup } = await import("../models/ChatGroup.js");
+    const group = await ChatGroup.findById(groupId);
+    if (!group) {
+      throw new BadRequestError("Group not found");
+    }
+
+    if (!group.members.includes(senderId)) {
+      throw new UnauthorizedError("You are not a member of this group");
+    }
+
+    let messageType = "text";
+    if (attachments && attachments.length > 0) {
+      messageType = attachments[0].type || "file";
+    }
+
+    const message = await Message.create({
+      senderId,
+      groupId,
+      content,
+      attachments,
+      messageType,
+      read: false,
+    });
+
+    await message.populate("senderId", "name avatar role isOnline");
+    
+    // Update group timestamp
+    group.updatedAt = new Date();
+    await group.save();
+
+    return message;
   },
 };

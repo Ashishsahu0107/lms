@@ -39,6 +39,11 @@ const studentNavItems = [
     path: "/student/courses",
   },
   {
+    icon: BarChart3,
+    label: "Analytics",
+    path: "/student/analytics",
+  },
+  {
     icon: ClipboardList,
     label: "Assignments",
     path: "/student/assignments",

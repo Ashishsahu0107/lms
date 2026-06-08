@@ -43,9 +43,12 @@ export const EVENTS = {
 
   // Payment / Revenue
   PAYMENT_COMPLETED: "paymentCompleted",
+  REVENUE_UPDATED: "revenueUpdated",
 
   // Users
   USER_REGISTERED: "userRegistered",
+  COURSE_ENROLLED: "courseEnrolled",
+  ANALYTICS_UPDATED: "analyticsUpdated",
 
   // Presence
   USER_ONLINE: "user-online",
@@ -134,8 +137,24 @@ export function initSocket(httpServer) {
       console.log(`[Socket] Admin joined admin:dashboard — ${userId}`);
     }
 
-    // Broadcast presence
-    socket.broadcast.emit(EVENTS.USER_ONLINE, { userId, role });
+    // Broadcast presence & Update DB
+    (async () => {
+      try {
+        const { User } = await import("../models/User.js");
+        await User.findByIdAndUpdate(userId, { isOnline: true });
+        socket.broadcast.emit(EVENTS.USER_ONLINE, { userId, role });
+        socket.broadcast.emit("userOnline", { userId, role });
+
+        const { ChatGroup } = await import("../models/ChatGroup.js");
+        const groups = await ChatGroup.find({ members: userId });
+        for (const g of groups) {
+          socket.join(`room:group:${g._id.toString()}`);
+          console.log(`[Socket] User ${userId} joined group room: ${g._id}`);
+        }
+      } catch (err) {
+        console.error("[Socket] Error in connection hooks:", err);
+      }
+    })();
 
     // ── Course Room Subscriptions (client requests to join a course room)
     socket.on("join-course", (courseId) => {
@@ -147,6 +166,33 @@ export function initSocket(httpServer) {
     socket.on("leave-course", (courseId) => {
       if (!courseId) return;
       socket.leave(ROOMS.course(courseId));
+    });
+
+    // ── Netflix Course Player Sockets ─────────────────────────────
+    socket.on("lectureStarted", (data) => {
+      if (data.courseId && data.topicId) {
+        ioInstance.to(ROOMS.course(data.courseId)).emit("lectureStarted", {
+          studentId: userId,
+          courseId: data.courseId,
+          topicId: data.topicId
+        });
+      }
+    });
+
+    socket.on("lectureCompleted", (data) => {
+      if (data.courseId && data.topicId) {
+        ioInstance.to(ROOMS.course(data.courseId)).emit("lectureCompleted", {
+          studentId: userId,
+          courseId: data.courseId,
+          topicId: data.topicId
+        });
+      }
+    });
+
+    socket.on("progressUpdated", (data) => {
+      if (data.courseId) {
+        ioInstance.to(ROOMS.student(userId)).emit("progressUpdated", data);
+      }
     });
 
     // ── Relay: Teacher real-time analytics relay events ─────────
@@ -172,11 +218,15 @@ export function initSocket(httpServer) {
 
     // ── Direct Messaging ────────────────────────────────────────
     socket.on("newMessage", (data) => {
-      if (data.recipientId) {
-        ioInstance
-          .to(ROOMS.student(data.recipientId))
-          .emit(EVENTS.NEW_MESSAGE, data);
-        ioInstance.to(ROOMS.student(data.recipientId)).emit("newMessage", data);
+      const { recipientId, groupId } = data;
+      if (groupId) {
+        ioInstance.to(`room:group:${groupId}`).emit("messageReceived", data);
+        ioInstance.to(`room:group:${groupId}`).emit("new-message", data);
+        ioInstance.to(`room:group:${groupId}`).emit("newMessage", data);
+      } else if (recipientId) {
+        ioInstance.to(ROOMS.student(recipientId)).emit("messageReceived", data);
+        ioInstance.to(ROOMS.student(recipientId)).emit(EVENTS.NEW_MESSAGE, data);
+        ioInstance.to(ROOMS.student(recipientId)).emit("newMessage", data);
       }
     });
 
@@ -190,20 +240,66 @@ export function initSocket(httpServer) {
 
     socket.on("send-message", async (data) => {
       try {
-        const { recipientId, content, attachments = [] } = data;
+        const { recipientId, groupId, content, attachments = [], messageType = "text" } = data;
         const payload = {
           senderId: userId,
           recipientId,
+          groupId,
           content,
           attachments,
+          messageType,
           createdAt: new Date(),
         };
-        ioInstance
-          .to(ROOMS.student(recipientId))
-          .emit(EVENTS.NEW_MESSAGE, payload);
+        if (groupId) {
+          ioInstance.to(`room:group:${groupId}`).emit("messageReceived", payload);
+          ioInstance.to(`room:group:${groupId}`).emit("new-message", payload);
+          ioInstance.to(`room:group:${groupId}`).emit("newMessage", payload);
+        } else if (recipientId) {
+          ioInstance.to(ROOMS.student(recipientId)).emit("messageReceived", payload);
+          ioInstance.to(ROOMS.student(recipientId)).emit(EVENTS.NEW_MESSAGE, payload);
+          ioInstance.to(ROOMS.student(recipientId)).emit("newMessage", payload);
+        }
+        socket.emit("messageSent", payload);
         socket.emit(EVENTS.MESSAGE_SENT, payload);
       } catch {
         socket.emit("socket-error", { message: "Failed to send message" });
+      }
+    });
+
+    // ── Typing Indicators ────────────────────────────────────────
+    socket.on("typing-start", (data) => {
+      const { recipientId, groupId } = data;
+      const payload = { userId, isTyping: true, groupId };
+      if (groupId) {
+        socket.to(`room:group:${groupId}`).emit("user-typing", payload);
+        socket.to(`room:group:${groupId}`).emit("userTyping", payload);
+      } else if (recipientId) {
+        ioInstance.to(ROOMS.student(recipientId)).emit("user-typing", payload);
+        ioInstance.to(ROOMS.student(recipientId)).emit("userTyping", payload);
+      }
+    });
+
+    socket.on("typing-stop", (data) => {
+      const { recipientId, groupId } = data;
+      const payload = { userId, isTyping: false, groupId };
+      if (groupId) {
+        socket.to(`room:group:${groupId}`).emit("user-stop-typing", payload);
+        socket.to(`room:group:${groupId}`).emit("userTyping", payload);
+      } else if (recipientId) {
+        ioInstance.to(ROOMS.student(recipientId)).emit("user-stop-typing", payload);
+        ioInstance.to(ROOMS.student(recipientId)).emit("userTyping", payload);
+      }
+    });
+
+    socket.on("userTyping", (data) => {
+      const { recipientId, groupId, isTyping } = data;
+      const payload = { userId, isTyping, groupId };
+      if (groupId) {
+        socket.to(`room:group:${groupId}`).emit("userTyping", payload);
+        socket.to(`room:group:${groupId}`).emit(isTyping ? "user-typing" : "user-stop-typing", payload);
+      } else if (recipientId) {
+        ioInstance.to(ROOMS.student(recipientId)).emit("userTyping", payload);
+        ioInstance.to(ROOMS.student(recipientId)).emit(isTyping ? "user-typing" : "user-stop-typing", payload);
       }
     });
 
@@ -294,7 +390,16 @@ export function initSocket(httpServer) {
     // ── Disconnect ───────────────────────────────────────────────
     socket.on("disconnect", () => {
       console.log(`[Socket] Disconnected — userId=${userId}`);
-      socket.broadcast.emit(EVENTS.USER_OFFLINE, { userId });
+      (async () => {
+        try {
+          const { User } = await import("../models/User.js");
+          await User.findByIdAndUpdate(userId, { isOnline: false, lastSeen: new Date() });
+          socket.broadcast.emit(EVENTS.USER_OFFLINE, { userId });
+          socket.broadcast.emit("userOffline", { userId });
+        } catch (err) {
+          console.error("[Socket] Error in disconnect hooks:", err);
+        }
+      })();
     });
   });
 
@@ -419,4 +524,21 @@ export function emitPaymentCompleted(studentId, payload) {
 /** New user registration — admin dashboard */
 export function emitUserRegistered(payload) {
   getIO().to(ROOMS.ADMIN_DASHBOARD).emit(EVENTS.USER_REGISTERED, payload);
+}
+
+/** Broadcast live revenue updates to admin + teacher dashboard */
+export function emitRevenueUpdated(payload) {
+  getIO().to(ROOMS.ADMIN_DASHBOARD).emit(EVENTS.REVENUE_UPDATED, payload);
+  getIO().to(ROOMS.TEACHER_DASHBOARD).emit(EVENTS.REVENUE_UPDATED, payload);
+}
+
+/** Broadcast live analytics summary updates to admin dashboard */
+export function emitAnalyticsUpdated(payload) {
+  getIO().to(ROOMS.ADMIN_DASHBOARD).emit(EVENTS.ANALYTICS_UPDATED, payload);
+}
+
+/** Broadcast live course enrollment updates to admin + teacher dashboard */
+export function emitCourseEnrolled(payload) {
+  getIO().to(ROOMS.ADMIN_DASHBOARD).emit(EVENTS.COURSE_ENROLLED, payload);
+  getIO().to(ROOMS.TEACHER_DASHBOARD).emit(EVENTS.COURSE_ENROLLED, payload);
 }

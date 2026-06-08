@@ -1,139 +1,170 @@
 import { User } from "../models/User.js";
+import { getIO, ROOMS } from "../socket/index.js";
 
-/**
- * Enterprise Gamification System Utility
- */
-
-export async function awardXP(userId, xpAmount, reason = "LMS Action") {
-  try {
-    const user = await User.findById(userId);
-    if (!user || user.role !== "student") return null;
-
-    user.xp = (user.xp || 0) + xpAmount;
-    
-    // Check milestones for achievements & badges
-    let unlockedNew = false;
-    
-    if (user.xp >= 100 && !user.badges.includes("Novice Scholar")) {
-      user.badges.push("Novice Scholar");
-      user.achievements.push({
-        title: "Novice Scholar",
-        description: "Reached 100 XP points on LMS Pro!",
-        unlockedAt: new Date(),
-      });
-      unlockedNew = true;
-    }
-    
-    if (user.xp >= 500 && !user.badges.includes("Expert Thinker")) {
-      user.badges.push("Expert Thinker");
-      user.achievements.push({
-        title: "Expert Thinker",
-        description: "Reached 500 XP points on LMS Pro!",
-        unlockedAt: new Date(),
-      });
-      unlockedNew = true;
-    }
-
-    if (user.xp >= 1000 && !user.badges.includes("Ultimate Graduate")) {
-      user.badges.push("Ultimate Graduate");
-      user.achievements.push({
-        title: "Ultimate Graduate",
-        description: "Reached 1,000 XP points on LMS Pro!",
-        unlockedAt: new Date(),
-      });
-      unlockedNew = true;
-    }
-
-    await user.save();
-    console.log(`[GAMIFICATION] Awarded ${xpAmount} XP to User ${userId}. Reason: ${reason}. Total: ${user.xp}`);
-
-    if (unlockedNew) {
-      try {
-        const { getIO } = await import("../socket/index.js");
-        const io = getIO();
-        io.to(`user:${userId}`).emit("achievement-unlocked", {
-          achievements: user.achievements,
-          xp: user.xp,
-          badges: user.badges,
-          latestAchievement: user.achievements[user.achievements.length - 1],
-        });
-      } catch (e) {
-        console.error("Failed to emit achievement socket event:", e);
-      }
-    }
-
-    return { xpAwarded: xpAmount, totalXP: user.xp, unlockedNew };
-  } catch (error) {
-    console.error("Failed to award XP:", error);
-    return null;
-  }
+// Helper to check date differences ignoring time
+function getCalendarDateString(date) {
+  if (!date) return "";
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export async function recordActivityStreak(userId) {
+export async function awardXPAndCheckStreak(userId, actionType, actionPayload = {}) {
   try {
     const user = await User.findById(userId);
-    if (!user || user.role !== "student") return null;
+    if (!user) return null;
 
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    if (!user.lastActiveDate) {
-      // First active ever
+    let xpGained = 0;
+    let badgeUnlocked = null;
+    let newlyUnlockedAchievements = [];
+
+    // ─────────────────────────────────────────────────────────────
+    // 1. STREAK CHECK-IN LOGIC
+    // ─────────────────────────────────────────────────────────────
+    const todayStr = getCalendarDateString(new Date());
+    const lastActiveStr = user.lastActiveDate ? getCalendarDateString(user.lastActiveDate) : "";
+
+    if (lastActiveStr === "") {
+      // First activity ever
       user.streak = 1;
-      user.lastActiveDate = now;
-      user.xp = (user.xp || 0) + 10; // Login bonus
+      user.lastActiveDate = new Date();
+      xpGained += 15; // streak starter bonus
+    } else if (lastActiveStr === todayStr) {
+      // Already active today, do not increment streak, no check-in bonus
     } else {
-      const lastActive = new Date(user.lastActiveDate);
-      const lastActiveDay = new Date(lastActive.getFullYear(), lastActive.getMonth(), lastActive.getDate());
-      
-      const diffTime = Math.abs(today - lastActiveDay);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = getCalendarDateString(yesterday);
 
-      if (diffDays === 1) {
-        // Active consecutive day!
-        user.streak = (user.streak || 0) + 1;
-        user.xp = (user.xp || 0) + 10; // Consecutive bonus
-        user.lastActiveDate = now;
-        
-        // Award badge for 7-day streak
-        let streakUnlocked = false;
-        if (user.streak >= 7 && !user.badges.includes("7-Day Fire")) {
-          user.badges.push("7-Day Fire");
-          user.achievements.push({
-            title: "7-Day Fire",
-            description: "Maintained a consecutive 7-day learning streak!",
-            unlockedAt: new Date(),
+      if (lastActiveStr === yesterdayStr) {
+        // Active yesterday, increment streak
+        user.streak += 1;
+        user.lastActiveDate = new Date();
+        xpGained += 15; // daily streak bonus
+      } else {
+        // Gap of more than 1 day, reset streak to 1
+        user.streak = 1;
+        user.lastActiveDate = new Date();
+        xpGained += 15; // reset streak starter bonus
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 2. XP ALLOCATION BY ACTION TYPE
+    // ─────────────────────────────────────────────────────────────
+    switch (actionType) {
+      case "COMPLETE_TOPIC":
+        xpGained += 10;
+        // Check "Quick Starter" badge (enrolled/completed first topic)
+        if (!user.badges.includes("Quick Starter")) {
+          badgeUnlocked = "Quick Starter";
+          newlyUnlockedAchievements.push({
+            title: "Quick Starter",
+            description: "Completed your first topic syllabus material."
           });
-          streakUnlocked = true;
         }
+        break;
 
-        if (streakUnlocked) {
-          try {
-            const { getIO } = await import("../socket/index.js");
-            const io = getIO();
-            io.to(`user:${userId}`).emit("achievement-unlocked", {
-              achievements: user.achievements,
-              xp: user.xp,
-              badges: user.badges,
-              latestAchievement: user.achievements[user.achievements.length - 1],
+      case "COMPLETE_QUIZ":
+        xpGained += 50;
+        const accuracy = actionPayload.accuracy || 0;
+        if (accuracy >= 90) {
+          xpGained += 20; // 90%+ bonus
+          if (!user.badges.includes("Quiz Master")) {
+            badgeUnlocked = "Quiz Master";
+            newlyUnlockedAchievements.push({
+              title: "Quiz Master",
+              description: "Scored 90% or above on an official quiz evaluation."
             });
-          } catch (e) {
-            console.error("Failed to emit streak achievement socket event:", e);
           }
         }
-      } else if (diffDays > 1) {
-        // Streak broken
-        user.streak = 1;
-        user.xp = (user.xp || 0) + 10; // Daily reward
-        user.lastActiveDate = now;
-      }
-      // If diffDays === 0, already logged in today, do not award extra XP
+        if (accuracy === 100) {
+          xpGained += 10; // perfect score bonus
+          if (!user.badges.includes("Perfect Score")) {
+            badgeUnlocked = "Perfect Score";
+            newlyUnlockedAchievements.push({
+              title: "Perfect Score",
+              description: "Earned a flawless 100% score on a quiz or assignment."
+            });
+          }
+        }
+        break;
+
+      case "SUBMIT_ASSIGNMENT":
+        xpGained += 30;
+        break;
+
+      case "COMPLETE_COURSE":
+        xpGained += 200;
+        if (!user.badges.includes("Syllabus Conqueror")) {
+          badgeUnlocked = "Syllabus Conqueror";
+          newlyUnlockedAchievements.push({
+            title: "Syllabus Conqueror",
+            description: "Conquered 100% curriculum validation of a full course."
+          });
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 3. STREAK-BASED BADGES
+    // ─────────────────────────────────────────────────────────────
+    if (user.streak >= 3 && !user.badges.includes("Consistent Learner")) {
+      badgeUnlocked = "Consistent Learner";
+      newlyUnlockedAchievements.push({
+        title: "Consistent Learner",
+        description: "Maintained a continuous 3-day active learning streak."
+      });
+    }
+
+    // Apply XP increase
+    user.xp = (user.xp || 0) + xpGained;
+
+    // Apply newly unlocked achievements
+    if (badgeUnlocked && !user.badges.includes(badgeUnlocked)) {
+      user.badges.push(badgeUnlocked);
+    }
+    
+    if (newlyUnlockedAchievements.length > 0) {
+      user.achievements.push(...newlyUnlockedAchievements.map(a => ({
+        title: a.title,
+        description: a.description,
+        unlockedAt: new Date()
+      })));
     }
 
     await user.save();
-    return { streak: user.streak, xp: user.xp };
-  } catch (error) {
-    console.error("Failed to record activity streak:", error);
+
+    // ─────────────────────────────────────────────────────────────
+    // 4. REAL-TIME SOCKET EMISSION
+    // ─────────────────────────────────────────────────────────────
+    if (newlyUnlockedAchievements.length > 0) {
+      try {
+        const io = getIO();
+        const personalRoom = ROOMS.student(userId.toString());
+        io.to(personalRoom).emit("achievement-unlocked", {
+          xp: user.xp,
+          badges: user.badges,
+          achievements: user.achievements,
+          latestAchievement: newlyUnlockedAchievements[newlyUnlockedAchievements.length - 1]
+        });
+      } catch (err) {
+        console.error("Failed to emit achievement-unlocked socket event:", err.message);
+      }
+    }
+
+    return {
+      xp: user.xp,
+      streak: user.streak,
+      badges: user.badges,
+      achievements: user.achievements,
+      gainedXP: xpGained,
+      unlockedBadge: badgeUnlocked
+    };
+  } catch (err) {
+    console.error("Error in awardXPAndCheckStreak:", err);
     return null;
   }
 }
