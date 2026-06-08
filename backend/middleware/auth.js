@@ -95,6 +95,20 @@ export function authorize(...roles) {
 
     // Check Role
     if (!roles.includes(req.user.role)) {
+      try {
+        import("../utils/securityLogger.js").then(({ logSecurityEvent }) => {
+          logSecurityEvent({
+            userId: req.user._id,
+            action: "API_UNAUTHORIZED",
+            details: `Unauthorized attempt to access route requiring roles: [${roles.join(", ")}]. User role: ${req.user.role}`,
+            ip: req.ip,
+            device: req.headers["user-agent"] || "",
+            severity: "high"
+          });
+        });
+      } catch (logErr) {
+        console.error("[Log] Failed to log unauthorized route access:", logErr);
+      }
 
       return next(
         new UnauthorizedError(

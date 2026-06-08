@@ -246,3 +246,25 @@ export async function getCourseStudentsController(req, res, next) {
   }
 }
 
+export async function verifyCertificateController(req, res, next) {
+  try {
+    const { certificateId } = req.params;
+    const cert = await Certificate.findOne({ certificateId })
+      .populate("student", "name email avatar")
+      .populate("course", "title description thumbnail averageRating totalRatings difficulty duration")
+      .populate("issuedBy", "name role");
+
+    if (!cert) {
+      throw new NotFoundError("Certificate with the specified ID could not be found or verified.");
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Certificate verified successfully",
+      data: cert,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+

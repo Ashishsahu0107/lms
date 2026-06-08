@@ -18,6 +18,18 @@ export async function loginController(req, res, next) {
     // Look up user first to check verification state
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
+      try {
+        const { logSecurityEvent } = await import("../utils/securityLogger.js");
+        await logSecurityEvent({
+          action: "FAILED_LOGIN",
+          details: `Failed login attempt: user with email ${email} not found`,
+          ip: req.ip,
+          device: req.headers["user-agent"] || "",
+          severity: "medium"
+        });
+      } catch (logErr) {
+        console.error("[Log] Error logging failed login:", logErr);
+      }
       throw new UnauthorizedError("Invalid email or password");
     }
 
@@ -25,6 +37,19 @@ export async function loginController(req, res, next) {
     const selectUser = await User.findOne({ email: email.toLowerCase() }).select("+password");
     const isPasswordValid = await bcrypt.compare(password, selectUser.password);
     if (!isPasswordValid) {
+      try {
+        const { logSecurityEvent } = await import("../utils/securityLogger.js");
+        await logSecurityEvent({
+          userId: user._id,
+          action: "FAILED_LOGIN",
+          details: `Failed login attempt: incorrect password for email ${email}`,
+          ip: req.ip,
+          device: req.headers["user-agent"] || "",
+          severity: "medium"
+        });
+      } catch (logErr) {
+        console.error("[Log] Error logging failed login:", logErr);
+      }
       throw new UnauthorizedError("Invalid email or password");
     }
 
@@ -42,6 +67,21 @@ export async function loginController(req, res, next) {
 
     // Regular Login Service
     const result = await authService.login({ email, password });
+
+    // Log Successful Login
+    try {
+      const { logSecurityEvent } = await import("../utils/securityLogger.js");
+      await logSecurityEvent({
+        userId: user._id,
+        action: "USER_LOGIN",
+        details: `Successful login for email: ${user.email}`,
+        ip: req.ip,
+        device: req.headers["user-agent"] || "",
+        severity: "low"
+      });
+    } catch (logErr) {
+      console.error("[Log] Error logging successful login:", logErr);
+    }
 
     return res.status(200).json({
       success: true,
@@ -80,6 +120,40 @@ export async function registerController(req, res, next) {
     const user = await User.findOne({ email: email.toLowerCase() });
     user.isVerified = true;
     await user.save();
+
+    // 3. Real-time telemetry updates & clear cache
+    try {
+      const { emitUserRegistered, emitAnalyticsUpdated } = await import("../socket/index.js");
+      const { analyticsService } = await import("../services/analytics.service.js");
+      const { logSecurityEvent } = await import("../utils/securityLogger.js");
+      
+      analyticsService.clearCache();
+      
+      const payload = {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt
+      };
+      
+      emitUserRegistered(payload);
+      
+      const overview = await analyticsService.getOverviewAnalytics();
+      emitAnalyticsUpdated(overview);
+
+      // Log security event
+      await logSecurityEvent({
+        userId: user._id,
+        action: "USER_REGISTERED",
+        details: `New student registration: ${user.email}`,
+        ip: req.ip,
+        device: req.headers["user-agent"] || "",
+        severity: "low"
+      });
+    } catch (socketErr) {
+      console.error("[Socket/Logger] Failed to run registration hooks:", socketErr);
+    }
 
     return res.status(201).json({
       success: true,
@@ -299,6 +373,20 @@ export async function resetPasswordController(req, res, next) {
     user.isEmailVerified = true;
     user.isVerified = true;
     await user.save();
+
+    try {
+      const { logSecurityEvent } = await import("../utils/securityLogger.js");
+      await logSecurityEvent({
+        userId: user._id,
+        action: "PASSWORD_RESET",
+        details: `Successful password recovery/reset for: ${user.email}`,
+        ip: req.ip,
+        device: req.headers["user-agent"] || "",
+        severity: "medium"
+      });
+    } catch (logErr) {
+      console.error("[Log] Failed to log password reset:", logErr);
+    }
 
     return res.status(200).json({
       success: true,

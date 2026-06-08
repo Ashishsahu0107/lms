@@ -54,6 +54,35 @@ export async function enrollCourseController(req, res, next) {
   try {
     const { courseId } = req.body;
     const course = await studentService.enrollInCourse(req.user._id, courseId);
+    
+    // Trigger socket updates
+    try {
+      const { emitCourseEnrolled, emitAnalyticsUpdated, emitRevenueUpdated } = await import("../socket/index.js");
+      const { analyticsService } = await import("../services/analytics.service.js");
+      
+      const payload = {
+        studentId: req.user._id,
+        studentName: req.user.name,
+        courseId: course._id,
+        courseTitle: course.title,
+        price: course.price || 0,
+        enrolledAt: new Date()
+      };
+      
+      emitCourseEnrolled(payload);
+      
+      // Get fresh overview analytics
+      const overview = await analyticsService.getOverviewAnalytics();
+      emitAnalyticsUpdated(overview);
+
+      if (course.price > 0) {
+        const revenue = await analyticsService.getRevenueAnalytics();
+        emitRevenueUpdated(revenue);
+      }
+    } catch (socketErr) {
+      console.error("[Socket] Failed to emit enrollment stats:", socketErr);
+    }
+
     res.status(201).json(course);
   } catch (err) {
     next(err);
@@ -95,6 +124,25 @@ export async function getCertificateController(req, res, next) {
     const { courseId } = req.params;
     const cert = await studentService.getCertificate(req.user._id, courseId);
     res.json(cert);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getProgressDetailsController(req, res, next) {
+  try {
+    const { courseId } = req.params;
+    const details = await studentService.getProgressDetails(req.user._id, courseId);
+    res.json({ success: true, data: details });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getStudentAnalyticsInsightsController(req, res, next) {
+  try {
+    const insights = await studentService.getStudentAnalyticsInsights(req.user._id);
+    res.json({ success: true, data: insights });
   } catch (err) {
     next(err);
   }

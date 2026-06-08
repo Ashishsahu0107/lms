@@ -52,8 +52,20 @@ function fileFilter(_req, file, cb) {
     "application/x-zip-compressed",
     "application/x-zip"
   ];
+  const audioTypes = [
+    "audio/webm",
+    "audio/mp3",
+    "audio/wav",
+    "audio/ogg",
+    "audio/m4a",
+    "audio/mpeg",
+    "audio/x-m4a",
+    "audio/aac",
+    "audio/flac",
+    "audio/mp4"
+  ];
 
-  const allowed = [...imageTypes, ...videoTypes, ...docTypes];
+  const allowed = [...imageTypes, ...videoTypes, ...docTypes, ...audioTypes];
 
   if (allowed.includes(file.mimetype)) {
     cb(null, true);

@@ -94,6 +94,20 @@ export async function changeSettingsPasswordController(req, res, next) {
     user.passwordChangedAt = new Date();
     await user.save();
 
+    try {
+      const { logSecurityEvent } = await import("../utils/securityLogger.js");
+      await logSecurityEvent({
+        userId: user._id,
+        action: "PASSWORD_CHANGE",
+        details: `Successful password change for account: ${user.email}`,
+        ip: req.ip,
+        device: req.headers["user-agent"] || "",
+        severity: "medium"
+      });
+    } catch (logErr) {
+      console.error("[Log] Failed to log password change:", logErr);
+    }
+
     return res.status(200).json({
       success: true,
       message: "Password changed successfully",

@@ -3,6 +3,10 @@ import cors from "cors";
 import http from "http";
 import path from "path";
 import compression from "compression";
+import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
+import xss from "xss-clean";
+import mongoSanitize from "mongo-sanitize";
 
 import { env } from "./config/env.js";
 import { connectDb } from "./config/db.js";
@@ -21,6 +25,39 @@ app.use(compression());
 
 // Disable signature header for security
 app.disable("x-powered-by");
+
+// Secure HTTP Headers
+app.use(helmet());
+
+// Prevent Cross-Site Scripting (XSS)
+app.use(xss());
+
+// Prevent MongoDB Operator Injection (Mongo Sanitization)
+app.use((req, res, next) => {
+  if (req.body) req.body = mongoSanitize(req.body);
+  if (req.query) req.query = mongoSanitize(req.query);
+  if (req.params) req.params = mongoSanitize(req.params);
+  next();
+});
+
+// Rate limiting configurations
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 mins
+  max: 200, // Limit each IP to 200 requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many requests, please try again later." },
+});
+app.use("/api", limiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // Limit each IP to 30 requests per 15 minutes for auth endpoints
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many authentication attempts, please try again in 15 minutes." },
+});
+app.use("/api/auth", authLimiter);
 
 // CORS Configuration
 const allowedOrigins = [
