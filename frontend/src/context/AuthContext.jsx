@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setTheme } from "../store/themeSlice";
 import { ROLES } from "../constants/roles";
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const dispatch = useDispatch();
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -22,10 +25,14 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData);
+    if (userData?.preferences?.theme) {
+      dispatch(setTheme(userData.preferences.theme));
+    }
   };
 
   const logout = () => {
     setUser(null);
+    dispatch(setTheme("system"));
   };
 
   const value = useMemo(() => ({

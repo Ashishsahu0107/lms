@@ -20,9 +20,13 @@ import {
   MessageSquare,
   X,
   Calendar,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import { cn } from "../../utils/cn";
+import { useTheme } from "../../hooks/useTheme";
+import { ThemeToggle } from "../common/ThemeToggle";
 
 // ============================================
 // STUDENT NAVIGATION
@@ -178,6 +182,7 @@ export function Sidebar({
   onMobileClose,
 }) {
   const location = useLocation();
+  const { isDarkMode, setTheme } = useTheme();
 
   // ============================================
   // ROLE NAVIGATION
@@ -282,7 +287,7 @@ export function Sidebar({
       </div>
 
       {/* NAVIGATION */}
-      <div className="flex-1 overflow-y-auto px-3 py-5">
+      <div className="flex-1 overflow-hidden px-3 py-5">
 
         <ul className="menu gap-2">
 
@@ -386,6 +391,21 @@ export function Sidebar({
 
       </div>
 
+      {/* THEME SWITCHER */}
+      <div className="border-t border-base-300 p-4">
+        {isCollapsed ? (
+          <button
+            onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+            className="btn btn-ghost btn-circle w-full flex items-center justify-center mx-auto"
+            title="Toggle theme"
+          >
+            {isDarkMode ? <Sun className="h-5 w-5 text-warning" /> : <Moon className="h-5 w-5 text-primary" />}
+          </button>
+        ) : (
+          <ThemeToggle variant="sidebar" />
+        )}
+      </div>
+
       {/* COLLAPSE BUTTON */}
       <div className="hidden border-t border-base-300 p-4 lg:block">
 
@@ -438,7 +458,7 @@ export function Sidebar({
           stiffness: 260,
           damping: 25,
         }}
-        className="fixed left-0 top-0 z-50 h-screen w-72 border-r border-base-300 shadow-2xl lg:hidden"
+        className="fixed inset-y-0 left-0 z-50 w-72 overflow-hidden overscroll-none border-r border-base-300 shadow-2xl lg:hidden"
       >
 
         {renderSidebarContent()}
@@ -448,7 +468,7 @@ export function Sidebar({
       {/* DESKTOP SIDEBAR */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-30 hidden h-screen flex-col border-r border-base-300 bg-base-100 shadow-sm transition-all duration-300 lg:flex",
+          "fixed inset-y-0 left-0 z-30 hidden overflow-hidden overscroll-none flex-col border-r border-base-300 bg-base-100 shadow-sm transition-all duration-300 lg:flex",
           isCollapsed
             ? "w-24"
             : "w-72"

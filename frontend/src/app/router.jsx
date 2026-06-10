@@ -43,9 +43,11 @@ import {
 
 import { motion } from "framer-motion";
 
+import { cn } from "../utils/cn";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { globalSearch } from "../services/searchService";
+import ThemeToggle from "../components/common/ThemeToggle";
 import { ROLES } from "../constants/roles";
 import PublicLayout from "../layouts/PublicLayout";
 import { AuthModalProvider } from "../context/AuthModalContext";
@@ -572,31 +574,31 @@ function DashboardLayout() {
 
   return (
     <div
-      data-theme="luxury"
-      className="min-h-screen font-sans antialiased"
-      style={{ background: "#0F172A", color: "#FFFFFF" }}
+      className="h-screen overflow-hidden font-sans antialiased bg-base-200 text-base-content transition-colors duration-300"
     >
-      {/* LUXURY GOLD GLOW ORBS */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div
-          className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-8"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(201,162,39,0.3) 0%, transparent 70%)",
-            filter: "blur(80px)",
-          }}
-        />
-        <div
-          className="absolute bottom-1/4 right-0 w-80 h-80 rounded-full opacity-6"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%)",
-            filter: "blur(70px)",
-          }}
-        />
-      </div>
+      {/* LUXURY GOLD GLOW ORBS (only in dark mode) */}
+      {isDarkMode && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div
+            className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-8"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(201,162,39,0.3) 0%, transparent 70%)",
+              filter: "blur(80px)",
+            }}
+          />
+          <div
+            className="absolute bottom-1/4 right-0 w-80 h-80 rounded-full opacity-6"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%)",
+              filter: "blur(70px)",
+            }}
+          />
+        </div>
+      )}
 
-      <div className="flex relative z-10">
+      <div className="flex h-screen relative z-10">
         {/* MOBILE OVERLAY */}
         {sidebarOpen && (
           <div
@@ -607,87 +609,69 @@ function DashboardLayout() {
 
         {/* ── LUXURY SIDEBAR ── */}
         <aside
-          className="fixed lg:static z-50 h-screen w-72 flex flex-col transition-transform duration-300"
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 w-72 flex flex-col overflow-hidden overscroll-none transition-all duration-300 bg-base-100/95 border-r border-base-300/40 backdrop-blur-2xl -translate-x-full lg:translate-x-0",
+            sidebarOpen && "translate-x-0"
+          )}
           style={{
-            background: "rgba(15,23,42,0.95)",
-            backdropFilter: "blur(24px)",
-            borderRight: "1px solid rgba(201,162,39,0.12)",
             transform: sidebarOpen ? "translateX(0)" : undefined,
           }}
         >
           {/* Logo */}
           <div
-            className="flex items-center justify-between px-6 py-5"
-            style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}
+            className="flex items-center justify-between px-6 py-5 border-b border-base-300/40"
           >
             <div className="flex items-center gap-3">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{
-                  background: "linear-gradient(135deg, #C9A227, #F59E0B)",
-                }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary text-primary-content shadow-sm"
               >
-                <Sparkles className="h-5 w-5 text-slate-950" />
+                <Sparkles className="h-5 w-5" />
               </div>
               <div>
                 <h1
-                  className="text-lg font-black tracking-tight"
-                  style={{ color: "#C9A227" }}
+                  className="text-lg font-black tracking-tight text-primary"
                 >
-                  LMS <span className="text-white">PRO</span>
+                  LMS <span className="text-base-content">PRO</span>
                 </h1>
                 <p
-                  className="text-[9px] uppercase font-bold tracking-widest"
-                  style={{ color: "rgba(201,162,39,0.6)" }}
+                  className="text-[9px] uppercase font-bold tracking-widest text-primary/75"
                 >
                   Enterprise Suite
                 </p>
               </div>
             </div>
             <button
-              className="p-1.5 rounded-lg lg:hidden"
-              style={{ background: "rgba(255,255,255,0.05)" }}
+              className="p-1.5 rounded-lg lg:hidden bg-base-200/60 border border-base-300/40 hover:bg-base-200"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-4 w-4 text-slate-400" />
+              <X className="h-4 w-4 text-base-content/60" />
             </button>
           </div>
 
           {/* User Card */}
           <div
-            className="px-4 py-4"
-            style={{ borderBottom: "1px solid rgba(201,162,39,0.08)" }}
+            className="px-4 py-4 border-b border-base-300/30"
           >
             <div
-              className="flex items-center gap-3 p-3 rounded-2xl"
-              style={{
-                background: "rgba(201,162,39,0.06)",
-                border: "1px solid rgba(201,162,39,0.12)",
-              }}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-base-200/50 border border-base-300/30"
             >
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0"
-                style={{
-                  background: "linear-gradient(135deg, #C9A227, #F59E0B)",
-                  color: "#0F172A",
-                }}
+                className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 bg-primary text-primary-content"
               >
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-white truncate">
+                <p className="text-sm font-bold text-base-content truncate">
                   {user?.name || "User"}
                 </p>
                 <p
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: "#C9A227" }}
+                  className="text-[10px] font-bold uppercase tracking-wider text-primary"
                 >
                   {user?.role?.replace("_", " ")}
                 </p>
               </div>
               <div
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ background: "#34D399" }}
+                className="w-2 h-2 rounded-full shrink-0 bg-success"
               />
             </div>
           </div>
@@ -702,45 +686,25 @@ function DashboardLayout() {
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className="group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200"
-                  style={
+                  className={cn(
+                    "group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 border border-transparent",
                     isActive
-                      ? {
-                          background:
-                            "linear-gradient(135deg, rgba(201,162,39,0.2), rgba(245,158,11,0.1))",
-                          border: "1px solid rgba(201,162,39,0.3)",
-                          color: "#C9A227",
-                        }
-                      : {
-                          border: "1px solid transparent",
-                          color: "#94A3B8",
-                        }
-                  }
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background =
-                        "rgba(201,162,39,0.06)";
-                      e.currentTarget.style.color = "#CBD5E1";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.color = "#94A3B8";
-                    }
-                  }}
+                      ? "bg-primary/10 border-primary/20 text-primary"
+                      : "text-base-content/70 hover:bg-base-200/60 hover:text-base-content"
+                  )}
                 >
                   <div className="flex items-center gap-3">
                     <Icon
-                      className="h-4 w-4 shrink-0"
-                      style={{ color: isActive ? "#C9A227" : "inherit" }}
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-colors",
+                        isActive ? "text-primary" : "text-base-content/60 group-hover:text-base-content"
+                      )}
                     />
                     <span>{item.label}</span>
                   </div>
                   {isActive && (
                     <ChevronRight
-                      className="h-3.5 w-3.5"
-                      style={{ color: "#C9A227" }}
+                      className="h-3.5 w-3.5 text-primary"
                     />
                   )}
                 </Link>
@@ -748,25 +712,20 @@ function DashboardLayout() {
             })}
           </div>
 
+          {/* Theme Switcher */}
+          <div
+            className="px-4 py-3 border-t border-base-300/30"
+          >
+            <ThemeToggle variant="sidebar" />
+          </div>
+
           {/* Logout */}
           <div
             className="px-4 py-4"
-            style={{ borderTop: "1px solid rgba(201,162,39,0.08)" }}
           >
             <button
               onClick={handleLogout}
-              className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200"
-              style={{
-                background: "rgba(239,68,68,0.08)",
-                border: "1px solid rgba(239,68,68,0.2)",
-                color: "#F87171",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(239,68,68,0.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(239,68,68,0.08)";
-              }}
+              className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200 bg-error/10 border border-error/20 text-error hover:bg-error/20"
             >
               <LogOut className="h-4 w-4" />
               Sign Out
@@ -775,38 +734,26 @@ function DashboardLayout() {
         </aside>
 
         {/* ── MAIN CONTENT ── */}
-        <main className="flex-1 min-w-0 min-h-screen flex flex-col lg:ml-0">
+        <main className="flex-1 min-w-0 h-screen flex flex-col lg:ml-72 overflow-y-auto">
           {/* LUXURY TOPBAR */}
           <header
-            className="sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4"
-            style={{
-              background: "rgba(15,23,42,0.88)",
-              backdropFilter: "blur(20px)",
-              borderBottom: "1px solid rgba(201,162,39,0.1)",
-            }}
+            className="sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4 transition-all duration-300 bg-base-100/80 border-b border-base-300/40 backdrop-blur-xl shadow-sm"
           >
             {/* Left: Menu + Title */}
             <div className="flex items-center gap-4">
               <button
-                className="p-2 rounded-xl lg:hidden transition-all"
-                style={{
-                  background: "rgba(201,162,39,0.08)",
-                  border: "1px solid rgba(201,162,39,0.15)",
-                }}
+                className="p-2 rounded-xl lg:hidden transition-all bg-base-200/60 border border-base-300/40 hover:bg-base-200"
                 onClick={() => setSidebarOpen(true)}
               >
-                <Menu className="h-5 w-5" style={{ color: "#C9A227" }} />
+                <Menu className="h-5 w-5 text-primary" />
               </button>
               <div className="hidden sm:flex items-center gap-2">
                 <div
-                  className="w-1.5 h-5 rounded-full"
-                  style={{
-                    background: "linear-gradient(180deg, #C9A227, #F59E0B)",
-                  }}
+                  className="w-1.5 h-5 rounded-full bg-primary"
                 />
-                <h2 className="text-sm font-black uppercase tracking-wider text-white">
+                <h2 className="text-sm font-black uppercase tracking-wider text-base-content">
                   {user?.role?.replace("_", " ")}{" "}
-                  <span style={{ color: "#C9A227" }}>Workspace</span>
+                  <span className="text-primary">Workspace</span>
                 </h2>
               </div>
             </div>
@@ -815,30 +762,14 @@ function DashboardLayout() {
             <div className="flex-1 max-w-md hidden md:block">
               <button
                 onClick={() => setSearchOpen(true)}
-                className="w-full flex items-center justify-between px-4 py-2 rounded-xl transition-all duration-200"
-                style={{
-                  background: "rgba(201,162,39,0.05)",
-                  border: "1px solid rgba(201,162,39,0.12)",
-                  color: "#94A3B8",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(201,162,39,0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(201,162,39,0.12)";
-                }}
+                className="w-full flex items-center justify-between px-4 py-2 rounded-xl transition-all duration-200 bg-base-200/60 border border-base-300/30 hover:border-primary/40 text-base-content/60 hover:text-base-content"
               >
                 <div className="flex items-center gap-2 text-sm">
-                  <Search className="h-4 w-4" style={{ color: "#C9A227" }} />
+                  <Search className="h-4 w-4 text-primary" />
                   <span>Search anything...</span>
                 </div>
                 <kbd
-                  className="px-2 py-0.5 rounded text-[9px] font-bold uppercase"
-                  style={{
-                    background: "rgba(201,162,39,0.1)",
-                    border: "1px solid rgba(201,162,39,0.2)",
-                    color: "#C9A227",
-                  }}
+                  className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-base-300 border border-base-300/60 text-base-content/80"
                 >
                   Ctrl+K
                 </kbd>
@@ -849,54 +780,24 @@ function DashboardLayout() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2 rounded-xl md:hidden"
-                style={{
-                  background: "rgba(201,162,39,0.08)",
-                  border: "1px solid rgba(201,162,39,0.15)",
-                }}
+                className="p-2 rounded-xl md:hidden bg-base-200/60 border border-base-300/40 hover:bg-base-200 text-primary"
               >
-                <Search className="h-4 w-4" style={{ color: "#C9A227" }} />
+                <Search className="h-4 w-4" />
               </button>
 
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-xl transition-all"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                {isDarkMode ? (
-                  <Sun className="h-4 w-4" style={{ color: "#C9A227" }} />
-                ) : (
-                  <Moon className="h-4 w-4 text-indigo-400" />
-                )}
-              </button>
+              <ThemeToggle variant="navbar" />
 
               <button
-                className="p-2 rounded-xl relative"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
+                className="p-2 rounded-xl relative bg-base-200/40 border border-base-300/30 text-base-content/70 hover:bg-base-200"
               >
-                <Bell className="h-4 w-4 text-slate-400" />
+                <Bell className="h-4 w-4" />
                 <span
-                  className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse"
-                  style={{
-                    background: "#C9A227",
-                    boxShadow: "0 0 6px rgba(201,162,39,0.6)",
-                  }}
+                  className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse bg-primary"
                 />
               </button>
 
               <div
-                className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs cursor-pointer"
-                style={{
-                  background: "linear-gradient(135deg, #C9A227, #F59E0B)",
-                  color: "#0F172A",
-                  boxShadow: "0 0 12px rgba(201,162,39,0.4)",
-                }}
+                className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs cursor-pointer bg-primary text-primary-content shadow-sm"
               >
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
@@ -926,36 +827,26 @@ function DashboardLayout() {
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="relative w-full max-w-2xl flex flex-col max-h-[70vh] z-10 overflow-hidden"
-            style={{
-              background: "rgba(15,23,42,0.98)",
-              border: "1px solid rgba(201,162,39,0.2)",
-              borderRadius: "1.5rem",
-              boxShadow:
-                "0 25px 60px rgba(0,0,0,0.6), 0 0 30px rgba(201,162,39,0.08)",
-            }}
+            className="relative w-full max-w-2xl flex flex-col max-h-[70vh] z-10 overflow-hidden bg-base-100 border border-base-300/60 rounded-3xl shadow-2xl backdrop-blur-xl"
           >
             {/* Search Input */}
             <div
-              className="p-4 flex items-center gap-3"
-              style={{ borderBottom: "1px solid rgba(201,162,39,0.1)" }}
+              className="p-4 flex items-center gap-3 border-b border-base-300/30"
             >
               <Search
-                className="h-5 w-5 shrink-0"
-                style={{ color: "#C9A227" }}
+                className="h-5 w-5 shrink-0 text-primary"
               />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search courses, notes, schedules..."
-                className="flex-1 bg-transparent text-sm text-white focus:outline-none placeholder-slate-600"
+                className="flex-1 bg-transparent text-sm text-base-content focus:outline-none placeholder-base-content/40"
                 autoFocus
               />
               <button
                 onClick={() => setSearchOpen(false)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-white transition"
-                style={{ background: "rgba(255,255,255,0.04)" }}
+                className="p-1.5 rounded-lg text-base-content/60 hover:text-base-content hover:bg-base-200 transition"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -966,10 +857,9 @@ function DashboardLayout() {
               {searchLoading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <RefreshCw
-                    className="h-6 w-6 animate-spin"
-                    style={{ color: "#C9A227" }}
+                    className="h-6 w-6 animate-spin text-primary"
                   />
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-base-content/60">
                     Searching database...
                   </span>
                 </div>
@@ -977,10 +867,9 @@ function DashboardLayout() {
               {!searchLoading && searchQuery.trim() === "" && (
                 <div className="text-center py-12">
                   <Search
-                    className="h-10 w-10 mx-auto mb-3 opacity-20"
-                    style={{ color: "#C9A227" }}
+                    className="h-10 w-10 mx-auto mb-3 opacity-20 text-primary"
                   />
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-base-content/60">
                     Search for courses, schedules, or summaries...
                   </p>
                 </div>
@@ -989,9 +878,9 @@ function DashboardLayout() {
                 searchQuery.trim() !== "" &&
                 Object.keys(searchResults).length === 0 && (
                   <div className="text-center py-12">
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-base-content/60">
                       No results for{" "}
-                      <span style={{ color: "#C9A227" }}>"{searchQuery}"</span>
+                      <span className="text-primary font-bold">"{searchQuery}"</span>
                     </p>
                   </div>
                 )}
@@ -1002,8 +891,7 @@ function DashboardLayout() {
                   return (
                     <div key={category} className="space-y-2">
                       <h3
-                        className="text-[10px] font-black uppercase tracking-widest px-2"
-                        style={{ color: "#C9A227" }}
+                        className="text-[10px] font-black uppercase tracking-widest px-2 text-primary"
                       >
                         {category}
                       </h3>
@@ -1032,35 +920,19 @@ function DashboardLayout() {
                               key={idx}
                               to={path}
                               onClick={() => setSearchOpen(false)}
-                              className="flex items-center justify-between p-3 rounded-xl transition-all group"
-                              style={{
-                                background: "rgba(201,162,39,0.04)",
-                                border: "1px solid rgba(201,162,39,0.08)",
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.borderColor =
-                                  "rgba(201,162,39,0.25)";
-                                e.currentTarget.style.background =
-                                  "rgba(201,162,39,0.08)";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.borderColor =
-                                  "rgba(201,162,39,0.08)";
-                                e.currentTarget.style.background =
-                                  "rgba(201,162,39,0.04)";
-                              }}
+                              className="flex items-center justify-between p-3 rounded-xl transition-all group bg-base-200/40 border border-base-300/30 hover:border-primary/40 hover:bg-base-200/80"
                             >
                               <div className="min-w-0 flex-1">
-                                <p className="text-xs font-semibold text-white truncate">
+                                <p className="text-xs font-semibold text-base-content truncate">
                                   {title}
                                 </p>
                                 {subtitle && (
-                                  <p className="text-[10px] text-slate-500 truncate mt-0.5">
+                                  <p className="text-[10px] text-base-content/50 truncate mt-0.5">
                                     {subtitle}
                                   </p>
                                 )}
                               </div>
-                              <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-gold shrink-0 ml-2" />
+                              <ChevronRight className="h-4 w-4 text-base-content/50 group-hover:text-primary shrink-0 ml-2 transition-colors duration-200" />
                             </Link>
                           );
                         })}

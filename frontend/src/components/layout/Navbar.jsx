@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { cn } from "../../utils/cn";
 import { useAuth } from "../../context/AuthContext";
+import { ThemeToggle } from "../common/ThemeToggle";
 
 export function Navbar({
   user,
@@ -81,60 +82,7 @@ export function Navbar({
       <div className="flex items-center gap-2">
 
         {/* THEME */}
-        <button
-          onClick={onThemeToggle}
-          className="btn btn-ghost btn-circle"
-        >
-
-          <AnimatePresence mode="wait">
-
-            {isDarkMode ? (
-              <motion.div
-                key="sun"
-                initial={{
-                  rotate: -90,
-                  opacity: 0,
-                }}
-                animate={{
-                  rotate: 0,
-                  opacity: 1,
-                }}
-                exit={{
-                  rotate: 90,
-                  opacity: 0,
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              >
-                <Sun className="h-5 w-5 text-warning" />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="moon"
-                initial={{
-                  rotate: 90,
-                  opacity: 0,
-                }}
-                animate={{
-                  rotate: 0,
-                  opacity: 1,
-                }}
-                exit={{
-                  rotate: -90,
-                  opacity: 0,
-                }}
-                transition={{
-                  duration: 0.2,
-                }}
-              >
-                <Moon className="h-5 w-5 text-primary" />
-              </motion.div>
-            )}
-
-          </AnimatePresence>
-
-        </button>
+        <ThemeToggle variant="navbar" />
 
         {/* NOTIFICATIONS */}
         <div className="dropdown dropdown-end">

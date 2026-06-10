@@ -12,51 +12,21 @@ import { Navbar } from "./Navbar";
 import { useAuth } from "../../context/AuthContext";
 import FloatingAIChat from "../ai/FloatingAIChat";
 
+import { useTheme } from "../../hooks/useTheme";
+import { ThemeToggle } from "../common/ThemeToggle";
+
 export function DashboardLayout({
   role = "student",
   user,
 }) {
   const { user: authUser } = useAuth();
+  const { isDarkMode } = useTheme();
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] =
     useState(false);
 
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] =
     useState(false);
-
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme === "dark";
-  });
-
-  // =========================
-  // THEME
-  // =========================
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const isDark = savedTheme === "dark";
-
-    document.documentElement.classList.toggle(
-      "dark",
-      isDark
-    );
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-
-    setIsDarkMode(newTheme);
-
-    localStorage.setItem(
-      "theme",
-      newTheme ? "dark" : "light"
-    );
-
-    document.documentElement.classList.toggle(
-      "dark",
-      newTheme
-    );
-  };
 
   // =========================
   // USER
@@ -77,7 +47,7 @@ export function DashboardLayout({
     authUser?.role || role;
 
   return (
-    <div className="min-h-screen bg-base-200 transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-base-200 transition-colors duration-300">
 
       {/* ========================= */}
       {/* SIDEBAR */}
@@ -103,7 +73,7 @@ export function DashboardLayout({
       {/* ========================= */}
       <div
         className={cn(
-          "min-h-screen flex flex-col transition-all duration-300",
+          "h-screen flex flex-col transition-all duration-300",
           isSidebarCollapsed
             ? "lg:ml-20"
             : "lg:ml-72"
@@ -113,7 +83,7 @@ export function DashboardLayout({
         {/* ========================= */}
         {/* TOP NAVBAR */}
         {/* ========================= */}
-        <header className="navbar sticky top-0 z-40 border-b border-base-300 bg-base-100/80 px-4 backdrop-blur-lg shadow-sm">
+        <header className="navbar shrink-0 z-40 border-b border-base-300 bg-base-100/80 px-4 backdrop-blur-lg shadow-sm">
 
           {/* LEFT */}
           <div className="flex-1">
@@ -150,16 +120,7 @@ export function DashboardLayout({
           <div className="flex items-center gap-3">
 
             {/* THEME */}
-            <button
-              onClick={toggleTheme}
-              className="btn btn-ghost btn-circle"
-            >
-              {isDarkMode ? (
-                <Sun className="h-5 w-5 text-warning" />
-              ) : (
-                <Moon className="h-5 w-5 text-primary" />
-              )}
-            </button>
+            <ThemeToggle variant="navbar" />
 
             {/* USER */}
             <div className="dropdown dropdown-end">
@@ -229,7 +190,7 @@ export function DashboardLayout({
         {/* ========================= */}
         {/* PAGE CONTENT */}
         {/* ========================= */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
 
           {/* CONTENT WRAPPER */}
           <div className="animate-fade-in space-y-6">
