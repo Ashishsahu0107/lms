@@ -12,6 +12,7 @@ export function Modal({
   children,
   size = "md",
   closeOnOverlayClick = true,
+  noPadding = false,
 }) {
   const handleEscape = useCallback(
     (e) => {
@@ -58,21 +59,21 @@ export function Modal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "relative w-full mx-4 bg-card rounded-xl shadow-2xl border",
+              "relative w-full mx-4 bg-card rounded-xl shadow-2xl border flex flex-col max-h-[90vh]",
               sizes[size],
               className
             )}
           >
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-20"
             >
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </button>
 
             {(title || description) && (
-              <div className="p-6 pb-0">
+              <div className="p-6 pb-0 shrink-0">
                 {title && (
                   <h2 className="text-lg font-semibold text-foreground">
                     {title}
@@ -86,7 +87,7 @@ export function Modal({
               </div>
             )}
 
-            <div className="p-6">{children}</div>
+            <div className={cn("flex-1 min-h-0 flex flex-col", noPadding ? "" : "p-6")}>{children}</div>
           </motion.div>
         </div>
       )}

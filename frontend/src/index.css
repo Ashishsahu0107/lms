@@ -1,8 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@plugin "flyonui" {
+  themes: luxury --default, dark, corporate, business;
+}
+@import "flyonui/variants.css";
+
 
 /* ======================================================
    LMS PRO — LUXURY DARK GOLD THEME
@@ -122,11 +126,11 @@
     font-family: 'Outfit', 'Inter', system-ui, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    background-color: #0F172A;
-    color: #FFFFFF;
+    overscroll-behavior: none;
+    @apply bg-base-200 text-base-content transition-colors duration-300;
     background-image:
-      radial-gradient(ellipse at top left, rgba(201, 162, 39, 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+      radial-gradient(ellipse at top left, rgba(201, 162, 39, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.02) 0%, transparent 50%);
   }
 
   ::selection {
@@ -429,114 +433,100 @@
 }
 
 /* ======================================================
-   FLYONUI & DAISYUI LUXURY OVERRIDES
+   FLYONUI & DAISYUI THEME-RESPONSIVE DESIGN TOKENS
 ====================================================== */
 
-/* Buttons */
+/* Buttons Token */
 .btn {
-  @apply rounded-full font-semibold tracking-wide;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  @apply rounded-full font-semibold tracking-wide transition-all duration-200;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #C9A227, #F59E0B) !important;
-  color: #0F172A !important;
-  border: none !important;
-  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3) !important;
+  @apply !bg-primary !text-primary-content !border-none !shadow-sm hover:!shadow-md;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 8px 30px rgba(201, 162, 39, 0.5) !important;
 }
 
-/* Cards */
+/* Cards Token */
 .card {
-  background: rgba(30, 41, 59, 0.8) !important;
-  border: 1px solid rgba(201, 162, 39, 0.12) !important;
-  border-radius: 1.5rem !important;
-  backdrop-filter: blur(16px);
+  @apply !bg-base-100 !text-base-content !border !border-base-300/40 !rounded-2xl !backdrop-blur-md !shadow-sm;
 }
 
-/* Inputs */
+/* Inputs Token */
 .input, .textarea, .select {
-  background: rgba(15, 23, 42, 0.6) !important;
-  border: 1px solid rgba(201, 162, 39, 0.2) !important;
-  color: #fff !important;
-  border-radius: 0.875rem !important;
-  transition: all 0.2s ease;
+  @apply !bg-base-100 !text-base-content !border !border-base-300/60 !rounded-xl !transition-all !duration-200;
 }
 
 .input:focus, .textarea:focus, .select:focus {
-  border-color: #C9A227 !important;
-  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15) !important;
-  outline: none !important;
+  @apply !border-primary !ring-2 !ring-primary/20 !outline-none;
 }
 
 .input::placeholder, .textarea::placeholder {
-  color: rgba(203, 213, 225, 0.4) !important;
+  @apply !text-base-content/40;
 }
 
-/* Menu items */
+/* Menu & Sidebar Items Token */
 .menu li > * {
-  @apply rounded-xl;
-  transition: all 0.2s ease;
+  @apply rounded-xl transition-all duration-200;
 }
 
 .menu li > *:hover {
-  background: rgba(201, 162, 39, 0.08) !important;
-  color: #C9A227 !important;
+  @apply !bg-primary/8 !text-primary;
 }
 
-/* Badges */
+/* Badges Token */
 .badge {
-  border-radius: 9999px;
-  font-weight: 600;
+  @apply !rounded-full !font-semibold;
 }
 
-/* Modal */
+/* Modals Token */
 .modal-box {
-  background: rgba(30, 41, 59, 0.95) !important;
-  border: 1px solid rgba(201, 162, 39, 0.2) !important;
-  border-radius: 1.5rem !important;
-  backdrop-filter: blur(24px);
+  @apply !bg-base-100 !text-base-content !border !border-base-300/50 !rounded-2xl !backdrop-blur-lg;
 }
 
-/* Divider */
+/* Divider Token */
 .divider:before, .divider:after {
-  background: rgba(201, 162, 39, 0.15) !important;
+  @apply !bg-base-300/40;
 }
 
-/* Dropdown */
+/* Navbar & Dropdowns Token */
 .dropdown-content {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border: 1px solid rgba(201, 162, 39, 0.15) !important;
-  border-radius: 1rem !important;
-  backdrop-filter: blur(20px);
+  @apply !bg-base-100 !text-base-content !border !border-base-300/50 !rounded-xl !shadow-xl !backdrop-blur-md;
 }
 
-/* Loading spinner */
+/* Loading Spinners */
 .loading-spinner {
-  color: #C9A227 !important;
+  @apply !text-primary;
 }
 
-/* Progress bar */
+/* Progress Bars */
 .progress::-webkit-progress-value {
-  background: linear-gradient(90deg, #C9A227, #F59E0B) !important;
-  border-radius: 9999px;
+  @apply !bg-primary !rounded-full;
 }
 
-/* Stats */
+/* Stats Token */
 .stat {
-  background: rgba(30, 41, 59, 0.6) !important;
+  @apply !bg-base-100/60 !border-base-300/30 !backdrop-blur-md;
 }
 
 /* Tooltips */
 .tooltip::before {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border: 1px solid rgba(201, 162, 39, 0.2) !important;
-  color: #C9A227 !important;
-  border-radius: 0.75rem;
+  @apply !bg-base-300 !text-base-content !border !border-base-300/40 !rounded-lg;
+}
+
+/* Tables Token */
+.table {
+  @apply !bg-base-100 !text-base-content !border !border-base-300/40 !rounded-xl !overflow-hidden;
+}
+
+.table th {
+  @apply !bg-base-200 !text-base-content/80 !font-bold !border-b !border-base-300/60 !py-3 !px-4;
+}
+
+.table td {
+  @apply !border-b !border-base-300/30 !py-3 !px-4;
 }
 
 /* ======================================================
