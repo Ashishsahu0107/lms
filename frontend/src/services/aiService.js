@@ -43,3 +43,9 @@ export async function deleteAiChat(chatId) {
   const res = await apiDelete(`/ai/chats/${chatId}`);
   return res.data;
 }
+
+export async function retryAiChat(chatId) {
+  const res = await apiPost(`/ai/chats/${chatId}/retry`);
+  return res.data;
+}
+

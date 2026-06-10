@@ -10,6 +10,7 @@ import playerReducer from "./slices/playerSlice";
 import notesReducer from "./slices/notesSlice";
 import messageReducer from "./slices/messageSlice";
 import notificationReducer from "./slices/notificationSlice";
+import themeReducer from "../store/themeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,8 @@ export const store = configureStore({
     notes: notesReducer,
     messages: messageReducer,
     notifications: notificationReducer,
+    theme: themeReducer,
   },
 });
+
 
