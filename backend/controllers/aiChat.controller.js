@@ -108,3 +108,54 @@ export async function deleteAiChat(req, res, next) {
     next(err);
   }
 }
+
+// ============================================
+// POST /api/ai/chats/:chatId/retry
+// Pop the last AI and last user message to retry
+// ============================================
+export async function retryAiMessage(req, res, next) {
+  try {
+    const { chatId } = req.params;
+    const userId = req.user._id;
+
+    if (!chatId) {
+      throw new BadRequestError("Chat ID is required");
+    }
+
+    const chat = await AIChat.findOne({ _id: chatId, user: userId });
+    if (!chat) {
+      throw new NotFoundError("Conversation thread not found");
+    }
+
+    if (chat.messages.length === 0) {
+      throw new BadRequestError("No messages to retry");
+    }
+
+    // If last message is AI, pop it
+    let lastMsg = chat.messages[chat.messages.length - 1];
+    if (lastMsg && lastMsg.sender === "ai") {
+      chat.messages.pop();
+    }
+
+    // Now the last message should be the user message
+    let lastUserMsg = chat.messages[chat.messages.length - 1];
+    let queryText = "";
+    if (lastUserMsg && lastUserMsg.sender === "user") {
+      queryText = lastUserMsg.content;
+      chat.messages.pop(); // Pop user message too so socket can re-add it cleanly
+    } else {
+      throw new BadRequestError("No user message found to retry");
+    }
+
+    await chat.save();
+
+    return res.status(200).json({
+      success: true,
+      queryText,
+      data: chat,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+

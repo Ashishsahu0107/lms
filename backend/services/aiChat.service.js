@@ -1,5 +1,6 @@
 import { User } from "../models/User.js";
 import { Course } from "../models/Course.js";
+import { ProviderFactory } from "./ai/ProviderFactory.js";
 
 let openaiInstance = null;
 async function getOpenAI() {
@@ -103,55 +104,47 @@ I can assist you with all aspects of your learning journey:
 What topic would you like to master today? Let's start learning!`;
 }
 
-// Streams words of the response to simulate realistic AI typing
-export async function streamAIResponse(prompt, user, onWord, onComplete) {
+// Streams tokens/words using the active AI Provider or fallback simulator
+export async function streamAIResponse(chat, user, onWord, onComplete, signal) {
   const userName = user?.name || "Scholar";
-  const openai = await getOpenAI();
 
-  if (openai) {
-    try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: `You are a helpful, extremely polite, and brilliant study coach assistant inside the LMS Pro system. Welcome the student by their name: ${userName}. Provide helpful study advice and conceptually clear programming guidelines in formatted markdown. Keep replies concise, structurally beautiful, and extremely encouraging.`
-          },
-          { role: "user", content: prompt }
-        ],
-        stream: true,
-      });
+  // System prompt setup
+  const systemInstruction = `You are a helpful, brilliant, and polite AI Study Coach and teaching assistant inside the LMS Pro system.
+User Profile:
+- Name: ${userName}
+- Role: ${user?.role || "student"}
 
-      let completeReply = "";
-      for await (const chunk of response) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
-          completeReply += content;
-          onWord(content);
-        }
-      }
-      onComplete(completeReply);
-      return;
-    } catch (err) {
-      console.warn("OpenAI streaming failed, falling back to simulated coach stream:", err.message);
-    }
+Guidelines:
+1. Answer the user's questions clearly, concisely, and with high educational value.
+2. Provide code blocks in formatted markdown with language identifiers if writing code.
+3. Be highly encouraging and act as a professional study companion.
+4. If no specific LMS context matches, answer general knowledge, coding, or educational queries normally like ChatGPT.
+`;
+
+  // Map last 20 messages
+  let history = [];
+  if (chat && chat.messages?.length > 0) {
+    history = chat.messages.slice(-20).map((msg) => ({
+      role: msg.role || (msg.sender === "ai" ? "assistant" : "user"),
+      content: msg.content,
+    }));
+  } else {
+    // Fallback if no history was saved
+    history = [{ role: "user", content: "Hello" }];
   }
 
-  // FALLBACK SIMULATOR
-  const reply = getSimulatedCoachReply(prompt, userName);
-  const words = reply.split(/(\s+)/); // Keep spaces
-  let index = 0;
-  let accumulated = "";
-
-  const interval = setInterval(() => {
-    if (index < words.length) {
-      const word = words[index];
-      accumulated += word;
-      onWord(word);
-      index++;
-    } else {
-      clearInterval(interval);
-      onComplete(accumulated);
-    }
-  }, 15); // Fast realistic typing speed
+  try {
+    const provider = ProviderFactory.getProvider();
+    await provider.generateStream(
+      history,
+      systemInstruction,
+      (token) => onWord(token),
+      (completeText) => onComplete(completeText),
+      signal
+    );
+  } catch (err) {
+    console.error("[AI Chat Stream Error]:", err.message);
+    onWord(`\n*(Generation error: ${err.message || "Unable to contact provider"})*`);
+    onComplete(`*(Generation error: ${err.message})*`);
+  }
 }

@@ -198,4 +198,19 @@ courseSchema.pre("save", function (next) {
   next();
 });
 
+// ── Virtual compatibility fields for frontend
+courseSchema.virtual("thumbnailUrl").get(function () {
+  return this.thumbnail;
+});
+courseSchema.virtual("image").get(function () {
+  return this.thumbnail;
+});
+courseSchema.virtual("coverImage").get(function () {
+  return this.thumbnail;
+});
+
+// Ensure virtuals are serialized in JSON/Object conversions
+courseSchema.set("toJSON", { virtuals: true });
+courseSchema.set("toObject", { virtuals: true });
+
 export const Course = mongoose.model("Course", courseSchema);

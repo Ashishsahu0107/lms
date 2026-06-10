@@ -27,7 +27,11 @@ app.use(compression());
 app.disable("x-powered-by");
 
 // Secure HTTP Headers
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 // Prevent Cross-Site Scripting (XSS)
 app.use(xss());

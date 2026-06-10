@@ -3,6 +3,8 @@ import { User } from "../models/User.js";
 import { Topic } from "../models/Topic.js";
 import { Module } from "../models/Module.js";
 import { BadRequestError } from "../utils/errors.js";
+import { AIChat } from "../models/AIChat.js";
+import { ProviderFactory } from "../services/ai/ProviderFactory.js";
 
 // Optional OpenAI package import handler
 let openaiInstance = null;
@@ -231,15 +233,48 @@ Please ask me any specific conceptual questions about your courses, coding, or s
 // Context-Aware AI Chat Controller
 // ============================================
 export async function aiChatController(req, res, next) {
+  const abortController = new AbortController();
+
+  req.on("close", () => {
+    console.log("[AI] HTTP Stream client disconnected. Aborting generation.");
+    abortController.abort();
+  });
+
   try {
-    const { prompt, courseId, moduleId, topicId, option = "ask" } = req.body;
+    const { prompt, message, conversationId, courseId, moduleId, topicId, option = "ask" } = req.body ?? {};
     const user = req.user;
 
-    if (!prompt && option === "ask") {
-      throw new BadRequestError("Prompt is required");
+    const queryText = (message || prompt || "").trim();
+    if (!queryText && option === "ask") {
+      throw new BadRequestError("Prompt or message is required");
     }
 
-    // Build context string from models
+    // Resolve or create AIChat thread
+    let chat = null;
+    if (conversationId) {
+      chat = await AIChat.findOne({ _id: conversationId, user: user._id });
+    }
+
+    if (!chat && conversationId) {
+      chat = new AIChat({
+        user: user._id,
+        title: queryText.split(" ").slice(0, 4).join(" ") || "AI Conversation",
+        messages: [],
+      });
+    }
+
+    // Save user message in thread if we have an active chat
+    if (chat) {
+      chat.messages.push({
+        sender: "user",
+        content: queryText,
+        role: "user",
+        timestamp: new Date(),
+      });
+      await chat.save();
+    }
+
+    // Assemble LMS Context
     let contextString = "";
     let courseInfo = null;
     let topicInfo = null;
@@ -253,55 +288,82 @@ export async function aiChatController(req, res, next) {
     if (topicId) {
       topicInfo = await Topic.findById(topicId);
       if (topicInfo) {
-        contextString += `Topic Context: "${topicInfo.title}". content context: "${topicInfo.content || ''}". `;
+        contextString += `Topic Context: "${topicInfo.title}". Content: "${topicInfo.content || ""}". `;
       }
     }
 
-    let systemPrompt = "";
-    if (user.role === "student") {
-      if (option === "explain") {
-        systemPrompt = `You are a helpful teaching assistant. Explain difficult concepts in the active lecture: "${topicInfo?.title || 'Active Topic'}" using simple, accessible language, analogies, and code snippets where appropriate. Keep formatting clean and markdown-friendly. User name is: ${user.name}.`;
-      } else {
-        systemPrompt = `You are a helpful LMS Pro AI Study Coach. The student is asking about their study material. Use the following context to frame your response: ${contextString}. Welcome the user by their name: ${user.name}.`;
-      }
-    } else if (user.role === "teacher") {
-      if (option === "generate-assignment") {
-        systemPrompt = `You are a curriculum design AI assistant. Generate a creative, comprehensive assignment (including instructions, requirements, deliverables, and grading rubric) based on the course: "${courseInfo?.title || ''}" and topic: "${topicInfo?.title || ''}".`;
-      } else if (option === "insights") {
-        systemPrompt = `You are a teacher performance assistant. Review the student's progress and quiz scores, and generate detailed student performance insights and recommendations for the instructor.`;
-      } else {
-        systemPrompt = `You are a teacher companion AI. Help the teacher with their query. Context: ${contextString}.`;
-      }
-    } else if (user.role === "super_admin" || user.role === "admin") {
-      systemPrompt = `You are an executive LMS platform analyst. Generate a summary analysis of the platform analytics, user engagement, and revenue health.`;
+    // System prompt setup
+    let systemInstruction = `You are a helpful, brilliant, and polite AI Study Coach and teaching assistant inside the LMS Pro system.
+User Profile:
+- Name: ${user.name}
+- Role: ${user.role}
+`;
+
+    if (courseInfo) {
+      systemInstruction += `\nActive Course Context:\n- Title: ${courseInfo.title}\n- Description: ${courseInfo.description}\n`;
+    }
+    if (topicInfo) {
+      systemInstruction += `\nActive Lecture Topic Context:\n- Title: ${topicInfo.title}\n- Content Material: ${topicInfo.content || "No lecture notes uploaded yet."}\n`;
     }
 
-    let reply = "";
-    const openai = await getOpenAI();
-    if (openai) {
-      try {
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: prompt || "Execute task." }
-          ]
-        });
-        reply = response.choices[0].message.content;
-      } catch (err) {
-        console.warn("OpenAI API call failed, using high-fidelity fallback:", err.message);
-        reply = getFallbackReply(option, user.name, courseInfo?.title, topicInfo?.title, prompt);
-      }
+    systemInstruction += `\nGuidelines:
+1. Answer the user's questions clearly, concisely, and with high educational value.
+2. Provide code blocks in formatted markdown with language identifiers if writing code.
+3. Be highly encouraging and act as a professional study companion.
+4. If the user asks about their LMS progress, courses, or notes, refer to the provided profile and context details.
+5. If no specific LMS context matches, answer general knowledge, coding, or educational queries normally like ChatGPT.
+`;
+
+    // Map chat history (last 20 messages)
+    let history = [];
+    if (chat && chat.messages?.length > 0) {
+      history = chat.messages.map((msg) => ({
+        role: msg.role || (msg.sender === "ai" ? "assistant" : "user"),
+        content: msg.content,
+      }));
     } else {
-      reply = getFallbackReply(option, user.name, courseInfo?.title, topicInfo?.title, prompt);
+      history = [{ role: "user", content: queryText }];
     }
 
-    return res.status(200).json({
-      success: true,
-      data: { reply }
+    // Set SSE Headers
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
     });
+
+    const provider = ProviderFactory.getProvider();
+
+    await provider.generateStream(
+      history,
+      systemInstruction,
+      (token) => {
+        res.write(`data: ${JSON.stringify({ token })}\n\n`);
+      },
+      async (completeText) => {
+        if (chat) {
+          chat.messages.push({
+            sender: "ai",
+            content: completeText,
+            role: "assistant",
+            timestamp: new Date(),
+          });
+
+          if (chat.title === "New Conversation" || chat.messages.length <= 2) {
+            chat.title = queryText.split(" ").slice(0, 4).join(" ") || "AI Chat";
+          }
+          await chat.save();
+        }
+        res.write(`data: ${JSON.stringify({ done: true, conversationId: chat?._id })}\n\n`);
+        res.write("data: [DONE]\n\n");
+        res.end();
+      },
+      abortController.signal
+    );
   } catch (err) {
-    next(err);
+    console.error("[AI Chat Route Error]:", err.message);
+    res.write(`data: ${JSON.stringify({ error: err.message || "Internal generation error" })}\n\n`);
+    res.end();
   }
 }
 
