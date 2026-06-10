@@ -67,6 +67,9 @@ export const EVENTS = {
   AI_CHAT_ERROR: "ai-chat-error",
 };
 
+// Active AI streaming generations tracker (maps socketId_chatId -> AbortController)
+const activeGenerations = new Map();
+
 // ─────────────────────────────────────────────────────────────
 // SOCKET SERVER INITIALISATION
 // ─────────────────────────────────────────────────────────────
@@ -305,25 +308,36 @@ export function initSocket(httpServer) {
 
     // ── AI Chat Streaming ────────────────────────────────────────
     socket.on("send-ai-message", async (data) => {
-      try {
-        const { chatId, content } = data;
-        if (!chatId || !content) {
-          socket.emit(EVENTS.AI_CHAT_ERROR, {
-            message: "Chat ID and content are required",
-          });
-          return;
-        }
+      const { chatId, content } = data;
+      if (!chatId || !content) {
+        socket.emit(EVENTS.AI_CHAT_ERROR, {
+          message: "Chat ID and content are required",
+        });
+        return;
+      }
 
+      const sessionKey = `${socket.id}_${chatId}`;
+
+      // Abort any existing generation for this thread on this connection
+      if (activeGenerations.has(sessionKey)) {
+        activeGenerations.get(sessionKey).abort();
+        activeGenerations.delete(sessionKey);
+      }
+
+      const abortController = new AbortController();
+      activeGenerations.set(sessionKey, abortController);
+
+      try {
         const { AIChat } = await import("../models/AIChat.js");
         const { User } = await import("../models/User.js");
-        const { streamAIResponse } =
-          await import("../services/aiChat.service.js");
+        const { streamAIResponse } = await import("../services/aiChat.service.js");
 
         const chat = await AIChat.findOne({ _id: chatId, user: userId });
         if (!chat) {
           socket.emit(EVENTS.AI_CHAT_ERROR, {
             message: "AI conversation thread not found",
           });
+          activeGenerations.delete(sessionKey);
           return;
         }
 
@@ -352,11 +366,18 @@ export function initSocket(httpServer) {
         socket.emit(EVENTS.AI_TYPING, { chatId });
 
         await streamAIResponse(
-          content,
+          chat,
           userRecord,
-          (word) => socket.emit(EVENTS.AI_WORD, { word, chatId }),
+          (word) => {
+            if (!abortController.signal.aborted) {
+              socket.emit(EVENTS.AI_WORD, { word, chatId });
+            }
+          },
           async (completeReply) => {
+            activeGenerations.delete(sessionKey);
             socket.emit(EVENTS.AI_STOP_TYPING, { chatId });
+
+            if (abortController.signal.aborted) return;
 
             const aiMessage = {
               sender: "ai",
@@ -378,18 +399,40 @@ export function initSocket(httpServer) {
               });
             }
           },
+          abortController.signal
         );
       } catch (err) {
         console.error("[Socket] AI chat error:", err);
         socket.emit(EVENTS.AI_CHAT_ERROR, {
           message: "An error occurred in the AI communication stream",
         });
+        activeGenerations.delete(sessionKey);
+      }
+    });
+
+    socket.on("stop-ai-generation", (data) => {
+      const { chatId } = data;
+      const sessionKey = `${socket.id}_${chatId}`;
+      if (activeGenerations.has(sessionKey)) {
+        activeGenerations.get(sessionKey).abort();
+        activeGenerations.delete(sessionKey);
+        socket.emit(EVENTS.AI_STOP_TYPING, { chatId });
+        console.log(`[Socket] AI generation aborted via client request for chat: ${chatId}`);
       }
     });
 
     // ── Disconnect ───────────────────────────────────────────────
     socket.on("disconnect", () => {
       console.log(`[Socket] Disconnected — userId=${userId}`);
+
+      // Abort any active generations for this disconnecting client
+      for (const [key, controller] of activeGenerations.entries()) {
+        if (key.startsWith(`${socket.id}_`)) {
+          controller.abort();
+          activeGenerations.delete(key);
+        }
+      }
+
       (async () => {
         try {
           const { User } = await import("../models/User.js");
