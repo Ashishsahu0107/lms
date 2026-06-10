@@ -12,6 +12,7 @@ import { ProgressBar } from "../../../components/ui/ProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/Tabs";
 import { getStudentEnrollments } from "../../../services/enrollmentService";
 import { useAuth } from "../../../context/AuthContext";
+import { getImageUrl, handleImageError } from "../../../utils/image";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -135,7 +136,7 @@ function CourseCard({ course, viewMode }) {
   const content = (
     <>
       <div className="relative h-44 overflow-hidden bg-base-300">
-        <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <img src={getImageUrl(course.thumbnail)} onError={handleImageError} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         {course.progress > 0 && (
           <Badge className="absolute top-3 right-3 bg-primary text-primary-content border-0">{course.progress}% Complete</Badge>
@@ -176,7 +177,7 @@ function CourseCard({ course, viewMode }) {
           <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden bg-base-100 border border-base-300">
             <div className="flex flex-col md:flex-row">
               <div className="md:w-60 h-40 md:h-auto relative bg-base-300">
-                <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                <img src={getImageUrl(course.thumbnail)} onError={handleImageError} alt={course.title} className="w-full h-full object-cover" />
               </div>
               <CardContent className="flex-1 p-5 flex flex-col justify-between">
                 <div>

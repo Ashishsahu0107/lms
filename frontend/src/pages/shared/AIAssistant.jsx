@@ -13,18 +13,296 @@ import {
   MessageSquare,
   ChevronRight,
   Menu,
-  X
+  X,
+  Copy,
+  Check
 } from "lucide-react";
 import {
   getAiChats,
   createAiChat,
   getAiChatDetails,
-  deleteAiChat
+  deleteAiChat,
+  retryAiChat
 } from "../../services/aiService";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
+
+// ==========================================
+// CUSTOM LIGHTWEIGHT MARKDOWN & CODE BLOCKS
+// ==========================================
+function parseInlineMarkdown(textLine) {
+  if (!textLine) return "";
+  const tokens = textLine.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
+  return tokens.map((token, i) => {
+    if (token.startsWith("`") && token.endsWith("`")) {
+      return (
+        <code key={i} className="px-1.5 py-0.5 rounded-md font-mono text-[10px] bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/5">
+          {token.slice(1, -1)}
+        </code>
+      );
+    } else if (token.startsWith("**") && token.endsWith("**")) {
+      return (
+        <strong key={i} className="font-extrabold text-slate-950 dark:text-white">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    } else {
+      return token;
+    }
+  });
+}
+
+function CodeBlock({ language, code }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    try {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Clipboard copy failed:", err);
+    }
+  };
+
+  return (
+    <div className="relative my-4 rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-slate-950 text-slate-100 font-mono text-xs">
+      <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-[10px] uppercase font-bold text-slate-400 select-none">
+        <span>{language}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 hover:text-white transition-colors"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3 w-3 text-emerald-500" />
+              <span className="text-emerald-500">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="h-3 w-3" />
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <pre className="p-4 overflow-x-auto whitespace-pre custom-scrollbar">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
+function TextBlock({ text }) {
+  const lines = text.split("\n");
+  const elements = [];
+  let currentList = null;
+  let currentBlockquote = null;
+  let blockquoteType = null; // 'tip', 'important', 'warning', 'caution', 'note', 'default'
+
+  const flushBlockquote = (key) => {
+    if (currentBlockquote) {
+      let bgClass = "bg-slate-50 dark:bg-slate-950/20 border-slate-200 dark:border-white/10";
+      let textClass = "text-slate-700 dark:text-slate-300";
+      let borderClass = "border-l-4";
+      let title = "";
+      let titleColor = "";
+
+      if (blockquoteType === "tip") {
+        bgClass = "bg-emerald-500/5 border-emerald-500/20";
+        textClass = "text-emerald-800 dark:text-emerald-300";
+        borderClass = "border-l-4 border-emerald-500";
+        title = "💡 TIP";
+        titleColor = "text-emerald-600 dark:text-emerald-400";
+      } else if (blockquoteType === "important") {
+        bgClass = "bg-blue-500/5 border-blue-500/20";
+        textClass = "text-blue-800 dark:text-blue-300";
+        borderClass = "border-l-4 border-blue-500";
+        title = "✨ IMPORTANT";
+        titleColor = "text-blue-600 dark:text-blue-400";
+      } else if (blockquoteType === "warning") {
+        bgClass = "bg-amber-500/5 border-amber-500/20";
+        textClass = "text-amber-800 dark:text-amber-300";
+        borderClass = "border-l-4 border-amber-500";
+        title = "⚠️ WARNING";
+        titleColor = "text-amber-600 dark:text-amber-400";
+      } else if (blockquoteType === "caution") {
+        bgClass = "bg-rose-500/5 border-rose-500/20";
+        textClass = "text-rose-800 dark:text-rose-300";
+        borderClass = "border-l-4 border-rose-500";
+        title = "🚨 CAUTION";
+        titleColor = "text-rose-600 dark:text-rose-400";
+      } else if (blockquoteType === "note") {
+        bgClass = "bg-slate-500/5 border-slate-500/20";
+        textClass = "text-slate-800 dark:text-slate-300";
+        borderClass = "border-l-4 border-slate-500";
+        title = "📝 NOTE";
+        titleColor = "text-slate-600 dark:text-slate-400";
+      }
+
+      elements.push(
+        <div key={`bq-${key}`} className={`my-3 p-3.5 rounded-xl border ${borderClass} ${bgClass} text-xs`}>
+          {title && <div className={`font-bold mb-1 tracking-wider text-[10px] ${titleColor}`}>{title}</div>}
+          <div className={`${textClass} space-y-1`}>
+            {currentBlockquote.map((line, idx) => (
+              <p key={idx}>{parseInlineMarkdown(line)}</p>
+            ))}
+          </div>
+        </div>
+      );
+      currentBlockquote = null;
+      blockquoteType = null;
+    }
+  };
+
+  const flushList = (key) => {
+    if (currentList) {
+      elements.push(
+        <ul key={`list-${key}`} className="list-disc pl-5 my-2 space-y-1">
+          {currentList.map((item, idx) => (
+            <li key={idx} className="text-slate-700 dark:text-slate-300 text-xs">
+              {parseInlineMarkdown(item)}
+            </li>
+          ))}
+        </ul>
+      );
+      currentList = null;
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Handle headers
+    if (trimmed.startsWith("# ")) {
+      flushBlockquote(i);
+      flushList(i);
+      elements.push(
+        <h1 key={i} className="text-sm font-black text-slate-900 dark:text-white mt-4 mb-2 tracking-wide uppercase border-b border-slate-200 dark:border-white/5 pb-1">
+          {parseInlineMarkdown(trimmed.slice(2))}
+        </h1>
+      );
+    } else if (trimmed.startsWith("## ")) {
+      flushBlockquote(i);
+      flushList(i);
+      elements.push(
+        <h2 key={i} className="text-xs font-black text-slate-900 dark:text-white mt-3 mb-1.5 uppercase">
+          {parseInlineMarkdown(trimmed.slice(3))}
+        </h2>
+      );
+    } else if (trimmed.startsWith("### ")) {
+      flushBlockquote(i);
+      flushList(i);
+      elements.push(
+        <h3 key={i} className="text-[11px] font-extrabold text-slate-800 dark:text-slate-200 mt-2 mb-1">
+          {parseInlineMarkdown(trimmed.slice(4))}
+        </h3>
+      );
+    }
+    // Handle blockquotes / alerts
+    else if (trimmed.startsWith(">")) {
+      flushList(i);
+      let content = trimmed.slice(1).trim();
+
+      if (content.startsWith("[!TIP]")) {
+        flushBlockquote(i);
+        blockquoteType = "tip";
+        currentBlockquote = [];
+      } else if (content.startsWith("[!IMPORTANT]")) {
+        flushBlockquote(i);
+        blockquoteType = "important";
+        currentBlockquote = [];
+      } else if (content.startsWith("[!WARNING]")) {
+        flushBlockquote(i);
+        blockquoteType = "warning";
+        currentBlockquote = [];
+      } else if (content.startsWith("[!CAUTION]")) {
+        flushBlockquote(i);
+        blockquoteType = "caution";
+        currentBlockquote = [];
+      } else if (content.startsWith("[!NOTE]")) {
+        flushBlockquote(i);
+        blockquoteType = "note";
+        currentBlockquote = [];
+      } else {
+        if (!currentBlockquote) {
+          blockquoteType = "default";
+          currentBlockquote = [];
+        }
+        currentBlockquote.push(content);
+      }
+    }
+    // Handle lists
+    else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      flushBlockquote(i);
+      if (!currentList) {
+        currentList = [];
+      }
+      currentList.push(trimmed.slice(2));
+    }
+    // Handle numbered lists
+    else if (/^\d+\.\s/.test(trimmed)) {
+      flushBlockquote(i);
+      flushList(i);
+      elements.push(
+        <div key={i} className="pl-4 my-1 text-slate-700 dark:text-slate-300 text-xs flex gap-1.5">
+          <span className="font-bold text-blue-500 shrink-0">{trimmed.match(/^\d+\./)[0]}</span>
+          <span>{parseInlineMarkdown(trimmed.replace(/^\d+\.\s/, ""))}</span>
+        </div>
+      );
+    }
+    // Empty lines
+    else if (trimmed === "") {
+      flushBlockquote(i);
+      flushList(i);
+      elements.push(<div key={i} className="h-2" />);
+    }
+    // Standard lines
+    else {
+      flushBlockquote(i);
+      flushList(i);
+      elements.push(
+        <p key={i} className="text-slate-700 dark:text-slate-300 text-xs leading-relaxed my-1">
+          {parseInlineMarkdown(line)}
+        </p>
+      );
+    }
+  }
+
+  flushBlockquote(lines.length);
+  flushList(lines.length);
+
+  return <div className="space-y-1">{elements}</div>;
+}
+
+function MarkdownRenderer({ content }) {
+  if (!content) return null;
+  const parts = content.split(/(```[\s\S]*?```)/g);
+  return (
+    <div className="space-y-2">
+      {parts.map((part, index) => {
+        if (part.startsWith("```") && part.endsWith("```")) {
+          const codeContent = part.slice(3, -3);
+          const firstNewlineIndex = codeContent.indexOf("\n");
+          let language = "code";
+          let code = codeContent;
+          if (firstNewlineIndex !== -1) {
+            language = codeContent.substring(0, firstNewlineIndex).trim() || "code";
+            code = codeContent.substring(firstNewlineIndex + 1);
+          }
+          return <CodeBlock key={index} language={language} code={code} />;
+        } else {
+          return <TextBlock key={index} text={part} />;
+        }
+      })}
+    </div>
+  );
+}
+
 
 export default function AIAssistant() {
   const { user } = useAuth();
@@ -196,6 +474,55 @@ export default function AIAssistant() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleStopGeneration = () => {
+    if (!selectedChatId) return;
+    socketRef.current?.emit("stop-ai-generation", { chatId: selectedChatId });
+    setAiTyping(false);
+    toast.success("Generation stopped.");
+  };
+
+  const handleCopyResponse = (text) => {
+    try {
+      navigator.clipboard.writeText(text);
+      toast.success("Response copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy response.");
+    }
+  };
+
+  const handleRetry = async () => {
+    if (!selectedChatId || aiTyping) return;
+    try {
+      setAiTyping(true);
+      setStreamText("");
+      const res = await retryAiChat(selectedChatId);
+      if (res && res.success && res.queryText) {
+        if (res.data && res.data.messages) {
+          setMessages(res.data.messages);
+        } else {
+          setMessages((prev) => {
+            const newMsgs = [...prev];
+            if (newMsgs[newMsgs.length - 1]?.sender === "ai") newMsgs.pop();
+            if (newMsgs[newMsgs.length - 1]?.sender === "user") newMsgs.pop();
+            return newMsgs;
+          });
+        }
+        socketRef.current?.emit("send-ai-message", {
+          chatId: selectedChatId,
+          content: res.queryText
+        });
+        toast.success("Regenerating response...");
+      } else {
+        setAiTyping(false);
+        toast.error("Could not retry this conversation thread");
+      }
+    } catch (err) {
+      console.error("Retry failed:", err);
+      setAiTyping(false);
+      toast.error("Retry failed. Please try again.");
     }
   };
 
@@ -384,13 +711,40 @@ export default function AIAssistant() {
                         {isAi ? <Cpu className="h-4 w-4" /> : <User className="h-4 w-4" />}
                       </div>
 
-                      <div className="space-y-1">
-                        <div className={`rounded-2xl border p-4 text-xs leading-relaxed text-left whitespace-pre-wrap ${
+                      <div className="space-y-1 relative group/bubble min-w-[150px]">
+                        <div className={`rounded-2xl border p-4 text-xs leading-relaxed text-left relative ${
                           isAi
-                            ? isDarkMode ? "bg-white/5 border-white/5 text-white/85 font-medium" : "bg-slate-50 border-slate-200 text-slate-700 font-medium"
+                            ? isDarkMode ? "bg-white/5 border-white/5 text-white/85 font-medium pr-10" : "bg-slate-50 border-slate-200 text-slate-700 font-medium pr-10"
                             : "bg-gradient-to-r from-blue-600 to-indigo-600 border-transparent text-white font-semibold"
                         }`}>
-                          {msg.content}
+                          {isAi ? (
+                            <MarkdownRenderer content={msg.content} />
+                          ) : (
+                            msg.content
+                          )}
+
+                          {isAi && (
+                            <div className="absolute top-2 right-2 opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex gap-1 bg-slate-900/90 dark:bg-black/80 backdrop-blur-sm p-1 rounded-lg border border-slate-200 dark:border-white/10 shadow-lg z-10">
+                              <button
+                                type="button"
+                                onClick={() => handleCopyResponse(msg.content)}
+                                className="p-1 hover:bg-white/10 text-slate-400 hover:text-white rounded transition-all"
+                                title="Copy response text"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </button>
+                              {index === messages.length - 1 && (
+                                <button
+                                  type="button"
+                                  onClick={handleRetry}
+                                  className="p-1 hover:bg-white/10 text-slate-400 hover:text-white rounded transition-all"
+                                  title="Regenerate reply"
+                                >
+                                  <RefreshCw className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <span className={`text-[9px] block px-1 ${isDarkMode ? "text-white/20" : "text-slate-400"}`}>
                           {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
@@ -401,7 +755,7 @@ export default function AIAssistant() {
                 })}
 
                 {/* Real-Time Word Streaming Bubble */}
-                {aiTyping && (streamText || !streamText) && (
+                {aiTyping && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -411,10 +765,12 @@ export default function AIAssistant() {
                       <Cpu className="h-4 w-4" />
                     </div>
                     <div className="space-y-1">
-                      <div className={`rounded-2xl border p-4 text-xs leading-relaxed text-left whitespace-pre-wrap ${
+                      <div className={`rounded-2xl border p-4 text-xs leading-relaxed text-left relative ${
                         isDarkMode ? "bg-white/5 border-white/5 text-white/85 font-medium" : "bg-slate-50 border-slate-200 text-slate-700 font-medium"
                       }`}>
-                        {streamText ? streamText : (
+                        {streamText ? (
+                          <MarkdownRenderer content={streamText} />
+                        ) : (
                           <div className="flex items-center gap-2 text-slate-400 font-bold">
                             <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-500" /> AI Coach is thinking...
                           </div>
@@ -458,6 +814,20 @@ export default function AIAssistant() {
           )}
           <div ref={feedEndRef} />
         </div>
+
+        {/* Floating Stop Action */}
+        {aiTyping && (
+          <div className="flex justify-center my-2 select-none">
+            <button
+              type="button"
+              onClick={handleStopGeneration}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-bold transition shadow-lg backdrop-blur-md active:scale-95"
+            >
+              <span className="w-2.5 h-2.5 bg-rose-600 rounded-sm" />
+              <span>Stop Generating</span>
+            </button>
+          </div>
+        )}
 
         {/* Input Text Form */}
         <form onSubmit={handleSendMessage} className={`p-4 border-t flex gap-3 ${
