@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
 import { getStudentStats, getStudentProgress } from "../../../services/dashboardService";
 import { getStudentEnrollments } from "../../../services/enrollmentService";
+import { getImageUrl, handleImageError } from "../../../utils/image";
 import {
   BookOpen,
   Clock,
@@ -333,7 +334,8 @@ export default function StudentDashboard() {
                 <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 bg-card border hover:border-indigo-500/30 flex flex-col h-full">
                   <div className="relative h-40 overflow-hidden bg-base-300">
                     <img
-                      src={course.thumbnail}
+                      src={getImageUrl(course.thumbnail)}
+                      onError={handleImageError}
                       alt={course.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

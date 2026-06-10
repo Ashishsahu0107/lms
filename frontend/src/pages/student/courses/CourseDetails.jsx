@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { ProgressBar } from "../../../components/ui/ProgressBar";
+import { getImageUrl, handleImageError } from "../../../utils/image";
 
 const dummyCourse = {
   title: "Advanced JavaScript",
@@ -123,7 +124,7 @@ export default function CourseDetails() {
           <div className="md:w-80">
             <Card className="overflow-hidden shadow-2xl">
               <div className="relative h-44">
-                <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                <img src={getImageUrl(course.thumbnail)} onError={handleImageError} alt={course.title} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                   <button className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center hover:bg-white transition-colors">
                     <Play className="h-6 w-6 text-primary ml-1" />

@@ -35,6 +35,7 @@ import {
   TabsContent,
 } from "../../../components/ui/Tabs";
 import toast from "react-hot-toast";
+import { getImageUrl, handleImageError } from "../../../utils/image";
 
 import {
   getCourses,
@@ -334,10 +335,8 @@ export default function AdminCourses() {
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <img
-                            src={
-                              course.thumbnail ||
-                              "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=80"
-                            }
+                            src={getImageUrl(course.thumbnail)}
+                            onError={handleImageError}
                             alt={course.title}
                             className="w-12 h-12 rounded-md object-cover bg-base-300"
                           />

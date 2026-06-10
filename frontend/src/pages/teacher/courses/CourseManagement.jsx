@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../components/ui/DropdownMenu";
 import toast from "react-hot-toast";
+import { getImageUrl, handleImageError } from "../../../utils/image";
 
 import {
   fetchCourses, fetchCourseById,
@@ -110,7 +111,7 @@ function ThumbnailUploader({ preview, existingUrl, onChange, onClear }) {
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
 
-  const displaySrc = preview || existingUrl || null;
+  const displaySrc = preview || getImageUrl(existingUrl) || null;
 
   function handleFile(file) {
     if (!file) return;
@@ -141,7 +142,7 @@ function ThumbnailUploader({ preview, existingUrl, onChange, onClear }) {
 
       {displaySrc ? (
         <div className="relative rounded-xl overflow-hidden border border-base-300 group h-44">
-          <img src={displaySrc} alt="Thumbnail preview" className="w-full h-full object-cover" />
+          <img src={displaySrc} onError={handleImageError} alt="Thumbnail preview" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
             <Button size="sm" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20"
               onClick={() => inputRef.current?.click()}>
@@ -777,7 +778,8 @@ export default function CourseManagement() {
                 <Card className="border bg-base-100/60 shadow-md overflow-hidden">
                   <div className="relative h-44">
                     <img
-                      src={activeCourse?.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800"}
+                      src={getImageUrl(activeCourse?.thumbnail)}
+                      onError={handleImageError}
                       alt={activeCourse?.title}
                       className="w-full h-full object-cover"
                     />
@@ -907,10 +909,12 @@ export default function CourseManagement() {
       {/* ════ MODALS ════ */}
 
       {/* Create Course */}
-      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Create New Course" size="2xl">
-        <form onSubmit={handleCreateCourse}>
-          <CourseFormFields form={courseForm} onChange={patchCourse} />
-          <div className="flex gap-3 justify-end pt-5 mt-5 border-t">
+      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Create New Course" size="2xl" noPadding>
+        <form onSubmit={handleCreateCourse} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <CourseFormFields form={courseForm} onChange={patchCourse} />
+          </div>
+          <div className="flex gap-3 justify-end p-6 border-t bg-card sticky bottom-0 shrink-0 z-10">
             <Button type="button" variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
             <Button type="submit" disabled={submitting} className="gap-2 min-w-[130px]">
               {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating...</> : <><Plus className="h-4 w-4" /> Create Course</>}
@@ -920,10 +924,12 @@ export default function CourseManagement() {
       </Modal>
 
       {/* Edit Course */}
-      <Modal isOpen={showEdit} onClose={() => setShowEdit(false)} title="Edit Course" size="2xl">
-        <form onSubmit={handleUpdateCourse}>
-          <CourseFormFields form={courseForm} onChange={patchCourse} showStatus />
-          <div className="flex gap-3 justify-end pt-5 mt-5 border-t">
+      <Modal isOpen={showEdit} onClose={() => setShowEdit(false)} title="Edit Course" size="2xl" noPadding>
+        <form onSubmit={handleUpdateCourse} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <CourseFormFields form={courseForm} onChange={patchCourse} showStatus />
+          </div>
+          <div className="flex gap-3 justify-end p-6 border-t bg-card sticky bottom-0 shrink-0 z-10">
             <Button type="button" variant="outline" onClick={() => setShowEdit(false)}>Cancel</Button>
             <Button type="submit" disabled={submitting} className="gap-2 min-w-[130px]">
               {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</> : <><Save className="h-4 w-4" /> Save Changes</>}
@@ -933,13 +939,15 @@ export default function CourseManagement() {
       </Modal>
 
       {/* Add Module */}
-      <Modal isOpen={showAddModule} onClose={() => setShowAddModule(false)} title="Add Module">
-        <form onSubmit={handleCreateModule} className="space-y-4">
-          <Input label="Module Title *" placeholder="e.g. Introduction & Setup" value={moduleForm.title}
-            onChange={(e) => patchModule({ title: e.target.value })} required />
-          <Input label="Sort Order" type="number" min="0" placeholder="0" value={moduleForm.order}
-            onChange={(e) => patchModule({ order: e.target.value })} />
-          <div className="flex gap-3 justify-end pt-4 border-t">
+      <Modal isOpen={showAddModule} onClose={() => setShowAddModule(false)} title="Add Module" noPadding>
+        <form onSubmit={handleCreateModule} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <Input label="Module Title *" placeholder="e.g. Introduction & Setup" value={moduleForm.title}
+              onChange={(e) => patchModule({ title: e.target.value })} required />
+            <Input label="Sort Order" type="number" min="0" placeholder="0" value={moduleForm.order}
+              onChange={(e) => patchModule({ order: e.target.value })} />
+          </div>
+          <div className="flex gap-3 justify-end p-6 border-t bg-card sticky bottom-0 shrink-0 z-10">
             <Button type="button" variant="outline" onClick={() => setShowAddModule(false)}>Cancel</Button>
             <Button type="submit" disabled={submitting} className="gap-2">
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FolderPlus className="h-4 w-4" />}
@@ -950,13 +958,15 @@ export default function CourseManagement() {
       </Modal>
 
       {/* Edit Module */}
-      <Modal isOpen={showEditModule} onClose={() => setShowEditModule(false)} title="Edit Module">
-        <form onSubmit={handleUpdateModule} className="space-y-4">
-          <Input label="Module Title *" placeholder="e.g. Introduction & Setup" value={moduleForm.title}
-            onChange={(e) => patchModule({ title: e.target.value })} required />
-          <Input label="Sort Order" type="number" min="0" placeholder="0" value={moduleForm.order}
-            onChange={(e) => patchModule({ order: e.target.value })} />
-          <div className="flex gap-3 justify-end pt-4 border-t">
+      <Modal isOpen={showEditModule} onClose={() => setShowEditModule(false)} title="Edit Module" noPadding>
+        <form onSubmit={handleUpdateModule} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <Input label="Module Title *" placeholder="e.g. Introduction & Setup" value={moduleForm.title}
+              onChange={(e) => patchModule({ title: e.target.value })} required />
+            <Input label="Sort Order" type="number" min="0" placeholder="0" value={moduleForm.order}
+              onChange={(e) => patchModule({ order: e.target.value })} />
+          </div>
+          <div className="flex gap-3 justify-end p-6 border-t bg-card sticky bottom-0 shrink-0 z-10">
             <Button type="button" variant="outline" onClick={() => setShowEditModule(false)}>Cancel</Button>
             <Button type="submit" disabled={submitting} className="gap-2">
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -967,10 +977,12 @@ export default function CourseManagement() {
       </Modal>
 
       {/* Add Topic */}
-      <Modal isOpen={showAddTopic} onClose={() => setShowAddTopic(false)} title="Add Lecture / Topic" size="2xl">
-        <form onSubmit={handleCreateTopic} className="space-y-4">
-          <TopicFormFields form={topicForm} modules={activeCourse?.modules || []} onChange={patchTopic} />
-          <div className="flex gap-3 justify-end pt-4 border-t">
+      <Modal isOpen={showAddTopic} onClose={() => setShowAddTopic(false)} title="Add Lecture / Topic" size="2xl" noPadding>
+        <form onSubmit={handleCreateTopic} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <TopicFormFields form={topicForm} modules={activeCourse?.modules || []} onChange={patchTopic} />
+          </div>
+          <div className="flex gap-3 justify-end p-6 border-t bg-card sticky bottom-0 shrink-0 z-10">
             <Button type="button" variant="outline" onClick={() => setShowAddTopic(false)}>Cancel</Button>
             <Button type="submit" disabled={submitting} className="gap-2">
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FilePlus className="h-4 w-4" />}
@@ -981,10 +993,12 @@ export default function CourseManagement() {
       </Modal>
 
       {/* Edit Topic */}
-      <Modal isOpen={showEditTopic} onClose={() => setShowEditTopic(false)} title="Edit Lecture / Topic" size="2xl">
-        <form onSubmit={handleUpdateTopic} className="space-y-4">
-          <TopicFormFields form={topicForm} modules={activeCourse?.modules || []} onChange={patchTopic} />
-          <div className="flex gap-3 justify-end pt-4 border-t">
+      <Modal isOpen={showEditTopic} onClose={() => setShowEditTopic(false)} title="Edit Lecture / Topic" size="2xl" noPadding>
+        <form onSubmit={handleUpdateTopic} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <TopicFormFields form={topicForm} modules={activeCourse?.modules || []} onChange={patchTopic} />
+          </div>
+          <div className="flex gap-3 justify-end p-6 border-t bg-card sticky bottom-0 shrink-0 z-10">
             <Button type="button" variant="outline" onClick={() => setShowEditTopic(false)}>Cancel</Button>
             <Button type="submit" disabled={submitting} className="gap-2">
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -1032,7 +1046,8 @@ function CourseCard({ course, submitting, onOpenCurriculum, onEdit, onDelete, on
         {/* Thumbnail */}
         <div className="relative h-48 overflow-hidden bg-base-300">
           <img
-            src={course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800"}
+            src={getImageUrl(course.thumbnail)}
+            onError={handleImageError}
             alt={course.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
