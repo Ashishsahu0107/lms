@@ -23,7 +23,7 @@ const ratingSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // =====================================
@@ -163,7 +163,7 @@ const courseSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // ── Compound indexes

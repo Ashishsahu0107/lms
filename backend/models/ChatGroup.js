@@ -33,7 +33,7 @@ const chatGroupSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 chatGroupSchema.index({ members: 1 });

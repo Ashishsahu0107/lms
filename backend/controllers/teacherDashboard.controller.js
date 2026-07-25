@@ -17,7 +17,9 @@ export async function getProgressController(req, res, next) {
     const courseIds = courses.map((c) => c._id);
 
     // Aggregate StudentProgress records for these courses
-    const studentProgressList = await StudentProgress.find({ courseId: { $in: courseIds } })
+    const studentProgressList = await StudentProgress.find({
+      courseId: { $in: courseIds },
+    })
       .populate("studentId", "name email avatar")
       .sort({ updatedAt: -1 });
 
@@ -27,11 +29,14 @@ export async function getProgressController(req, res, next) {
     const avgProgress =
       totalStudents > 0
         ? Math.round(
-            studentProgressList.reduce((acc, curr) => acc + curr.progress, 0) / totalStudents
+            studentProgressList.reduce((acc, curr) => acc + curr.progress, 0) /
+              totalStudents,
           )
         : 82; // fallback baseline
 
-    const completedCertificates = studentProgressList.filter((sp) => sp.progress === 100).length;
+    const completedCertificates = studentProgressList.filter(
+      (sp) => sp.progress === 100,
+    ).length;
 
     // Grouping by student to see unique learners
     const studentMap = {};
@@ -63,17 +68,58 @@ export async function getProgressController(req, res, next) {
       studentsTelemetry.length > 0
         ? studentsTelemetry
         : [
-            { id: "S101", name: "Emma Thompson", email: "emma.t@example.com", coursesCount: 3, avgProgress: 88, lastActive: "2 hours ago", avatar: "" },
-            { id: "S102", name: "Michael Chen", email: "michael.c@example.com", coursesCount: 2, avgProgress: 75, lastActive: "4 hours ago", avatar: "" },
-            { id: "S103", name: "Sofia Rodriguez", email: "sofia.r@example.com", coursesCount: 4, avgProgress: 92, lastActive: "5 hours ago", avatar: "" },
-            { id: "S104", name: "James Wilson", email: "james.w@example.com", coursesCount: 1, avgProgress: 45, lastActive: "1 day ago", avatar: "" },
-            { id: "S105", name: "Alex Kim", email: "alex.k@example.com", coursesCount: 3, avgProgress: 95, lastActive: "2 days ago", avatar: "" },
+            {
+              id: "S101",
+              name: "Emma Thompson",
+              email: "emma.t@example.com",
+              coursesCount: 3,
+              avgProgress: 88,
+              lastActive: "2 hours ago",
+              avatar: "",
+            },
+            {
+              id: "S102",
+              name: "Michael Chen",
+              email: "michael.c@example.com",
+              coursesCount: 2,
+              avgProgress: 75,
+              lastActive: "4 hours ago",
+              avatar: "",
+            },
+            {
+              id: "S103",
+              name: "Sofia Rodriguez",
+              email: "sofia.r@example.com",
+              coursesCount: 4,
+              avgProgress: 92,
+              lastActive: "5 hours ago",
+              avatar: "",
+            },
+            {
+              id: "S104",
+              name: "James Wilson",
+              email: "james.w@example.com",
+              coursesCount: 1,
+              avgProgress: 45,
+              lastActive: "1 day ago",
+              avatar: "",
+            },
+            {
+              id: "S105",
+              name: "Alex Kim",
+              email: "alex.k@example.com",
+              coursesCount: 3,
+              avgProgress: 95,
+              lastActive: "2 days ago",
+              avatar: "",
+            },
           ];
 
     return res.status(200).json({
       success: true,
       data: {
-        activeLearners: totalStudents > 0 ? totalStudents : fallbackStudents.length,
+        activeLearners:
+          totalStudents > 0 ? totalStudents : fallbackStudents.length,
         avgProgressRate: avgProgress,
         certificationsEarned: completedCertificates || 8,
         completedCourses: Math.max(completedCertificates * 2, 12),
@@ -134,7 +180,9 @@ export async function getEarningsController(req, res, next) {
     const totalRevenue = payments.reduce((acc, curr) => acc + curr.amount, 0);
 
     const mappedTransactions = payments.map((p) => {
-      const parentCourse = courses.find((c) => c._id.toString() === p.courseId.toString());
+      const parentCourse = courses.find(
+        (c) => c._id.toString() === p.courseId.toString(),
+      );
       return {
         id: p._id.toString(),
         course: parentCourse?.title || "LMS Learning Course",
@@ -153,17 +201,48 @@ export async function getEarningsController(req, res, next) {
       mappedTransactions.length > 0
         ? mappedTransactions
         : [
-            { id: "TX1001", course: "Advanced JavaScript Course", student: "Emma Thompson", amount: 150, date: "May 22, 2026", status: "completed" },
-            { id: "TX1002", course: "Python Fundamentals", student: "Michael Chen", amount: 120, date: "May 20, 2026", status: "completed" },
-            { id: "TX1003", course: "UI/UX Mobile Design Boot", student: "Sofia Rodriguez", amount: 200, date: "May 18, 2026", status: "completed" },
-            { id: "TX1004", course: "React Development Masterclass", student: "James Wilson", amount: 180, date: "May 15, 2026", status: "completed" },
+            {
+              id: "TX1001",
+              course: "Advanced JavaScript Course",
+              student: "Emma Thompson",
+              amount: 150,
+              date: "May 22, 2026",
+              status: "completed",
+            },
+            {
+              id: "TX1002",
+              course: "Python Fundamentals",
+              student: "Michael Chen",
+              amount: 120,
+              date: "May 20, 2026",
+              status: "completed",
+            },
+            {
+              id: "TX1003",
+              course: "UI/UX Mobile Design Boot",
+              student: "Sofia Rodriguez",
+              amount: 200,
+              date: "May 18, 2026",
+              status: "completed",
+            },
+            {
+              id: "TX1004",
+              course: "React Development Masterclass",
+              student: "James Wilson",
+              amount: 180,
+              date: "May 15, 2026",
+              status: "completed",
+            },
           ];
 
     const currentMonthRevenue = payments
       .filter((p) => {
         const now = new Date();
         const pDate = new Date(p.createdAt);
-        return pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear();
+        return (
+          pDate.getMonth() === now.getMonth() &&
+          pDate.getFullYear() === now.getFullYear()
+        );
       })
       .reduce((acc, curr) => acc + curr.amount, 0);
 

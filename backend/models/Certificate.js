@@ -48,7 +48,7 @@ const certificateSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Enforce unique certificate per student per course

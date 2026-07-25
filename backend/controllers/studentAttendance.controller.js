@@ -6,9 +6,9 @@ import mongoose from "mongoose";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const STATUS_COLORS = {
   present: "#10b981",
-  absent:  "#f43f5e",
-  late:    "#f59e0b",
-  leave:   "#3b82f6",
+  absent: "#f43f5e",
+  late: "#f59e0b",
+  leave: "#3b82f6",
 };
 
 function toUTCDate(str) {
@@ -100,7 +100,10 @@ export async function getMyAttendanceCalendarController(req, res, next) {
     });
 
     // Get enrolled courses for the dropdown
-    const enrollments = await Enrollment.find({ studentId }).populate("courseId", "title");
+    const enrollments = await Enrollment.find({ studentId }).populate(
+      "courseId",
+      "title",
+    );
     const courses = enrollments
       .filter((e) => e.courseId)
       .map((e) => ({ id: e.courseId._id, title: e.courseId.title }));
@@ -127,7 +130,7 @@ export async function getMyAttendancePercentageController(req, res, next) {
     // Get all enrolled courses
     const enrollments = await Enrollment.find({ studentId }).populate(
       "courseId",
-      "title thumbnail category"
+      "title thumbnail category",
     );
 
     const results = await Promise.all(
@@ -142,7 +145,8 @@ export async function getMyAttendancePercentageController(req, res, next) {
           records.forEach((r) => counts[r.status]++);
 
           const attended = counts.present + counts.late;
-          const percentage = total > 0 ? Math.round((attended / total) * 100) : null;
+          const percentage =
+            total > 0 ? Math.round((attended / total) * 100) : null;
 
           return {
             courseId: courseId.toString(),
@@ -159,12 +163,12 @@ export async function getMyAttendancePercentageController(req, res, next) {
               percentage === null
                 ? "no-data"
                 : percentage >= 75
-                ? "safe"
-                : percentage >= 60
-                ? "warning"
-                : "danger",
+                  ? "safe"
+                  : percentage >= 60
+                    ? "warning"
+                    : "danger",
           };
-        })
+        }),
     );
 
     // Sort: danger first, then warning, then safe
@@ -183,7 +187,7 @@ export async function getMyAttendancePercentageController(req, res, next) {
                 results
                   .filter((r) => r.percentage !== null)
                   .reduce((acc, r) => acc + r.percentage, 0) /
-                  results.filter((r) => r.percentage !== null).length
+                  results.filter((r) => r.percentage !== null).length,
               )
             : null,
       },
