@@ -5,24 +5,15 @@ import { BadRequestError } from "../utils/errors.js";
 // =====================================
 // GET ALL CONVERSATIONS
 // =====================================
-export async function getConversationsController(
-  req,
-  res,
-  next
-) {
+export async function getConversationsController(req, res, next) {
   try {
-
-    const conversations =
-      await messageService.getConversations(
-        req.user._id
-      );
+    const conversations = await messageService.getConversations(req.user._id);
 
     return res.status(200).json({
       success: true,
       message: "Conversations fetched successfully",
       data: conversations,
     });
-
   } catch (err) {
     next(err);
   }
@@ -31,44 +22,28 @@ export async function getConversationsController(
 // =====================================
 // GET MESSAGES
 // =====================================
-export async function getMessagesController(
-  req,
-  res,
-  next
-) {
+export async function getMessagesController(req, res, next) {
   try {
-
     const { otherId } = req.params;
 
     // Get Messages
-    const messages =
-      await messageService.getMessages(
-        req.user._id,
-        otherId
-      );
+    const messages = await messageService.getMessages(req.user._id, otherId);
 
     // Mark Read
-    await messageService.markRead(
-      req.user._id,
-      otherId
-    );
+    await messageService.markRead(req.user._id, otherId);
 
     // Realtime Read Receipt
     const io = getIO();
 
-    io.to(ROOMS.student(otherId)).emit(
-      "messages-read",
-      {
-        readerId: req.user._id,
-      }
-    );
+    io.to(ROOMS.student(otherId)).emit("messages-read", {
+      readerId: req.user._id,
+    });
 
     return res.status(200).json({
       success: true,
       message: "Messages fetched successfully",
       data: messages,
     });
-
   } catch (err) {
     next(err);
   }
@@ -77,49 +52,32 @@ export async function getMessagesController(
 // =====================================
 // SEND MESSAGE
 // =====================================
-export async function sendMessageController(
-  req,
-  res,
-  next
-) {
+export async function sendMessageController(req, res, next) {
   try {
-
-    const {
-      recipientId,
-      content,
-      attachments = [],
-    } = req.body;
+    const { recipientId, content, attachments = [] } = req.body;
 
     // Save Message
-    const message =
-      await messageService.sendMessage(
-        req.user._id,
-        recipientId,
-        content,
-        attachments
-      );
+    const message = await messageService.sendMessage(
+      req.user._id,
+      recipientId,
+      content,
+      attachments,
+    );
 
     // Socket Emit
     const io = getIO();
 
     // Send To Recipient
-    io.to(ROOMS.student(recipientId)).emit(
-      "new-message",
-      message
-    );
+    io.to(ROOMS.student(recipientId)).emit("new-message", message);
 
     // Send To Sender
-    io.to(ROOMS.student(req.user._id)).emit(
-      "message-sent",
-      message
-    );
+    io.to(ROOMS.student(req.user._id)).emit("message-sent", message);
 
     return res.status(201).json({
       success: true,
       message: "Message sent successfully",
       data: message,
     });
-
   } catch (err) {
     next(err);
   }
@@ -128,35 +86,23 @@ export async function sendMessageController(
 // =====================================
 // MARK MESSAGES READ
 // =====================================
-export async function markMessagesReadController(
-  req,
-  res,
-  next
-) {
+export async function markMessagesReadController(req, res, next) {
   try {
-
     const { otherId } = req.params;
 
-    await messageService.markRead(
-      req.user._id,
-      otherId
-    );
+    await messageService.markRead(req.user._id, otherId);
 
     // Realtime Read Receipt
     const io = getIO();
 
-    io.to(ROOMS.student(otherId)).emit(
-      "messages-read",
-      {
-        readerId: req.user._id,
-      }
-    );
+    io.to(ROOMS.student(otherId)).emit("messages-read", {
+      readerId: req.user._id,
+    });
 
     return res.status(200).json({
       success: true,
       message: "Messages marked as read",
     });
-
   } catch (err) {
     next(err);
   }
@@ -165,25 +111,16 @@ export async function markMessagesReadController(
 // =====================================
 // DELETE MESSAGE
 // =====================================
-export async function deleteMessageController(
-  req,
-  res,
-  next
-) {
+export async function deleteMessageController(req, res, next) {
   try {
-
     const { messageId } = req.params;
 
-    await messageService.deleteMessage(
-      req.user._id,
-      messageId
-    );
+    await messageService.deleteMessage(req.user._id, messageId);
 
     return res.status(200).json({
       success: true,
       message: "Message deleted successfully",
     });
-
   } catch (err) {
     next(err);
   }
@@ -247,7 +184,7 @@ export async function createGroupController(req, res, next) {
       name,
       description,
       members,
-      req.user._id
+      req.user._id,
     );
 
     return res.status(201).json({
@@ -277,7 +214,10 @@ export async function getGroupsController(req, res, next) {
 export async function getGroupMessagesController(req, res, next) {
   try {
     const { groupId } = req.params;
-    const messages = await messageService.getGroupMessages(groupId, req.user._id);
+    const messages = await messageService.getGroupMessages(
+      groupId,
+      req.user._id,
+    );
 
     return res.status(200).json({
       success: true,
@@ -298,7 +238,7 @@ export async function sendGroupMessageController(req, res, next) {
       req.user._id,
       groupId,
       content,
-      attachments
+      attachments,
     );
 
     // Socket Emit to group members

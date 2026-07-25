@@ -11,7 +11,9 @@ export async function getModuleByIdController(req, res, next) {
     const { id } = req.params;
     const mod = await Module.findById(id).populate("topics");
     if (!mod) throw new NotFoundError("Module not found");
-    return res.status(200).json({ success: true, message: "Module fetched", data: mod });
+    return res
+      .status(200)
+      .json({ success: true, message: "Module fetched", data: mod });
   } catch (err) {
     next(err);
   }
@@ -64,7 +66,7 @@ export async function updateModuleController(req, res, next) {
     const updatedModule = await Module.findByIdAndUpdate(
       id,
       { $set: req.body },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedModule) {

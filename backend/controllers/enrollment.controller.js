@@ -19,7 +19,10 @@ export async function assignCourseController(req, res, next) {
 
     // Support lookup by Email
     if (email) {
-      const student = await User.findOne({ email: email.toLowerCase(), role: "student" });
+      const student = await User.findOne({
+        email: email.toLowerCase(),
+        role: "student",
+      });
       if (!student) {
         throw new NotFoundError("Student with this email not found");
       }
@@ -36,8 +39,13 @@ export async function assignCourseController(req, res, next) {
     }
 
     // Verify ownership for teachers
-    if (req.user.role === "teacher" && course.teacherId.toString() !== req.user._id.toString()) {
-      throw new BadRequestError("Access Denied: you can only assign students to your own courses");
+    if (
+      req.user.role === "teacher" &&
+      course.teacherId.toString() !== req.user._id.toString()
+    ) {
+      throw new BadRequestError(
+        "Access Denied: you can only assign students to your own courses",
+      );
     }
 
     // Check existing enrollment
@@ -67,7 +75,9 @@ export async function assignCourseController(req, res, next) {
 
     // Emit live student enrollment socket event
     try {
-      const student = await User.findById(targetStudentId).select("name").lean();
+      const student = await User.findById(targetStudentId)
+        .select("name")
+        .lean();
       const studentName = student ? student.name : "A student";
       const { emitStudentJoined } = await import("../socket/index.js");
       emitStudentJoined({
@@ -98,14 +108,13 @@ export async function getStudentEnrollmentsController(req, res, next) {
   try {
     const { id: studentId } = req.params;
 
-    const enrollments = await Enrollment.find({ studentId })
-      .populate({
-        path: "courseId",
-        populate: {
-          path: "teacherId",
-          select: "name avatar"
-        }
-      });
+    const enrollments = await Enrollment.find({ studentId }).populate({
+      path: "courseId",
+      populate: {
+        path: "teacherId",
+        select: "name avatar",
+      },
+    });
 
     return res.status(200).json({
       success: true,
@@ -151,7 +160,7 @@ export async function markTopicProgressController(req, res, next) {
 
     // Fetch all topics inside all modules of this course to calculate overall progress
     const modules = await Module.find({ courseId }).populate("topics");
-    
+
     let totalTopicsCount = 0;
     for (const mod of modules) {
       totalTopicsCount += mod.topics?.length || 0;
@@ -160,7 +169,7 @@ export async function markTopicProgressController(req, res, next) {
     // Avoid divide-by-zero
     if (totalTopicsCount > 0) {
       enrollment.progress = Math.round(
-        (enrollment.completedTopics.length / totalTopicsCount) * 100
+        (enrollment.completedTopics.length / totalTopicsCount) * 100,
       );
     } else {
       enrollment.progress = 100;

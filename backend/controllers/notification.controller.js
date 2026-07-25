@@ -10,26 +10,28 @@ export async function getUserNotificationsController(req, res, next) {
         {
           recipientId: null,
           targetRole: { $in: [req.user.role, "all"] },
-          scheduledAt: { $lte: now }
-        }
-      ]
+          scheduledAt: { $lte: now },
+        },
+      ],
     })
       .populate("senderId", "name avatar")
       .sort({ createdAt: -1 });
 
-    const formatted = notifications.map(n => {
+    const formatted = notifications.map((n) => {
       const doc = n.toObject();
       if (n.recipientId) {
         doc.read = n.read;
       } else {
-        doc.read = n.readBy.some(id => id.toString() === req.user._id.toString());
+        doc.read = n.readBy.some(
+          (id) => id.toString() === req.user._id.toString(),
+        );
       }
       return doc;
     });
 
     return res.status(200).json({
       success: true,
-      data: formatted
+      data: formatted,
     });
   } catch (err) {
     next(err);
@@ -46,11 +48,17 @@ export async function markNotificationReadController(req, res, next) {
 
     if (notification.recipientId) {
       if (notification.recipientId.toString() !== req.user._id.toString()) {
-        throw new BadRequestError("Unauthorized to mark this notification as read");
+        throw new BadRequestError(
+          "Unauthorized to mark this notification as read",
+        );
       }
       notification.read = true;
     } else {
-      if (!notification.readBy.some(uid => uid.toString() === req.user._id.toString())) {
+      if (
+        !notification.readBy.some(
+          (uid) => uid.toString() === req.user._id.toString(),
+        )
+      ) {
         notification.readBy.push(req.user._id);
       }
     }
@@ -60,7 +68,7 @@ export async function markNotificationReadController(req, res, next) {
     return res.status(200).json({
       success: true,
       message: "Notification marked as read",
-      data: notification
+      data: notification,
     });
   } catch (err) {
     next(err);
@@ -70,10 +78,10 @@ export async function markNotificationReadController(req, res, next) {
 export async function markAllNotificationsReadController(req, res, next) {
   try {
     const now = new Date();
-    
+
     await Notification.updateMany(
       { recipientId: req.user._id, read: false },
-      { $set: { read: true } }
+      { $set: { read: true } },
     );
 
     await Notification.updateMany(
@@ -81,14 +89,14 @@ export async function markAllNotificationsReadController(req, res, next) {
         recipientId: null,
         targetRole: { $in: [req.user.role, "all"] },
         scheduledAt: { $lte: now },
-        readBy: { $ne: req.user._id }
+        readBy: { $ne: req.user._id },
       },
-      { $addToSet: { readBy: req.user._id } }
+      { $addToSet: { readBy: req.user._id } },
     );
 
     return res.status(200).json({
       success: true,
-      message: "All notifications marked as read"
+      message: "All notifications marked as read",
     });
   } catch (err) {
     next(err);
@@ -103,7 +111,10 @@ export async function deleteNotificationController(req, res, next) {
       throw new BadRequestError("Notification not found");
     }
 
-    if (notification.recipientId && notification.recipientId.toString() !== req.user._id.toString()) {
+    if (
+      notification.recipientId &&
+      notification.recipientId.toString() !== req.user._id.toString()
+    ) {
       throw new BadRequestError("Unauthorized to delete this notification");
     }
 
@@ -111,7 +122,7 @@ export async function deleteNotificationController(req, res, next) {
 
     return res.status(200).json({
       success: true,
-      message: "Notification deleted successfully"
+      message: "Notification deleted successfully",
     });
   } catch (err) {
     next(err);

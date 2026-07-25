@@ -4,7 +4,12 @@ import { Course } from "../models/Course.js";
 import { Module } from "../models/Module.js";
 import { Topic } from "../models/Topic.js";
 import { Enrollment } from "../models/Enrollment.js";
-import { getIO, emitCourseCreated, emitCourseUpdated, emitCourseDeleted } from "../socket/index.js";
+import {
+  getIO,
+  emitCourseCreated,
+  emitCourseUpdated,
+  emitCourseDeleted,
+} from "../socket/index.js";
 import { deleteUploadedFile, buildFileUrl } from "../middleware/upload.js";
 
 // ──────────────────────────────────────────────────────────
@@ -17,14 +22,10 @@ import { deleteUploadedFile, buildFileUrl } from "../middleware/upload.js";
  */
 function parseTags(raw) {
   if (!raw) return [];
-  const arr = Array.isArray(raw)
-    ? raw
-    : String(raw).split(",");
-  return [...new Set(
-    arr
-      .map((t) => String(t).trim().slice(0, 50))
-      .filter(Boolean)
-  )].slice(0, 20);
+  const arr = Array.isArray(raw) ? raw : String(raw).split(",");
+  return [
+    ...new Set(arr.map((t) => String(t).trim().slice(0, 50)).filter(Boolean)),
+  ].slice(0, 20);
 }
 
 /**
@@ -40,19 +41,33 @@ function validateCoursePayload({ title, price, difficulty, status, duration }) {
   if (String(title).trim().length > 200) {
     throw new BadRequestError("Course title cannot exceed 200 characters");
   }
-  if (price !== undefined && price !== "" && (isNaN(Number(price)) || Number(price) < 0)) {
+  if (
+    price !== undefined &&
+    price !== "" &&
+    (isNaN(Number(price)) || Number(price) < 0)
+  ) {
     throw new BadRequestError("Price must be a non-negative number");
   }
   const validDifficulty = ["beginner", "intermediate", "advanced"];
   if (difficulty && !validDifficulty.includes(difficulty)) {
-    throw new BadRequestError(`Difficulty must be one of: ${validDifficulty.join(", ")}`);
+    throw new BadRequestError(
+      `Difficulty must be one of: ${validDifficulty.join(", ")}`,
+    );
   }
   const validStatuses = ["draft", "published", "archived"];
   if (status && !validStatuses.includes(status)) {
-    throw new BadRequestError(`Status must be one of: ${validStatuses.join(", ")}`);
+    throw new BadRequestError(
+      `Status must be one of: ${validStatuses.join(", ")}`,
+    );
   }
-  if (duration !== undefined && duration !== "" && (isNaN(Number(duration)) || Number(duration) < 0)) {
-    throw new BadRequestError("Duration must be a non-negative number (minutes)");
+  if (
+    duration !== undefined &&
+    duration !== "" &&
+    (isNaN(Number(duration)) || Number(duration) < 0)
+  ) {
+    throw new BadRequestError(
+      "Duration must be a non-negative number (minutes)",
+    );
   }
 }
 
@@ -71,9 +86,9 @@ export async function getCoursesController(req, res, next) {
     // super_admin sees everything
 
     const { category, search, status, difficulty } = req.query ?? {};
-    if (category)   query.category   = { $regex: category, $options: "i" };
-    if (difficulty) query.difficulty  = difficulty;
-    if (status)     query.status      = status;
+    if (category) query.category = { $regex: category, $options: "i" };
+    if (difficulty) query.difficulty = difficulty;
+    if (status) query.status = status;
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -137,8 +152,14 @@ export async function getCourseByIdController(req, res, next) {
 export async function createCourseController(req, res, next) {
   try {
     const {
-      title, description, category, price,
-      status, difficulty, tags, duration,
+      title,
+      description,
+      category,
+      price,
+      status,
+      difficulty,
+      tags,
+      duration,
     } = req.body ?? {};
 
     // ── Validate
@@ -154,19 +175,19 @@ export async function createCourseController(req, res, next) {
 
     // ── Create document
     const course = await Course.create({
-      title:       String(title).trim(),
+      title: String(title).trim(),
       description: description ? String(description).trim() : "",
-      category:    category    ? String(category).trim()    : "",
-      price:       Number(price) || 0,
-      thumbnail:   thumbnailUrl,
+      category: category ? String(category).trim() : "",
+      price: Number(price) || 0,
+      thumbnail: thumbnailUrl,
       thumbnailKey,
-      status:      status || "draft",
-      difficulty:  difficulty || "beginner",
-      tags:        parseTags(tags),
-      duration:    Number(duration) || 0,
-      teacherId:   req.user._id,
-      modules:     [],
-      students:    [],
+      status: status || "draft",
+      difficulty: difficulty || "beginner",
+      tags: parseTags(tags),
+      duration: Number(duration) || 0,
+      teacherId: req.user._id,
+      modules: [],
+      students: [],
     });
 
     emitCourseCreated(course);
@@ -190,13 +211,19 @@ export async function updateCourseController(req, res, next) {
   try {
     const { id } = req.params;
     const {
-      title, description, category, price,
-      status, difficulty, tags, duration,
+      title,
+      description,
+      category,
+      price,
+      status,
+      difficulty,
+      tags,
+      duration,
     } = req.body ?? {};
 
     // ── Validate only provided fields
     validateCoursePayload({
-      title:      title      ?? "placeholder_skip_title_required_check",
+      title: title ?? "placeholder_skip_title_required_check",
       price,
       difficulty,
       status,
@@ -204,20 +231,29 @@ export async function updateCourseController(req, res, next) {
     });
     // Override: if title is explicitly provided, run its own check
     if (title !== undefined) {
-      validateCoursePayload({ title, price: undefined, difficulty: undefined, status: undefined, duration: undefined });
+      validateCoursePayload({
+        title,
+        price: undefined,
+        difficulty: undefined,
+        status: undefined,
+        duration: undefined,
+      });
     }
 
     // ── Allowlisted update object
     const allowed = {};
-    if (title       !== undefined) allowed.title       = String(title).trim();
-    if (description !== undefined) allowed.description = String(description).trim();
-    if (category    !== undefined) allowed.category    = String(category).trim();
-    if (price       !== undefined) allowed.price       = Math.max(0, Number(price) || 0);
-    if (difficulty  !== undefined) allowed.difficulty  = difficulty;
-    if (duration    !== undefined) allowed.duration    = Math.max(0, Number(duration) || 0);
-    if (tags        !== undefined) allowed.tags        = parseTags(tags);
+    if (title !== undefined) allowed.title = String(title).trim();
+    if (description !== undefined)
+      allowed.description = String(description).trim();
+    if (category !== undefined) allowed.category = String(category).trim();
+    if (price !== undefined) allowed.price = Math.max(0, Number(price) || 0);
+    if (difficulty !== undefined) allowed.difficulty = difficulty;
+    if (duration !== undefined)
+      allowed.duration = Math.max(0, Number(duration) || 0);
+    if (tags !== undefined) allowed.tags = parseTags(tags);
     const validStatuses = ["draft", "published", "archived"];
-    if (status !== undefined && validStatuses.includes(status)) allowed.status = status;
+    if (status !== undefined && validStatuses.includes(status))
+      allowed.status = status;
 
     // ── Handle new thumbnail upload
     if (req.file) {
@@ -226,14 +262,14 @@ export async function updateCourseController(req, res, next) {
       if (existing?.thumbnailKey) {
         deleteUploadedFile(existing.thumbnailKey);
       }
-      allowed.thumbnail    = buildFileUrl(req, req.file.filename, "thumbnails");
+      allowed.thumbnail = buildFileUrl(req, req.file.filename, "thumbnails");
       allowed.thumbnailKey = req.file.filename;
     }
 
     const course = await Course.findByIdAndUpdate(
       id,
       { $set: allowed },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate("teacherId", "name email avatar");
 
     if (!course) throw new NotFoundError("Course not found");
