@@ -9,12 +9,7 @@ const attachmentSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: [
-        "image",
-        "video",
-        "file",
-        "audio",
-      ],
+      enum: ["image", "video", "file", "audio"],
       default: "file",
     },
 
@@ -30,7 +25,7 @@ const attachmentSchema = new mongoose.Schema(
   },
   {
     _id: false,
-  }
+  },
 );
 
 const messageSchema = new mongoose.Schema(
@@ -108,14 +103,7 @@ const messageSchema = new mongoose.Schema(
     // =====================================
     messageType: {
       type: String,
-      enum: [
-        "text",
-        "image",
-        "video",
-        "audio",
-        "file",
-        "system",
-      ],
+      enum: ["text", "image", "video", "audio", "file", "system"],
       default: "text",
     },
 
@@ -134,7 +122,7 @@ const messageSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // =====================================
@@ -162,13 +150,9 @@ messageSchema.index({
 // =====================================
 // VIRTUAL FIELD
 // =====================================
-messageSchema.virtual("isMedia").get(
-  function () {
-    return (
-      this.messageType !== "text"
-    );
-  }
-);
+messageSchema.virtual("isMedia").get(function () {
+  return this.messageType !== "text";
+});
 
 // =====================================
 // JSON SETTINGS
@@ -184,7 +168,4 @@ messageSchema.set("toObject", {
 // =====================================
 // MODEL
 // =====================================
-export const Message = mongoose.model(
-  "Message",
-  messageSchema
-);
+export const Message = mongoose.model("Message", messageSchema);

@@ -26,7 +26,7 @@ const moduleSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Optimize sorting of modules inside a course

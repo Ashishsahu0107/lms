@@ -30,7 +30,7 @@ const notesSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Notes = mongoose.model("Notes", notesSchema);

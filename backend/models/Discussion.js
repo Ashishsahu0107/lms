@@ -23,7 +23,7 @@ const discussionSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Discussion = mongoose.model("Discussion", discussionSchema);
