@@ -99,7 +99,9 @@ export async function submitAssignmentController(req, res, next) {
 
     return res.status(201).json({
       success: true,
-      message: isLate ? "Assignment submitted successfully (marked late)" : "Assignment submitted successfully",
+      message: isLate
+        ? "Assignment submitted successfully (marked late)"
+        : "Assignment submitted successfully",
       data: submission,
     });
   } catch (err) {
@@ -120,8 +122,13 @@ export async function getAssignmentSubmissionsController(req, res, next) {
     }
 
     // Verify ownership for teachers
-    if (req.user.role === "teacher" && assignment.createdBy.toString() !== req.user._id.toString()) {
-      throw new BadRequestError("Access Denied: you can only view submissions for assignments you created");
+    if (
+      req.user.role === "teacher" &&
+      assignment.createdBy.toString() !== req.user._id.toString()
+    ) {
+      throw new BadRequestError(
+        "Access Denied: you can only view submissions for assignments you created",
+      );
     }
 
     const submissions = await Submission.find({ assignmentId })
@@ -138,7 +145,6 @@ export async function getAssignmentSubmissionsController(req, res, next) {
   }
 }
 
-
 // =====================================
 // GET SINGLE SUBMISSION BY ID (Teacher/Admin-facing)
 // =====================================
@@ -152,8 +158,8 @@ export async function getSubmissionByIdController(req, res, next) {
         path: "assignmentId",
         populate: {
           path: "courseId",
-          select: "title totalMarks"
-        }
+          select: "title totalMarks",
+        },
       });
 
     if (!submission) {
@@ -188,16 +194,21 @@ export async function reviewSubmissionController(req, res, next) {
 
     // If rubricEvaluation is provided, calculate finalMarks from sum of scores
     if (Array.isArray(rubricEvaluation) && rubricEvaluation.length > 0) {
-      finalMarks = rubricEvaluation.reduce((sum, item) => sum + (Number(item.score) || 0), 0);
+      finalMarks = rubricEvaluation.reduce(
+        (sum, item) => sum + (Number(item.score) || 0),
+        0,
+      );
       submission.rubricEvaluation = rubricEvaluation;
     } else if (marks === undefined || marks === null) {
-      throw new BadRequestError("Marks/Grade score or Rubric evaluation breakdown is required");
+      throw new BadRequestError(
+        "Marks/Grade score or Rubric evaluation breakdown is required",
+      );
     }
 
     // Verify score boundary
     if (Number(finalMarks) > assignment.totalMarks) {
       throw new BadRequestError(
-        `Grade score (${finalMarks}) cannot exceed total marks of ${assignment.totalMarks} allowed for this assignment.`
+        `Grade score (${finalMarks}) cannot exceed total marks of ${assignment.totalMarks} allowed for this assignment.`,
       );
     }
 
@@ -230,4 +241,3 @@ export async function reviewSubmissionController(req, res, next) {
     next(err);
   }
 }
-

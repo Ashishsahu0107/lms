@@ -104,7 +104,9 @@ export async function createQuizController(req, res, next) {
     } = req.body ?? {};
 
     if (!title || !courseId) {
-      throw new BadRequestError("Title and Target Course ID are required fields");
+      throw new BadRequestError(
+        "Title and Target Course ID are required fields",
+      );
     }
 
     // 1. Create the base Quiz document
@@ -146,7 +148,7 @@ export async function createQuizController(req, res, next) {
 
       const createdQuestions = await Question.insertMany(questionsData);
       questionRefs = createdQuestions.map((q) => q._id);
-      
+
       // Update Quiz with reference IDs
       quiz.questions = questionRefs;
       await quiz.save();
@@ -154,7 +156,8 @@ export async function createQuizController(req, res, next) {
 
     // Emit live socket events
     try {
-      const { emitQuizCreated, emitQuizPublished } = await import("../socket/index.js");
+      const { emitQuizCreated, emitQuizPublished } =
+        await import("../socket/index.js");
       emitQuizCreated(quiz);
       if (quiz.status === "published") {
         emitQuizPublished(quiz);
@@ -216,7 +219,8 @@ export async function updateQuizController(req, res, next) {
 
     // Emit live socket events
     try {
-      const { emitQuizUpdated, emitQuizPublished } = await import("../socket/index.js");
+      const { emitQuizUpdated, emitQuizPublished } =
+        await import("../socket/index.js");
       emitQuizUpdated(quiz);
       if (quiz.status === "published" && oldStatus !== "published") {
         emitQuizPublished(quiz);
@@ -283,12 +287,20 @@ export async function getQuizAnalyticsController(req, res, next) {
       .sort({ score: -1, timeSpent: 1 });
 
     const totalAttemptsCount = attempts.length;
-    const uniqueStudentsSet = new Set(attempts.map((a) => a.studentId?._id?.toString()));
+    const uniqueStudentsSet = new Set(
+      attempts.map((a) => a.studentId?._id?.toString()),
+    );
     const uniqueStudentsCount = uniqueStudentsSet.size;
 
     let averageScore = 0;
     let passingAttemptsCount = 0;
-    const scoreBuckets = { "0-20%": 0, "21-40%": 0, "41-60%": 0, "61-80%": 0, "81-100%": 0 };
+    const scoreBuckets = {
+      "0-20%": 0,
+      "21-40%": 0,
+      "41-60%": 0,
+      "61-80%": 0,
+      "81-100%": 0,
+    };
 
     if (totalAttemptsCount > 0) {
       let sumScores = 0;
@@ -309,7 +321,10 @@ export async function getQuizAnalyticsController(req, res, next) {
       averageScore = Number((sumScores / totalAttemptsCount).toFixed(1));
     }
 
-    const passRate = totalAttemptsCount > 0 ? Math.round((passingAttemptsCount / totalAttemptsCount) * 100) : 0;
+    const passRate =
+      totalAttemptsCount > 0
+        ? Math.round((passingAttemptsCount / totalAttemptsCount) * 100)
+        : 0;
 
     // Leaderboard logic: group highest attempts of each student
     const studentBestAttempts = {};
@@ -317,7 +332,10 @@ export async function getQuizAnalyticsController(req, res, next) {
       const sId = a.studentId?._id?.toString();
       if (!sId) return;
 
-      if (!studentBestAttempts[sId] || studentBestAttempts[sId].score < a.score) {
+      if (
+        !studentBestAttempts[sId] ||
+        studentBestAttempts[sId].score < a.score
+      ) {
         studentBestAttempts[sId] = a;
       }
     });
@@ -351,8 +369,10 @@ export async function getQuestionBankController(req, res, next) {
   try {
     let query = {};
     if (req.user.role !== "super_admin") {
-      const quizzes = await Quiz.find({ createdBy: req.user._id }).select("_id");
-      const quizIds = quizzes.map(q => q._id);
+      const quizzes = await Quiz.find({ createdBy: req.user._id }).select(
+        "_id",
+      );
+      const quizIds = quizzes.map((q) => q._id);
       query = { quizId: { $in: quizIds } };
     }
     const questions = await Question.find(query).populate("quizId", "title");
@@ -418,7 +438,7 @@ export async function cloneQuizController(req, res, next) {
       }));
 
       const createdQuestions = await Question.insertMany(clonedQuestionsData);
-      clonedQuiz.questions = createdQuestions.map(q => q._id);
+      clonedQuiz.questions = createdQuestions.map((q) => q._id);
       await clonedQuiz.save();
     }
 
@@ -449,7 +469,9 @@ export async function bulkImportQuestionsController(req, res, next) {
     const { questions } = req.body ?? {};
 
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
-      throw new BadRequestError("Questions array is required and must not be empty");
+      throw new BadRequestError(
+        "Questions array is required and must not be empty",
+      );
     }
 
     const quiz = await Quiz.findById(id);
@@ -459,7 +481,9 @@ export async function bulkImportQuestionsController(req, res, next) {
 
     const questionsData = questions.map((q) => {
       if (!q.question || !q.type) {
-        throw new BadRequestError("Each imported question must contain a 'question' and a 'type' field");
+        throw new BadRequestError(
+          "Each imported question must contain a 'question' and a 'type' field",
+        );
       }
       return {
         quizId: id,
@@ -477,7 +501,7 @@ export async function bulkImportQuestionsController(req, res, next) {
     const questionRefs = createdQuestions.map((q) => q._id);
 
     quiz.questions = [...(quiz.questions || []), ...questionRefs];
-    
+
     // Increment total marks by newly added questions marks
     const sumMarks = createdQuestions.reduce((sum, q) => sum + q.marks, 0);
     quiz.totalMarks = (quiz.totalMarks || 0) + sumMarks;
@@ -489,7 +513,10 @@ export async function bulkImportQuestionsController(req, res, next) {
       const { emitQuizUpdated } = await import("../socket/index.js");
       emitQuizUpdated(quiz);
     } catch (e) {
-      console.error("Failed to emit quizUpdated socket event for bulk import:", e);
+      console.error(
+        "Failed to emit quizUpdated socket event for bulk import:",
+        e,
+      );
     }
 
     return res.status(200).json({

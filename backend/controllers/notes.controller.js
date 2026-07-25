@@ -16,7 +16,10 @@ export async function getNotes(req, res, next) {
     }
 
     // Retrieve notes matching course
-    const notes = await Notes.find({ courseId }).populate("teacherId", "name avatar");
+    const notes = await Notes.find({ courseId }).populate(
+      "teacherId",
+      "name avatar",
+    );
 
     return res.status(200).json({
       success: true,
@@ -46,8 +49,13 @@ export async function createNote(req, res, next) {
       throw new BadRequestError("Course not found");
     }
 
-    if (req.user.role !== "super_admin" && course.teacherId.toString() !== teacherId.toString()) {
-      throw new ForbiddenError("You can only upload notes for your own courses");
+    if (
+      req.user.role !== "super_admin" &&
+      course.teacherId.toString() !== teacherId.toString()
+    ) {
+      throw new ForbiddenError(
+        "You can only upload notes for your own courses",
+      );
     }
 
     const note = await Notes.create({
@@ -110,7 +118,9 @@ export async function deleteNote(req, res, next) {
       note.teacherId.toString() !== req.user._id.toString() &&
       (!course || course.teacherId.toString() !== req.user._id.toString())
     ) {
-      throw new ForbiddenError("Access denied: you do not own this course or note");
+      throw new ForbiddenError(
+        "Access denied: you do not own this course or note",
+      );
     }
 
     await Notes.findByIdAndDelete(id);

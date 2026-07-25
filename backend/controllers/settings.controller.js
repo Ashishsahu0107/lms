@@ -69,11 +69,15 @@ export async function changeSettingsPasswordController(req, res, next) {
     const userId = req.user._id;
 
     if (!currentPassword || !newPassword) {
-      throw new BadRequestError("Current password and new password are required");
+      throw new BadRequestError(
+        "Current password and new password are required",
+      );
     }
 
     if (newPassword.length < 6) {
-      throw new BadRequestError("New password must be at least 6 characters long");
+      throw new BadRequestError(
+        "New password must be at least 6 characters long",
+      );
     }
 
     // Retrieve user with password select field
@@ -83,7 +87,10 @@ export async function changeSettingsPasswordController(req, res, next) {
     }
 
     // Verify current password
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedError("Incorrect current password");
     }
@@ -102,7 +109,7 @@ export async function changeSettingsPasswordController(req, res, next) {
         details: `Successful password change for account: ${user.email}`,
         ip: req.ip,
         device: req.headers["user-agent"] || "",
-        severity: "medium"
+        severity: "medium",
       });
     } catch (logErr) {
       console.error("[Log] Failed to log password change:", logErr);
@@ -138,19 +145,32 @@ export async function updateSettingsPreferencesController(req, res, next) {
 
     // 2. Granular Notifications Matrix
     if (notifications) {
-      if (notifications.email !== undefined) user.preferences.notifications.email = !!notifications.email;
-      if (notifications.quizAlerts !== undefined) user.preferences.notifications.quizAlerts = !!notifications.quizAlerts;
-      if (notifications.assignmentAlerts !== undefined) user.preferences.notifications.assignmentAlerts = !!notifications.assignmentAlerts;
-      if (notifications.courseNotifications !== undefined) user.preferences.notifications.courseNotifications = !!notifications.courseNotifications;
+      if (notifications.email !== undefined)
+        user.preferences.notifications.email = !!notifications.email;
+      if (notifications.quizAlerts !== undefined)
+        user.preferences.notifications.quizAlerts = !!notifications.quizAlerts;
+      if (notifications.assignmentAlerts !== undefined)
+        user.preferences.notifications.assignmentAlerts =
+          !!notifications.assignmentAlerts;
+      if (notifications.courseNotifications !== undefined)
+        user.preferences.notifications.courseNotifications =
+          !!notifications.courseNotifications;
     }
 
     // 3. Privacy Settings
     if (privacy) {
-      if (privacy.accountVisibility && ["public", "private"].includes(privacy.accountVisibility)) {
+      if (
+        privacy.accountVisibility &&
+        ["public", "private"].includes(privacy.accountVisibility)
+      ) {
         user.preferences.privacy.accountVisibility = privacy.accountVisibility;
       }
-      if (privacy.activityVisibility && ["public", "private"].includes(privacy.activityVisibility)) {
-        user.preferences.privacy.activityVisibility = privacy.activityVisibility;
+      if (
+        privacy.activityVisibility &&
+        ["public", "private"].includes(privacy.activityVisibility)
+      ) {
+        user.preferences.privacy.activityVisibility =
+          privacy.activityVisibility;
       }
     }
 
@@ -202,16 +222,24 @@ export async function getGlobalSettingsController(req, res, next) {
 // ======================================================
 export async function updateGlobalSettingsController(req, res, next) {
   try {
-    const { platformName, commissionRate, allowedUploadSizeMB, maintenanceMode, brandingLogo } = req.body;
+    const {
+      platformName,
+      commissionRate,
+      allowedUploadSizeMB,
+      maintenanceMode,
+      brandingLogo,
+    } = req.body;
     let settings = await Settings.findOne();
     if (!settings) {
       settings = new Settings();
     }
-    
+
     if (platformName !== undefined) settings.platformName = platformName;
     if (commissionRate !== undefined) settings.commissionRate = commissionRate;
-    if (allowedUploadSizeMB !== undefined) settings.allowedUploadSizeMB = allowedUploadSizeMB;
-    if (maintenanceMode !== undefined) settings.maintenanceMode = !!maintenanceMode;
+    if (allowedUploadSizeMB !== undefined)
+      settings.allowedUploadSizeMB = allowedUploadSizeMB;
+    if (maintenanceMode !== undefined)
+      settings.maintenanceMode = !!maintenanceMode;
     if (brandingLogo !== undefined) settings.brandingLogo = brandingLogo;
 
     await settings.save();

@@ -26,15 +26,14 @@ export async function getCalendarEvents(req, res, next) {
 
     // 1. Fetch custom Schedules
     const query = {
-      $or: [
-        { courseId: { $in: courseIds } },
-        { userId: userId }
-      ]
+      $or: [{ courseId: { $in: courseIds } }, { userId: userId }],
     };
     const schedules = await Schedule.find(query).lean();
 
     // 2. Fetch Assignments as events
-    const assignments = await Assignment.find({ courseId: { $in: courseIds } }).lean();
+    const assignments = await Assignment.find({
+      courseId: { $in: courseIds },
+    }).lean();
     const assignmentEvents = assignments.map((asm) => ({
       _id: asm._id,
       title: `DEADLINE: ${asm.title}`,
@@ -58,11 +57,7 @@ export async function getCalendarEvents(req, res, next) {
     }));
 
     // Merge everything
-    const allEvents = [
-      ...schedules,
-      ...assignmentEvents,
-      ...quizEvents
-    ];
+    const allEvents = [...schedules, ...assignmentEvents, ...quizEvents];
 
     return res.status(200).json({
       success: true,
@@ -79,11 +74,22 @@ export async function getCalendarEvents(req, res, next) {
 // ============================================
 export async function createSchedule(req, res, next) {
   try {
-    const { title, description, type, startDate, endDate, courseId, meetingUrl, meetingId } = req.body;
+    const {
+      title,
+      description,
+      type,
+      startDate,
+      endDate,
+      courseId,
+      meetingUrl,
+      meetingId,
+    } = req.body;
     const userId = req.user._id;
 
     if (!title || !type || !startDate || !endDate) {
-      throw new BadRequestError("Title, type, start date, and end date are required");
+      throw new BadRequestError(
+        "Title, type, start date, and end date are required",
+      );
     }
 
     // Verify course ownership
@@ -92,7 +98,10 @@ export async function createSchedule(req, res, next) {
       if (!course) {
         throw new BadRequestError("Course not found");
       }
-      if (req.user.role !== "super_admin" && course.teacherId.toString() !== userId.toString()) {
+      if (
+        req.user.role !== "super_admin" &&
+        course.teacherId.toString() !== userId.toString()
+      ) {
         throw new ForbiddenError("Access denied: you do not own this course");
       }
     }
@@ -100,7 +109,7 @@ export async function createSchedule(req, res, next) {
     // Construct meeting details if type is class and Zoom/Meet is requested
     let finalMeetingUrl = meetingUrl || "";
     let finalMeetingId = meetingId || "";
-    
+
     if (type === "class" && !finalMeetingUrl) {
       // Sophisticated mock Zoom link generator
       const randomMeeting = Math.floor(100000000 + Math.random() * 900000000);
@@ -167,11 +176,19 @@ export async function deleteSchedule(req, res, next) {
     }
 
     // Ownership check
-    if (req.user.role !== "super_admin" && event.userId?.toString() !== req.user._id.toString()) {
+    if (
+      req.user.role !== "super_admin" &&
+      event.userId?.toString() !== req.user._id.toString()
+    ) {
       if (event.courseId) {
         const course = await Course.findById(event.courseId);
-        if (!course || course.teacherId.toString() !== req.user._id.toString()) {
-          throw new ForbiddenError("You can only modify events you scheduled or own");
+        if (
+          !course ||
+          course.teacherId.toString() !== req.user._id.toString()
+        ) {
+          throw new ForbiddenError(
+            "You can only modify events you scheduled or own",
+          );
         }
       } else {
         throw new ForbiddenError("You do not own this event");

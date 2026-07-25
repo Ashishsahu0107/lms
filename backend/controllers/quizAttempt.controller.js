@@ -6,11 +6,15 @@ import { Enrollment } from "../models/Enrollment.js";
 
 // Helper to shuffle array in-place
 function shuffle(array) {
-  let currentIndex = array.length, randomIndex;
+  let currentIndex = array.length,
+    randomIndex;
   while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
   }
   return array;
 }
@@ -32,9 +36,14 @@ export async function startAttemptController(req, res, next) {
     }
 
     // Verify course enrollment
-    const enrollment = await Enrollment.findOne({ studentId: req.user._id, courseId: quiz.courseId });
+    const enrollment = await Enrollment.findOne({
+      studentId: req.user._id,
+      courseId: quiz.courseId,
+    });
     if (!enrollment && req.user.role === "student") {
-      throw new BadRequestError("Access Denied: you must be enrolled in this course to attempt the quiz");
+      throw new BadRequestError(
+        "Access Denied: you must be enrolled in this course to attempt the quiz",
+      );
     }
 
     // Verify attempt limits
@@ -46,7 +55,9 @@ export async function startAttemptController(req, res, next) {
       });
 
       if (pastAttempts >= quiz.attemptLimit) {
-        throw new BadRequestError(`Limit Exceeded: you have already completed the maximum of ${quiz.attemptLimit} attempts allowed for this quiz.`);
+        throw new BadRequestError(
+          `Limit Exceeded: you have already completed the maximum of ${quiz.attemptLimit} attempts allowed for this quiz.`,
+        );
       }
     }
 
@@ -122,7 +133,11 @@ export async function autosaveAttemptController(req, res, next) {
       throw new BadRequestError("Attempt ID is required to autosave");
     }
 
-    const attempt = await QuizAttempt.findOne({ _id: attemptId, studentId: req.user._id, status: "ongoing" });
+    const attempt = await QuizAttempt.findOne({
+      _id: attemptId,
+      studentId: req.user._id,
+      status: "ongoing",
+    });
     if (!attempt) {
       throw new NotFoundError("Ongoing attempt not found or already completed");
     }
@@ -156,7 +171,11 @@ export async function submitAttemptController(req, res, next) {
       throw new BadRequestError("Attempt ID is required to submit");
     }
 
-    const attempt = await QuizAttempt.findOne({ _id: attemptId, studentId: req.user._id, status: "ongoing" });
+    const attempt = await QuizAttempt.findOne({
+      _id: attemptId,
+      studentId: req.user._id,
+      status: "ongoing",
+    });
     if (!attempt) {
       throw new NotFoundError("Ongoing attempt not found or already completed");
     }
@@ -167,7 +186,9 @@ export async function submitAttemptController(req, res, next) {
     }
 
     // Update final submitted answers
-    const answersMap = new Map((answers || []).map(ans => [ans.questionId.toString(), ans]));
+    const answersMap = new Map(
+      (answers || []).map((ans) => [ans.questionId.toString(), ans]),
+    );
 
     let achievedScore = 0;
     let correctCount = 0;
@@ -182,26 +203,43 @@ export async function submitAttemptController(req, res, next) {
       let isCorrect = false;
 
       if (selected.length > 0) {
-        if (question.type === "mcq" || question.type === "true_false" || question.type === "short") {
+        if (
+          question.type === "mcq" ||
+          question.type === "true_false" ||
+          question.type === "short"
+        ) {
           // Exact string match (case-insensitive for short answers)
           const stdVal = selected[0].toString().trim().toLowerCase();
-          const crtVal = correct[0] ? correct[0].toString().trim().toLowerCase() : "";
+          const crtVal = correct[0]
+            ? correct[0].toString().trim().toLowerCase()
+            : "";
           if (stdVal === crtVal) {
             isCorrect = true;
           }
         } else if (question.type === "multiple_select") {
           // All correct choices must match
-          const stdSet = new Set(selected.map(s => s.toString().trim().toLowerCase()));
-          const crtSet = new Set(correct.map(c => c.toString().trim().toLowerCase()));
-          
-          if (stdSet.size === crtSet.size && [...stdSet].every(item => crtSet.has(item))) {
+          const stdSet = new Set(
+            selected.map((s) => s.toString().trim().toLowerCase()),
+          );
+          const crtSet = new Set(
+            correct.map((c) => c.toString().trim().toLowerCase()),
+          );
+
+          if (
+            stdSet.size === crtSet.size &&
+            [...stdSet].every((item) => crtSet.has(item))
+          ) {
             isCorrect = true;
           }
         } else {
           // Long/Code questions - fallback to exact match or manual verify
           const stdVal = selected[0] ? selected[0].toString().trim() : "";
           const crtVal = correct[0] ? correct[0].toString().trim() : "";
-          if (stdVal && crtVal && stdVal.toLowerCase() === crtVal.toLowerCase()) {
+          if (
+            stdVal &&
+            crtVal &&
+            stdVal.toLowerCase() === crtVal.toLowerCase()
+          ) {
             isCorrect = true;
           }
         }
@@ -213,7 +251,7 @@ export async function submitAttemptController(req, res, next) {
       } else {
         // Negative marking subtracts fractional points
         if (quiz.negativeMarking && selected.length > 0) {
-          achievedScore -= (question.marks * 0.25); // subtract 25% of question value
+          achievedScore -= question.marks * 0.25; // subtract 25% of question value
         }
       }
 
@@ -229,7 +267,10 @@ export async function submitAttemptController(req, res, next) {
 
     attempt.answers = finalAnswers;
     attempt.score = Number(achievedScore.toFixed(1));
-    attempt.accuracy = quiz.questions.length > 0 ? Math.round((correctCount / quiz.questions.length) * 100) : 0;
+    attempt.accuracy =
+      quiz.questions.length > 0
+        ? Math.round((correctCount / quiz.questions.length) * 100)
+        : 0;
     attempt.timeSpent = Number(timeSpent) || 0;
     attempt.status = "completed";
     attempt.submittedAt = new Date();
@@ -318,16 +359,21 @@ export async function getSingleAttemptController(req, res, next) {
         path: "quizId",
         populate: {
           path: "courseId",
-          select: "title"
-        }
+          select: "title",
+        },
       });
 
     if (!attempt) {
       throw new NotFoundError("Quiz attempt details not found");
     }
 
-    if (req.user.role === "student" && attempt.studentId._id.toString() !== req.user._id.toString()) {
-      throw new BadRequestError("Access Denied: you can only review your own attempts");
+    if (
+      req.user.role === "student" &&
+      attempt.studentId._id.toString() !== req.user._id.toString()
+    ) {
+      throw new BadRequestError(
+        "Access Denied: you can only review your own attempts",
+      );
     }
 
     // Load full populated questions with correct answers & explanation notes

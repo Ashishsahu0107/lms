@@ -54,23 +54,25 @@ export async function enrollCourseController(req, res, next) {
   try {
     const { courseId } = req.body;
     const course = await studentService.enrollInCourse(req.user._id, courseId);
-    
+
     // Trigger socket updates
     try {
-      const { emitCourseEnrolled, emitAnalyticsUpdated, emitRevenueUpdated } = await import("../socket/index.js");
-      const { analyticsService } = await import("../services/analytics.service.js");
-      
+      const { emitCourseEnrolled, emitAnalyticsUpdated, emitRevenueUpdated } =
+        await import("../socket/index.js");
+      const { analyticsService } =
+        await import("../services/analytics.service.js");
+
       const payload = {
         studentId: req.user._id,
         studentName: req.user.name,
         courseId: course._id,
         courseTitle: course.title,
         price: course.price || 0,
-        enrolledAt: new Date()
+        enrolledAt: new Date(),
       };
-      
+
       emitCourseEnrolled(payload);
-      
+
       // Get fresh overview analytics
       const overview = await analyticsService.getOverviewAnalytics();
       emitAnalyticsUpdated(overview);
@@ -92,7 +94,11 @@ export async function enrollCourseController(req, res, next) {
 export async function updateProgressController(req, res, next) {
   try {
     const { courseId, lectureId } = req.body;
-    const progress = await studentService.updateProgress(req.user._id, courseId, lectureId);
+    const progress = await studentService.updateProgress(
+      req.user._id,
+      courseId,
+      lectureId,
+    );
     res.json(progress);
   } catch (err) {
     next(err);
@@ -102,7 +108,11 @@ export async function updateProgressController(req, res, next) {
 export async function submitAssignmentController(req, res, next) {
   try {
     const { assignmentId, fileUrl, notes } = req.body;
-    const assignment = await studentService.submitAssignment(req.user._id, assignmentId, { fileUrl, notes });
+    const assignment = await studentService.submitAssignment(
+      req.user._id,
+      assignmentId,
+      { fileUrl, notes },
+    );
     res.status(201).json(assignment);
   } catch (err) {
     next(err);
@@ -112,7 +122,10 @@ export async function submitAssignmentController(req, res, next) {
 export async function submitQuizController(req, res, next) {
   try {
     const { quizId, answers, score } = req.body;
-    const quiz = await studentService.submitQuiz(req.user._id, quizId, { answers, score });
+    const quiz = await studentService.submitQuiz(req.user._id, quizId, {
+      answers,
+      score,
+    });
     res.status(201).json(quiz);
   } catch (err) {
     next(err);
@@ -132,7 +145,10 @@ export async function getCertificateController(req, res, next) {
 export async function getProgressDetailsController(req, res, next) {
   try {
     const { courseId } = req.params;
-    const details = await studentService.getProgressDetails(req.user._id, courseId);
+    const details = await studentService.getProgressDetails(
+      req.user._id,
+      courseId,
+    );
     res.json({ success: true, data: details });
   } catch (err) {
     next(err);
@@ -141,7 +157,9 @@ export async function getProgressDetailsController(req, res, next) {
 
 export async function getStudentAnalyticsInsightsController(req, res, next) {
   try {
-    const insights = await studentService.getStudentAnalyticsInsights(req.user._id);
+    const insights = await studentService.getStudentAnalyticsInsights(
+      req.user._id,
+    );
     res.json({ success: true, data: insights });
   } catch (err) {
     next(err);
