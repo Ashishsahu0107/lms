@@ -3,4 +3,3 @@ export function notFoundHandler(_req, res) {
     message: "Route not found",
   });
 }
-

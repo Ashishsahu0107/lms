@@ -93,7 +93,7 @@ const assignmentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Optimize search indexes

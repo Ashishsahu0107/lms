@@ -21,7 +21,7 @@ const aiMessageSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const aiChatSchema = new mongoose.Schema(
@@ -41,7 +41,7 @@ const aiChatSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const AIChat = mongoose.model("AIChat", aiChatSchema);

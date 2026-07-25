@@ -47,16 +47,19 @@ const attendanceSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Unique per student per course per day (backwards compatibility)
-attendanceSchema.index({ studentId: 1, courseId: 1, date: 1 }, { unique: true });
+attendanceSchema.index(
+  { studentId: 1, courseId: 1, date: 1 },
+  { unique: true },
+);
 
 // Unique per student per session
 attendanceSchema.index(
   { studentId: 1, sessionId: 1 },
-  { unique: true, partialFilterExpression: { sessionId: { $exists: true } } }
+  { unique: true, partialFilterExpression: { sessionId: { $exists: true } } },
 );
 
 export const Attendance = mongoose.model("Attendance", attendanceSchema);

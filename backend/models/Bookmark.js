@@ -34,7 +34,7 @@ const bookmarkSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Optimize retrieval of student bookmarks inside a specific topic

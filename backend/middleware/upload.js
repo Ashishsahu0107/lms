@@ -42,7 +42,7 @@ const storage = multer.diskStorage({
 function fileFilter(_req, file, cb) {
   const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
   const videoTypes = ["video/mp4", "video/webm", "video/quicktime"];
-  const docTypes   = [
+  const docTypes = [
     "application/pdf",
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -50,7 +50,7 @@ function fileFilter(_req, file, cb) {
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     "application/zip",
     "application/x-zip-compressed",
-    "application/x-zip"
+    "application/x-zip",
   ];
   const audioTypes = [
     "audio/webm",
@@ -62,7 +62,7 @@ function fileFilter(_req, file, cb) {
     "audio/x-m4a",
     "audio/aac",
     "audio/flac",
-    "audio/mp4"
+    "audio/mp4",
   ];
 
   const allowed = [...imageTypes, ...videoTypes, ...docTypes, ...audioTypes];
@@ -74,7 +74,7 @@ function fileFilter(_req, file, cb) {
       Object.assign(new Error(`File type '${file.mimetype}' is not allowed`), {
         statusCode: 415,
       }),
-      false
+      false,
     );
   }
 }
@@ -98,9 +98,9 @@ export const uploadThumbnail = multer({
       cb(
         Object.assign(
           new Error("Thumbnail must be a JPEG, PNG, or WebP image"),
-          { statusCode: 415 }
+          { statusCode: 415 },
         ),
-        false
+        false,
       );
     }
   },
@@ -114,7 +114,11 @@ export function deleteUploadedFile(filename) {
     const fullPath = path.join(dir, filename);
     if (fs.existsSync(fullPath)) {
       fs.unlink(fullPath, (err) => {
-        if (err) console.error(`[upload] Failed to delete file: ${fullPath}`, err.message);
+        if (err)
+          console.error(
+            `[upload] Failed to delete file: ${fullPath}`,
+            err.message,
+          );
       });
       return;
     }
