@@ -92,80 +92,89 @@ backend/
 ## API Endpoints
 
 ### Authentication
-| Method | Endpoint              | Description          |
-|--------|-----------------------|----------------------|
-| POST   | /api/auth/login       | User login          |
-| POST   | /api/auth/register    | User registration    |
-| GET    | /api/auth/me          | Get current user    |
+
+| Method | Endpoint           | Description       |
+| ------ | ------------------ | ----------------- |
+| POST   | /api/auth/login    | User login        |
+| POST   | /api/auth/register | User registration |
+| GET    | /api/auth/me       | Get current user  |
 
 ### Courses
-| Method | Endpoint                    | Description           |
-|--------|-----------------------------|-----------------------|
-| GET    | /api/courses                | Get all courses       |
-| POST   | /api/courses                | Create course         |
-| GET    | /api/courses/:id            | Get course by ID     |
-| PUT    | /api/courses/:id            | Update course         |
-| DELETE | /api/courses/:id            | Delete course         |
+
+| Method | Endpoint         | Description      |
+| ------ | ---------------- | ---------------- |
+| GET    | /api/courses     | Get all courses  |
+| POST   | /api/courses     | Create course    |
+| GET    | /api/courses/:id | Get course by ID |
+| PUT    | /api/courses/:id | Update course    |
+| DELETE | /api/courses/:id | Delete course    |
 
 ### Assignments
-| Method | Endpoint                         | Description              |
-|--------|----------------------------------|--------------------------|
-| GET    | /api/assignments                 | Get all assignments     |
-| POST   | /api/assignments                 | Create assignment       |
-| GET    | /api/assignments/:id             | Get assignment by ID    |
-| PUT    | /api/assignments/:id             | Update assignment       |
-| DELETE | /api/assignments/:id             | Delete assignment       |
+
+| Method | Endpoint             | Description          |
+| ------ | -------------------- | -------------------- |
+| GET    | /api/assignments     | Get all assignments  |
+| POST   | /api/assignments     | Create assignment    |
+| GET    | /api/assignments/:id | Get assignment by ID |
+| PUT    | /api/assignments/:id | Update assignment    |
+| DELETE | /api/assignments/:id | Delete assignment    |
 
 ### Quizzes
-| Method | Endpoint                  | Description          |
-|--------|---------------------------|----------------------|
-| GET    | /api/quizzes              | Get all quizzes     |
-| POST   | /api/quizzes              | Create quiz         |
-| GET    | /api/quizzes/:id          | Get quiz by ID      |
-| PUT    | /api/quizzes/:id          | Update quiz         |
-| DELETE | /api/quizzes/:id         | Delete quiz         |
+
+| Method | Endpoint         | Description     |
+| ------ | ---------------- | --------------- |
+| GET    | /api/quizzes     | Get all quizzes |
+| POST   | /api/quizzes     | Create quiz     |
+| GET    | /api/quizzes/:id | Get quiz by ID  |
+| PUT    | /api/quizzes/:id | Update quiz     |
+| DELETE | /api/quizzes/:id | Delete quiz     |
 
 ### Admin
-| Method | Endpoint                  | Description          |
-|--------|---------------------------|----------------------|
-| GET    | /api/admin/users          | Get all users        |
-| POST   | /api/admin/users          | Create user          |
-| PUT    | /api/admin/users/:id      | Update user          |
-| DELETE | /api/admin/users/:id      | Delete user          |
-| GET    | /api/admin/analytics      | Get analytics        |
+
+| Method | Endpoint             | Description   |
+| ------ | -------------------- | ------------- |
+| GET    | /api/admin/users     | Get all users |
+| POST   | /api/admin/users     | Create user   |
+| PUT    | /api/admin/users/:id | Update user   |
+| DELETE | /api/admin/users/:id | Delete user   |
+| GET    | /api/admin/analytics | Get analytics |
 
 ### Health
-| Method | Endpoint              | Description          |
-|--------|-----------------------|----------------------|
-| GET    | /health               | Health check         |
-| GET    | /ping                 | Ping endpoint        |
+
+| Method | Endpoint | Description   |
+| ------ | -------- | ------------- |
+| GET    | /health  | Health check  |
+| GET    | /ping    | Ping endpoint |
 
 ## User Roles
 
 | Role        | Description              |
-|-------------|--------------------------|
+| ----------- | ------------------------ |
 | super_admin | Full system access       |
 | teacher     | Course & assignment mgmt |
 | student     | Learning access          |
 
 ## Demo Credentials
 
-| Role        | Email                   | Password    |
-|-------------|-------------------------|-------------|
-| Admin       | admin@lmspro.edu        | admin123    |
-| Teacher     | teacher@lmspro.edu      | teacher123  |
-| Student     | student@lmspro.edu       | student123  |
+| Role    | Email              | Password   |
+| ------- | ------------------ | ---------- |
+| Admin   | admin@lmspro.edu   | admin123   |
+| Teacher | teacher@lmspro.edu | teacher123 |
+| Student | student@lmspro.edu | student123 |
 
 ## Getting Started
 
 ### 1. Install Dependencies
+
 ```bash
 cd backend
 npm install
 ```
 
 ### 2. Configure Environment
+
 Create `.env` file with:
+
 ```env
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/lms
@@ -173,12 +182,14 @@ JWT_SECRET=your-secret-key
 ```
 
 ### 3. Start Server
+
 ```bash
 npm run dev   # Development
 npm start     # Production
 ```
 
 ### 4. API Documentation
+
 - Health Check: `GET http://localhost:5000/health`
 - API Base: `http://localhost:5000/api`
 
@@ -201,10 +212,9 @@ Request → Route → Middleware → Controller → Service → Repository → M
 
 ## Color Palette (API Responses)
 
-| Status | Color   | HTTP Code |
-|--------|---------|-----------|
-| Success| Green   | 200/201   |
-| Error  | Red     | 400/500   |
-| Warning| Yellow  | 409       |
-| Info   | Blue    | 404       |
-
+| Status  | Color  | HTTP Code |
+| ------- | ------ | --------- |
+| Success | Green  | 200/201   |
+| Error   | Red    | 400/500   |
+| Warning | Yellow | 409       |
+| Info    | Blue   | 404       |

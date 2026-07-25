@@ -3,15 +3,19 @@ import { AttendanceSession } from "../models/AttendanceSession.js";
 import { Course } from "../models/Course.js";
 import { Enrollment } from "../models/Enrollment.js";
 import { getIO, ROOMS, emitAttendanceMarked } from "../socket/index.js";
-import { BadRequestError, ForbiddenError, NotFoundError } from "../utils/errors.js";
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from "../utils/errors.js";
 import mongoose from "mongoose";
 
 // ─── Status Helpers ───────────────────────────────────────────────────────────
 const STATUS_COLORS = {
   present: "#10b981",
-  absent:  "#f43f5e",
-  late:    "#f59e0b",
-  leave:   "#3b82f6",
+  absent: "#f43f5e",
+  late: "#f59e0b",
+  leave: "#3b82f6",
 };
 
 // ─── Shared: Verify teacher owns course ──────────────────────────────────────
@@ -21,7 +25,10 @@ async function verifyTeacherCourse(courseId, user) {
   }
   const course = await Course.findById(courseId);
   if (!course) throw new NotFoundError("Course not found.");
-  if (user.role !== "super_admin" && course.teacherId.toString() !== user._id.toString()) {
+  if (
+    user.role !== "super_admin" &&
+    course.teacherId.toString() !== user._id.toString()
+  ) {
     throw new ForbiddenError("Access denied: you do not own this course.");
   }
   return course;
@@ -48,13 +55,14 @@ function dayRange(dateStr) {
 export async function getCourseStudentsAttendanceController(req, res, next) {
   try {
     const { courseId } = req.params;
-    const { date = new Date().toISOString().split("T")[0], sessionId } = req.query;
+    const { date = new Date().toISOString().split("T")[0], sessionId } =
+      req.query;
 
     await verifyTeacherCourse(courseId, req.user);
 
     const enrollments = await Enrollment.find({ courseId }).populate(
       "studentId",
-      "name email avatar"
+      "name email avatar",
     );
 
     let records = [];
@@ -119,8 +127,10 @@ export async function markCourseAttendanceController(req, res, next) {
   try {
     const { courseId, date, sessionId, students = [] } = req.body;
 
-    if (!courseId || !date) throw new BadRequestError("courseId and date are required.");
-    if (students.length === 0) throw new BadRequestError("Student list is empty.");
+    if (!courseId || !date)
+      throw new BadRequestError("courseId and date are required.");
+    if (students.length === 0)
+      throw new BadRequestError("Student list is empty.");
 
     await verifyTeacherCourse(courseId, req.user);
 
@@ -149,7 +159,10 @@ export async function markCourseAttendanceController(req, res, next) {
         date: targetDate,
         status: validStatuses.includes(s.status) ? s.status : "present",
         remarks: s.remarks || "",
-        sessionId: (sessionId && mongoose.Types.ObjectId.isValid(sessionId)) ? sessionId : undefined,
+        sessionId:
+          sessionId && mongoose.Types.ObjectId.isValid(sessionId)
+            ? sessionId
+            : undefined,
       }));
 
     let saved = [];
@@ -260,12 +273,17 @@ export async function getAttendanceHistoryController(req, res, next) {
 
     const pageNum = Math.max(1, parseInt(page));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
-    const paginatedDates = allDates.slice((pageNum - 1) * limitNum, pageNum * limitNum);
+    const paginatedDates = allDates.slice(
+      (pageNum - 1) * limitNum,
+      pageNum * limitNum,
+    );
 
     // For each session date, get summary stats
     const sessions = await Promise.all(
       paginatedDates.map(async (sessionDate) => {
-        const { start, end } = dayRange(sessionDate.toISOString().split("T")[0]);
+        const { start, end } = dayRange(
+          sessionDate.toISOString().split("T")[0],
+        );
         const records = await Attendance.find({
           courseId,
           date: { $gte: start, $lte: end },
@@ -279,9 +297,12 @@ export async function getAttendanceHistoryController(req, res, next) {
           date: sessionDate.toISOString().split("T")[0],
           total,
           ...counts,
-          rate: total > 0 ? Math.round(((counts.present + counts.late) / total) * 100) : 0,
+          rate:
+            total > 0
+              ? Math.round(((counts.present + counts.late) / total) * 100)
+              : 0,
         };
-      })
+      }),
     );
 
     return res.status(200).json({
@@ -310,7 +331,8 @@ export async function getAttendanceByDateController(req, res, next) {
 
     const { start, end } = dayRange(date);
     const query = { teacherId: req.user._id, date: { $gte: start, $lte: end } };
-    if (courseId && mongoose.Types.ObjectId.isValid(courseId)) query.courseId = courseId;
+    if (courseId && mongoose.Types.ObjectId.isValid(courseId))
+      query.courseId = courseId;
 
     const records = await Attendance.find(query)
       .populate("studentId", "name email avatar")
@@ -373,7 +395,9 @@ export async function getAttendanceStatsController(req, res, next) {
     records.forEach((r) => {
       const d = new Date(r.date);
       const oneJan = new Date(d.getFullYear(), 0, 1);
-      const weekNum = Math.ceil(((d - oneJan) / 86400000 + oneJan.getDay() + 1) / 7);
+      const weekNum = Math.ceil(
+        ((d - oneJan) / 86400000 + oneJan.getDay() + 1) / 7,
+      );
       const key = `Wk ${weekNum}`;
       if (!weeklyMap[key]) weeklyMap[key] = { total: 0, present: 0, late: 0 };
       weeklyMap[key].total++;
@@ -386,7 +410,8 @@ export async function getAttendanceStatsController(req, res, next) {
       .slice(-6)
       .map(([week, d]) => ({
         week,
-        rate: d.total > 0 ? Math.round(((d.present + d.late) / d.total) * 100) : 0,
+        rate:
+          d.total > 0 ? Math.round(((d.present + d.late) / d.total) * 100) : 0,
         present: d.present,
         late: d.late,
         total: d.total,
@@ -405,7 +430,10 @@ export async function getAttendanceStatsController(req, res, next) {
         weeklyTrend,
         distribution,
         totalRecords: total,
-        overallRate: total > 0 ? Math.round(((counts.present + counts.late) / total) * 100) : 0,
+        overallRate:
+          total > 0
+            ? Math.round(((counts.present + counts.late) / total) * 100)
+            : 0,
         presentCount: counts.present,
         absentCount: counts.absent,
         lateCount: counts.late,
@@ -426,7 +454,9 @@ export async function createAttendanceSessionController(req, res, next) {
     const { courseId, title, date, startTime, endTime, description } = req.body;
 
     if (!courseId || !title || !date || !startTime || !endTime) {
-      throw new BadRequestError("courseId, title, date, startTime, and endTime are required.");
+      throw new BadRequestError(
+        "courseId, title, date, startTime, and endTime are required.",
+      );
     }
 
     await verifyTeacherCourse(courseId, req.user);
@@ -462,7 +492,10 @@ export async function getCourseSessionsController(req, res, next) {
 
     await verifyTeacherCourse(courseId, req.user);
 
-    const sessions = await AttendanceSession.find({ courseId }).sort({ date: -1, startTime: -1 });
+    const sessions = await AttendanceSession.find({ courseId }).sort({
+      date: -1,
+      startTime: -1,
+    });
 
     return res.status(200).json({
       success: true,
@@ -497,7 +530,8 @@ export async function deleteAttendanceSessionController(req, res, next) {
 
     return res.status(200).json({
       success: true,
-      message: "Attendance session and associated records deleted successfully.",
+      message:
+        "Attendance session and associated records deleted successfully.",
     });
   } catch (err) {
     next(err);

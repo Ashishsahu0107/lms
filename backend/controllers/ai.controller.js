@@ -16,7 +16,10 @@ async function getOpenAI() {
     openaiInstance = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     return openaiInstance;
   } catch (err) {
-    console.error("OpenAI library is not installed or failed to initialize:", err.message);
+    console.error(
+      "OpenAI library is not installed or failed to initialize:",
+      err.message,
+    );
     return null;
   }
 }
@@ -29,66 +32,103 @@ export async function getAiRecommendations(req, res, next) {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId).populate("enrolledCourses");
-    
-    const interests = user?.bio || "software engineering web development web apps";
+
+    const interests =
+      user?.bio || "software engineering web development web apps";
     const enrolledTitles = user?.enrolledCourses?.map((c) => c.title) || [];
 
-    const allCourses = await Course.find({ status: "published" }).select("title description image price");
+    const allCourses = await Course.find({ status: "published" }).select(
+      "title description image price",
+    );
 
     // Filter out already enrolled
-    const available = allCourses.filter(c => !enrolledTitles.includes(c.title));
+    const available = allCourses.filter(
+      (c) => !enrolledTitles.includes(c.title),
+    );
 
     // Fallback AI recommendation system
     const recommendations = [];
-    
-    // Logic mapping matching interests
-    available.forEach(course => {
-      let score = 0;
-      if (interests.toLowerCase().includes("react") && course.title.toLowerCase().includes("react")) score += 10;
-      if (interests.toLowerCase().includes("node") && course.title.toLowerCase().includes("node")) score += 10;
-      if (interests.toLowerCase().includes("design") && course.title.toLowerCase().includes("design")) score += 8;
-      
-      // Default pathways
-      if (enrolledTitles.some(t => t.includes("HTML")) && course.title.includes("CSS")) score += 15;
-      if (enrolledTitles.some(t => t.includes("JS")) && course.title.includes("React")) score += 15;
-      if (enrolledTitles.some(t => t.includes("React")) && course.title.includes("Node")) score += 15;
 
-      recommendations.push({ course, score: score + Math.floor(Math.random() * 5) });
+    // Logic mapping matching interests
+    available.forEach((course) => {
+      let score = 0;
+      if (
+        interests.toLowerCase().includes("react") &&
+        course.title.toLowerCase().includes("react")
+      )
+        score += 10;
+      if (
+        interests.toLowerCase().includes("node") &&
+        course.title.toLowerCase().includes("node")
+      )
+        score += 10;
+      if (
+        interests.toLowerCase().includes("design") &&
+        course.title.toLowerCase().includes("design")
+      )
+        score += 8;
+
+      // Default pathways
+      if (
+        enrolledTitles.some((t) => t.includes("HTML")) &&
+        course.title.includes("CSS")
+      )
+        score += 15;
+      if (
+        enrolledTitles.some((t) => t.includes("JS")) &&
+        course.title.includes("React")
+      )
+        score += 15;
+      if (
+        enrolledTitles.some((t) => t.includes("React")) &&
+        course.title.includes("Node")
+      )
+        score += 15;
+
+      recommendations.push({
+        course,
+        score: score + Math.floor(Math.random() * 5),
+      });
     });
 
     recommendations.sort((a, b) => b.score - a.score);
-    const finalRecs = recommendations.slice(0, 3).map(r => ({
+    const finalRecs = recommendations.slice(0, 3).map((r) => ({
       ...r.course.toObject(),
       aiMatchPercentage: Math.min(99, 70 + r.score),
-      aiReason: `Matches your interest in ${r.course.title.split(" ")[0]} and learning pathway.`
+      aiReason: `Matches your interest in ${r.course.title.split(" ")[0]} and learning pathway.`,
     }));
 
     // Seed mock recommendations if database has no other published courses
     const mockRecs = [
       {
         title: "React Premium Masterclass",
-        description: "Advance from hooks to enterprise performance patterns with custom state systems.",
+        description:
+          "Advance from hooks to enterprise performance patterns with custom state systems.",
         image: "",
         price: 99,
         aiMatchPercentage: 94,
-        aiReason: "Aligned with your JavaScript enrollment and fullstack interest."
+        aiReason:
+          "Aligned with your JavaScript enrollment and fullstack interest.",
       },
       {
         title: "Fullstack Node.js Enterprise Development",
-        description: "Build robust aggregated server RESTs and secure authentication architectures.",
+        description:
+          "Build robust aggregated server RESTs and secure authentication architectures.",
         image: "",
         price: 149,
         aiMatchPercentage: 89,
-        aiReason: "Top progression path from frontend UI state management."
+        aiReason: "Top progression path from frontend UI state management.",
       },
       {
         title: "MongoDB Aggregation Advanced Techniques",
-        description: "Master pipelines, nested object lookups, and fast telemetry aggregation caching.",
+        description:
+          "Master pipelines, nested object lookups, and fast telemetry aggregation caching.",
         image: "",
         price: 79,
         aiMatchPercentage: 83,
-        aiReason: "Recommended toolset to upgrade your back-end dashboard workflows."
-      }
+        aiReason:
+          "Recommended toolset to upgrade your back-end dashboard workflows.",
+      },
     ];
 
     return res.status(200).json({
@@ -114,7 +154,8 @@ export async function generateAiQuiz(req, res, next) {
         questionText: `Which Hook is primarily used to manage local state values inside a functional component in ${topic}?`,
         options: ["useEffect", "useState", "useContext", "useReducer"],
         correctOption: 1, // useState
-        explanation: "useState is the core hook designed specifically for declaring local reactive state variables inside React functional components."
+        explanation:
+          "useState is the core hook designed specifically for declaring local reactive state variables inside React functional components.",
       },
       {
         questionText: `Under which specific circumstance does the cleanup function of a useEffect hook execute in ${topic}?`,
@@ -122,10 +163,11 @@ export async function generateAiQuiz(req, res, next) {
           "Only when the component is unmounted",
           "Before the effect runs again, and when the component unmounts",
           "On every state update automatically",
-          "Only when an error occurs during rendering"
+          "Only when an error occurs during rendering",
         ],
         correctOption: 1,
-        explanation: "React executes the cleanup callback function before running the effect code again and when unmounting the component to prevent memory leaks."
+        explanation:
+          "React executes the cleanup callback function before running the effect code again and when unmounting the component to prevent memory leaks.",
       },
       {
         questionText: `What performance optimization is achieved by incorporating useMemo inside your ${topic} layout?`,
@@ -133,11 +175,12 @@ export async function generateAiQuiz(req, res, next) {
           "It forces the component to skip all renders",
           "It compiles state data directly into static HTML",
           "It memoizes computed values to prevent recalculations on every render",
-          "It establishes an active socket connection automatically"
+          "It establishes an active socket connection automatically",
         ],
         correctOption: 2,
-        explanation: "useMemo caches the result of an expensive calculation to avoid recalculating it unless one of its dependency values changes."
-      }
+        explanation:
+          "useMemo caches the result of an expensive calculation to avoid recalculating it unless one of its dependency values changes.",
+      },
     ];
 
     // Attempt calling real OpenAI completions if keys are present
@@ -149,11 +192,15 @@ export async function generateAiQuiz(req, res, next) {
           messages: [
             {
               role: "system",
-              content: "You are an expert curriculum writer. Generate 3 multiple choice questions based on the topic. Return strictly a JSON array of objects, each having keys: questionText (string), options (array of 4 strings), correctOption (number, 0-indexed correct option index), and explanation (string)."
+              content:
+                "You are an expert curriculum writer. Generate 3 multiple choice questions based on the topic. Return strictly a JSON array of objects, each having keys: questionText (string), options (array of 4 strings), correctOption (number, 0-indexed correct option index), and explanation (string).",
             },
-            { role: "user", content: `Generate questions on the topic: ${topic}` }
+            {
+              role: "user",
+              content: `Generate questions on the topic: ${topic}`,
+            },
           ],
-          response_format: { type: "json_object" }
+          response_format: { type: "json_object" },
         });
         const parsed = JSON.parse(response.choices[0].message.content);
         if (Array.isArray(parsed.questions)) {
@@ -162,7 +209,10 @@ export async function generateAiQuiz(req, res, next) {
           questions = parsed;
         }
       } catch (err) {
-        console.warn("OpenAI API call failed, using high-fidelity fallback:", err.message);
+        console.warn(
+          "OpenAI API call failed, using high-fidelity fallback:",
+          err.message,
+        );
       }
     }
 
@@ -208,14 +258,17 @@ Please ask me any specific conceptual questions about your courses, coding, or s
           messages: [
             {
               role: "system",
-              content: `You are a helpful, extremely polite, and brilliant study coach assistant inside the LMS Pro system. Welcome the student by their name: ${userName}. Provide helpful study advice and conceptually clear programming guidelines in formatted markdown. Keep replies concise and extremely encouraging.`
+              content: `You are a helpful, extremely polite, and brilliant study coach assistant inside the LMS Pro system. Welcome the student by their name: ${userName}. Provide helpful study advice and conceptually clear programming guidelines in formatted markdown. Keep replies concise and extremely encouraging.`,
             },
-            { role: "user", content: prompt }
-          ]
+            { role: "user", content: prompt },
+          ],
         });
         reply = response.choices[0].message.content;
       } catch (err) {
-        console.warn("OpenAI Chatbot call failed, using high-fidelity response:", err.message);
+        console.warn(
+          "OpenAI Chatbot call failed, using high-fidelity response:",
+          err.message,
+        );
       }
     }
 
@@ -241,7 +294,15 @@ export async function aiChatController(req, res, next) {
   });
 
   try {
-    const { prompt, message, conversationId, courseId, moduleId, topicId, option = "ask" } = req.body ?? {};
+    const {
+      prompt,
+      message,
+      conversationId,
+      courseId,
+      moduleId,
+      topicId,
+      option = "ask",
+    } = req.body ?? {};
     const user = req.user;
 
     const queryText = (message || prompt || "").trim();
@@ -329,7 +390,7 @@ User Profile:
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
+      Connection: "keep-alive",
     });
 
     const provider = ProviderFactory.getProvider();
@@ -350,19 +411,24 @@ User Profile:
           });
 
           if (chat.title === "New Conversation" || chat.messages.length <= 2) {
-            chat.title = queryText.split(" ").slice(0, 4).join(" ") || "AI Chat";
+            chat.title =
+              queryText.split(" ").slice(0, 4).join(" ") || "AI Chat";
           }
           await chat.save();
         }
-        res.write(`data: ${JSON.stringify({ done: true, conversationId: chat?._id })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({ done: true, conversationId: chat?._id })}\n\n`,
+        );
         res.write("data: [DONE]\n\n");
         res.end();
       },
-      abortController.signal
+      abortController.signal,
     );
   } catch (err) {
     console.error("[AI Chat Route Error]:", err.message);
-    res.write(`data: ${JSON.stringify({ error: err.message || "Internal generation error" })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({ error: err.message || "Internal generation error" })}\n\n`,
+    );
     res.end();
   }
 }
@@ -392,17 +458,21 @@ export async function aiSummarizeController(req, res, next) {
           messages: [
             {
               role: "system",
-              content: "You are an expert tutor. Provide a clear, bulleted markdown summary of the topic lecture material."
+              content:
+                "You are an expert tutor. Provide a clear, bulleted markdown summary of the topic lecture material.",
             },
             {
               role: "user",
-              content: `Summarize the topic "${topicTitle}" which has content: "${topicContent}"`
-            }
-          ]
+              content: `Summarize the topic "${topicTitle}" which has content: "${topicContent}"`,
+            },
+          ],
         });
         summary = response.choices[0].message.content;
       } catch (err) {
-        console.warn("OpenAI API call failed, using high-fidelity fallback:", err.message);
+        console.warn(
+          "OpenAI API call failed, using high-fidelity fallback:",
+          err.message,
+        );
         summary = getFallbackSummary(topicTitle);
       }
     } else {
@@ -411,7 +481,7 @@ export async function aiSummarizeController(req, res, next) {
 
     return res.status(200).json({
       success: true,
-      data: { summary }
+      data: { summary },
     });
   } catch (err) {
     next(err);
@@ -443,17 +513,21 @@ export async function generateAiNotesController(req, res, next) {
           messages: [
             {
               role: "system",
-              content: "You are an expert study coach. Generate comprehensive, beautifully formatted markdown notes based on the topic. Include code blocks and conceptual sections."
+              content:
+                "You are an expert study coach. Generate comprehensive, beautifully formatted markdown notes based on the topic. Include code blocks and conceptual sections.",
             },
             {
               role: "user",
-              content: `Generate study notes for the topic: "${topicTitle}" with text: "${topicContent}"`
-            }
-          ]
+              content: `Generate study notes for the topic: "${topicTitle}" with text: "${topicContent}"`,
+            },
+          ],
         });
         notes = response.choices[0].message.content;
       } catch (err) {
-        console.warn("OpenAI API call failed, using high-fidelity fallback:", err.message);
+        console.warn(
+          "OpenAI API call failed, using high-fidelity fallback:",
+          err.message,
+        );
         notes = getFallbackNotes(topicTitle);
       }
     } else {
@@ -462,7 +536,7 @@ export async function generateAiNotesController(req, res, next) {
 
     return res.status(200).json({
       success: true,
-      data: { notes }
+      data: { notes },
     });
   } catch (err) {
     next(err);
@@ -472,7 +546,13 @@ export async function generateAiNotesController(req, res, next) {
 // ============================================
 // HIGH-FIDELITY FALLBACK ENGINES
 // ============================================
-function getFallbackReply(option, userName, courseTitle = "this course", topicTitle = "this topic", prompt = "") {
+function getFallbackReply(
+  option,
+  userName,
+  courseTitle = "this course",
+  topicTitle = "this topic",
+  prompt = "",
+) {
   if (option === "explain") {
     return `### Explanation: **${topicTitle}** 🧠
 
@@ -494,7 +574,7 @@ function demonstrateConcept() {
 
 Would you like to practice with a quiz or generate study notes next?`;
   }
-  
+
   if (option === "generate-assignment") {
     return `### Generated Assignment: **Practical Assignment - ${topicTitle}** 📝
 

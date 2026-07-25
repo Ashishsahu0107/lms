@@ -22,7 +22,7 @@ export async function getOverview(req, res, next) {
     const data = await analyticsService.getOverviewAnalytics();
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (err) {
     next(err);
@@ -35,7 +35,7 @@ export async function getUsers(req, res, next) {
     const data = await analyticsService.getUserAnalytics(req.query);
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (err) {
     next(err);
@@ -48,7 +48,7 @@ export async function getCourses(req, res, next) {
     const data = await analyticsService.getCourseAnalytics(req.query);
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (err) {
     next(err);
@@ -61,7 +61,7 @@ export async function getRevenue(req, res, next) {
     const data = await analyticsService.getRevenueAnalytics(req.query);
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (err) {
     next(err);
@@ -74,7 +74,7 @@ export async function getPerformance(req, res, next) {
     const data = await analyticsService.getPerformanceAnalytics(req.query);
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (err) {
     next(err);
@@ -87,7 +87,7 @@ export async function getAttendance(req, res, next) {
     const data = await analyticsService.getAttendanceAnalytics(req.query);
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (err) {
     next(err);
@@ -100,7 +100,7 @@ export async function getRealtime(req, res, next) {
     const data = await analyticsService.getRealTimeAnalytics();
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (err) {
     next(err);
