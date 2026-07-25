@@ -25,7 +25,7 @@ export async function loginController(req, res, next) {
           details: `Failed login attempt: user with email ${email} not found`,
           ip: req.ip,
           device: req.headers["user-agent"] || "",
-          severity: "medium"
+          severity: "medium",
         });
       } catch (logErr) {
         console.error("[Log] Error logging failed login:", logErr);
@@ -34,7 +34,9 @@ export async function loginController(req, res, next) {
     }
 
     // Verify Password
-    const selectUser = await User.findOne({ email: email.toLowerCase() }).select("+password");
+    const selectUser = await User.findOne({
+      email: email.toLowerCase(),
+    }).select("+password");
     const isPasswordValid = await bcrypt.compare(password, selectUser.password);
     if (!isPasswordValid) {
       try {
@@ -45,7 +47,7 @@ export async function loginController(req, res, next) {
           details: `Failed login attempt: incorrect password for email ${email}`,
           ip: req.ip,
           device: req.headers["user-agent"] || "",
-          severity: "medium"
+          severity: "medium",
         });
       } catch (logErr) {
         console.error("[Log] Error logging failed login:", logErr);
@@ -53,12 +55,11 @@ export async function loginController(req, res, next) {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-
-
     // Check streaks on active logins
     if (user.role === "student") {
       try {
-        const { recordActivityStreak } = await import("../utils/gamification.js");
+        const { recordActivityStreak } =
+          await import("../utils/gamification.js");
         await recordActivityStreak(user._id);
       } catch (err) {
         console.error("Streak tracking error in auth:", err);
@@ -77,7 +78,7 @@ export async function loginController(req, res, next) {
         details: `Successful login for email: ${user.email}`,
         ip: req.ip,
         device: req.headers["user-agent"] || "",
-        severity: "low"
+        severity: "low",
       });
     } catch (logErr) {
       console.error("[Log] Error logging successful login:", logErr);
@@ -105,7 +106,9 @@ export async function registerController(req, res, next) {
     }
 
     if (role && role !== "student") {
-      throw new BadRequestError("Self-registration is only allowed for student accounts.");
+      throw new BadRequestError(
+        "Self-registration is only allowed for student accounts.",
+      );
     }
 
     // 1. Regular Register Service
@@ -123,22 +126,24 @@ export async function registerController(req, res, next) {
 
     // 3. Real-time telemetry updates & clear cache
     try {
-      const { emitUserRegistered, emitAnalyticsUpdated } = await import("../socket/index.js");
-      const { analyticsService } = await import("../services/analytics.service.js");
+      const { emitUserRegistered, emitAnalyticsUpdated } =
+        await import("../socket/index.js");
+      const { analyticsService } =
+        await import("../services/analytics.service.js");
       const { logSecurityEvent } = await import("../utils/securityLogger.js");
-      
+
       analyticsService.clearCache();
-      
+
       const payload = {
         userId: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
       };
-      
+
       emitUserRegistered(payload);
-      
+
       const overview = await analyticsService.getOverviewAnalytics();
       emitAnalyticsUpdated(overview);
 
@@ -149,10 +154,13 @@ export async function registerController(req, res, next) {
         details: `New student registration: ${user.email}`,
         ip: req.ip,
         device: req.headers["user-agent"] || "",
-        severity: "low"
+        severity: "low",
       });
     } catch (socketErr) {
-      console.error("[Socket/Logger] Failed to run registration hooks:", socketErr);
+      console.error(
+        "[Socket/Logger] Failed to run registration hooks:",
+        socketErr,
+      );
     }
 
     return res.status(201).json({
@@ -211,14 +219,17 @@ export async function verifyOtpController(req, res, next) {
       throw new BadRequestError("User not found");
     }
 
-    if (user.verificationOTP !== otp || new Date() > user.verificationOTPExpires) {
+    if (
+      user.verificationOTP !== otp ||
+      new Date() > user.verificationOTPExpires
+    ) {
       throw new BadRequestError("Invalid or expired verification OTP");
     }
 
     user.isVerified = true;
     user.verificationOTP = null;
     user.verificationOTPExpires = null;
-    
+
     // Reward XP + Achievement for verification
     user.xp = (user.xp || 0) + 15;
     if (!user.badges.includes("Verified Member")) {
@@ -227,7 +238,7 @@ export async function verifyOtpController(req, res, next) {
     user.achievements.push({
       title: "Verified Student",
       description: "Successfully completed email OTP verification!",
-      unlockedAt: new Date()
+      unlockedAt: new Date(),
     });
 
     await user.save();
@@ -289,8 +300,10 @@ export async function verifyResetOtpController(req, res, next) {
       throw new BadRequestError("User account not found");
     }
 
-    const isOtpValid = (user.resetOTP === otp && new Date() <= user.resetOTPExpire) ||
-                       (user.resetPasswordOTP === otp && new Date() <= user.resetPasswordOTPExpires);
+    const isOtpValid =
+      (user.resetOTP === otp && new Date() <= user.resetOTPExpire) ||
+      (user.resetPasswordOTP === otp &&
+        new Date() <= user.resetPasswordOTPExpires);
 
     if (!isOtpValid) {
       throw new BadRequestError("Invalid or expired password recovery OTP");
@@ -345,7 +358,9 @@ export async function resetPasswordController(req, res, next) {
   try {
     const { email, otp, newPassword } = req.body ?? {};
     if (!email || !otp || !newPassword) {
-      throw new BadRequestError("Email, OTP code, and new password are required");
+      throw new BadRequestError(
+        "Email, OTP code, and new password are required",
+      );
     }
 
     if (newPassword.length < 6) {
@@ -357,8 +372,10 @@ export async function resetPasswordController(req, res, next) {
       throw new BadRequestError("User not found");
     }
 
-    const isOtpValid = (user.resetOTP === otp && new Date() <= user.resetOTPExpire) ||
-                       (user.resetPasswordOTP === otp && new Date() <= user.resetPasswordOTPExpires);
+    const isOtpValid =
+      (user.resetOTP === otp && new Date() <= user.resetOTPExpire) ||
+      (user.resetPasswordOTP === otp &&
+        new Date() <= user.resetPasswordOTPExpires);
 
     if (!isOtpValid) {
       throw new BadRequestError("Invalid or expired password reset OTP");
@@ -382,7 +399,7 @@ export async function resetPasswordController(req, res, next) {
         details: `Successful password recovery/reset for: ${user.email}`,
         ip: req.ip,
         device: req.headers["user-agent"] || "",
-        severity: "medium"
+        severity: "medium",
       });
     } catch (logErr) {
       console.error("[Log] Failed to log password reset:", logErr);

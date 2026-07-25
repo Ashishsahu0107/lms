@@ -3,7 +3,11 @@ import { StudentProgress } from "../models/StudentProgress.js";
 import { Enrollment } from "../models/Enrollment.js";
 import { Course } from "../models/Course.js";
 import { User } from "../models/User.js";
-import { BadRequestError, NotFoundError, ForbiddenError } from "../utils/errors.js";
+import {
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
+} from "../utils/errors.js";
 import crypto from "crypto";
 
 // ======================================================
@@ -26,8 +30,13 @@ export async function issueCertificateController(req, res, next) {
     }
 
     // 2. Validate Ownership if caller is a Teacher
-    if (req.user.role === "teacher" && course.teacherId.toString() !== issuerId.toString()) {
-      throw new ForbiddenError("Access denied: You can only issue certificates for your own courses");
+    if (
+      req.user.role === "teacher" &&
+      course.teacherId.toString() !== issuerId.toString()
+    ) {
+      throw new ForbiddenError(
+        "Access denied: You can only issue certificates for your own courses",
+      );
     }
 
     // 3. Fetch Enrollment & Student Progress
@@ -37,17 +46,26 @@ export async function issueCertificateController(req, res, next) {
     }
 
     const progressDoc = await StudentProgress.findOne({ studentId, courseId });
-    const progressVal = progressDoc ? progressDoc.progress : enrollment.progress || 0;
+    const progressVal = progressDoc
+      ? progressDoc.progress
+      : enrollment.progress || 0;
 
     // Course completion validation (Require at least 90% progress)
     if (progressVal < 90) {
-      throw new BadRequestError(`Student progress (${progressVal}%) is insufficient. Minimum 90% progress required.`);
+      throw new BadRequestError(
+        `Student progress (${progressVal}%) is insufficient. Minimum 90% progress required.`,
+      );
     }
 
     // 4. Check if Certificate already exists
-    const existingCert = await Certificate.findOne({ student: studentId, course: courseId });
+    const existingCert = await Certificate.findOne({
+      student: studentId,
+      course: courseId,
+    });
     if (existingCert) {
-      throw new BadRequestError("A certificate has already been issued to this student for this course");
+      throw new BadRequestError(
+        "A certificate has already been issued to this student for this course",
+      );
     }
 
     // 5. Generate Unique Certificate ID
@@ -94,8 +112,13 @@ export async function getStudentCertificatesController(req, res, next) {
     const studentId = req.params.id;
 
     // Students can only view their own certificates
-    if (req.user.role === "student" && req.user._id.toString() !== studentId.toString()) {
-      throw new ForbiddenError("Access denied: You can only access your own certificates");
+    if (
+      req.user.role === "student" &&
+      req.user._id.toString() !== studentId.toString()
+    ) {
+      throw new ForbiddenError(
+        "Access denied: You can only access your own certificates",
+      );
     }
 
     const certificates = await Certificate.find({ student: studentId })
@@ -127,8 +150,13 @@ export async function getCourseCertificatesController(req, res, next) {
     }
 
     // Teachers can only view certificates for their own courses
-    if (req.user.role === "teacher" && course.teacherId.toString() !== req.user._id.toString()) {
-      throw new ForbiddenError("Access denied: You can only view certificates for your own courses");
+    if (
+      req.user.role === "teacher" &&
+      course.teacherId.toString() !== req.user._id.toString()
+    ) {
+      throw new ForbiddenError(
+        "Access denied: You can only view certificates for your own courses",
+      );
     }
 
     const certificates = await Certificate.find({ course: courseId })
@@ -186,7 +214,9 @@ export async function deleteCertificateController(req, res, next) {
 
     // Only Admin can revoke certificates
     if (req.user.role !== "super_admin") {
-      throw new ForbiddenError("Access denied: Only Admins can revoke certificates");
+      throw new ForbiddenError(
+        "Access denied: Only Admins can revoke certificates",
+      );
     }
 
     const certificate = await Certificate.findByIdAndDelete(id);
@@ -217,11 +247,19 @@ export async function getCourseStudentsController(req, res, next) {
     }
 
     // Secure role-based checks
-    if (req.user.role === "teacher" && course.teacherId.toString() !== req.user._id.toString()) {
-      throw new ForbiddenError("Access denied: You can only view students for your own courses");
+    if (
+      req.user.role === "teacher" &&
+      course.teacherId.toString() !== req.user._id.toString()
+    ) {
+      throw new ForbiddenError(
+        "Access denied: You can only view students for your own courses",
+      );
     }
 
-    const enrollments = await Enrollment.find({ courseId }).populate("studentId", "name email avatar");
+    const enrollments = await Enrollment.find({ courseId }).populate(
+      "studentId",
+      "name email avatar",
+    );
 
     const students = enrollments
       .map((e) => {
@@ -251,11 +289,16 @@ export async function verifyCertificateController(req, res, next) {
     const { certificateId } = req.params;
     const cert = await Certificate.findOne({ certificateId })
       .populate("student", "name email avatar")
-      .populate("course", "title description thumbnail averageRating totalRatings difficulty duration")
+      .populate(
+        "course",
+        "title description thumbnail averageRating totalRatings difficulty duration",
+      )
       .populate("issuedBy", "name role");
 
     if (!cert) {
-      throw new NotFoundError("Certificate with the specified ID could not be found or verified.");
+      throw new NotFoundError(
+        "Certificate with the specified ID could not be found or verified.",
+      );
     }
 
     return res.status(200).json({
@@ -267,4 +310,3 @@ export async function verifyCertificateController(req, res, next) {
     next(err);
   }
 }
-

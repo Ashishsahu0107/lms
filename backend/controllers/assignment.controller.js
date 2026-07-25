@@ -15,12 +15,12 @@ export async function getAssignmentsController(req, res, next) {
     if (req.user.role === "student") {
       // Find course IDs where student is enrolled
       const enrollments = await Enrollment.find({ studentId: req.user._id });
-      const enrolledCourseIds = enrollments.map(e => e.courseId);
+      const enrolledCourseIds = enrollments.map((e) => e.courseId);
       query = { courseId: { $in: enrolledCourseIds } };
     } else if (req.user.role === "teacher") {
       // Find course IDs owned by teacher
       const courses = await Course.find({ teacherId: req.user._id });
-      const teacherCourseIds = courses.map(c => c._id);
+      const teacherCourseIds = courses.map((c) => c._id);
       query = { courseId: { $in: teacherCourseIds } };
     } // super_admin gets all
 
@@ -152,7 +152,7 @@ export async function updateAssignmentController(req, res, next) {
     const assignment = await Assignment.findByIdAndUpdate(
       id,
       { $set: req.body },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!assignment) {
@@ -203,31 +203,45 @@ export async function generateAssignmentController(req, res, next) {
     const { notesText, topicTitle } = req.body ?? {};
 
     if (!notesText && !topicTitle) {
-      throw new BadRequestError("Notes text or Topic title is required for AI question generation");
+      throw new BadRequestError(
+        "Notes text or Topic title is required for AI question generation",
+      );
     }
 
     const text = (notesText || topicTitle).toLowerCase();
     let generatedQuestions = [];
 
     // Simulate AI content analysis and draft generation based on topic keywords
-    if (text.includes("react") || text.includes("component") || text.includes("hook")) {
+    if (
+      text.includes("react") ||
+      text.includes("component") ||
+      text.includes("hook")
+    ) {
       generatedQuestions = [
         {
           type: "mcq",
-          question: "Which hook should be used to fetch external API data upon React component mount?",
+          question:
+            "Which hook should be used to fetch external API data upon React component mount?",
           options: ["useState", "useMemo", "useEffect", "useCallback"],
           answer: "useEffect",
         },
         {
           type: "short",
-          question: "Explain the difference between a controlled and uncontrolled form component in React.",
+          question:
+            "Explain the difference between a controlled and uncontrolled form component in React.",
         },
         {
           type: "code",
-          question: "Write a complete custom hook called `useLocalStorage(key, initialValue)` that synced state to LocalStorage.",
-        }
+          question:
+            "Write a complete custom hook called `useLocalStorage(key, initialValue)` that synced state to LocalStorage.",
+        },
       ];
-    } else if (text.includes("js") || text.includes("javascript") || text.includes("promise") || text.includes("async")) {
+    } else if (
+      text.includes("js") ||
+      text.includes("javascript") ||
+      text.includes("promise") ||
+      text.includes("async")
+    ) {
       generatedQuestions = [
         {
           type: "mcq",
@@ -236,40 +250,50 @@ export async function generateAssignmentController(req, res, next) {
             "A function with no arguments",
             "An inner function retaining access to outer lexical scope variables",
             "A method bound to the global window object",
-            "An encrypted JSON token payload"
+            "An encrypted JSON token payload",
           ],
-          answer: "An inner function retaining access to outer lexical scope variables",
+          answer:
+            "An inner function retaining access to outer lexical scope variables",
         },
         {
           type: "short",
-          question: "Explain the difference between the Event Loop microtask and macrotask queues in JavaScript engine execution.",
+          question:
+            "Explain the difference between the Event Loop microtask and macrotask queues in JavaScript engine execution.",
         },
         {
           type: "code",
-          question: "Implement a polyfill for `Promise.all` that accepts an array of promises and resolves after all of them resolve.",
-        }
+          question:
+            "Implement a polyfill for `Promise.all` that accepts an array of promises and resolves after all of them resolve.",
+        },
       ];
-    } else if (text.includes("python") || text.includes("django") || text.includes("pandas")) {
+    } else if (
+      text.includes("python") ||
+      text.includes("django") ||
+      text.includes("pandas")
+    ) {
       generatedQuestions = [
         {
           type: "mcq",
-          question: "In Python, which list-comprehension correctly filters odd numbers from list `x`?",
+          question:
+            "In Python, which list-comprehension correctly filters odd numbers from list `x`?",
           options: [
             "[i for i in x if i % 2 == 0]",
             "[i for i in x if i % 2 != 0]",
             "[i in x for i % 2 == 0]",
-            "[for i in x: i if i % 2 != 0]"
+            "[for i in x: i if i % 2 != 0]",
           ],
           answer: "[i for i in x if i % 2 != 0]",
         },
         {
           type: "short",
-          question: "What is the difference between a shallow copy and a deep copy in Python? Detail how `copy` module is applied.",
+          question:
+            "What is the difference between a shallow copy and a deep copy in Python? Detail how `copy` module is applied.",
         },
         {
           type: "code",
-          question: "Write a Python generator function `fibonacci(n)` that yields the first `n` numbers in the Fibonacci sequence.",
-        }
+          question:
+            "Write a Python generator function `fibonacci(n)` that yields the first `n` numbers in the Fibonacci sequence.",
+        },
       ];
     } else {
       // General Fallback
@@ -281,24 +305,32 @@ export async function generateAssignmentController(req, res, next) {
             "Regional Enterprise Service Token",
             "Representational State Transfer",
             "Reliable Standard Transmission",
-            "Realtime Socket Encryption"
+            "Realtime Socket Encryption",
           ],
           answer: "Representational State Transfer",
         },
         {
           type: "short",
-          question: "Detail the critical security benefits of implementing HTTPS and SSL/TLS handshakes in client-server architecture.",
+          question:
+            "Detail the critical security benefits of implementing HTTPS and SSL/TLS handshakes in client-server architecture.",
         },
         {
           type: "code",
-          question: "Write a high-performance recursive binary search function that searches for target `k` in a sorted array `arr`.",
-        }
+          question:
+            "Write a high-performance recursive binary search function that searches for target `k` in a sorted array `arr`.",
+        },
       ];
     }
 
     // Build descriptions & instructions dynamically based on generated questions
-    const generatedInstructions = `### Complete all questions inside this sheet.\n\n` + 
-      generatedQuestions.map((q, i) => `**Question ${i+1} (${q.type.toUpperCase()}):** ${q.question}`).join("\n\n");
+    const generatedInstructions =
+      `### Complete all questions inside this sheet.\n\n` +
+      generatedQuestions
+        .map(
+          (q, i) =>
+            `**Question ${i + 1} (${q.type.toUpperCase()}):** ${q.question}`,
+        )
+        .join("\n\n");
 
     return res.status(200).json({
       success: true,
@@ -308,7 +340,7 @@ export async function generateAssignmentController(req, res, next) {
         description: `This assignment was auto-generated by parsing note materials focusing on key concepts. Check instructions and complete questions.`,
         instructions: generatedInstructions,
         questions: generatedQuestions,
-      }
+      },
     });
   } catch (err) {
     next(err);

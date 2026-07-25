@@ -43,10 +43,14 @@ export async function getCoursePlayerDetails(req, res, next) {
     }
 
     // 3. Fetch Student Notes
-    const notes = await StudentNote.find({ studentId, courseId }).sort({ createdAt: -1 });
+    const notes = await StudentNote.find({ studentId, courseId }).sort({
+      createdAt: -1,
+    });
 
     // 4. Fetch Student Bookmarks
-    const bookmarks = await Bookmark.find({ studentId, courseId }).sort({ videoPosition: 1 });
+    const bookmarks = await Bookmark.find({ studentId, courseId }).sort({
+      videoPosition: 1,
+    });
 
     // 5. Fetch Discussions
     const discussions = await Discussion.find({ courseId })
@@ -61,16 +65,16 @@ export async function getCoursePlayerDetails(req, res, next) {
         progress,
         notes,
         bookmarks,
-        discussions: discussions.map(d => ({
+        discussions: discussions.map((d) => ({
           _id: d._id,
           content: d.content,
           createdAt: d.createdAt,
           user: {
             name: d.studentId?.name || "Anonymous Learner",
             avatar: d.studentId?.avatar || "",
-            role: d.studentId?.role || "student"
-          }
-        }))
+            role: d.studentId?.role || "student",
+          },
+        })),
       },
     });
   } catch (err) {
@@ -84,7 +88,8 @@ export async function getCoursePlayerDetails(req, res, next) {
 // ======================================================
 export async function updateWatchProgress(req, res, next) {
   try {
-    const { courseId, topicId, watchPosition, duration, watchTimeDelta } = req.body;
+    const { courseId, topicId, watchPosition, duration, watchTimeDelta } =
+      req.body;
     const studentId = req.user._id;
 
     if (!courseId || !topicId) {
@@ -93,11 +98,17 @@ export async function updateWatchProgress(req, res, next) {
 
     let progress = await StudentProgress.findOne({ studentId, courseId });
     if (!progress) {
-      progress = new StudentProgress({ studentId, courseId, lectureProgress: [] });
+      progress = new StudentProgress({
+        studentId,
+        courseId,
+        lectureProgress: [],
+      });
     }
 
     // Find topic progress entry
-    let topicEntry = progress.lectureProgress.find(l => l.lectureId.toString() === topicId);
+    let topicEntry = progress.lectureProgress.find(
+      (l) => l.lectureId.toString() === topicId,
+    );
     let justCompleted = false;
 
     if (!topicEntry) {
@@ -106,22 +117,29 @@ export async function updateWatchProgress(req, res, next) {
         completed: false,
         watchPosition: watchPosition || 0,
         duration: duration || 0,
-        watchTime: watchTimeDelta || 0
+        watchTime: watchTimeDelta || 0,
       };
       progress.lectureProgress.push(topicEntry);
       // Re-find to maintain reference
-      topicEntry = progress.lectureProgress[progress.lectureProgress.length - 1];
+      topicEntry =
+        progress.lectureProgress[progress.lectureProgress.length - 1];
     } else {
       topicEntry.watchPosition = watchPosition || 0;
       if (duration) topicEntry.duration = duration;
       if (watchTimeDelta) {
-        topicEntry.watchTime = (topicEntry.watchTime || 0) + Number(watchTimeDelta);
-        progress.totalWatchTime = (progress.totalWatchTime || 0) + Number(watchTimeDelta);
+        topicEntry.watchTime =
+          (topicEntry.watchTime || 0) + Number(watchTimeDelta);
+        progress.totalWatchTime =
+          (progress.totalWatchTime || 0) + Number(watchTimeDelta);
       }
     }
 
     // Mark completed if >= 90% watched
-    if (!topicEntry.completed && topicEntry.duration > 0 && topicEntry.watchPosition >= topicEntry.duration * 0.9) {
+    if (
+      !topicEntry.completed &&
+      topicEntry.duration > 0 &&
+      topicEntry.watchPosition >= topicEntry.duration * 0.9
+    ) {
       topicEntry.completed = true;
       topicEntry.completedAt = new Date();
       justCompleted = true;
@@ -130,23 +148,26 @@ export async function updateWatchProgress(req, res, next) {
     // Update overall course stats
     const course = await Course.findById(courseId).populate({
       path: "modules",
-      populate: { path: "topics", select: "_id" }
+      populate: { path: "topics", select: "_id" },
     });
 
     let totalTopicsCount = 0;
     if (course && course.modules) {
-      course.modules.forEach(mod => {
-        totalTopicsCount += (mod.topics?.length || 0);
+      course.modules.forEach((mod) => {
+        totalTopicsCount += mod.topics?.length || 0;
       });
     }
     if (totalTopicsCount === 0) totalTopicsCount = 1;
 
-    const completedCount = progress.lectureProgress.filter(l => l.completed).length;
+    const completedCount = progress.lectureProgress.filter(
+      (l) => l.completed,
+    ).length;
     progress.progress = Math.round((completedCount / totalTopicsCount) * 100);
     progress.lastAccessedTopicId = topicId;
     progress.lastAccessedAt = new Date();
 
-    const reachedCourseCompletion = (progress.progress === 100 && !progress.completedAt);
+    const reachedCourseCompletion =
+      progress.progress === 100 && !progress.completedAt;
     if (progress.progress === 100) {
       progress.completedAt = new Date();
     }
@@ -163,11 +184,14 @@ export async function updateWatchProgress(req, res, next) {
       topicId,
       progress: progress.progress,
       watchPosition: topicEntry.watchPosition,
-      completed: topicEntry.completed
+      completed: topicEntry.completed,
     });
 
     if (justCompleted) {
-      io.to(ROOMS.course(courseId)).emit("lectureCompleted", { studentId, topicId });
+      io.to(ROOMS.course(courseId)).emit("lectureCompleted", {
+        studentId,
+        topicId,
+      });
       await awardXPAndCheckStreak(studentId, "COMPLETE_TOPIC", { topicId });
     }
 
@@ -182,8 +206,8 @@ export async function updateWatchProgress(req, res, next) {
         progress: progress.progress,
         watchPosition: topicEntry.watchPosition,
         completed: topicEntry.completed,
-        justCompleted
-      }
+        justCompleted,
+      },
     });
   } catch (err) {
     next(err);
@@ -200,7 +224,9 @@ export async function createOrUpdateNote(req, res, next) {
     const studentId = req.user._id;
 
     if (!courseId || !topicId || !content) {
-      throw new BadRequestError("Course ID, Topic ID, and Content are required");
+      throw new BadRequestError(
+        "Course ID, Topic ID, and Content are required",
+      );
     }
 
     const note = await StudentNote.create({
@@ -230,7 +256,9 @@ export async function getStudentNotes(req, res, next) {
     const { courseId } = req.params;
     const studentId = req.user._id;
 
-    const notes = await StudentNote.find({ studentId, courseId }).sort({ createdAt: -1 });
+    const notes = await StudentNote.find({ studentId, courseId }).sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json({
       success: true,
@@ -251,7 +279,9 @@ export async function createBookmark(req, res, next) {
     const studentId = req.user._id;
 
     if (!courseId || !topicId || videoPosition === undefined) {
-      throw new BadRequestError("Course ID, Topic ID, and Video Position are required");
+      throw new BadRequestError(
+        "Course ID, Topic ID, and Video Position are required",
+      );
     }
 
     const bookmark = await Bookmark.create({
@@ -281,7 +311,9 @@ export async function getStudentBookmarks(req, res, next) {
     const { courseId } = req.params;
     const studentId = req.user._id;
 
-    const bookmarks = await Bookmark.find({ studentId, courseId }).sort({ videoPosition: 1 });
+    const bookmarks = await Bookmark.find({ studentId, courseId }).sort({
+      videoPosition: 1,
+    });
 
     return res.status(200).json({
       success: true,
@@ -305,15 +337,15 @@ export async function getDiscussionMessages(req, res, next) {
       .sort({ createdAt: 1 })
       .limit(100);
 
-    const formatted = discussions.map(d => ({
+    const formatted = discussions.map((d) => ({
       _id: d._id,
       content: d.content,
       createdAt: d.createdAt,
       user: {
         name: d.studentId?.name || "Anonymous Learner",
         avatar: d.studentId?.avatar || "",
-        role: d.studentId?.role || "student"
-      }
+        role: d.studentId?.role || "student",
+      },
     }));
 
     return res.status(200).json({
@@ -342,7 +374,7 @@ export async function postDiscussionMessage(req, res, next) {
     const d = await Discussion.create({
       courseId,
       studentId,
-      content: content.trim()
+      content: content.trim(),
     });
 
     const student = await User.findById(studentId).select("name avatar role");
@@ -354,8 +386,8 @@ export async function postDiscussionMessage(req, res, next) {
       user: {
         name: student.name || "Anonymous Learner",
         avatar: student.avatar || "",
-        role: student.role || "student"
-      }
+        role: student.role || "student",
+      },
     };
 
     // Emit live to course room
@@ -364,7 +396,7 @@ export async function postDiscussionMessage(req, res, next) {
 
     return res.status(201).json({
       success: true,
-      data: payload
+      data: payload,
     });
   } catch (err) {
     next(err);
