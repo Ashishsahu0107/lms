@@ -30,7 +30,7 @@ app.disable("x-powered-by");
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
+  }),
 );
 
 // Prevent Cross-Site Scripting (XSS)
@@ -50,7 +50,10 @@ const limiter = rateLimit({
   max: 200, // Limit each IP to 200 requests per 15 minutes
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many requests, please try again later." },
+  message: {
+    success: false,
+    message: "Too many requests, please try again later.",
+  },
 });
 app.use("/api", limiter);
 
@@ -59,7 +62,11 @@ const authLimiter = rateLimit({
   max: 30, // Limit each IP to 30 requests per 15 minutes for auth endpoints
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many authentication attempts, please try again in 15 minutes." },
+  message: {
+    success: false,
+    message:
+      "Too many authentication attempts, please try again in 15 minutes.",
+  },
 });
 app.use("/api/auth", authLimiter);
 

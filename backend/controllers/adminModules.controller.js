@@ -23,12 +23,55 @@ export async function getPaymentsController(req, res, next) {
       .sort({ createdAt: -1 });
 
     // Seeding fallback metrics for newly seeded database so charts are visual!
-    const fallbackPayments = payments.length > 0 ? payments : [
-      { _id: "p1", studentId: { name: "Sarah Johnson", email: "sarah@email.com" }, courseId: { title: "React Native Complete" }, amount: 120, commission: 24, earnings: 96, status: "completed", paymentMethod: "Stripe", createdAt: new Date() },
-      { _id: "p2", studentId: { name: "Michael Chen", email: "mchen@email.com" }, courseId: { title: "Python for Data Science" }, amount: 150, commission: 30, earnings: 120, status: "completed", paymentMethod: "Stripe", createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000) },
-      { _id: "p3", studentId: { name: "Emma Davis", email: "emma.d@email.com" }, courseId: { title: "UI/UX Design Core" }, amount: 90, commission: 18, earnings: 72, status: "pending", paymentMethod: "PayPal", createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-      { _id: "p4", studentId: { name: "James Wilson", email: "jwilson@email.com" }, courseId: { title: "Advanced Node API" }, amount: 200, commission: 40, earnings: 160, status: "refunded", paymentMethod: "Stripe", createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000) },
-    ];
+    const fallbackPayments =
+      payments.length > 0
+        ? payments
+        : [
+            {
+              _id: "p1",
+              studentId: { name: "Sarah Johnson", email: "sarah@email.com" },
+              courseId: { title: "React Native Complete" },
+              amount: 120,
+              commission: 24,
+              earnings: 96,
+              status: "completed",
+              paymentMethod: "Stripe",
+              createdAt: new Date(),
+            },
+            {
+              _id: "p2",
+              studentId: { name: "Michael Chen", email: "mchen@email.com" },
+              courseId: { title: "Python for Data Science" },
+              amount: 150,
+              commission: 30,
+              earnings: 120,
+              status: "completed",
+              paymentMethod: "Stripe",
+              createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
+            },
+            {
+              _id: "p3",
+              studentId: { name: "Emma Davis", email: "emma.d@email.com" },
+              courseId: { title: "UI/UX Design Core" },
+              amount: 90,
+              commission: 18,
+              earnings: 72,
+              status: "pending",
+              paymentMethod: "PayPal",
+              createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+            },
+            {
+              _id: "p4",
+              studentId: { name: "James Wilson", email: "jwilson@email.com" },
+              courseId: { title: "Advanced Node API" },
+              amount: 200,
+              commission: 40,
+              earnings: 160,
+              status: "refunded",
+              paymentMethod: "Stripe",
+              createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000),
+            },
+          ];
 
     return res.status(200).json({
       success: true,
@@ -41,12 +84,35 @@ export async function getPaymentsController(req, res, next) {
 
 export async function getInvoicesController(req, res, next) {
   try {
-    const invoices = await Invoice.find().populate("paymentId").sort({ createdAt: -1 });
+    const invoices = await Invoice.find()
+      .populate("paymentId")
+      .sort({ createdAt: -1 });
 
-    const fallbackInvoices = invoices.length > 0 ? invoices : [
-      { _id: "i1", invoiceNumber: "INV-2026-001", billingDetails: { address: "123 Silicon Blvd, San Jose", phone: "555-0199" }, paymentId: { amount: 120 }, createdAt: new Date() },
-      { _id: "i2", invoiceNumber: "INV-2026-002", billingDetails: { address: "456 Python Lane, Austin", phone: "555-0145" }, paymentId: { amount: 150 }, createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000) },
-    ];
+    const fallbackInvoices =
+      invoices.length > 0
+        ? invoices
+        : [
+            {
+              _id: "i1",
+              invoiceNumber: "INV-2026-001",
+              billingDetails: {
+                address: "123 Silicon Blvd, San Jose",
+                phone: "555-0199",
+              },
+              paymentId: { amount: 120 },
+              createdAt: new Date(),
+            },
+            {
+              _id: "i2",
+              invoiceNumber: "INV-2026-002",
+              billingDetails: {
+                address: "456 Python Lane, Austin",
+                phone: "555-0145",
+              },
+              paymentId: { amount: 150 },
+              createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
+            },
+          ];
 
     return res.status(200).json({
       success: true,
@@ -61,11 +127,46 @@ export async function getSubscriptionsController(req, res, next) {
   try {
     const plans = await Subscription.find();
 
-    const fallbackPlans = plans.length > 0 ? plans : [
-      { _id: "s1", name: "Basic", price: 29, durationMonths: 1, benefits: ["Access to 10 Courses", "Email Support", "Syllabus Certificate"] },
-      { _id: "s2", name: "Pro", price: 79, durationMonths: 3, benefits: ["All Courses Access", "Direct Messaging", "Interactive Quizzes", "Priority Grading"] },
-      { _id: "s3", name: "Enterprise", price: 199, durationMonths: 12, benefits: ["Syllabus White-labeling", "Custom Branding", "1-on-1 Mentorship Sessions", "Unlimited Submissions"] },
-    ];
+    const fallbackPlans =
+      plans.length > 0
+        ? plans
+        : [
+            {
+              _id: "s1",
+              name: "Basic",
+              price: 29,
+              durationMonths: 1,
+              benefits: [
+                "Access to 10 Courses",
+                "Email Support",
+                "Syllabus Certificate",
+              ],
+            },
+            {
+              _id: "s2",
+              name: "Pro",
+              price: 79,
+              durationMonths: 3,
+              benefits: [
+                "All Courses Access",
+                "Direct Messaging",
+                "Interactive Quizzes",
+                "Priority Grading",
+              ],
+            },
+            {
+              _id: "s3",
+              name: "Enterprise",
+              price: 199,
+              durationMonths: 12,
+              benefits: [
+                "Syllabus White-labeling",
+                "Custom Branding",
+                "1-on-1 Mentorship Sessions",
+                "Unlimited Submissions",
+              ],
+            },
+          ];
 
     return res.status(200).json({
       success: true,
@@ -81,7 +182,9 @@ export async function processRefundController(req, res, next) {
     const { paymentId, status } = req.body ?? {};
 
     if (!paymentId || !status) {
-      throw new BadRequestError("PaymentId and status decision (refunded/completed) are required.");
+      throw new BadRequestError(
+        "PaymentId and status decision (refunded/completed) are required.",
+      );
     }
 
     // Process
@@ -104,20 +207,28 @@ export async function getStudentReportsController(req, res, next) {
   try {
     const students = await User.find({ role: "student" });
 
-    let csvContent = "Student Name,Email,Enrolled Count,Completions,Quiz Average (%)\n";
+    let csvContent =
+      "Student Name,Email,Enrolled Count,Completions,Quiz Average (%)\n";
     for (const s of students) {
       const enrolls = await Enrollment.find({ studentId: s._id });
       const quizAttempts = await QuizAttempt.find({ studentId: s._id });
-      const completed = enrolls.filter(e => e.progress === 100).length;
-      const quizAvg = quizAttempts.length > 0
-        ? Math.round(quizAttempts.reduce((acc, att) => acc + att.accuracy, 0) / quizAttempts.length)
-        : 85; // baseline
+      const completed = enrolls.filter((e) => e.progress === 100).length;
+      const quizAvg =
+        quizAttempts.length > 0
+          ? Math.round(
+              quizAttempts.reduce((acc, att) => acc + att.accuracy, 0) /
+                quizAttempts.length,
+            )
+          : 85; // baseline
 
       csvContent += `"${s.name}","${s.email}",${enrolls.length},${completed},${quizAvg}\n`;
     }
 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", 'attachment; filename="student_telemetry_report.csv"');
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="student_telemetry_report.csv"',
+    );
     return res.status(200).send(csvContent);
   } catch (err) {
     next(err);
@@ -128,16 +239,23 @@ export async function getTeacherReportsController(req, res, next) {
   try {
     const teachers = await User.find({ role: "teacher" });
 
-    let csvContent = "Teacher Name,Email,Specialization,Courses Taught,Enrolled Students\n";
+    let csvContent =
+      "Teacher Name,Email,Specialization,Courses Taught,Enrolled Students\n";
     for (const t of teachers) {
       const courses = await Course.find({ teacherId: t._id });
-      const totalStudents = courses.reduce((acc, c) => acc + (c.students?.length || 0), 0);
+      const totalStudents = courses.reduce(
+        (acc, c) => acc + (c.students?.length || 0),
+        0,
+      );
 
       csvContent += `"${t.name}","${t.email}","${t.specialization || "Syllabus Instructor"}",${courses.length},${totalStudents}\n`;
     }
 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", 'attachment; filename="teacher_telemetry_report.csv"');
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="teacher_telemetry_report.csv"',
+    );
     return res.status(200).send(csvContent);
   } catch (err) {
     next(err);
@@ -146,16 +264,23 @@ export async function getTeacherReportsController(req, res, next) {
 
 export async function getRevenueReportsController(req, res, next) {
   try {
-    const payments = await Payment.find({ status: "completed" }).populate("studentId", "name");
+    const payments = await Payment.find({ status: "completed" }).populate(
+      "studentId",
+      "name",
+    );
 
-    let csvContent = "Transaction ID,Student,Amount Paid,Platform Fee (20%),Teacher Earnings (80%),Date\n";
+    let csvContent =
+      "Transaction ID,Student,Amount Paid,Platform Fee (20%),Teacher Earnings (80%),Date\n";
     payments.forEach((p) => {
       const date = new Date(p.createdAt).toLocaleDateString("en-US");
       csvContent += `"${p._id}","${p.studentId?.name || "Learner"}",${p.amount},${p.commission},${p.earnings},"${date}"\n`;
     });
 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", 'attachment; filename="platform_financials_report.csv"');
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="platform_financials_report.csv"',
+    );
     return res.status(200).send(csvContent);
   } catch (err) {
     next(err);
@@ -166,7 +291,8 @@ export async function getCourseReportsController(req, res, next) {
   try {
     const courses = await Course.find().populate("teacherId", "name");
 
-    let csvContent = "Course Title,Instructor,Category,Difficulty,Total Students,Revenue\n";
+    let csvContent =
+      "Course Title,Instructor,Category,Difficulty,Total Students,Revenue\n";
     courses.forEach((c) => {
       const studentsCount = c.students?.length || 0;
       const totalRev = c.price * studentsCount;
@@ -174,7 +300,10 @@ export async function getCourseReportsController(req, res, next) {
     });
 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", 'attachment; filename="course_telemetry_report.csv"');
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="course_telemetry_report.csv"',
+    );
     return res.status(200).send(csvContent);
   } catch (err) {
     next(err);
@@ -187,12 +316,13 @@ export async function getCourseReportsController(req, res, next) {
 
 export async function getPlatformAnalyticsController(req, res, next) {
   try {
-    const [studentsCount, teachersCount, coursesCount, activeUsers] = await Promise.all([
-      User.countDocuments({ role: "student" }),
-      User.countDocuments({ role: "teacher" }),
-      Course.countDocuments(),
-      User.countDocuments(),
-    ]);
+    const [studentsCount, teachersCount, coursesCount, activeUsers] =
+      await Promise.all([
+        User.countDocuments({ role: "student" }),
+        User.countDocuments({ role: "teacher" }),
+        Course.countDocuments(),
+        User.countDocuments(),
+      ]);
 
     // Heatmaps metrics coordinates of study hours
     const heatmapActivity = [
@@ -291,10 +421,31 @@ export async function getNotificationsController(req, res, next) {
       .populate("senderId", "name")
       .sort({ createdAt: -1 });
 
-    const fallbackNotifications = notifications.length > 0 ? notifications : [
-      { _id: "n1", senderId: { name: "System Admin" }, targetRole: "all", title: "Maintenance Window Schedule", message: "LMS Pro will undergo system updates this Friday at 02:00 UTC for 30 minutes.", type: "system", createdAt: new Date() },
-      { _id: "n2", senderId: { name: "Dr. James Wilson" }, targetRole: "student", title: "New Assignment Published", message: "Assignment 4: React Context hooks has been released in Advanced Javascript.", type: "assignment", createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000) },
-    ];
+    const fallbackNotifications =
+      notifications.length > 0
+        ? notifications
+        : [
+            {
+              _id: "n1",
+              senderId: { name: "System Admin" },
+              targetRole: "all",
+              title: "Maintenance Window Schedule",
+              message:
+                "LMS Pro will undergo system updates this Friday at 02:00 UTC for 30 minutes.",
+              type: "system",
+              createdAt: new Date(),
+            },
+            {
+              _id: "n2",
+              senderId: { name: "Dr. James Wilson" },
+              targetRole: "student",
+              title: "New Assignment Published",
+              message:
+                "Assignment 4: React Context hooks has been released in Advanced Javascript.",
+              type: "assignment",
+              createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
+            },
+          ];
 
     return res.status(200).json({
       success: true,
@@ -307,10 +458,17 @@ export async function getNotificationsController(req, res, next) {
 
 export async function sendNotificationController(req, res, next) {
   try {
-    const { title, message, targetRole = "all", type = "announcement" } = req.body ?? {};
+    const {
+      title,
+      message,
+      targetRole = "all",
+      type = "announcement",
+    } = req.body ?? {};
 
     if (!title || !message) {
-      throw new BadRequestError("Notification title and broadcast message description are required.");
+      throw new BadRequestError(
+        "Notification title and broadcast message description are required.",
+      );
     }
 
     const newNotification = await Notification.create({
@@ -337,14 +495,55 @@ export async function sendNotificationController(req, res, next) {
 
 export async function getSecurityLogsController(req, res, next) {
   try {
-    const logs = await SecurityLog.find().populate("userId", "name email").sort({ createdAt: -1 });
+    const logs = await SecurityLog.find()
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 });
 
-    const fallbackLogs = logs.length > 0 ? logs : [
-      { _id: "sl1", userId: { name: "Sarah Johnson", email: "sarah@email.com" }, action: "USER_LOGIN", details: "Successful login via web client", ip: "192.168.1.12", device: "MacBook Pro / Chrome", severity: "low", createdAt: new Date() },
-      { _id: "sl2", userId: { name: "Emma Davis", email: "emma.d@email.com" }, action: "PASSWORD_CHANGE", details: "Password changed successfully", ip: "192.168.1.45", device: "iPhone 14 / Safari", severity: "low", createdAt: new Date(Date.now() - 5 * 60 * 1000) },
-      { _id: "sl3", userId: null, action: "FAILED_LOGIN", details: "Failed login attempt: invalid credentials", ip: "172.56.21.90", device: "Windows Desktop / Firefox", severity: "medium", createdAt: new Date(Date.now() - 20 * 60 * 1000) },
-      { _id: "sl4", userId: { name: "James Wilson", email: "jwilson@email.com" }, action: "API_UNAUTHORIZED", details: "Attempted to hit admin route permissions block", ip: "10.0.0.8", device: "Postman API Client", severity: "high", createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) },
-    ];
+    const fallbackLogs =
+      logs.length > 0
+        ? logs
+        : [
+            {
+              _id: "sl1",
+              userId: { name: "Sarah Johnson", email: "sarah@email.com" },
+              action: "USER_LOGIN",
+              details: "Successful login via web client",
+              ip: "192.168.1.12",
+              device: "MacBook Pro / Chrome",
+              severity: "low",
+              createdAt: new Date(),
+            },
+            {
+              _id: "sl2",
+              userId: { name: "Emma Davis", email: "emma.d@email.com" },
+              action: "PASSWORD_CHANGE",
+              details: "Password changed successfully",
+              ip: "192.168.1.45",
+              device: "iPhone 14 / Safari",
+              severity: "low",
+              createdAt: new Date(Date.now() - 5 * 60 * 1000),
+            },
+            {
+              _id: "sl3",
+              userId: null,
+              action: "FAILED_LOGIN",
+              details: "Failed login attempt: invalid credentials",
+              ip: "172.56.21.90",
+              device: "Windows Desktop / Firefox",
+              severity: "medium",
+              createdAt: new Date(Date.now() - 20 * 60 * 1000),
+            },
+            {
+              _id: "sl4",
+              userId: { name: "James Wilson", email: "jwilson@email.com" },
+              action: "API_UNAUTHORIZED",
+              details: "Attempted to hit admin route permissions block",
+              ip: "10.0.0.8",
+              device: "Postman API Client",
+              severity: "high",
+              createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+            },
+          ];
 
     return res.status(200).json({
       success: true,
@@ -357,7 +556,9 @@ export async function getSecurityLogsController(req, res, next) {
 
 export async function getSessionsController(req, res, next) {
   try {
-    const activeUsers = await User.find({ isOnline: true }).select("name email avatar lastSeen role");
+    const activeUsers = await User.find({ isOnline: true }).select(
+      "name email avatar lastSeen role",
+    );
 
     return res.status(200).json({
       success: true,
@@ -396,7 +597,13 @@ export async function getSettingsController(req, res, next) {
 
 export async function updateSettingsController(req, res, next) {
   try {
-    const { platformName, commissionRate, allowedUploadSizeMB, maintenanceMode, brandingLogo } = req.body ?? {};
+    const {
+      platformName,
+      commissionRate,
+      allowedUploadSizeMB,
+      maintenanceMode,
+      brandingLogo,
+    } = req.body ?? {};
 
     let settings = await Settings.findOne();
     if (!settings) {
@@ -405,8 +612,10 @@ export async function updateSettingsController(req, res, next) {
 
     if (platformName !== undefined) settings.platformName = platformName;
     if (commissionRate !== undefined) settings.commissionRate = commissionRate;
-    if (allowedUploadSizeMB !== undefined) settings.allowedUploadSizeMB = allowedUploadSizeMB;
-    if (maintenanceMode !== undefined) settings.maintenanceMode = maintenanceMode;
+    if (allowedUploadSizeMB !== undefined)
+      settings.allowedUploadSizeMB = allowedUploadSizeMB;
+    if (maintenanceMode !== undefined)
+      settings.maintenanceMode = maintenanceMode;
     if (brandingLogo !== undefined) settings.brandingLogo = brandingLogo;
 
     await settings.save();

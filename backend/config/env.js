@@ -24,4 +24,3 @@ export const env = {
 
   UPLOADS_DIR: process.env.UPLOADS_DIR ?? "uploads",
 };
-

@@ -32,12 +32,16 @@ export async function createTeacherController(req, res, next) {
     } = req.body ?? {};
 
     if (!name || !email) {
-      throw new BadRequestError("Name and email are required for teacher accounts.");
+      throw new BadRequestError(
+        "Name and email are required for teacher accounts.",
+      );
     }
 
     const emailExists = await User.findOne({ email });
     if (emailExists) {
-      throw new BadRequestError("A user with this email address already exists.");
+      throw new BadRequestError(
+        "A user with this email address already exists.",
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -105,14 +109,19 @@ export async function getTeachersController(req, res, next) {
     // Enrich with dynamic course counts and total enrolled students counts
     const enrichedTeachers = await Promise.all(
       teachers.map(async (t) => {
-        const courses = await Course.find({ teacherId: t._id }).select("_id students");
-        const studentCount = courses.reduce((acc, c) => acc + (c.students?.length || 0), 0);
+        const courses = await Course.find({ teacherId: t._id }).select(
+          "_id students",
+        );
+        const studentCount = courses.reduce(
+          (acc, c) => acc + (c.students?.length || 0),
+          0,
+        );
         return {
           ...t.toObject(),
           coursesCount: courses.length,
           studentsCount: studentCount,
         };
-      })
+      }),
     );
 
     return res.status(200).json({
@@ -145,16 +154,21 @@ export async function getTeacherByIdController(req, res, next) {
       .populate("students", "name email");
 
     // Submissions review auditing
-    const courseIds = courses.map(c => c._id);
-    const [totalStudents, pendingReviews, assignmentsCount, quizzesCount] = await Promise.all([
-      Enrollment.countDocuments({ courseId: { $in: courseIds } }),
-      Submission.countDocuments({
-        assignmentId: { $in: await Assignment.distinct("_id", { courseId: { $in: courseIds } }) },
-        status: "pending",
-      }),
-      Assignment.countDocuments({ courseId: { $in: courseIds } }),
-      Quiz.countDocuments({ courseId: { $in: courseIds } }),
-    ]);
+    const courseIds = courses.map((c) => c._id);
+    const [totalStudents, pendingReviews, assignmentsCount, quizzesCount] =
+      await Promise.all([
+        Enrollment.countDocuments({ courseId: { $in: courseIds } }),
+        Submission.countDocuments({
+          assignmentId: {
+            $in: await Assignment.distinct("_id", {
+              courseId: { $in: courseIds },
+            }),
+          },
+          status: "pending",
+        }),
+        Assignment.countDocuments({ courseId: { $in: courseIds } }),
+        Quiz.countDocuments({ courseId: { $in: courseIds } }),
+      ]);
 
     return res.status(200).json({
       success: true,
@@ -215,7 +229,7 @@ export async function updateTeacherController(req, res, next) {
       // Update course assigned teachers in the Course database as well
       await Course.updateMany(
         { _id: { $in: assignedCourses } },
-        { $set: { teacherId: teacher._id } }
+        { $set: { teacherId: teacher._id } },
       );
     }
 
@@ -251,7 +265,7 @@ export async function deleteTeacherController(req, res, next) {
     // Clean course teacherId references
     await Course.updateMany(
       { teacherId: teacher._id },
-      { $unset: { teacherId: "" } }
+      { $unset: { teacherId: "" } },
     );
 
     await Activity.create({
@@ -274,7 +288,10 @@ export async function deleteTeacherController(req, res, next) {
 export async function getTeacherAnalyticsController(req, res, next) {
   try {
     const totalTeachers = await User.countDocuments({ role: "teacher" });
-    const activeTeachers = await User.countDocuments({ role: "teacher", status: "active" });
+    const activeTeachers = await User.countDocuments({
+      role: "teacher",
+      status: "active",
+    });
 
     // Fallback Mocked Trends for charts!
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
@@ -315,12 +332,16 @@ export async function createStudentController(req, res, next) {
     } = req.body ?? {};
 
     if (!name || !email) {
-      throw new BadRequestError("Name and email are required for student accounts.");
+      throw new BadRequestError(
+        "Name and email are required for student accounts.",
+      );
     }
 
     const emailExists = await User.findOne({ email });
     if (emailExists) {
-      throw new BadRequestError("A user with this email address already exists.");
+      throw new BadRequestError(
+        "A user with this email address already exists.",
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -343,7 +364,10 @@ export async function createStudentController(req, res, next) {
       await Promise.all(
         enrolledCourses.map(async (cId) => {
           // Check duplicate
-          const exists = await Enrollment.findOne({ studentId: newStudent._id, courseId: cId });
+          const exists = await Enrollment.findOne({
+            studentId: newStudent._id,
+            courseId: cId,
+          });
           if (!exists) {
             await Enrollment.create({
               studentId: newStudent._id,
@@ -353,9 +377,11 @@ export async function createStudentController(req, res, next) {
             });
 
             // Push student reference to Course
-            await Course.findByIdAndUpdate(cId, { $addToSet: { students: newStudent._id } });
+            await Course.findByIdAndUpdate(cId, {
+              $addToSet: { students: newStudent._id },
+            });
           }
-        })
+        }),
       );
     }
 
@@ -405,17 +431,22 @@ export async function getStudentsController(req, res, next) {
     const enrichedStudents = await Promise.all(
       students.map(async (s) => {
         const enrolls = await Enrollment.find({ studentId: s._id });
-        const avgProgress = enrolls.length > 0
-          ? Math.round(enrolls.reduce((acc, e) => acc + e.progress, 0) / enrolls.length)
-          : 0;
+        const avgProgress =
+          enrolls.length > 0
+            ? Math.round(
+                enrolls.reduce((acc, e) => acc + e.progress, 0) /
+                  enrolls.length,
+              )
+            : 0;
 
         return {
           ...s.toObject(),
           enrolledCoursesCount: enrolls.length,
-          completedCoursesCount: enrolls.filter(e => e.progress === 100).length,
+          completedCoursesCount: enrolls.filter((e) => e.progress === 100)
+            .length,
           averageProgress: avgProgress,
         };
-      })
+      }),
     );
 
     return res.status(200).json({
@@ -443,12 +474,15 @@ export async function getStudentByIdController(req, res, next) {
     }
 
     // Load dynamic enrollments
-    const enrollmentsList = await Enrollment.find({ studentId: student._id })
-      .populate("courseId", "title difficulty category thumbnail");
+    const enrollmentsList = await Enrollment.find({
+      studentId: student._id,
+    }).populate("courseId", "title difficulty category thumbnail");
 
     // Quiz performance attempts
-    const attempts = await QuizAttempt.find({ studentId: student._id, status: "completed" })
-      .populate("quizId", "title");
+    const attempts = await QuizAttempt.find({
+      studentId: student._id,
+      status: "completed",
+    }).populate("quizId", "title");
 
     // Attendance stats
     const [attendanceCount, totalClasses] = await Promise.all([
@@ -456,7 +490,10 @@ export async function getStudentByIdController(req, res, next) {
       Attendance.countDocuments({ studentId: student._id }),
     ]);
 
-    const attendanceRate = totalClasses > 0 ? Math.round((attendanceCount / totalClasses) * 100) : 95; // baseline
+    const attendanceRate =
+      totalClasses > 0
+        ? Math.round((attendanceCount / totalClasses) * 100)
+        : 95; // baseline
 
     return res.status(200).json({
       success: true,
@@ -476,15 +513,8 @@ export async function getStudentByIdController(req, res, next) {
 export async function updateStudentController(req, res, next) {
   try {
     const { id } = req.params;
-    const {
-      name,
-      email,
-      phone,
-      bio,
-      avatar,
-      status,
-      enrolledCourses,
-    } = req.body ?? {};
+    const { name, email, phone, bio, avatar, status, enrolledCourses } =
+      req.body ?? {};
 
     const student = await User.findOne({ _id: id, role: "student" });
     if (!student) {
@@ -506,16 +536,22 @@ export async function updateStudentController(req, res, next) {
       student.enrolledCourses = enrolledCourses;
 
       // 1. Purge old enrollments that are no longer present
-      await Enrollment.deleteMany({ studentId: student._id, courseId: { $nin: enrolledCourses } });
+      await Enrollment.deleteMany({
+        studentId: student._id,
+        courseId: { $nin: enrolledCourses },
+      });
       await Course.updateMany(
         { students: student._id },
-        { $pull: { students: student._id } }
+        { $pull: { students: student._id } },
       );
 
       // 2. Add new ones
       await Promise.all(
         enrolledCourses.map(async (cId) => {
-          const exists = await Enrollment.findOne({ studentId: student._id, courseId: cId });
+          const exists = await Enrollment.findOne({
+            studentId: student._id,
+            courseId: cId,
+          });
           if (!exists) {
             await Enrollment.create({
               studentId: student._id,
@@ -524,8 +560,10 @@ export async function updateStudentController(req, res, next) {
               progress: 0,
             });
           }
-          await Course.findByIdAndUpdate(cId, { $addToSet: { students: student._id } });
-        })
+          await Course.findByIdAndUpdate(cId, {
+            $addToSet: { students: student._id },
+          });
+        }),
       );
     }
 
@@ -564,7 +602,10 @@ export async function deleteStudentController(req, res, next) {
       QuizAttempt.deleteMany({ studentId: student._id }),
       Submission.deleteMany({ studentId: student._id }),
       Attendance.deleteMany({ studentId: student._id }),
-      Course.updateMany({ students: student._id }, { $pull: { students: student._id } }),
+      Course.updateMany(
+        { students: student._id },
+        { $pull: { students: student._id } },
+      ),
     ]);
 
     await Activity.create({
@@ -587,7 +628,10 @@ export async function deleteStudentController(req, res, next) {
 export async function getStudentAnalyticsController(req, res, next) {
   try {
     const totalStudents = await User.countDocuments({ role: "student" });
-    const activeStudents = await User.countDocuments({ role: "student", status: "active" });
+    const activeStudents = await User.countDocuments({
+      role: "student",
+      status: "active",
+    });
 
     // Fallback Mocked Trends for charts!
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
@@ -621,7 +665,9 @@ export async function bulkImportUsersController(req, res, next) {
     const { usersList = [] } = req.body ?? {};
 
     if (!Array.isArray(usersList) || usersList.length === 0) {
-      throw new BadRequestError("Please upload a valid JSON array of user records.");
+      throw new BadRequestError(
+        "Please upload a valid JSON array of user records.",
+      );
     }
 
     let successCount = 0;
@@ -629,7 +675,13 @@ export async function bulkImportUsersController(req, res, next) {
 
     for (const u of usersList) {
       try {
-        const { name, email, role = "student", password = "user123", phone = "" } = u;
+        const {
+          name,
+          email,
+          role = "student",
+          password = "user123",
+          phone = "",
+        } = u;
 
         if (!name || !email) continue;
 
@@ -688,7 +740,10 @@ export async function exportUsersController(req, res, next) {
     });
 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", 'attachment; filename="lms_users_export.csv"');
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="lms_users_export.csv"',
+    );
     return res.status(200).send(csvContent);
   } catch (err) {
     next(err);
