@@ -18,4 +18,3 @@ function envSafeDetails(err) {
   if (process.env.NODE_ENV === "production") return null;
   return err.details ?? null;
 }
-

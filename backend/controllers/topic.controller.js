@@ -10,7 +10,9 @@ export async function getTopicByIdController(req, res, next) {
     const { id } = req.params;
     const topic = await Topic.findById(id);
     if (!topic) throw new NotFoundError("Topic not found");
-    return res.status(200).json({ success: true, message: "Topic fetched", data: topic });
+    return res
+      .status(200)
+      .json({ success: true, message: "Topic fetched", data: topic });
   } catch (err) {
     next(err);
   }
@@ -74,7 +76,7 @@ export async function updateTopicController(req, res, next) {
     const updatedTopic = await Topic.findByIdAndUpdate(
       id,
       { $set: req.body },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedTopic) {

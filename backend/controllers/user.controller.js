@@ -5,13 +5,7 @@ import { User } from "../models/User.js";
 // =====================================
 export async function createUser(req, res, next) {
   try {
-
-    const {
-      name,
-      email,
-      password,
-      role,
-    } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Create User
     const user = await User.create({
@@ -26,7 +20,6 @@ export async function createUser(req, res, next) {
       message: "User created successfully",
       data: user,
     });
-
   } catch (error) {
     next(error);
   }
@@ -37,7 +30,6 @@ export async function createUser(req, res, next) {
 // =====================================
 export async function getUsers(req, res, next) {
   try {
-
     const users = await User.find();
 
     return res.status(200).json({
@@ -45,7 +37,6 @@ export async function getUsers(req, res, next) {
       count: users.length,
       data: users,
     });
-
   } catch (error) {
     next(error);
   }

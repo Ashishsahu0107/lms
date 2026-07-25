@@ -6,49 +6,33 @@ import { Course } from "../models/Course.js";
 import { Module } from "../models/Module.js";
 import { Topic } from "../models/Topic.js";
 
-import {
-  UnauthorizedError,
-  ForbiddenError,
-} from "../utils/errors.js";
+import { UnauthorizedError, ForbiddenError } from "../utils/errors.js";
 
 // =====================================
 // AUTHENTICATE USER
 // =====================================
 export async function authenticate(req, res, next) {
   try {
-
     // Get Authorization Header
     const authHeader = req.headers.authorization;
 
     // Check Header
-    if (
-      !authHeader ||
-      !authHeader.startsWith("Bearer ")
-    ) {
-      throw new UnauthorizedError(
-        "Authentication token missing"
-      );
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw new UnauthorizedError("Authentication token missing");
     }
 
     // Extract Token
     const token = authHeader.split(" ")[1];
 
     // Verify Token
-    const decoded = jwt.verify(
-      token,
-      env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, env.JWT_SECRET);
 
     // Find User
-    const user = await User.findById(
-      decoded.userId
-    ).select("-password");
+    const user = await User.findById(decoded.userId).select("-password");
 
     // User Not Found
     if (!user) {
-      throw new UnauthorizedError(
-        "User not found"
-      );
+      throw new UnauthorizedError("User not found");
     }
 
     // Attach User To Request
@@ -58,19 +42,13 @@ export async function authenticate(req, res, next) {
     req.token = token;
 
     next();
-
   } catch (error) {
-
     // JWT Errors
     if (
       error.name === "JsonWebTokenError" ||
       error.name === "TokenExpiredError"
     ) {
-      return next(
-        new UnauthorizedError(
-          "Invalid or expired token"
-        )
-      );
+      return next(new UnauthorizedError("Invalid or expired token"));
     }
 
     next(error);
@@ -81,16 +59,10 @@ export async function authenticate(req, res, next) {
 // ROLE AUTHORIZATION
 // =====================================
 export function authorize(...roles) {
-
   return (req, res, next) => {
-
     // Check User
     if (!req.user) {
-      return next(
-        new UnauthorizedError(
-          "Authentication required"
-        )
-      );
+      return next(new UnauthorizedError("Authentication required"));
     }
 
     // Check Role
@@ -103,18 +75,14 @@ export function authorize(...roles) {
             details: `Unauthorized attempt to access route requiring roles: [${roles.join(", ")}]. User role: ${req.user.role}`,
             ip: req.ip,
             device: req.headers["user-agent"] || "",
-            severity: "high"
+            severity: "high",
           });
         });
       } catch (logErr) {
         console.error("[Log] Failed to log unauthorized route access:", logErr);
       }
 
-      return next(
-        new UnauthorizedError(
-          "Access denied"
-        )
-      );
+      return next(new UnauthorizedError("Access denied"));
     }
 
     next();
@@ -124,21 +92,12 @@ export function authorize(...roles) {
 // =====================================
 // OPTIONAL AUTH
 // =====================================
-export async function optionalAuth(
-  req,
-  res,
-  next
-) {
+export async function optionalAuth(req, res, next) {
   try {
-
-    const authHeader =
-      req.headers.authorization;
+    const authHeader = req.headers.authorization;
 
     // No Token
-    if (
-      !authHeader ||
-      !authHeader.startsWith("Bearer ")
-    ) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return next();
     }
 
@@ -146,22 +105,16 @@ export async function optionalAuth(
     const token = authHeader.split(" ")[1];
 
     // Verify
-    const decoded = jwt.verify(
-      token,
-      env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, env.JWT_SECRET);
 
     // User
-    const user = await User.findById(
-      decoded.userId
-    ).select("-password");
+    const user = await User.findById(decoded.userId).select("-password");
 
     if (user) {
       req.user = user;
     }
 
     next();
-
   } catch (error) {
     next();
   }
@@ -189,9 +142,7 @@ export async function ownershipMiddleware(req, res, next) {
 
     // Teachers can only modify their own courses
     if (course.teacherId.toString() !== req.user._id.toString()) {
-      throw new ForbiddenError(
-        "Access denied: you do not own this course"
-      );
+      throw new ForbiddenError("Access denied: you do not own this course");
     }
 
     next();
@@ -210,16 +161,22 @@ export async function moduleOwnershipMiddleware(req, res, next) {
     const { id } = req.params;
     const mod = await Module.findById(id);
     if (!mod) {
-      return res.status(404).json({ success: false, message: "Module not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Module not found" });
     }
 
     const course = await Course.findById(mod.courseId);
     if (!course) {
-      return res.status(404).json({ success: false, message: "Parent course not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Parent course not found" });
     }
 
     if (course.teacherId.toString() !== req.user._id.toString()) {
-      throw new ForbiddenError("Access denied: you do not own this module's course");
+      throw new ForbiddenError(
+        "Access denied: you do not own this module's course",
+      );
     }
 
     next();
@@ -238,21 +195,29 @@ export async function topicOwnershipMiddleware(req, res, next) {
     const { id } = req.params;
     const topic = await Topic.findById(id);
     if (!topic) {
-      return res.status(404).json({ success: false, message: "Topic not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Topic not found" });
     }
 
     const mod = await Module.findById(topic.moduleId);
     if (!mod) {
-      return res.status(404).json({ success: false, message: "Parent module not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Parent module not found" });
     }
 
     const course = await Course.findById(mod.courseId);
     if (!course) {
-      return res.status(404).json({ success: false, message: "Parent course not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Parent course not found" });
     }
 
     if (course.teacherId.toString() !== req.user._id.toString()) {
-      throw new ForbiddenError("Access denied: you do not own this topic's course");
+      throw new ForbiddenError(
+        "Access denied: you do not own this topic's course",
+      );
     }
 
     next();

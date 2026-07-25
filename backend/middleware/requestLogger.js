@@ -12,9 +12,10 @@ function resLogger(req, res, next, startedAt) {
   res.on("finish", () => {
     const ms = Date.now() - startedAt;
     // eslint-disable-next-line no-console
-    console.log(`[response] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${ms}ms)`);
+    console.log(
+      `[response] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${ms}ms)`,
+    );
   });
 
   next();
 }
-
