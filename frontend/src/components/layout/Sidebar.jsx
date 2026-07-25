@@ -236,7 +236,7 @@ export function Sidebar({
   // SIDEBAR CONTENT
   // ============================================
   const renderSidebarContent = () => (
-    <div className="flex h-full flex-col bg-base-100">
+    <div className="flex h-full flex-col bg-base-100 sticky top-0">
 
       {/* LOGO */}
       <div className="flex h-20 items-center justify-between border-b border-base-300 px-4">

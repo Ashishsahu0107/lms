@@ -207,3 +207,4 @@ Request → Route → Middleware → Controller → Service → Repository → M
 | Error  | Red     | 400/500   |
 | Warning| Yellow  | 409       |
 | Info   | Blue    | 404       |
+
