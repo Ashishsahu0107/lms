@@ -9,7 +9,11 @@ function logOtpToConsole(email, otp, subject) {
   console.log("==========================================");
 }
 
-export async function sendOtpEmail(email, otp, subject = "LMS Pro Security Verification") {
+export async function sendOtpEmail(
+  email,
+  otp,
+  subject = "LMS Pro Security Verification",
+) {
   try {
     // 1. Create a transporter using Ethereal or standard SMTP settings
     // In production, these variables would come from process.env (or Settings DB)
@@ -55,7 +59,10 @@ export async function sendOtpEmail(email, otp, subject = "LMS Pro Security Verif
     console.log(`Mail dispatched: ${info.messageId}`);
     return { success: true, info };
   } catch (error) {
-    console.error("Mailer encountered error, executing console fallback:", error.message);
+    console.error(
+      "Mailer encountered error, executing console fallback:",
+      error.message,
+    );
     logOtpToConsole(email, otp, subject);
     return { success: true, fallback: true, error: error.message };
   }
