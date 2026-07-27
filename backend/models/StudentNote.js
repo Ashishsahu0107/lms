@@ -34,7 +34,7 @@ const studentNoteSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Index for query optimization

@@ -34,7 +34,7 @@ const securityLogSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const SecurityLog = mongoose.model("SecurityLog", securityLogSchema);

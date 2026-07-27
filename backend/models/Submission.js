@@ -63,7 +63,7 @@ const submissionSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Ensure a student can only have a single submission per assignment
