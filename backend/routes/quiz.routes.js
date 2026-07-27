@@ -47,22 +47,62 @@ async function quizOwnershipMiddleware(req, res, next) {
 }
 
 // Question Bank endpoint (Browse past questions - must be placed before :id parameter route!)
-router.get("/bank/questions", authenticate, authorize("teacher", "super_admin"), getQuestionBankController);
+router.get(
+  "/bank/questions",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  getQuestionBankController,
+);
 
 // Public endpoints (Viewable by students, teachers, admins)
 router.get("/", authenticate, getQuizzesController);
 router.get("/:id", authenticate, getQuizByIdController);
 
 // Creation (Teacher / Admin-only)
-router.post("/", authenticate, authorize("teacher", "super_admin"), createQuizController);
+router.post(
+  "/",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  createQuizController,
+);
 
 // Cloning and Import Actions
-router.post("/:id/clone", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, cloneQuizController);
-router.post("/:id/import-questions", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, bulkImportQuestionsController);
+router.post(
+  "/:id/clone",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  quizOwnershipMiddleware,
+  cloneQuizController,
+);
+router.post(
+  "/:id/import-questions",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  quizOwnershipMiddleware,
+  bulkImportQuestionsController,
+);
 
 // Modification, Deletion, and Analytics (Teacher / Admin-only, verified by ownership)
-router.put("/:id", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, updateQuizController);
-router.delete("/:id", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, deleteQuizController);
-router.get("/:id/analytics", authenticate, authorize("teacher", "super_admin"), quizOwnershipMiddleware, getQuizAnalyticsController);
+router.put(
+  "/:id",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  quizOwnershipMiddleware,
+  updateQuizController,
+);
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  quizOwnershipMiddleware,
+  deleteQuizController,
+);
+router.get(
+  "/:id/analytics",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  quizOwnershipMiddleware,
+  getQuizAnalyticsController,
+);
 
 export default router;

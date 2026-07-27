@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { authenticate, authorize } from "../middleware/auth.js";
-import { getCalendarEvents, createSchedule, deleteSchedule } from "../controllers/schedule.controller.js";
+import {
+  getCalendarEvents,
+  createSchedule,
+  deleteSchedule,
+} from "../controllers/schedule.controller.js";
 
 const router = Router();
 

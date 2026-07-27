@@ -11,9 +11,24 @@ import {
 const router = Router();
 
 // Student-only attempt lifecycle
-router.post("/start", authenticate, authorize("student"), startAttemptController);
-router.post("/autosave", authenticate, authorize("student"), autosaveAttemptController);
-router.post("/submit", authenticate, authorize("student"), submitAttemptController);
+router.post(
+  "/start",
+  authenticate,
+  authorize("student"),
+  startAttemptController,
+);
+router.post(
+  "/autosave",
+  authenticate,
+  authorize("student"),
+  autosaveAttemptController,
+);
+router.post(
+  "/submit",
+  authenticate,
+  authorize("student"),
+  submitAttemptController,
+);
 
 // Attempts lists and audit reviews
 router.get("/quiz/:quizId", authenticate, getQuizAttemptsController);
