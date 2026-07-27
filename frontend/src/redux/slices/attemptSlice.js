@@ -14,9 +14,11 @@ export const startNewAttempt = createAsyncThunk(
       const res = await startAttempt(quizId);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to start quiz attempt");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to start quiz attempt",
+      );
     }
-  }
+  },
 );
 
 export const autosaveAttemptAnswers = createAsyncThunk(
@@ -28,7 +30,7 @@ export const autosaveAttemptAnswers = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Autosave failed");
     }
-  }
+  },
 );
 
 export const submitQuizAttempt = createAsyncThunk(
@@ -38,9 +40,11 @@ export const submitQuizAttempt = createAsyncThunk(
       const res = await submitAttempt(attemptId, payload);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Submission failed");
+      return rejectWithValue(
+        err.response?.data?.message || "Submission failed",
+      );
     }
-  }
+  },
 );
 
 export const fetchQuizAttempts = createAsyncThunk(
@@ -50,9 +54,11 @@ export const fetchQuizAttempts = createAsyncThunk(
       const res = await getQuizAttempts(quizId);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch attempts");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch attempts",
+      );
     }
-  }
+  },
 );
 
 export const fetchAttemptDetails = createAsyncThunk(
@@ -62,9 +68,11 @@ export const fetchAttemptDetails = createAsyncThunk(
       const res = await getAttemptDetails(attemptId);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch attempt details");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch attempt details",
+      );
     }
-  }
+  },
 );
 
 const initialState = {

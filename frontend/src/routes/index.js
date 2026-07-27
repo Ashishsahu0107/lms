@@ -1,5 +1,10 @@
 import { Suspense, lazy } from "react";
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 
 import RoleGuard from "../components/routeGuard/RoleGuard";
 import { ROLES } from "../constants/roles";
@@ -11,46 +16,84 @@ import { PageLoader } from "../components/ui/Spinner";
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 
 // Lazy load all student pages
-const StudentDashboard = lazy(() => import("../pages/student/dashboard/Dashboard"));
+const StudentDashboard = lazy(
+  () => import("../pages/student/dashboard/Dashboard"),
+);
 const MyCourses = lazy(() => import("../pages/student/courses/MyCourses"));
-const CourseDetails = lazy(() => import("../pages/student/courses/CourseDetails"));
-const CoursePlayer = lazy(() => import("../pages/student/courses/CoursePlayer"));
-const Assignments = lazy(() => import("../pages/student/assignments/Assignments"));
-const AssignmentDetails = lazy(() => import("../pages/student/assignments/AssignmentDetails"));
+const CourseDetails = lazy(
+  () => import("../pages/student/courses/CourseDetails"),
+);
+const CoursePlayer = lazy(
+  () => import("../pages/student/courses/CoursePlayer"),
+);
+const Assignments = lazy(
+  () => import("../pages/student/assignments/Assignments"),
+);
+const AssignmentDetails = lazy(
+  () => import("../pages/student/assignments/AssignmentDetails"),
+);
 const Quiz = lazy(() => import("../pages/student/quiz/Quiz"));
 const Messages = lazy(() => import("../pages/student/messages/Messages"));
-const Certificates = lazy(() => import("../pages/student/certificates/Certificates"));
+const Certificates = lazy(
+  () => import("../pages/student/certificates/Certificates"),
+);
 const Profile = lazy(() => import("../pages/student/profile/Profile"));
 const Settings = lazy(() => import("../pages/student/settings/Settings"));
-const MyAttendance = lazy(() => import("../pages/student/attendance/MyAttendance"));
-const StudentAttendanceCalendar = lazy(() => import("../pages/student/attendance/StudentAttendanceCalendar"));
-const ProgressAnalytics = lazy(() => import("../pages/student/dashboard/ProgressAnalytics"));
+const MyAttendance = lazy(
+  () => import("../pages/student/attendance/MyAttendance"),
+);
+const StudentAttendanceCalendar = lazy(
+  () => import("../pages/student/attendance/StudentAttendanceCalendar"),
+);
+const ProgressAnalytics = lazy(
+  () => import("../pages/student/dashboard/ProgressAnalytics"),
+);
 
 // Lazy load public pages
-const VerifyCertificate = lazy(() => import("../pages/shared/VerifyCertificate"));
+const VerifyCertificate = lazy(
+  () => import("../pages/shared/VerifyCertificate"),
+);
 
 // Lazy load teacher pages
-const TeacherDashboard = lazy(() => import("../pages/teacher/dashboard/TeacherDashboard"));
-const CourseManagement = lazy(() => import("../pages/teacher/courses/CourseManagement"));
-const TeacherQuizzes = lazy(() => import("../pages/teacher/quizzes/TeacherQuizManagement"));
-const TeacherAssignments = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentManagement"));
-const TeacherAssignmentDetails = lazy(() => import("../pages/teacher/assignments/TeacherAssignmentDetails"));
-const TeacherProgress = lazy(() => import("../pages/teacher/progress/TeacherStudentProgress"));
-const DailyAttendance = lazy(() => import("../pages/teacher/attendance/DailyAttendance"));
-const AttendanceHistory = lazy(() => import("../pages/teacher/attendance/AttendanceHistory"));
-const CourseAttendanceReport = lazy(() => import("../pages/teacher/attendance/CourseAttendanceReport"));
+const TeacherDashboard = lazy(
+  () => import("../pages/teacher/dashboard/TeacherDashboard"),
+);
+const CourseManagement = lazy(
+  () => import("../pages/teacher/courses/CourseManagement"),
+);
+const TeacherQuizzes = lazy(
+  () => import("../pages/teacher/quizzes/TeacherQuizManagement"),
+);
+const TeacherAssignments = lazy(
+  () => import("../pages/teacher/assignments/TeacherAssignmentManagement"),
+);
+const TeacherAssignmentDetails = lazy(
+  () => import("../pages/teacher/assignments/TeacherAssignmentDetails"),
+);
+const TeacherProgress = lazy(
+  () => import("../pages/teacher/progress/TeacherStudentProgress"),
+);
+const DailyAttendance = lazy(
+  () => import("../pages/teacher/attendance/DailyAttendance"),
+);
+const AttendanceHistory = lazy(
+  () => import("../pages/teacher/attendance/AttendanceHistory"),
+);
+const CourseAttendanceReport = lazy(
+  () => import("../pages/teacher/attendance/CourseAttendanceReport"),
+);
 
 // Lazy load admin pages
-const AdminDashboard = lazy(() => import("../pages/admin/dashboard/AdminDashboard"));
-const UserManagement = lazy(() => import("../pages/admin/users/UserManagement"));
+const AdminDashboard = lazy(
+  () => import("../pages/admin/dashboard/AdminDashboard"),
+);
+const UserManagement = lazy(
+  () => import("../pages/admin/users/UserManagement"),
+);
 
 // Page wrapper with loading state
 function PageWrapper({ children }) {
-  return (
-    <Suspense fallback={<PageLoader />}>
-      {children}
-    </Suspense>
-  );
+  return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
 }
 
 // Student route config

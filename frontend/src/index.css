@@ -1,12 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
 @plugin "flyonui" {
-  themes: luxury --default, dark, corporate, business;
+  themes:
+    luxury --default,
+    dark,
+    corporate,
+    business;
 }
 @import "flyonui/variants.css";
-
 
 /* ======================================================
    LMS PRO — LUXURY DARK GOLD THEME
@@ -15,41 +18,41 @@
 ====================================================== */
 
 :root {
-  --gold:           201 162 39;
-  --gold-light:     245 158 11;
-  --gold-dark:      161 117 16;
+  --gold: 201 162 39;
+  --gold-light: 245 158 11;
+  --gold-dark: 161 117 16;
 
-  --background:     15 23 42;
-  --foreground:     255 255 255;
+  --background: 15 23 42;
+  --foreground: 255 255 255;
 
-  --card:           30 41 59;
-  --card-foreground:255 255 255;
+  --card: 30 41 59;
+  --card-foreground: 255 255 255;
 
-  --popover:        30 41 59;
+  --popover: 30 41 59;
   --popover-foreground: 255 255 255;
 
-  --primary:        201 162 39;
+  --primary: 201 162 39;
   --primary-foreground: 15 23 42;
 
-  --secondary:      30 41 59;
+  --secondary: 30 41 59;
   --secondary-foreground: 203 213 225;
 
-  --muted:          30 41 59;
+  --muted: 30 41 59;
   --muted-foreground: 148 163 184;
 
-  --accent:         245 158 11;
+  --accent: 245 158 11;
   --accent-foreground: 15 23 42;
 
-  --destructive:    239 68 68;
+  --destructive: 239 68 68;
   --destructive-foreground: 255 255 255;
 
-  --success:        16 185 129;
-  --warning:        245 158 11;
-  --info:           99 102 241;
+  --success: 16 185 129;
+  --warning: 245 158 11;
+  --info: 99 102 241;
 
-  --border:         rgba(201, 162, 39, 0.15);
-  --input:          rgba(201, 162, 39, 0.1);
-  --ring:           201 162 39;
+  --border: rgba(201, 162, 39, 0.15);
+  --input: rgba(201, 162, 39, 0.1);
+  --ring: 201 162 39;
 
   --radius: 1rem;
 
@@ -112,7 +115,6 @@
 ====================================================== */
 
 @layer base {
-
   * {
     @apply border-border;
     box-sizing: border-box;
@@ -123,23 +125,36 @@
   }
 
   body {
-    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    font-family: "Outfit", "Inter", system-ui, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
     overscroll-behavior: none;
     @apply bg-base-200 text-base-content transition-colors duration-300;
     background-image:
-      radial-gradient(ellipse at top left, rgba(201, 162, 39, 0.04) 0%, transparent 50%),
-      radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.02) 0%, transparent 50%);
+      radial-gradient(
+        ellipse at top left,
+        rgba(201, 162, 39, 0.04) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse at bottom right,
+        rgba(245, 158, 11, 0.02) 0%,
+        transparent 50%
+      );
   }
 
   ::selection {
     background-color: rgba(201, 162, 39, 0.3);
-    color: #C9A227;
+    color: #c9a227;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Outfit", "Inter", system-ui, sans-serif;
     @apply font-semibold tracking-tight;
   }
 
@@ -162,12 +177,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #C9A227, #F59E0B);
+  background: linear-gradient(to bottom, #c9a227, #f59e0b);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #F59E0B, #C9A227);
+  background: linear-gradient(to bottom, #f59e0b, #c9a227);
 }
 
 /* ======================================================
@@ -175,17 +190,16 @@
 ====================================================== */
 
 @layer utilities {
-
   /* ---- GOLD TEXT GRADIENT ---- */
   .text-gold {
-    background: linear-gradient(135deg, #C9A227, #F59E0B, #C9A227);
+    background: linear-gradient(135deg, #c9a227, #f59e0b, #c9a227);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .text-gold-solid {
-    color: #C9A227;
+    color: #c9a227;
   }
 
   /* ---- LUXURY GLASS CARD ---- */
@@ -216,22 +230,28 @@
 
   /* ---- GOLD GLOW EFFECTS ---- */
   .gold-glow {
-    box-shadow: 0 0 20px rgba(201, 162, 39, 0.4), 0 0 60px rgba(201, 162, 39, 0.1);
+    box-shadow:
+      0 0 20px rgba(201, 162, 39, 0.4),
+      0 0 60px rgba(201, 162, 39, 0.1);
   }
 
   .gold-glow-sm {
-    box-shadow: 0 0 10px rgba(201, 162, 39, 0.3), 0 4px 15px rgba(201, 162, 39, 0.1);
+    box-shadow:
+      0 0 10px rgba(201, 162, 39, 0.3),
+      0 4px 15px rgba(201, 162, 39, 0.1);
   }
 
   .gold-glow-hover:hover {
-    box-shadow: 0 0 25px rgba(201, 162, 39, 0.5), 0 0 80px rgba(201, 162, 39, 0.15);
+    box-shadow:
+      0 0 25px rgba(201, 162, 39, 0.5),
+      0 0 80px rgba(201, 162, 39, 0.15);
   }
 
   /* ---- LUXURY BUTTONS ---- */
   .btn-luxury {
-    background: linear-gradient(135deg, #C9A227 0%, #F59E0B 50%, #C9A227 100%);
+    background: linear-gradient(135deg, #c9a227 0%, #f59e0b 50%, #c9a227 100%);
     background-size: 200% 100%;
-    color: #0F172A;
+    color: #0f172a;
     font-weight: 700;
     border-radius: 9999px;
     border: none;
@@ -247,7 +267,7 @@
 
   .btn-luxury-outline {
     background: transparent;
-    color: #C9A227;
+    color: #c9a227;
     font-weight: 700;
     border-radius: 9999px;
     border: 1.5px solid rgba(201, 162, 39, 0.5);
@@ -256,22 +276,22 @@
 
   .btn-luxury-outline:hover {
     background: rgba(201, 162, 39, 0.1);
-    border-color: #C9A227;
+    border-color: #c9a227;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(201, 162, 39, 0.2);
   }
 
   /* ---- GRADIENT BACKGROUNDS ---- */
   .bg-luxury {
-    background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
   }
 
   .bg-gold-gradient {
-    background: linear-gradient(135deg, #C9A227 0%, #F59E0B 100%);
+    background: linear-gradient(135deg, #c9a227 0%, #f59e0b 100%);
   }
 
   .bg-dark-gradient {
-    background: linear-gradient(135deg, #0F172A 0%, #0B1120 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #0b1120 100%);
   }
 
   /* ---- BORDER GOLD ---- */
@@ -280,14 +300,18 @@
   }
 
   .border-gold-bright {
-    border-color: #C9A227;
+    border-color: #c9a227;
   }
 
   /* ---- ORB / GLOW DECORATIONS ---- */
   .orb-gold {
     position: absolute;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(201, 162, 39, 0.15) 0%, transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(201, 162, 39, 0.15) 0%,
+      transparent 70%
+    );
     filter: blur(40px);
     pointer-events: none;
   }
@@ -299,7 +323,9 @@
 
   .hover-lift:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(201, 162, 39, 0.1);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(201, 162, 39, 0.1);
   }
 
   /* ---- GOLD PROGRESS BAR ---- */
@@ -309,14 +335,14 @@
   }
 
   .progress-gold::-webkit-progress-value {
-    background: linear-gradient(90deg, #C9A227, #F59E0B);
+    background: linear-gradient(90deg, #c9a227, #f59e0b);
     border-radius: 9999px;
   }
 
   /* ---- LUXURY BADGE ---- */
   .badge-luxury {
     background: rgba(201, 162, 39, 0.15);
-    color: #C9A227;
+    color: #c9a227;
     border: 1px solid rgba(201, 162, 39, 0.3);
     border-radius: 9999px;
     font-weight: 600;
@@ -356,11 +382,26 @@
   }
 
   /* ---- STAGGER CLASSES ---- */
-  .stagger-1 { animation-delay: 0.1s; opacity: 0; }
-  .stagger-2 { animation-delay: 0.2s; opacity: 0; }
-  .stagger-3 { animation-delay: 0.3s; opacity: 0; }
-  .stagger-4 { animation-delay: 0.4s; opacity: 0; }
-  .stagger-5 { animation-delay: 0.5s; opacity: 0; }
+  .stagger-1 {
+    animation-delay: 0.1s;
+    opacity: 0;
+  }
+  .stagger-2 {
+    animation-delay: 0.2s;
+    opacity: 0;
+  }
+  .stagger-3 {
+    animation-delay: 0.3s;
+    opacity: 0;
+  }
+  .stagger-4 {
+    animation-delay: 0.4s;
+    opacity: 0;
+  }
+  .stagger-5 {
+    animation-delay: 0.5s;
+    opacity: 0;
+  }
 
   /* ---- SCROLLBAR NONE ---- */
   .scrollbar-none {
@@ -378,47 +419,90 @@
 ====================================================== */
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes pulseGold {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(201, 162, 39, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(201, 162, 39, 0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-24px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes rotateIn {
-  from { opacity: 0; transform: rotate(-5deg) scale(0.95); }
-  to { opacity: 1; transform: rotate(0deg) scale(1); }
+  from {
+    opacity: 0;
+    transform: rotate(-5deg) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
 }
 
 @keyframes goldOrb {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
     opacity: 0.6;
   }
@@ -455,15 +539,20 @@
 }
 
 /* Inputs Token */
-.input, .textarea, .select {
+.input,
+.textarea,
+.select {
   @apply !bg-base-100 !text-base-content !border !border-base-300/60 !rounded-xl !transition-all !duration-200;
 }
 
-.input:focus, .textarea:focus, .select:focus {
+.input:focus,
+.textarea:focus,
+.select:focus {
   @apply !border-primary !ring-2 !ring-primary/20 !outline-none;
 }
 
-.input::placeholder, .textarea::placeholder {
+.input::placeholder,
+.textarea::placeholder {
   @apply !text-base-content/40;
 }
 
@@ -487,7 +576,8 @@
 }
 
 /* Divider Token */
-.divider:before, .divider:after {
+.divider:before,
+.divider:after {
   @apply !bg-base-300/40;
 }
 
@@ -540,7 +630,7 @@
     margin: 0 !important;
     padding: 0 !important;
   }
-  
+
   /* Hide all dashboard layout elements, sidebar, header, navigation, and trigger buttons */
   aside,
   header,

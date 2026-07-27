@@ -9,23 +9,35 @@ export const fetchNotes = createAsyncThunk(
       const res = await apiGet(`/student/notes/${courseId}`);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load notes");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load notes",
+      );
     }
-  }
+  },
 );
 
 export const saveNote = createAsyncThunk(
   "notes/saveNote",
-  async ({ courseId, topicId, content, videoPosition }, { dispatch, rejectWithValue }) => {
+  async (
+    { courseId, topicId, content, videoPosition },
+    { dispatch, rejectWithValue },
+  ) => {
     try {
-      const res = await apiPost("/student/notes", { courseId, topicId, content, videoPosition });
+      const res = await apiPost("/student/notes", {
+        courseId,
+        topicId,
+        content,
+        videoPosition,
+      });
       // Sync into the active player slice state as well
       dispatch(localNotesAdded(res.data.data));
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to save note");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to save note",
+      );
     }
-  }
+  },
 );
 
 const initialState = {

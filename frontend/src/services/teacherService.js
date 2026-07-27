@@ -51,8 +51,17 @@ export async function deleteAssignment(id) {
   return apiDelete(`/teacher/assignments/${id}`);
 }
 
-export async function gradeSubmission(assignmentId, studentId, grade, feedback) {
-  return apiPost(`/teacher/assignments/${assignmentId}/grade`, { studentId, grade, feedback });
+export async function gradeSubmission(
+  assignmentId,
+  studentId,
+  grade,
+  feedback,
+) {
+  return apiPost(`/teacher/assignments/${assignmentId}/grade`, {
+    studentId,
+    grade,
+    feedback,
+  });
 }
 
 // Quizzes

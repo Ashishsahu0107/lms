@@ -5,4 +5,3 @@ export function slugify(input = "") {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
-

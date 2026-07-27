@@ -8,13 +8,13 @@ export function useTheme() {
   const theme = useSelector((state) => state.theme.theme);
 
   // Helper to determine if dark mode is visually active right now
-  const isDarkMode = 
-    theme === "dark" || 
+  const isDarkMode =
+    theme === "dark" ||
     theme === "luxury" ||
     theme === "business" ||
-    (theme === "system" && 
-     typeof window !== "undefined" && 
-     window.matchMedia("(prefers-color-scheme: dark)").matches);
+    (theme === "system" &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   const handleSetTheme = (newTheme) => {
     dispatch(setTheme(newTheme));

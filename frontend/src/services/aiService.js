@@ -12,7 +12,13 @@ export async function aiAssistantChat(prompt) {
   return apiPost("/ai/assistant", { prompt });
 }
 
-export async function aiChat(prompt, courseId, moduleId, topicId, option = "ask") {
+export async function aiChat(
+  prompt,
+  courseId,
+  moduleId,
+  topicId,
+  option = "ask",
+) {
   return apiPost("/ai/chat", { prompt, courseId, moduleId, topicId, option });
 }
 
@@ -48,4 +54,3 @@ export async function retryAiChat(chatId) {
   const res = await apiPost(`/ai/chats/${chatId}/retry`);
   return res.data;
 }
-

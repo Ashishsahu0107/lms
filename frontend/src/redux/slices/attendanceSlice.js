@@ -10,9 +10,11 @@ export const createSession = createAsyncThunk(
       const res = await attendanceService.createAttendanceSession(data);
       return res.data?.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to create session");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create session",
+      );
     }
-  }
+  },
 );
 
 export const fetchCourseSessions = createAsyncThunk(
@@ -22,9 +24,11 @@ export const fetchCourseSessions = createAsyncThunk(
       const res = await attendanceService.getCourseAttendanceSessions(courseId);
       return res.data?.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch sessions");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch sessions",
+      );
     }
-  }
+  },
 );
 
 export const deleteSession = createAsyncThunk(
@@ -34,21 +38,29 @@ export const deleteSession = createAsyncThunk(
       await attendanceService.deleteAttendanceSession(sessionId);
       return sessionId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete session");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete session",
+      );
     }
-  }
+  },
 );
 
 export const fetchSessionStudents = createAsyncThunk(
   "attendance/fetchSessionStudents",
   async ({ courseId, date, sessionId }, { rejectWithValue }) => {
     try {
-      const res = await attendanceService.getCourseAttendanceStudents(courseId, date, sessionId);
+      const res = await attendanceService.getCourseAttendanceStudents(
+        courseId,
+        date,
+        sessionId,
+      );
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load students");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load students",
+      );
     }
-  }
+  },
 );
 
 export const markAttendance = createAsyncThunk(
@@ -58,9 +70,11 @@ export const markAttendance = createAsyncThunk(
       const res = await attendanceService.markDailyAttendance(data);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to save attendance");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to save attendance",
+      );
     }
-  }
+  },
 );
 
 export const fetchAttendanceStats = createAsyncThunk(
@@ -70,9 +84,11 @@ export const fetchAttendanceStats = createAsyncThunk(
       const res = await attendanceService.getAttendanceStats();
       return res.data?.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load stats");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load stats",
+      );
     }
-  }
+  },
 );
 
 export const fetchMyAttendance = createAsyncThunk(
@@ -82,9 +98,11 @@ export const fetchMyAttendance = createAsyncThunk(
       const res = await attendanceService.getMyAttendance(params);
       return res.data?.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load attendance logs");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load attendance logs",
+      );
     }
-  }
+  },
 );
 
 export const fetchMyAttendanceCalendar = createAsyncThunk(
@@ -94,9 +112,11 @@ export const fetchMyAttendanceCalendar = createAsyncThunk(
       const res = await attendanceService.getMyAttendanceCalendar(params);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load calendar");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load calendar",
+      );
     }
-  }
+  },
 );
 
 export const fetchMyAttendancePercentage = createAsyncThunk(
@@ -106,9 +126,11 @@ export const fetchMyAttendancePercentage = createAsyncThunk(
       const res = await attendanceService.getMyAttendancePercentage();
       return res.data?.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load percentages");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load percentages",
+      );
     }
-  }
+  },
 );
 
 export const fetchAdminAttendanceAnalytics = createAsyncThunk(
@@ -118,9 +140,11 @@ export const fetchAdminAttendanceAnalytics = createAsyncThunk(
       const res = await attendanceService.getAdminAttendanceAnalytics();
       return res.data?.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load admin analytics");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load admin analytics",
+      );
     }
-  }
+  },
 );
 
 // ── Slice Definition ─────────────────────────────────────────────────────────

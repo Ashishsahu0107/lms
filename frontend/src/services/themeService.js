@@ -20,7 +20,7 @@ export const themeService = {
 
   /**
    * Saves the theme setting in localStorage
-   * @param {string} theme 
+   * @param {string} theme
    */
   setTheme(theme) {
     if (typeof window === "undefined") return;
@@ -34,22 +34,24 @@ export const themeService = {
   /**
    * Applies the theme to the root element.
    * Uses "luxury" as the default theme name for dark/system-dark mode.
-   * @param {string} theme 
+   * @param {string} theme
    */
   applyTheme(theme) {
     if (typeof window === "undefined") return;
     try {
       const root = document.documentElement;
-      
+
       let activeTheme = theme;
       if (theme === "system") {
-        const isSystemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isSystemDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
         activeTheme = isSystemDark ? "luxury" : "light";
       }
 
       // Configure Tailwind classes and FlyonUI themes
       root.setAttribute("data-theme", activeTheme);
-      
+
       const darkThemes = ["luxury", "dark", "business"];
       if (darkThemes.includes(activeTheme)) {
         root.classList.add("dark");
@@ -59,7 +61,7 @@ export const themeService = {
     } catch (e) {
       console.error("Error applying theme to DOM:", e);
     }
-  }
+  },
 };
 
 export default themeService;

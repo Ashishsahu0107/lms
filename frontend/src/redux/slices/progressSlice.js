@@ -1,5 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getProgressDetails, getStudentAnalyticsInsights } from "../../services/studentService";
+import {
+  getProgressDetails,
+  getStudentAnalyticsInsights,
+} from "../../services/studentService";
 import { getPerformanceAnalytics } from "../../services/adminAnalyticsService";
 
 export const fetchProgressDetails = createAsyncThunk(
@@ -9,9 +12,12 @@ export const fetchProgressDetails = createAsyncThunk(
       const res = await getProgressDetails(courseId);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch course progress details");
+      return rejectWithValue(
+        err.response?.data?.message ||
+          "Failed to fetch course progress details",
+      );
     }
-  }
+  },
 );
 
 export const fetchStudentInsights = createAsyncThunk(
@@ -21,9 +27,12 @@ export const fetchStudentInsights = createAsyncThunk(
       const res = await getStudentAnalyticsInsights();
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch student learning insights");
+      return rejectWithValue(
+        err.response?.data?.message ||
+          "Failed to fetch student learning insights",
+      );
     }
-  }
+  },
 );
 
 export const fetchLeaderboard = createAsyncThunk(
@@ -33,9 +42,11 @@ export const fetchLeaderboard = createAsyncThunk(
       const res = await getPerformanceAnalytics({ courseId });
       return res.data.leaderboard || [];
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch leaderboard rankings");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch leaderboard rankings",
+      );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -57,7 +68,7 @@ const progressSlice = createSlice({
     },
     resetProgressDetails: (state) => {
       state.progressDetails = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -105,5 +116,6 @@ const progressSlice = createSlice({
   },
 });
 
-export const { clearProgressState, resetProgressDetails } = progressSlice.actions;
+export const { clearProgressState, resetProgressDetails } =
+  progressSlice.actions;
 export default progressSlice.reducer;

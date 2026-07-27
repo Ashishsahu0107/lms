@@ -9,11 +9,15 @@ export const fetchNotifications = createAsyncThunk(
       if (res.data?.success) {
         return res.data.data;
       }
-      return rejectWithValue(res.data?.message || "Failed to fetch notifications");
+      return rejectWithValue(
+        res.data?.message || "Failed to fetch notifications",
+      );
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch notifications");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch notifications",
+      );
     }
-  }
+  },
 );
 
 export const markNotificationRead = createAsyncThunk(
@@ -26,9 +30,11 @@ export const markNotificationRead = createAsyncThunk(
       }
       return rejectWithValue(res.data?.message || "Failed to mark read");
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to mark read");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to mark read",
+      );
     }
-  }
+  },
 );
 
 export const markAllNotificationsRead = createAsyncThunk(
@@ -41,9 +47,11 @@ export const markAllNotificationsRead = createAsyncThunk(
       }
       return rejectWithValue(res.data?.message || "Failed to mark all read");
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to mark all read");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to mark all read",
+      );
     }
-  }
+  },
 );
 
 export const deleteNotification = createAsyncThunk(
@@ -54,11 +62,15 @@ export const deleteNotification = createAsyncThunk(
       if (res.data?.success) {
         return id;
       }
-      return rejectWithValue(res.data?.message || "Failed to delete notification");
+      return rejectWithValue(
+        res.data?.message || "Failed to delete notification",
+      );
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete notification");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete notification",
+      );
     }
-  }
+  },
 );
 
 const notificationSlice = createSlice({
@@ -70,7 +82,9 @@ const notificationSlice = createSlice({
   },
   reducers: {
     addNotification: (state, action) => {
-      const exists = state.notifications.some(n => n._id === action.payload._id);
+      const exists = state.notifications.some(
+        (n) => n._id === action.payload._id,
+      );
       if (!exists) {
         state.notifications.unshift(action.payload);
         state.unreadCount += 1;
@@ -95,13 +109,16 @@ const notificationSlice = createSlice({
       .addCase(markNotificationRead.fulfilled, (state, action) => {
         const id = action.payload;
         state.notifications = state.notifications.map((n) =>
-          n._id === id ? { ...n, read: true } : n
+          n._id === id ? { ...n, read: true } : n,
         );
         state.unreadCount = Math.max(0, state.unreadCount - 1);
       })
       // Mark All Read
       .addCase(markAllNotificationsRead.fulfilled, (state) => {
-        state.notifications = state.notifications.map((n) => ({ ...n, read: true }));
+        state.notifications = state.notifications.map((n) => ({
+          ...n,
+          read: true,
+        }));
         state.unreadCount = 0;
       })
       // Delete Notification

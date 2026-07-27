@@ -15,4 +15,3 @@ export async function getSubmissionById(submissionId) {
 export async function gradeSubmission(submissionId, data) {
   return apiPut(`/submissions/${submissionId}/review`, data);
 }
-

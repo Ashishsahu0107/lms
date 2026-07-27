@@ -28,5 +28,3 @@ export const store = configureStore({
     theme: themeReducer,
   },
 });
-
-

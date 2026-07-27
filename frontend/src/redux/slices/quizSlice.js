@@ -19,9 +19,11 @@ export const fetchQuizzes = createAsyncThunk(
       const res = await getQuizzes(params);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch quizzes");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch quizzes",
+      );
     }
-  }
+  },
 );
 
 export const fetchQuizById = createAsyncThunk(
@@ -31,9 +33,11 @@ export const fetchQuizById = createAsyncThunk(
       const res = await getQuizById(id);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch quiz");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch quiz",
+      );
     }
-  }
+  },
 );
 
 export const addQuiz = createAsyncThunk(
@@ -43,9 +47,11 @@ export const addQuiz = createAsyncThunk(
       const res = await createQuiz(data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to create quiz");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create quiz",
+      );
     }
-  }
+  },
 );
 
 export const editQuiz = createAsyncThunk(
@@ -55,9 +61,11 @@ export const editQuiz = createAsyncThunk(
       const res = await updateQuiz(id, data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to update quiz");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update quiz",
+      );
     }
-  }
+  },
 );
 
 export const removeQuiz = createAsyncThunk(
@@ -67,9 +75,11 @@ export const removeQuiz = createAsyncThunk(
       await deleteQuiz(id);
       return id;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete quiz");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete quiz",
+      );
     }
-  }
+  },
 );
 
 export const cloneQuiz = createAsyncThunk(
@@ -79,9 +89,11 @@ export const cloneQuiz = createAsyncThunk(
       const res = await cloneQuizApi(id);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to clone quiz");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to clone quiz",
+      );
     }
-  }
+  },
 );
 
 export const bulkImportQuestions = createAsyncThunk(
@@ -91,9 +103,11 @@ export const bulkImportQuestions = createAsyncThunk(
       const res = await bulkImportQuestionsApi(id, questions);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to import questions");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to import questions",
+      );
     }
-  }
+  },
 );
 
 export const fetchQuestionBank = createAsyncThunk(
@@ -103,9 +117,11 @@ export const fetchQuestionBank = createAsyncThunk(
       const res = await getQuestionBankApi();
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch question bank");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch question bank",
+      );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -187,7 +203,7 @@ const quizSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.quizzes = state.quizzes.map((q) =>
-          q._id === action.payload._id ? action.payload : q
+          q._id === action.payload._id ? action.payload : q,
         );
         if (state.currentQuiz?._id === action.payload._id) {
           state.currentQuiz = action.payload;

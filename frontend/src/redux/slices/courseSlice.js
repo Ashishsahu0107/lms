@@ -6,8 +6,16 @@ import {
   updateCourse,
   deleteCourse,
 } from "../../services/courseService";
-import { createModule, updateModule, deleteModule } from "../../services/moduleService";
-import { createTopic, updateTopic, deleteTopic } from "../../services/topicService";
+import {
+  createModule,
+  updateModule,
+  deleteModule,
+} from "../../services/moduleService";
+import {
+  createTopic,
+  updateTopic,
+  deleteTopic,
+} from "../../services/topicService";
 
 // ─── Thunks: Courses ──────────────────────────────────────────────────────────
 
@@ -18,9 +26,11 @@ export const fetchCourses = createAsyncThunk(
       const res = await getCourses(params);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch courses");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch courses",
+      );
     }
-  }
+  },
 );
 
 export const fetchCourseById = createAsyncThunk(
@@ -30,9 +40,11 @@ export const fetchCourseById = createAsyncThunk(
       const res = await getCourseById(id);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch course");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch course",
+      );
     }
-  }
+  },
 );
 
 export const addCourse = createAsyncThunk(
@@ -43,9 +55,11 @@ export const addCourse = createAsyncThunk(
       const res = await createCourse(data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to create course");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create course",
+      );
     }
-  }
+  },
 );
 
 export const editCourse = createAsyncThunk(
@@ -56,9 +70,11 @@ export const editCourse = createAsyncThunk(
       const res = await updateCourse(id, data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to update course");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update course",
+      );
     }
-  }
+  },
 );
 
 export const removeCourse = createAsyncThunk(
@@ -68,9 +84,11 @@ export const removeCourse = createAsyncThunk(
       await deleteCourse(id);
       return id;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete course");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete course",
+      );
     }
-  }
+  },
 );
 
 // ─── Thunks: Modules ──────────────────────────────────────────────────────────
@@ -83,9 +101,11 @@ export const addModule = createAsyncThunk(
       await dispatch(fetchCourseById(data.courseId));
       return data.courseId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to create module");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create module",
+      );
     }
-  }
+  },
 );
 
 export const editModule = createAsyncThunk(
@@ -96,9 +116,11 @@ export const editModule = createAsyncThunk(
       await dispatch(fetchCourseById(courseId));
       return courseId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to update module");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update module",
+      );
     }
-  }
+  },
 );
 
 export const removeModule = createAsyncThunk(
@@ -109,9 +131,11 @@ export const removeModule = createAsyncThunk(
       await dispatch(fetchCourseById(courseId));
       return courseId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete module");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete module",
+      );
     }
-  }
+  },
 );
 
 // ─── Thunks: Topics ───────────────────────────────────────────────────────────
@@ -124,9 +148,11 @@ export const addTopic = createAsyncThunk(
       await dispatch(fetchCourseById(courseId));
       return courseId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to create topic");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create topic",
+      );
     }
-  }
+  },
 );
 
 export const editTopic = createAsyncThunk(
@@ -137,9 +163,11 @@ export const editTopic = createAsyncThunk(
       await dispatch(fetchCourseById(courseId));
       return courseId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to update topic");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update topic",
+      );
     }
-  }
+  },
 );
 
 export const removeTopic = createAsyncThunk(
@@ -150,14 +178,23 @@ export const removeTopic = createAsyncThunk(
       await dispatch(fetchCourseById(courseId));
       return courseId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete topic");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete topic",
+      );
     }
-  }
+  },
 );
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
 
-const mutatingThunks = [addModule, editModule, removeModule, addTopic, editTopic, removeTopic];
+const mutatingThunks = [
+  addModule,
+  editModule,
+  removeModule,
+  addTopic,
+  editTopic,
+  removeTopic,
+];
 
 const courseSlice = createSlice({
   name: "courses",
@@ -184,60 +221,99 @@ const courseSlice = createSlice({
   extraReducers: (builder) => {
     // ── fetchCourses
     builder
-      .addCase(fetchCourses.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(fetchCourses.fulfilled, (state, action) => { state.loading = false; state.list = action.payload; })
-      .addCase(fetchCourses.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+      .addCase(fetchCourses.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCourses.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = action.payload;
+      })
+      .addCase(fetchCourses.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
     // ── fetchCourseById
     builder
-      .addCase(fetchCourseById.pending, (state) => { state.loading = true; })
+      .addCase(fetchCourseById.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchCourseById.fulfilled, (state, action) => {
         state.loading = false;
         state.activeCourse = action.payload;
         const idx = state.list.findIndex((c) => c._id === action.payload._id);
         if (idx !== -1) state.list[idx] = action.payload;
       })
-      .addCase(fetchCourseById.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+      .addCase(fetchCourseById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
 
     // ── addCourse
     builder
-      .addCase(addCourse.pending, (state) => { state.submitting = true; })
+      .addCase(addCourse.pending, (state) => {
+        state.submitting = true;
+      })
       .addCase(addCourse.fulfilled, (state, action) => {
         state.submitting = false;
         state.list.unshift(action.payload);
       })
-      .addCase(addCourse.rejected, (state, action) => { state.submitting = false; state.error = action.payload; });
+      .addCase(addCourse.rejected, (state, action) => {
+        state.submitting = false;
+        state.error = action.payload;
+      });
 
     // ── editCourse
     builder
-      .addCase(editCourse.pending, (state) => { state.submitting = true; })
+      .addCase(editCourse.pending, (state) => {
+        state.submitting = true;
+      })
       .addCase(editCourse.fulfilled, (state, action) => {
         state.submitting = false;
         const idx = state.list.findIndex((c) => c._id === action.payload._id);
         if (idx !== -1) state.list[idx] = action.payload;
-        if (state.activeCourse?._id === action.payload._id) state.activeCourse = action.payload;
+        if (state.activeCourse?._id === action.payload._id)
+          state.activeCourse = action.payload;
       })
-      .addCase(editCourse.rejected, (state, action) => { state.submitting = false; state.error = action.payload; });
+      .addCase(editCourse.rejected, (state, action) => {
+        state.submitting = false;
+        state.error = action.payload;
+      });
 
     // ── removeCourse
     builder
-      .addCase(removeCourse.pending, (state) => { state.submitting = true; })
+      .addCase(removeCourse.pending, (state) => {
+        state.submitting = true;
+      })
       .addCase(removeCourse.fulfilled, (state, action) => {
         state.submitting = false;
         state.list = state.list.filter((c) => c._id !== action.payload);
-        if (state.activeCourse?._id === action.payload) state.activeCourse = null;
+        if (state.activeCourse?._id === action.payload)
+          state.activeCourse = null;
       })
-      .addCase(removeCourse.rejected, (state, action) => { state.submitting = false; state.error = action.payload; });
+      .addCase(removeCourse.rejected, (state, action) => {
+        state.submitting = false;
+        state.error = action.payload;
+      });
 
     // ── Module & Topic mutating thunks (shared pending/rejected/fulfilled)
     mutatingThunks.forEach((thunk) => {
       builder
-        .addCase(thunk.pending, (state) => { state.submitting = true; })
-        .addCase(thunk.fulfilled, (state) => { state.submitting = false; })
-        .addCase(thunk.rejected, (state, action) => { state.submitting = false; state.error = action.payload; });
+        .addCase(thunk.pending, (state) => {
+          state.submitting = true;
+        })
+        .addCase(thunk.fulfilled, (state) => {
+          state.submitting = false;
+        })
+        .addCase(thunk.rejected, (state, action) => {
+          state.submitting = false;
+          state.error = action.payload;
+        });
     });
   },
 });
 
-export const { clearActiveCourse, clearError, setActiveCourse } = courseSlice.actions;
+export const { clearActiveCourse, clearError, setActiveCourse } =
+  courseSlice.actions;
 export default courseSlice.reducer;

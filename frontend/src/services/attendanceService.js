@@ -13,7 +13,8 @@ export const getCourseAttendanceStudents = (courseId, date) =>
  * Save daily attendance register for a course
  * POST /api/attendance/mark-daily
  */
-export const markDailyAttendance = (data) => apiPost("/attendance/mark-daily", data);
+export const markDailyAttendance = (data) =>
+  apiPost("/attendance/mark-daily", data);
 
 /**
  * Update a single attendance record
@@ -48,7 +49,8 @@ export const getAttendanceStats = () => apiGet("/attendance/stats");
  * Get student's own attendance records
  * GET /api/student/attendance?courseId=&from=&to=
  */
-export const getMyAttendance = (params = {}) => apiGet("/student/attendance", params);
+export const getMyAttendance = (params = {}) =>
+  apiGet("/student/attendance", params);
 
 /**
  * Get student's monthly attendance calendar
@@ -61,7 +63,8 @@ export const getMyAttendanceCalendar = (params = {}) =>
  * Get student's per-course attendance percentages
  * GET /api/student/attendance/percentage
  */
-export const getMyAttendancePercentage = () => apiGet("/student/attendance/percentage");
+export const getMyAttendancePercentage = () =>
+  apiGet("/student/attendance/percentage");
 
 // ── Admin Attendance Services ─────────────────────────────────────────────────
 
@@ -69,7 +72,8 @@ export const getMyAttendancePercentage = () => apiGet("/student/attendance/perce
  * Get system-wide attendance analytics
  * GET /api/admin/attendance/analytics
  */
-export const getAdminAttendanceAnalytics = () => apiGet("/admin/attendance/analytics");
+export const getAdminAttendanceAnalytics = () =>
+  apiGet("/admin/attendance/analytics");
 
 /**
  * Get filterable attendance reports
@@ -84,7 +88,8 @@ export const getAdminAttendanceReports = (params = {}) =>
  * Create a new attendance session for a course
  * POST /api/attendance/sessions
  */
-export const createAttendanceSession = (data) => apiPost("/attendance/sessions", data);
+export const createAttendanceSession = (data) =>
+  apiPost("/attendance/sessions", data);
 
 /**
  * Get all attendance sessions for a course

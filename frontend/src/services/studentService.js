@@ -24,7 +24,11 @@ export async function getAssignments() {
 }
 
 export async function submitAssignment(assignmentId, { fileUrl, notes }) {
-  return apiPost("/student/assignment/submit", { assignmentId, fileUrl, notes });
+  return apiPost("/student/assignment/submit", {
+    assignmentId,
+    fileUrl,
+    notes,
+  });
 }
 
 // Quiz APIs

@@ -8,27 +8,34 @@ export const fetchCoursePlayerDetails = createAsyncThunk(
       const res = await apiGet(`/student/course-player/${courseId}`);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load course player");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load course player",
+      );
     }
-  }
+  },
 );
 
 export const updateTopicWatchProgress = createAsyncThunk(
   "player/updateProgress",
-  async ({ courseId, topicId, watchPosition, duration, watchTimeDelta }, { rejectWithValue }) => {
+  async (
+    { courseId, topicId, watchPosition, duration, watchTimeDelta },
+    { rejectWithValue },
+  ) => {
     try {
       const res = await apiPost("/student/progress/update", {
         courseId,
         topicId,
         watchPosition,
         duration,
-        watchTimeDelta
+        watchTimeDelta,
       });
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to sync progress");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to sync progress",
+      );
     }
-  }
+  },
 );
 
 export const fetchCourseDiscussions = createAsyncThunk(
@@ -38,33 +45,46 @@ export const fetchCourseDiscussions = createAsyncThunk(
       const res = await apiGet(`/student/course/${courseId}/discussions`);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load discussions");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load discussions",
+      );
     }
-  }
+  },
 );
 
 export const addDiscussionComment = createAsyncThunk(
   "player/addComment",
   async ({ courseId, content }, { rejectWithValue }) => {
     try {
-      const res = await apiPost(`/student/course/${courseId}/discussions`, { content });
+      const res = await apiPost(`/student/course/${courseId}/discussions`, {
+        content,
+      });
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to post comment");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to post comment",
+      );
     }
-  }
+  },
 );
 
 export const addBookmark = createAsyncThunk(
   "player/addBookmark",
   async ({ courseId, topicId, title, videoPosition }, { rejectWithValue }) => {
     try {
-      const res = await apiPost("/student/bookmarks", { courseId, topicId, title, videoPosition });
+      const res = await apiPost("/student/bookmarks", {
+        courseId,
+        topicId,
+        title,
+        videoPosition,
+      });
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to add bookmark");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to add bookmark",
+      );
     }
-  }
+  },
 );
 
 export const fetchBookmarks = createAsyncThunk(
@@ -74,9 +94,11 @@ export const fetchBookmarks = createAsyncThunk(
       const res = await apiGet(`/student/bookmarks/${courseId}`);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to load bookmarks");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to load bookmarks",
+      );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -100,7 +122,7 @@ const playerSlice = createSlice({
       // Resolve watch position for the selected topic
       if (state.progress && state.progress.lectureProgress) {
         const entry = state.progress.lectureProgress.find(
-          (l) => l.lectureId.toString() === action.payload._id.toString()
+          (l) => l.lectureId.toString() === action.payload._id.toString(),
         );
         state.watchPosition = entry ? entry.watchPosition : 0;
       } else {
@@ -114,7 +136,7 @@ const playerSlice = createSlice({
       const { topicId, watchPosition, completed } = action.payload;
       if (state.progress && state.progress.lectureProgress) {
         const entry = state.progress.lectureProgress.find(
-          (l) => l.lectureId.toString() === topicId.toString()
+          (l) => l.lectureId.toString() === topicId.toString(),
         );
         if (entry) {
           entry.watchPosition = watchPosition;
@@ -123,14 +145,14 @@ const playerSlice = createSlice({
           state.progress.lectureProgress.push({
             lectureId: topicId,
             watchPosition,
-            completed
+            completed,
           });
         }
       }
     },
     localNotesAdded: (state, action) => {
       state.notes.unshift(action.payload);
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -153,13 +175,16 @@ const playerSlice = createSlice({
           if (allTopics.length > 0) {
             const lastAccessedId = state.progress?.lastAccessedTopicId;
             const resumeTopic = lastAccessedId
-              ? allTopics.find((t) => t._id.toString() === lastAccessedId.toString())
+              ? allTopics.find(
+                  (t) => t._id.toString() === lastAccessedId.toString(),
+                )
               : null;
             state.currentTopic = resumeTopic || allTopics[0];
-            
+
             // Set position
             const entry = state.progress?.lectureProgress?.find(
-              (l) => l.lectureId.toString() === state.currentTopic._id.toString()
+              (l) =>
+                l.lectureId.toString() === state.currentTopic._id.toString(),
             );
             state.watchPosition = entry ? entry.watchPosition : 0;
           }
@@ -176,7 +201,8 @@ const playerSlice = createSlice({
         if (state.progress) {
           state.progress.progress = progress;
           const entry = state.progress.lectureProgress.find(
-            (l) => l.lectureId.toString() === state.currentTopic?._id.toString()
+            (l) =>
+              l.lectureId.toString() === state.currentTopic?._id.toString(),
           );
           if (entry) {
             entry.watchPosition = watchPosition;
@@ -194,7 +220,9 @@ const playerSlice = createSlice({
       .addCase(addDiscussionComment.fulfilled, (state, action) => {
         // Handled via socket event as well to prevent double entries,
         // but if sockets are slow, keeping it here is fine.
-        const exists = state.discussions.some(d => d._id === action.payload._id);
+        const exists = state.discussions.some(
+          (d) => d._id === action.payload._id,
+        );
         if (!exists) {
           state.discussions.push(action.payload);
         }
@@ -217,7 +245,7 @@ export const {
   setCurrentTopic,
   receiveDiscussionComment,
   localProgressUpdate,
-  localNotesAdded
+  localNotesAdded,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

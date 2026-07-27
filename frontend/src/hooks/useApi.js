@@ -18,9 +18,8 @@ export function useApi(requestFn) {
         setLoading(false);
       }
     },
-    [requestFn]
+    [requestFn],
   );
 
   return { run, loading, error };
 }
-

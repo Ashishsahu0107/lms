@@ -20,9 +20,13 @@ export const themeSlice = createSlice({
     toggleTheme: (state) => {
       const currentTheme = state.theme;
       const darkThemes = ["luxury", "dark", "business"];
-      const isSystemDark = typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const isCurrentlyDark = darkThemes.includes(currentTheme) || (currentTheme === "system" && isSystemDark);
-      
+      const isSystemDark =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const isCurrentlyDark =
+        darkThemes.includes(currentTheme) ||
+        (currentTheme === "system" && isSystemDark);
+
       const nextTheme = isCurrentlyDark ? "light" : "luxury";
       state.theme = nextTheme;
       themeService.setTheme(nextTheme);

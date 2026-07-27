@@ -14,9 +14,11 @@ export const fetchAssignments = createAsyncThunk(
       const res = await getAssignments(params);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch assignments");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch assignments",
+      );
     }
-  }
+  },
 );
 
 export const fetchAssignmentById = createAsyncThunk(
@@ -26,9 +28,11 @@ export const fetchAssignmentById = createAsyncThunk(
       const res = await getAssignmentById(id);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch assignment details");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch assignment details",
+      );
     }
-  }
+  },
 );
 
 export const addAssignment = createAsyncThunk(
@@ -38,9 +42,11 @@ export const addAssignment = createAsyncThunk(
       const res = await createAssignment(data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to publish assignment");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to publish assignment",
+      );
     }
-  }
+  },
 );
 
 export const editAssignment = createAsyncThunk(
@@ -50,9 +56,11 @@ export const editAssignment = createAsyncThunk(
       const res = await updateAssignment(id, data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to update assignment");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update assignment",
+      );
     }
-  }
+  },
 );
 
 export const removeAssignment = createAsyncThunk(
@@ -62,9 +70,11 @@ export const removeAssignment = createAsyncThunk(
       await deleteAssignment(id);
       return id;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to delete assignment");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete assignment",
+      );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -146,7 +156,7 @@ const assignmentSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.assignments = state.assignments.map((a) =>
-          a._id === action.payload._id ? action.payload : a
+          a._id === action.payload._id ? action.payload : a,
         );
         if (state.currentAssignment?._id === action.payload._id) {
           state.currentAssignment = action.payload;
@@ -159,10 +169,13 @@ const assignmentSlice = createSlice({
 
       // Remove Assignment
       .addCase(removeAssignment.fulfilled, (state, action) => {
-        state.assignments = state.assignments.filter((a) => a._id !== action.payload);
+        state.assignments = state.assignments.filter(
+          (a) => a._id !== action.payload,
+        );
       });
   },
 });
 
-export const { clearAssignmentState, resetCurrentAssignment } = assignmentSlice.actions;
+export const { clearAssignmentState, resetCurrentAssignment } =
+  assignmentSlice.actions;
 export default assignmentSlice.reducer;

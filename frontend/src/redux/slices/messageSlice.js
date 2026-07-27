@@ -9,11 +9,15 @@ export const fetchConversations = createAsyncThunk(
       if (res.data?.success) {
         return res.data.data;
       }
-      return rejectWithValue(res.data?.message || "Failed to fetch conversations");
+      return rejectWithValue(
+        res.data?.message || "Failed to fetch conversations",
+      );
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch conversations");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch conversations",
+      );
     }
-  }
+  },
 );
 
 export const fetchGroups = createAsyncThunk(
@@ -26,9 +30,11 @@ export const fetchGroups = createAsyncThunk(
       }
       return rejectWithValue(res.data?.message || "Failed to fetch groups");
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch groups");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch groups",
+      );
     }
-  }
+  },
 );
 
 export const fetchMessages = createAsyncThunk(
@@ -41,9 +47,11 @@ export const fetchMessages = createAsyncThunk(
       }
       return rejectWithValue(res.data?.message || "Failed to fetch messages");
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch messages");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch messages",
+      );
     }
-  }
+  },
 );
 
 export const fetchGroupMessages = createAsyncThunk(
@@ -54,56 +62,79 @@ export const fetchGroupMessages = createAsyncThunk(
       if (res.data?.success) {
         return { groupId, messages: res.data.data };
       }
-      return rejectWithValue(res.data?.message || "Failed to fetch group messages");
+      return rejectWithValue(
+        res.data?.message || "Failed to fetch group messages",
+      );
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch group messages");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch group messages",
+      );
     }
-  }
+  },
 );
 
 export const sendMessage = createAsyncThunk(
   "messages/sendMessage",
   async ({ recipientId, content, attachments }, { rejectWithValue }) => {
     try {
-      const res = await apiPost("/messages", { recipientId, content, attachments });
+      const res = await apiPost("/messages", {
+        recipientId,
+        content,
+        attachments,
+      });
       if (res.data?.success) {
         return res.data.data;
       }
       return rejectWithValue(res.data?.message || "Failed to send message");
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to send message");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to send message",
+      );
     }
-  }
+  },
 );
 
 export const sendGroupMessage = createAsyncThunk(
   "messages/sendGroupMessage",
   async ({ groupId, content, attachments }, { rejectWithValue }) => {
     try {
-      const res = await apiPost(`/messages/group/${groupId}`, { content, attachments });
+      const res = await apiPost(`/messages/group/${groupId}`, {
+        content,
+        attachments,
+      });
       if (res.data?.success) {
         return res.data.data;
       }
-      return rejectWithValue(res.data?.message || "Failed to send group message");
+      return rejectWithValue(
+        res.data?.message || "Failed to send group message",
+      );
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to send group message");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to send group message",
+      );
     }
-  }
+  },
 );
 
 export const createGroup = createAsyncThunk(
   "messages/createGroup",
   async ({ name, description, members }, { rejectWithValue }) => {
     try {
-      const res = await apiPost("/messages/groups", { name, description, members });
+      const res = await apiPost("/messages/groups", {
+        name,
+        description,
+        members,
+      });
       if (res.data?.success) {
         return res.data.data;
       }
       return rejectWithValue(res.data?.message || "Failed to create group");
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to create group");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create group",
+      );
     }
-  }
+  },
 );
 
 const messageSlice = createSlice({
@@ -126,13 +157,13 @@ const messageSlice = createSlice({
     receiveMessage: (state, action) => {
       const msg = action.payload;
       const { activeChat } = state;
-      
+
       // Determine if message belongs to active chat
       if (activeChat) {
         if (activeChat.type === "group" && msg.groupId === activeChat.id) {
           state.messages.push(msg);
         } else if (activeChat.type === "user") {
-          const isDirectMatch = 
+          const isDirectMatch =
             (msg.senderId?._id || msg.senderId) === activeChat.id ||
             (msg.recipientId?._id || msg.recipientId) === activeChat.id;
           if (isDirectMatch && !msg.groupId) {
@@ -143,7 +174,7 @@ const messageSlice = createSlice({
 
       // Update conversations sidebar last message
       if (msg.groupId) {
-        const groupIndex = state.groups.findIndex(g => g._id === msg.groupId);
+        const groupIndex = state.groups.findIndex((g) => g._id === msg.groupId);
         if (groupIndex !== -1) {
           state.groups[groupIndex].updatedAt = msg.createdAt;
         }
@@ -151,13 +182,16 @@ const messageSlice = createSlice({
         const senderId = msg.senderId?._id || msg.senderId;
         const recipientId = msg.recipientId?._id || msg.recipientId;
         const partnerId = senderId === activeChat?.id ? recipientId : senderId;
-        
-        state.conversations = state.conversations.map(c => {
+
+        state.conversations = state.conversations.map((c) => {
           if (c.participant?._id === partnerId) {
             return {
               ...c,
               lastMessage: msg,
-              unreadCount: activeChat && activeChat.id === partnerId ? 0 : c.unreadCount + 1,
+              unreadCount:
+                activeChat && activeChat.id === partnerId
+                  ? 0
+                  : c.unreadCount + 1,
             };
           }
           return c;
@@ -175,10 +209,10 @@ const messageSlice = createSlice({
     },
     clearUnreadCount: (state, action) => {
       const partnerId = action.payload;
-      state.conversations = state.conversations.map(c => 
-        c.participant?._id === partnerId ? { ...c, unreadCount: 0 } : c
+      state.conversations = state.conversations.map((c) =>
+        c.participant?._id === partnerId ? { ...c, unreadCount: 0 } : c,
       );
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -237,8 +271,13 @@ const messageSlice = createSlice({
       .addCase(createGroup.fulfilled, (state, action) => {
         state.groups.unshift(action.payload);
       });
-  }
+  },
 });
 
-export const { setActiveChat, receiveMessage, setTypingStatus, clearUnreadCount } = messageSlice.actions;
+export const {
+  setActiveChat,
+  receiveMessage,
+  setTypingStatus,
+  clearUnreadCount,
+} = messageSlice.actions;
 export default messageSlice.reducer;

@@ -20,7 +20,8 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (res) => res,
   (err) => {
-    const message = err.response?.data?.message || err.message || "Something went wrong";
+    const message =
+      err.response?.data?.message || err.message || "Something went wrong";
     if (err.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -28,7 +29,7 @@ client.interceptors.response.use(
     }
     toast.error(message);
     return Promise.reject(err);
-  }
+  },
 );
 
 export const apiGet = (url, params) => client.get(url, { params });

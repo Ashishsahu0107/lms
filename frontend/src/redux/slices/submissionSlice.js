@@ -13,9 +13,11 @@ export const fetchAssignmentSubmissions = createAsyncThunk(
       const res = await getAssignmentSubmissions(assignmentId);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch student submissions");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch student submissions",
+      );
     }
-  }
+  },
 );
 
 export const fetchSubmissionDetails = createAsyncThunk(
@@ -25,9 +27,11 @@ export const fetchSubmissionDetails = createAsyncThunk(
       const res = await getSubmissionById(submissionId);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch submission details");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch submission details",
+      );
     }
-  }
+  },
 );
 
 export const submitAssignmentBrief = createAsyncThunk(
@@ -37,9 +41,11 @@ export const submitAssignmentBrief = createAsyncThunk(
       const res = await submitAssignment(data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to submit assignment answers");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to submit assignment answers",
+      );
     }
-  }
+  },
 );
 
 export const evaluateSubmission = createAsyncThunk(
@@ -49,9 +55,11 @@ export const evaluateSubmission = createAsyncThunk(
       const res = await gradeSubmission(submissionId, data);
       return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to submit grading review");
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to submit grading review",
+      );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -131,7 +139,7 @@ const submissionSlice = createSlice({
         state.success = true;
         state.currentSubmission = action.payload;
         state.submissions = state.submissions.map((s) =>
-          s._id === action.payload._id ? action.payload : s
+          s._id === action.payload._id ? action.payload : s,
         );
       })
       .addCase(evaluateSubmission.rejected, (state, action) => {
@@ -141,5 +149,6 @@ const submissionSlice = createSlice({
   },
 });
 
-export const { clearSubmissionState, resetCurrentSubmission } = submissionSlice.actions;
+export const { clearSubmissionState, resetCurrentSubmission } =
+  submissionSlice.actions;
 export default submissionSlice.reducer;
