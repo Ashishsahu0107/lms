@@ -81,7 +81,6 @@ rootRouter.use("/schedules", scheduleRouter);
 rootRouter.use("/search", searchRouter);
 rootRouter.use("/ai", aiRouter);
 
-
 // =====================================
 // TEACHER MODULE ROUTES (Backward Compatibility)
 // =====================================

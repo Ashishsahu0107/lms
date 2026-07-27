@@ -1,9 +1,6 @@
 import { Router } from "express";
 
-import {
-  authenticate,
-  authorize,
-} from "../middleware/auth.js";
+import { authenticate, authorize } from "../middleware/auth.js";
 
 import {
   getConversationsController,
@@ -32,84 +29,50 @@ router.use(authenticate);
 // =====================================
 
 // Get All Conversations
-router.get(
-  "/conversations",
-  getConversationsController
-);
+router.get("/conversations", getConversationsController);
 
 // =====================================
 // MESSAGES
 // =====================================
 
 // Get Messages With User
-router.get(
-  "/:otherId",
-  getMessagesController
-);
+router.get("/:otherId", getMessagesController);
 
 // Send Message
-router.post(
-  "/",
-  sendMessageController
-);
+router.post("/", sendMessageController);
 
 // Mark Messages As Read
-router.patch(
-  "/read/:otherId",
-  markMessagesReadController
-);
+router.patch("/read/:otherId", markMessagesReadController);
 
 // Delete Message
-router.delete(
-  "/:messageId",
-  deleteMessageController
-);
+router.delete("/:messageId", deleteMessageController);
 
 // =====================================
 // ATTACHMENTS
 // =====================================
-router.post(
-  "/upload",
-  upload.single("file"),
-  uploadAttachmentController
-);
+router.post("/upload", upload.single("file"), uploadAttachmentController);
 
 // =====================================
 // GROUP CHATS
 // =====================================
-router.post(
-  "/groups",
-  createGroupController
-);
+router.post("/groups", createGroupController);
 
-router.get(
-  "/groups",
-  getGroupsController
-);
+router.get("/groups", getGroupsController);
 
-router.get(
-  "/group/:groupId",
-  getGroupMessagesController
-);
+router.get("/group/:groupId", getGroupMessagesController);
 
-router.post(
-  "/group/:groupId",
-  sendGroupMessageController
-);
+router.post("/group/:groupId", sendGroupMessageController);
 
 // =====================================
 // TEST ROUTE
 // =====================================
-router.get(
-  "/test/realtime",
-  (req, res) => {
-    res.status(200).json({
-      success: true,
-      message: "Realtime messaging route working",
-      realtime: true,
-      user: req.user,
-    });
-  }
-);
+router.get("/test/realtime", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Realtime messaging route working",
+    realtime: true,
+    user: req.user,
+  });
+});
 
 export default router;

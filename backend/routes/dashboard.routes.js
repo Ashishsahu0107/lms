@@ -12,12 +12,32 @@ import {
 const router = Router();
 
 // Super Admin Stats & Growth Analytics
-router.get("/admin/stats", authenticate, authorize("super_admin"), getAdminStatsController);
-router.get("/admin/analytics", authenticate, authorize("super_admin"), getAdminAnalyticsController);
+router.get(
+  "/admin/stats",
+  authenticate,
+  authorize("super_admin"),
+  getAdminStatsController,
+);
+router.get(
+  "/admin/analytics",
+  authenticate,
+  authorize("super_admin"),
+  getAdminAnalyticsController,
+);
 
 // Teacher Dashboard Course Stats & Completion Analytics
-router.get("/teacher/stats", authenticate, authorize("teacher", "super_admin"), getTeacherStatsController);
-router.get("/teacher/analytics", authenticate, authorize("teacher", "super_admin"), getTeacherAnalyticsController);
+router.get(
+  "/teacher/stats",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  getTeacherStatsController,
+);
+router.get(
+  "/teacher/analytics",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  getTeacherAnalyticsController,
+);
 
 // Student Dashboard Progress & Learning Timelines
 router.get("/student/stats", authenticate, getStudentStatsController);

@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { authenticate, authorize, moduleOwnershipMiddleware } from "../middleware/auth.js";
+import {
+  authenticate,
+  authorize,
+  moduleOwnershipMiddleware,
+} from "../middleware/auth.js";
 import {
   getModuleByIdController,
   createModuleController,
