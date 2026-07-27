@@ -33,7 +33,7 @@ const performanceSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Prevent duplicate student-course performance rows

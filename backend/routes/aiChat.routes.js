@@ -4,7 +4,7 @@ import {
   getAiChats,
   createAiChat,
   getAiChatDetails,
-  deleteAiChat
+  deleteAiChat,
 } from "../controllers/aiChat.controller.js";
 
 const router = Router();

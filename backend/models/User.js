@@ -34,11 +34,7 @@ const userSchema = new mongoose.Schema(
     // =====================================
     role: {
       type: String,
-      enum: [
-        "student",
-        "teacher",
-        "super_admin",
-      ],
+      enum: ["student", "teacher", "super_admin"],
       default: "student",
       index: true,
     },
@@ -64,11 +60,7 @@ const userSchema = new mongoose.Schema(
 
     gender: {
       type: String,
-      enum: [
-        "male",
-        "female",
-        "other",
-      ],
+      enum: ["male", "female", "other"],
       default: "other",
     },
 
@@ -185,8 +177,16 @@ const userSchema = new mongoose.Schema(
         courseNotifications: { type: Boolean, default: true },
       },
       privacy: {
-        accountVisibility: { type: String, enum: ["public", "private"], default: "public" },
-        activityVisibility: { type: String, enum: ["public", "private"], default: "public" },
+        accountVisibility: {
+          type: String,
+          enum: ["public", "private"],
+          default: "public",
+        },
+        activityVisibility: {
+          type: String,
+          enum: ["public", "private"],
+          default: "public",
+        },
       },
       twoFactorEnabled: { type: Boolean, default: false },
     },
@@ -238,13 +238,13 @@ const userSchema = new mongoose.Schema(
       {
         title: { type: String, required: true },
         description: { type: String, default: "" },
-        unlockedAt: { type: Date, default: Date.now }
-      }
-    ]
+        unlockedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // =====================================
@@ -254,12 +254,10 @@ userSchema.index({
   isOnline: 1,
 });
 
-
 // =====================================
 // REMOVE PASSWORD FROM RESPONSE
 // =====================================
 userSchema.methods.toJSON = function () {
-
   const userObject = this.toObject();
 
   delete userObject.password;
@@ -271,7 +269,4 @@ userSchema.methods.toJSON = function () {
 // =====================================
 // MODEL
 // =====================================
-export const User = mongoose.model(
-  "User",
-  userSchema
-);
+export const User = mongoose.model("User", userSchema);

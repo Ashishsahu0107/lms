@@ -8,7 +8,7 @@ import {
   createAssignmentController,
   updateAssignmentController,
   deleteAssignmentController,
-  generateAssignmentController
+  generateAssignmentController,
 } from "../controllers/assignment.controller.js";
 
 const router = Router();
@@ -49,11 +49,33 @@ router.get("/", authenticate, getAssignmentsController);
 router.get("/:id", authenticate, getAssignmentByIdController);
 
 // Creation and AI generation (Teacher / Admin-only)
-router.post("/", authenticate, authorize("teacher", "super_admin"), createAssignmentController);
-router.post("/generate", authenticate, authorize("teacher", "super_admin"), generateAssignmentController);
+router.post(
+  "/",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  createAssignmentController,
+);
+router.post(
+  "/generate",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  generateAssignmentController,
+);
 
 // Modification and Deletion (Teacher / Admin-only, verified by ownership)
-router.put("/:id", authenticate, authorize("teacher", "super_admin"), assignmentOwnershipMiddleware, updateAssignmentController);
-router.delete("/:id", authenticate, authorize("teacher", "super_admin"), assignmentOwnershipMiddleware, deleteAssignmentController);
+router.put(
+  "/:id",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  assignmentOwnershipMiddleware,
+  updateAssignmentController,
+);
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("teacher", "super_admin"),
+  assignmentOwnershipMiddleware,
+  deleteAssignmentController,
+);
 
 export default router;

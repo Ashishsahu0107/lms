@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { authenticate, authorize, ownershipMiddleware } from "../middleware/auth.js";
+import {
+  authenticate,
+  authorize,
+  ownershipMiddleware,
+} from "../middleware/auth.js";
 import { uploadThumbnail } from "../middleware/upload.js";
 import {
   getCoursesController,
@@ -12,7 +16,7 @@ import {
 const router = Router();
 
 // ── READ (all authenticated roles)
-router.get("/",    authenticate, getCoursesController);
+router.get("/", authenticate, getCoursesController);
 router.get("/:id", authenticate, getCourseByIdController);
 
 // ── CREATE  — teacher/admin only
@@ -23,7 +27,7 @@ router.post(
   authenticate,
   authorize("teacher", "super_admin"),
   uploadThumbnail.single("thumbnail"),
-  createCourseController
+  createCourseController,
 );
 
 // ── UPDATE  — teacher (own course) / admin
@@ -33,7 +37,7 @@ router.put(
   authorize("teacher", "super_admin"),
   ownershipMiddleware,
   uploadThumbnail.single("thumbnail"),
-  updateCourseController
+  updateCourseController,
 );
 
 // ── DELETE  — teacher (own course) / admin
@@ -42,7 +46,7 @@ router.delete(
   authenticate,
   authorize("teacher", "super_admin"),
   ownershipMiddleware,
-  deleteCourseController
+  deleteCourseController,
 );
 
 export default router;

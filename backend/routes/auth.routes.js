@@ -10,13 +10,10 @@ import {
   forgotPasswordController,
   resetPasswordController,
   verifyResetOtpController,
-  resendResetOtpController
+  resendResetOtpController,
 } from "../controllers/auth.controller.js";
 
-import {
-  authenticate,
-  authorize,
-} from "../middleware/auth.js";
+import { authenticate, authorize } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -25,70 +22,38 @@ const router = Router();
 // =====================================
 
 // Login
-router.post(
-  "/login",
-  loginController
-);
+router.post("/login", loginController);
 
 // Register
-router.post(
-  "/register",
-  registerController
-);
+router.post("/register", registerController);
 
 // Send registration OTP
-router.post(
-  "/send-otp",
-  sendOtpController
-);
+router.post("/send-otp", sendOtpController);
 
 // Verify registration OTP
-router.post(
-  "/verify-otp",
-  verifyOtpController
-);
+router.post("/verify-otp", verifyOtpController);
 
 // Forgot Password
-router.post(
-  "/forgot-password",
-  forgotPasswordController
-);
+router.post("/forgot-password", forgotPasswordController);
 
 // Verify Reset OTP
-router.post(
-  "/verify-reset-otp",
-  verifyResetOtpController
-);
+router.post("/verify-reset-otp", verifyResetOtpController);
 
 // Resend Recovery OTP
-router.post(
-  "/resend-otp",
-  resendResetOtpController
-);
+router.post("/resend-otp", resendResetOtpController);
 
 // Reset Password
-router.post(
-  "/reset-password",
-  resetPasswordController
-);
+router.post("/reset-password", resetPasswordController);
 
 // =====================================
 // PROTECTED ROUTES
 // =====================================
 
 // Current Logged In User
-router.get(
-  "/me",
-  authenticate,
-  meController
-);
+router.get("/me", authenticate, meController);
 
 // Logout
-router.post(
-  "/logout",
-  authenticate,
-  logoutController
-);
+router.post("/logout", authenticate, logoutController);
 
 // =====================================
 // ROLE TEST ROUTES
@@ -105,7 +70,7 @@ router.get(
       message: "Welcome Super Admin",
       data: req.user,
     });
-  }
+  },
 );
 
 // Teacher Only
@@ -119,21 +84,16 @@ router.get(
       message: "Welcome Teacher",
       data: req.user,
     });
-  }
+  },
 );
 
 // Student Only
-router.get(
-  "/student-only",
-  authenticate,
-  authorize("student"),
-  (req, res) => {
-    res.status(200).json({
-      success: true,
-      message: "Welcome Student",
-      data: req.user,
-    });
-  }
-);
+router.get("/student-only", authenticate, authorize("student"), (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome Student",
+    data: req.user,
+  });
+});
 
 export default router;
