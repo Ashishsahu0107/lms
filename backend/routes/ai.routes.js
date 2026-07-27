@@ -13,7 +13,7 @@ import {
   createAiChat,
   getAiChatDetails,
   deleteAiChat,
-  retryAiMessage
+  retryAiMessage,
 } from "../controllers/aiChat.controller.js";
 
 const router = Router();
@@ -34,6 +34,5 @@ router.post("/chats", createAiChat);
 router.get("/chats/:chatId", getAiChatDetails);
 router.delete("/chats/:chatId", deleteAiChat);
 router.post("/chats/:chatId/retry", retryAiMessage);
-
 
 export default router;

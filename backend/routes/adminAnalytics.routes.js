@@ -7,7 +7,7 @@ import {
   getRevenue,
   getPerformance,
   getAttendance,
-  getRealtime
+  getRealtime,
 } from "../controllers/analytics.controller.js";
 
 const router = Router();
