@@ -8,7 +8,11 @@ function getCalendarDateString(date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export async function awardXPAndCheckStreak(userId, actionType, actionPayload = {}) {
+export async function awardXPAndCheckStreak(
+  userId,
+  actionType,
+  actionPayload = {},
+) {
   try {
     const user = await User.findById(userId);
     if (!user) return null;
@@ -21,7 +25,9 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
     // 1. STREAK CHECK-IN LOGIC
     // ─────────────────────────────────────────────────────────────
     const todayStr = getCalendarDateString(new Date());
-    const lastActiveStr = user.lastActiveDate ? getCalendarDateString(user.lastActiveDate) : "";
+    const lastActiveStr = user.lastActiveDate
+      ? getCalendarDateString(user.lastActiveDate)
+      : "";
 
     if (lastActiveStr === "") {
       // First activity ever
@@ -59,7 +65,7 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
           badgeUnlocked = "Quick Starter";
           newlyUnlockedAchievements.push({
             title: "Quick Starter",
-            description: "Completed your first topic syllabus material."
+            description: "Completed your first topic syllabus material.",
           });
         }
         break;
@@ -73,7 +79,8 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
             badgeUnlocked = "Quiz Master";
             newlyUnlockedAchievements.push({
               title: "Quiz Master",
-              description: "Scored 90% or above on an official quiz evaluation."
+              description:
+                "Scored 90% or above on an official quiz evaluation.",
             });
           }
         }
@@ -83,7 +90,8 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
             badgeUnlocked = "Perfect Score";
             newlyUnlockedAchievements.push({
               title: "Perfect Score",
-              description: "Earned a flawless 100% score on a quiz or assignment."
+              description:
+                "Earned a flawless 100% score on a quiz or assignment.",
             });
           }
         }
@@ -99,7 +107,8 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
           badgeUnlocked = "Syllabus Conqueror";
           newlyUnlockedAchievements.push({
             title: "Syllabus Conqueror",
-            description: "Conquered 100% curriculum validation of a full course."
+            description:
+              "Conquered 100% curriculum validation of a full course.",
           });
         }
         break;
@@ -115,7 +124,7 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
       badgeUnlocked = "Consistent Learner";
       newlyUnlockedAchievements.push({
         title: "Consistent Learner",
-        description: "Maintained a continuous 3-day active learning streak."
+        description: "Maintained a continuous 3-day active learning streak.",
       });
     }
 
@@ -126,13 +135,15 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
     if (badgeUnlocked && !user.badges.includes(badgeUnlocked)) {
       user.badges.push(badgeUnlocked);
     }
-    
+
     if (newlyUnlockedAchievements.length > 0) {
-      user.achievements.push(...newlyUnlockedAchievements.map(a => ({
-        title: a.title,
-        description: a.description,
-        unlockedAt: new Date()
-      })));
+      user.achievements.push(
+        ...newlyUnlockedAchievements.map((a) => ({
+          title: a.title,
+          description: a.description,
+          unlockedAt: new Date(),
+        })),
+      );
     }
 
     await user.save();
@@ -148,10 +159,14 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
           xp: user.xp,
           badges: user.badges,
           achievements: user.achievements,
-          latestAchievement: newlyUnlockedAchievements[newlyUnlockedAchievements.length - 1]
+          latestAchievement:
+            newlyUnlockedAchievements[newlyUnlockedAchievements.length - 1],
         });
       } catch (err) {
-        console.error("Failed to emit achievement-unlocked socket event:", err.message);
+        console.error(
+          "Failed to emit achievement-unlocked socket event:",
+          err.message,
+        );
       }
     }
 
@@ -161,7 +176,7 @@ export async function awardXPAndCheckStreak(userId, actionType, actionPayload = 
       badges: user.badges,
       achievements: user.achievements,
       gainedXP: xpGained,
-      unlockedBadge: badgeUnlocked
+      unlockedBadge: badgeUnlocked,
     };
   } catch (err) {
     console.error("Error in awardXPAndCheckStreak:", err);

@@ -2,7 +2,7 @@ import { SecurityLog } from "../models/SecurityLog.js";
 
 /**
  * Log a security event to the database.
- * 
+ *
  * @param {Object} params
  * @param {string} [params.userId] - The ID of the user triggering the event
  * @param {string} params.action - The security action (e.g. USER_LOGIN, FAILED_LOGIN, PASSWORD_CHANGE, API_UNAUTHORIZED)
@@ -17,7 +17,7 @@ export async function logSecurityEvent({
   details = "",
   ip = "",
   device = "",
-  severity = "low"
+  severity = "low",
 }) {
   try {
     const log = await SecurityLog.create({
@@ -26,11 +26,16 @@ export async function logSecurityEvent({
       details,
       ip,
       device,
-      severity
+      severity,
     });
-    console.log(`[SecurityLog] Event registered: ${action} (${severity}) - ${details}`);
+    console.log(
+      `[SecurityLog] Event registered: ${action} (${severity}) - ${details}`,
+    );
     return log;
   } catch (err) {
-    console.error("[SecurityLog] Failed to write security log to database:", err.message);
+    console.error(
+      "[SecurityLog] Failed to write security log to database:",
+      err.message,
+    );
   }
 }

@@ -3,7 +3,13 @@ import { GeminiProvider } from "./GeminiProvider.js";
 import { ClaudeProvider } from "./ClaudeProvider.js";
 
 class SimulatedFallbackProvider {
-  async generateStream(messages, systemInstruction, onToken, onComplete, signal) {
+  async generateStream(
+    messages,
+    systemInstruction,
+    onToken,
+    onComplete,
+    signal,
+  ) {
     const userMessage = messages[messages.length - 1]?.content || "";
     const p = userMessage.toLowerCase();
 
@@ -55,12 +61,17 @@ export class ProviderFactory {
     }
 
     // Auto-detect triggers if provider not explicitly configured
-    if (process.env.OPENAI_API_KEY) return new OpenAIProvider(process.env.OPENAI_API_KEY);
-    if (process.env.GEMINI_API_KEY) return new GeminiProvider(process.env.GEMINI_API_KEY);
-    if (process.env.CLAUDE_API_KEY) return new ClaudeProvider(process.env.CLAUDE_API_KEY);
+    if (process.env.OPENAI_API_KEY)
+      return new OpenAIProvider(process.env.OPENAI_API_KEY);
+    if (process.env.GEMINI_API_KEY)
+      return new GeminiProvider(process.env.GEMINI_API_KEY);
+    if (process.env.CLAUDE_API_KEY)
+      return new ClaudeProvider(process.env.CLAUDE_API_KEY);
 
     // Fallback if no keys exist
-    console.warn("[AI] No valid API Keys found. Initiating Simulated Fallback Provider.");
+    console.warn(
+      "[AI] No valid API Keys found. Initiating Simulated Fallback Provider.",
+    );
     return new SimulatedFallbackProvider();
   }
 }

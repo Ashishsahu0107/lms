@@ -29,5 +29,3 @@ export class ForbiddenError extends AppError {
     super(message, { statusCode: 403, details });
   }
 }
-
-
