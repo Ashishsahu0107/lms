@@ -1,0 +1,10 @@
+# LMS Pro — PostgreSQL + Swagger + Next.js
+
+node_modules
+.next
+.env.local
+.env
+dist
+uploads
+*.log
+prisma/migrations/
