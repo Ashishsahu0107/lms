@@ -177,7 +177,7 @@ export function initSocket(httpServer) {
         ioInstance.to(ROOMS.course(data.courseId)).emit("lectureStarted", {
           studentId: userId,
           courseId: data.courseId,
-          topicId: data.topicId
+          topicId: data.topicId,
         });
       }
     });
@@ -187,7 +187,7 @@ export function initSocket(httpServer) {
         ioInstance.to(ROOMS.course(data.courseId)).emit("lectureCompleted", {
           studentId: userId,
           courseId: data.courseId,
-          topicId: data.topicId
+          topicId: data.topicId,
         });
       }
     });
@@ -228,7 +228,9 @@ export function initSocket(httpServer) {
         ioInstance.to(`room:group:${groupId}`).emit("newMessage", data);
       } else if (recipientId) {
         ioInstance.to(ROOMS.student(recipientId)).emit("messageReceived", data);
-        ioInstance.to(ROOMS.student(recipientId)).emit(EVENTS.NEW_MESSAGE, data);
+        ioInstance
+          .to(ROOMS.student(recipientId))
+          .emit(EVENTS.NEW_MESSAGE, data);
         ioInstance.to(ROOMS.student(recipientId)).emit("newMessage", data);
       }
     });
@@ -243,7 +245,13 @@ export function initSocket(httpServer) {
 
     socket.on("send-message", async (data) => {
       try {
-        const { recipientId, groupId, content, attachments = [], messageType = "text" } = data;
+        const {
+          recipientId,
+          groupId,
+          content,
+          attachments = [],
+          messageType = "text",
+        } = data;
         const payload = {
           senderId: userId,
           recipientId,
@@ -254,12 +262,18 @@ export function initSocket(httpServer) {
           createdAt: new Date(),
         };
         if (groupId) {
-          ioInstance.to(`room:group:${groupId}`).emit("messageReceived", payload);
+          ioInstance
+            .to(`room:group:${groupId}`)
+            .emit("messageReceived", payload);
           ioInstance.to(`room:group:${groupId}`).emit("new-message", payload);
           ioInstance.to(`room:group:${groupId}`).emit("newMessage", payload);
         } else if (recipientId) {
-          ioInstance.to(ROOMS.student(recipientId)).emit("messageReceived", payload);
-          ioInstance.to(ROOMS.student(recipientId)).emit(EVENTS.NEW_MESSAGE, payload);
+          ioInstance
+            .to(ROOMS.student(recipientId))
+            .emit("messageReceived", payload);
+          ioInstance
+            .to(ROOMS.student(recipientId))
+            .emit(EVENTS.NEW_MESSAGE, payload);
           ioInstance.to(ROOMS.student(recipientId)).emit("newMessage", payload);
         }
         socket.emit("messageSent", payload);
@@ -289,7 +303,9 @@ export function initSocket(httpServer) {
         socket.to(`room:group:${groupId}`).emit("user-stop-typing", payload);
         socket.to(`room:group:${groupId}`).emit("userTyping", payload);
       } else if (recipientId) {
-        ioInstance.to(ROOMS.student(recipientId)).emit("user-stop-typing", payload);
+        ioInstance
+          .to(ROOMS.student(recipientId))
+          .emit("user-stop-typing", payload);
         ioInstance.to(ROOMS.student(recipientId)).emit("userTyping", payload);
       }
     });
@@ -299,10 +315,14 @@ export function initSocket(httpServer) {
       const payload = { userId, isTyping, groupId };
       if (groupId) {
         socket.to(`room:group:${groupId}`).emit("userTyping", payload);
-        socket.to(`room:group:${groupId}`).emit(isTyping ? "user-typing" : "user-stop-typing", payload);
+        socket
+          .to(`room:group:${groupId}`)
+          .emit(isTyping ? "user-typing" : "user-stop-typing", payload);
       } else if (recipientId) {
         ioInstance.to(ROOMS.student(recipientId)).emit("userTyping", payload);
-        ioInstance.to(ROOMS.student(recipientId)).emit(isTyping ? "user-typing" : "user-stop-typing", payload);
+        ioInstance
+          .to(ROOMS.student(recipientId))
+          .emit(isTyping ? "user-typing" : "user-stop-typing", payload);
       }
     });
 
@@ -330,7 +350,8 @@ export function initSocket(httpServer) {
       try {
         const { AIChat } = await import("../models/AIChat.js");
         const { User } = await import("../models/User.js");
-        const { streamAIResponse } = await import("../services/aiChat.service.js");
+        const { streamAIResponse } =
+          await import("../services/aiChat.service.js");
 
         const chat = await AIChat.findOne({ _id: chatId, user: userId });
         if (!chat) {
@@ -399,7 +420,7 @@ export function initSocket(httpServer) {
               });
             }
           },
-          abortController.signal
+          abortController.signal,
         );
       } catch (err) {
         console.error("[Socket] AI chat error:", err);
@@ -417,7 +438,9 @@ export function initSocket(httpServer) {
         activeGenerations.get(sessionKey).abort();
         activeGenerations.delete(sessionKey);
         socket.emit(EVENTS.AI_STOP_TYPING, { chatId });
-        console.log(`[Socket] AI generation aborted via client request for chat: ${chatId}`);
+        console.log(
+          `[Socket] AI generation aborted via client request for chat: ${chatId}`,
+        );
       }
     });
 
@@ -436,7 +459,10 @@ export function initSocket(httpServer) {
       (async () => {
         try {
           const { User } = await import("../models/User.js");
-          await User.findByIdAndUpdate(userId, { isOnline: false, lastSeen: new Date() });
+          await User.findByIdAndUpdate(userId, {
+            isOnline: false,
+            lastSeen: new Date(),
+          });
           socket.broadcast.emit(EVENTS.USER_OFFLINE, { userId });
           socket.broadcast.emit("userOffline", { userId });
         } catch (err) {
@@ -510,7 +536,9 @@ export function emitQuizCreated(quiz) {
 
 /** Quiz updated — notify course room and teacher dashboard */
 export function emitQuizUpdated(quiz) {
-  getIO().to(ROOMS.course(quiz.courseId.toString())).emit(EVENTS.QUIZ_UPDATED, { quiz });
+  getIO()
+    .to(ROOMS.course(quiz.courseId.toString()))
+    .emit(EVENTS.QUIZ_UPDATED, { quiz });
   getIO().emit(EVENTS.QUIZ_UPDATED, { quiz });
 }
 
@@ -552,9 +580,7 @@ export function emitAssignmentCreated(courseId, assignment) {
 
 /** Assignment graded — notify the student */
 export function emitAssignmentGraded(studentId, payload) {
-  getIO()
-    .to(ROOMS.student(studentId))
-    .emit(EVENTS.ASSIGNMENT_GRADED, payload);
+  getIO().to(ROOMS.student(studentId)).emit(EVENTS.ASSIGNMENT_GRADED, payload);
 }
 
 /** Payment completed — notify admin + student */

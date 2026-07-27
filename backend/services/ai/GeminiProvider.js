@@ -6,7 +6,13 @@ export class GeminiProvider extends AIProvider {
     this.apiKey = apiKey;
   }
 
-  async generateStream(messages, systemInstruction, onToken, onComplete, signal) {
+  async generateStream(
+    messages,
+    systemInstruction,
+    onToken,
+    onComplete,
+    signal,
+  ) {
     if (!this.apiKey) {
       throw new Error("Gemini API key is missing");
     }
@@ -44,7 +50,9 @@ export class GeminiProvider extends AIProvider {
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Gemini API returned error: ${response.status} - ${errText}`);
+      throw new Error(
+        `Gemini API returned error: ${response.status} - ${errText}`,
+      );
     }
 
     const reader = response.body;
@@ -77,7 +85,8 @@ export class GeminiProvider extends AIProvider {
 
         try {
           const parsed = JSON.parse(jsonStr);
-          const content = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const content =
+            parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
           if (content) {
             completeText += content;
             onToken(content);
@@ -98,7 +107,8 @@ export class GeminiProvider extends AIProvider {
       if (jsonStr) {
         try {
           const parsed = JSON.parse(jsonStr);
-          const content = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const content =
+            parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
           if (content) {
             completeText += content;
             onToken(content);

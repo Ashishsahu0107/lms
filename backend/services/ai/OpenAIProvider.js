@@ -6,7 +6,13 @@ export class OpenAIProvider extends AIProvider {
     this.apiKey = apiKey;
   }
 
-  async generateStream(messages, systemInstruction, onToken, onComplete, signal) {
+  async generateStream(
+    messages,
+    systemInstruction,
+    onToken,
+    onComplete,
+    signal,
+  ) {
     if (!this.apiKey) {
       throw new Error("OpenAI API key is missing");
     }
@@ -17,7 +23,12 @@ export class OpenAIProvider extends AIProvider {
     }
     messages.forEach((msg) => {
       openaiMessages.push({
-        role: msg.role === "assistant" ? "assistant" : msg.role === "system" ? "system" : "user",
+        role:
+          msg.role === "assistant"
+            ? "assistant"
+            : msg.role === "system"
+              ? "system"
+              : "user",
         content: msg.content,
       });
     });
@@ -26,7 +37,7 @@ export class OpenAIProvider extends AIProvider {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
@@ -38,7 +49,9 @@ export class OpenAIProvider extends AIProvider {
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`OpenAI API returned error: ${response.status} - ${errText}`);
+      throw new Error(
+        `OpenAI API returned error: ${response.status} - ${errText}`,
+      );
     }
 
     const reader = response.body;
@@ -75,7 +88,7 @@ export class OpenAIProvider extends AIProvider {
         }
       }
     }
-    
+
     // Process remaining buffer if any
     if (buffer && buffer.trim().startsWith("data: ")) {
       try {

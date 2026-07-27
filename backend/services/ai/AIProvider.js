@@ -7,7 +7,13 @@ export class AIProvider {
    * @param {Function} onComplete - Callback invoked on completion with full response text
    * @param {AbortSignal} signal - Abort signal to cancel execution
    */
-  async generateStream(messages, systemInstruction, onToken, onComplete, signal) {
+  async generateStream(
+    messages,
+    systemInstruction,
+    onToken,
+    onComplete,
+    signal,
+  ) {
     throw new Error("generateStream not implemented");
   }
 }

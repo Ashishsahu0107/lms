@@ -6,7 +6,13 @@ export class ClaudeProvider extends AIProvider {
     this.apiKey = apiKey;
   }
 
-  async generateStream(messages, systemInstruction, onToken, onComplete, signal) {
+  async generateStream(
+    messages,
+    systemInstruction,
+    onToken,
+    onComplete,
+    signal,
+  ) {
     if (!this.apiKey) {
       throw new Error("Claude API key is missing");
     }
@@ -45,7 +51,9 @@ export class ClaudeProvider extends AIProvider {
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Claude API returned error: ${response.status} - ${errText}`);
+      throw new Error(
+        `Claude API returned error: ${response.status} - ${errText}`,
+      );
     }
 
     const reader = response.body;

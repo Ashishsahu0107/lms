@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { authenticate, authorize, topicOwnershipMiddleware } from "../middleware/auth.js";
+import {
+  authenticate,
+  authorize,
+  topicOwnershipMiddleware,
+} from "../middleware/auth.js";
 import {
   getTopicByIdController,
   createTopicController,
