@@ -17,7 +17,7 @@ const attemptAnswerSchema = new mongoose.Schema(
       default: false, // Flagged status for student bookmark review
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const quizAttemptSchema = new mongoose.Schema(
@@ -63,7 +63,7 @@ const quizAttemptSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Indexes

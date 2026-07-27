@@ -101,7 +101,7 @@ const quizSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Search optimization

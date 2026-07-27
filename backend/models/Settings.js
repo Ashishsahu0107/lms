@@ -25,7 +25,7 @@ const settingsSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Settings = mongoose.model("Settings", settingsSchema);
