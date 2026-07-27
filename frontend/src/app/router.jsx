@@ -1,6 +1,6 @@
 // src/app/router.jsx
 
-import React, { Suspense, lazy, useState, useEffect } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 
 import {
   createBrowserRouter,
@@ -22,7 +22,6 @@ import {
   Award,
   Settings,
   LogOut,
-  CreditCard,
   Shield,
   Bell,
   BarChart3,
@@ -36,8 +35,6 @@ import {
   Video,
   Sliders,
   Search,
-  Sun,
-  Moon,
   RefreshCw,
 } from "lucide-react";
 
@@ -573,9 +570,7 @@ function DashboardLayout() {
   }, [searchQuery]);
 
   return (
-    <div
-      className="h-screen overflow-hidden font-sans antialiased bg-base-200 text-base-content transition-colors duration-300"
-    >
+    <div className="h-screen overflow-hidden font-sans antialiased bg-base-200 text-base-content transition-colors duration-300">
       {/* LUXURY GOLD GLOW ORBS (only in dark mode) */}
       {isDarkMode && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -611,31 +606,23 @@ function DashboardLayout() {
         <aside
           className={cn(
             "fixed inset-y-0 left-0 z-50 w-72 flex flex-col overflow-hidden overscroll-none transition-all duration-300 bg-base-100/95 border-r border-base-300/40 backdrop-blur-2xl -translate-x-full lg:translate-x-0",
-            sidebarOpen && "translate-x-0"
+            sidebarOpen && "translate-x-0",
           )}
           style={{
             transform: sidebarOpen ? "translateX(0)" : undefined,
           }}
         >
           {/* Logo */}
-          <div
-            className="flex items-center justify-between px-6 py-5 border-b border-base-300/40"
-          >
+          <div className="flex items-center justify-between px-6 py-5 border-b border-base-300/40">
             <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary text-primary-content shadow-sm"
-              >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary text-primary-content shadow-sm">
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
-                <h1
-                  className="text-lg font-black tracking-tight text-primary"
-                >
+                <h1 className="text-lg font-black tracking-tight text-primary">
                   LMS <span className="text-base-content">PRO</span>
                 </h1>
-                <p
-                  className="text-[9px] uppercase font-bold tracking-widest text-primary/75"
-                >
+                <p className="text-[9px] uppercase font-bold tracking-widest text-primary/75">
                   Enterprise Suite
                 </p>
               </div>
@@ -649,30 +636,20 @@ function DashboardLayout() {
           </div>
 
           {/* User Card */}
-          <div
-            className="px-4 py-4 border-b border-base-300/30"
-          >
-            <div
-              className="flex items-center gap-3 p-3 rounded-2xl bg-base-200/50 border border-base-300/30"
-            >
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 bg-primary text-primary-content"
-              >
+          <div className="px-4 py-4 border-b border-base-300/30">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-base-200/50 border border-base-300/30">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 bg-primary text-primary-content">
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-base-content truncate">
                   {user?.name || "User"}
                 </p>
-                <p
-                  className="text-[10px] font-bold uppercase tracking-wider text-primary"
-                >
+                <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
                   {user?.role?.replace("_", " ")}
                 </p>
               </div>
-              <div
-                className="w-2 h-2 rounded-full shrink-0 bg-success"
-              />
+              <div className="w-2 h-2 rounded-full shrink-0 bg-success" />
             </div>
           </div>
 
@@ -690,22 +667,22 @@ function DashboardLayout() {
                     "group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 border border-transparent",
                     isActive
                       ? "bg-primary/10 border-primary/20 text-primary"
-                      : "text-base-content/70 hover:bg-base-200/60 hover:text-base-content"
+                      : "text-base-content/70 hover:bg-base-200/60 hover:text-base-content",
                   )}
                 >
                   <div className="flex items-center gap-3">
                     <Icon
                       className={cn(
                         "h-4 w-4 shrink-0 transition-colors",
-                        isActive ? "text-primary" : "text-base-content/60 group-hover:text-base-content"
+                        isActive
+                          ? "text-primary"
+                          : "text-base-content/60 group-hover:text-base-content",
                       )}
                     />
                     <span>{item.label}</span>
                   </div>
                   {isActive && (
-                    <ChevronRight
-                      className="h-3.5 w-3.5 text-primary"
-                    />
+                    <ChevronRight className="h-3.5 w-3.5 text-primary" />
                   )}
                 </Link>
               );
@@ -713,16 +690,12 @@ function DashboardLayout() {
           </div>
 
           {/* Theme Switcher */}
-          <div
-            className="px-4 py-3 border-t border-base-300/30"
-          >
+          <div className="px-4 py-3 border-t border-base-300/30">
             <ThemeToggle variant="sidebar" />
           </div>
 
           {/* Logout */}
-          <div
-            className="px-4 py-4"
-          >
+          <div className="px-4 py-4">
             <button
               onClick={handleLogout}
               className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200 bg-error/10 border border-error/20 text-error hover:bg-error/20"
@@ -736,9 +709,7 @@ function DashboardLayout() {
         {/* ── MAIN CONTENT ── */}
         <main className="flex-1 min-w-0 h-screen flex flex-col lg:ml-72 overflow-y-auto">
           {/* LUXURY TOPBAR */}
-          <header
-            className="sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4 transition-all duration-300 bg-base-100/80 border-b border-base-300/40 backdrop-blur-xl shadow-sm"
-          >
+          <header className="sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4 transition-all duration-300 bg-base-100/80 border-b border-base-300/40 backdrop-blur-xl shadow-sm">
             {/* Left: Menu + Title */}
             <div className="flex items-center gap-4">
               <button
@@ -748,9 +719,7 @@ function DashboardLayout() {
                 <Menu className="h-5 w-5 text-primary" />
               </button>
               <div className="hidden sm:flex items-center gap-2">
-                <div
-                  className="w-1.5 h-5 rounded-full bg-primary"
-                />
+                <div className="w-1.5 h-5 rounded-full bg-primary" />
                 <h2 className="text-sm font-black uppercase tracking-wider text-base-content">
                   {user?.role?.replace("_", " ")}{" "}
                   <span className="text-primary">Workspace</span>
@@ -768,9 +737,7 @@ function DashboardLayout() {
                   <Search className="h-4 w-4 text-primary" />
                   <span>Search anything...</span>
                 </div>
-                <kbd
-                  className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-base-300 border border-base-300/60 text-base-content/80"
-                >
+                <kbd className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-base-300 border border-base-300/60 text-base-content/80">
                   Ctrl+K
                 </kbd>
               </button>
@@ -787,18 +754,12 @@ function DashboardLayout() {
 
               <ThemeToggle variant="navbar" />
 
-              <button
-                className="p-2 rounded-xl relative bg-base-200/40 border border-base-300/30 text-base-content/70 hover:bg-base-200"
-              >
+              <button className="p-2 rounded-xl relative bg-base-200/40 border border-base-300/30 text-base-content/70 hover:bg-base-200">
                 <Bell className="h-4 w-4" />
-                <span
-                  className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse bg-primary"
-                />
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full animate-pulse bg-primary" />
               </button>
 
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs cursor-pointer bg-primary text-primary-content shadow-sm"
-              >
+              <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-xs cursor-pointer bg-primary text-primary-content shadow-sm">
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
             </div>
@@ -830,12 +791,8 @@ function DashboardLayout() {
             className="relative w-full max-w-2xl flex flex-col max-h-[70vh] z-10 overflow-hidden bg-base-100 border border-base-300/60 rounded-3xl shadow-2xl backdrop-blur-xl"
           >
             {/* Search Input */}
-            <div
-              className="p-4 flex items-center gap-3 border-b border-base-300/30"
-            >
-              <Search
-                className="h-5 w-5 shrink-0 text-primary"
-              />
+            <div className="p-4 flex items-center gap-3 border-b border-base-300/30">
+              <Search className="h-5 w-5 shrink-0 text-primary" />
               <input
                 type="text"
                 value={searchQuery}
@@ -856,9 +813,7 @@ function DashboardLayout() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {searchLoading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
-                  <RefreshCw
-                    className="h-6 w-6 animate-spin text-primary"
-                  />
+                  <RefreshCw className="h-6 w-6 animate-spin text-primary" />
                   <span className="text-xs text-base-content/60">
                     Searching database...
                   </span>
@@ -866,9 +821,7 @@ function DashboardLayout() {
               )}
               {!searchLoading && searchQuery.trim() === "" && (
                 <div className="text-center py-12">
-                  <Search
-                    className="h-10 w-10 mx-auto mb-3 opacity-20 text-primary"
-                  />
+                  <Search className="h-10 w-10 mx-auto mb-3 opacity-20 text-primary" />
                   <p className="text-xs text-base-content/60">
                     Search for courses, schedules, or summaries...
                   </p>
@@ -880,7 +833,9 @@ function DashboardLayout() {
                   <div className="text-center py-12">
                     <p className="text-sm text-base-content/60">
                       No results for{" "}
-                      <span className="text-primary font-bold">"{searchQuery}"</span>
+                      <span className="text-primary font-bold">
+                        "{searchQuery}"
+                      </span>
                     </p>
                   </div>
                 )}
@@ -890,9 +845,7 @@ function DashboardLayout() {
                   if (!items || items.length === 0) return null;
                   return (
                     <div key={category} className="space-y-2">
-                      <h3
-                        className="text-[10px] font-black uppercase tracking-widest px-2 text-primary"
-                      >
+                      <h3 className="text-[10px] font-black uppercase tracking-widest px-2 text-primary">
                         {category}
                       </h3>
                       <div className="space-y-1.5">

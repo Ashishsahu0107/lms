@@ -1,8 +1,16 @@
 // src/components/common/ThemeToggle.jsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Monitor, Sparkles, Shield, Briefcase, ChevronUp } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  Monitor,
+  Sparkles,
+  Shield,
+  Briefcase,
+  ChevronUp,
+} from "lucide-react";
 import { useTheme } from "../../hooks/useTheme";
 
 export function ThemeToggle({ variant = "navbar" }) {
@@ -10,12 +18,48 @@ export function ThemeToggle({ variant = "navbar" }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = [
-    { id: "light", label: "Light", icon: Sun, color: "text-amber-500", desc: "Clean borders and bright elements." },
-    { id: "luxury", label: "Luxury", icon: Sparkles, color: "text-amber-400", desc: "Premium deep dark backdrop with luxury gold accents." },
-    { id: "dark", label: "Classic Dark", icon: Moon, color: "text-indigo-400", desc: "Classic dark theme for reduced eye strain." },
-    { id: "corporate", label: "Corporate", icon: Shield, color: "text-blue-500", desc: "Professional corporate light theme for business workspaces." },
-    { id: "business", label: "Business", icon: Briefcase, color: "text-slate-400", desc: "Sleek dark theme tailored for finance and analytics." },
-    { id: "system", label: "System Auto", icon: Monitor, color: "text-emerald-400", desc: "Dynamically tracks your operating system colors." },
+    {
+      id: "light",
+      label: "Light",
+      icon: Sun,
+      color: "text-amber-500",
+      desc: "Clean borders and bright elements.",
+    },
+    {
+      id: "luxury",
+      label: "Luxury",
+      icon: Sparkles,
+      color: "text-amber-400",
+      desc: "Premium deep dark backdrop with luxury gold accents.",
+    },
+    {
+      id: "dark",
+      label: "Classic Dark",
+      icon: Moon,
+      color: "text-indigo-400",
+      desc: "Classic dark theme for reduced eye strain.",
+    },
+    {
+      id: "corporate",
+      label: "Corporate",
+      icon: Shield,
+      color: "text-blue-500",
+      desc: "Professional corporate light theme for business workspaces.",
+    },
+    {
+      id: "business",
+      label: "Business",
+      icon: Briefcase,
+      color: "text-slate-400",
+      desc: "Sleek dark theme tailored for finance and analytics.",
+    },
+    {
+      id: "system",
+      label: "System Auto",
+      icon: Monitor,
+      color: "text-emerald-400",
+      desc: "Dynamically tracks your operating system colors.",
+    },
   ];
 
   const currentOption = options.find((opt) => opt.id === theme) || options[1]; // default luxury/system
@@ -70,7 +114,9 @@ export function ThemeToggle({ variant = "navbar" }) {
                         : "hover:bg-base-200 text-base-content/80 hover:text-base-content"
                     }`}
                   >
-                    <OptIcon className={`h-4 w-4 ${isSelected ? "text-current" : opt.color}`} />
+                    <OptIcon
+                      className={`h-4 w-4 ${isSelected ? "text-current" : opt.color}`}
+                    />
                     {opt.label}
                   </button>
                 );
@@ -90,7 +136,9 @@ export function ThemeToggle({ variant = "navbar" }) {
           className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-base-300/40 bg-base-200/30 hover:bg-base-200 transition-all duration-200 text-xs font-semibold text-base-content/80"
         >
           <div className="flex items-center gap-2">
-            <IconComponent className={`h-4 w-4 shrink-0 ${currentOption.color}`} />
+            <IconComponent
+              className={`h-4 w-4 shrink-0 ${currentOption.color}`}
+            />
             <span className="truncate">Theme: {currentOption.label}</span>
           </div>
           <ChevronUp className="h-3.5 w-3.5 shrink-0 text-base-content/40" />
@@ -124,7 +172,9 @@ export function ThemeToggle({ variant = "navbar" }) {
                         : "hover:bg-base-200 text-base-content/80 hover:text-base-content"
                     }`}
                   >
-                    <OptIcon className={`h-4 w-4 ${isSelected ? "text-current" : opt.color}`} />
+                    <OptIcon
+                      className={`h-4 w-4 ${isSelected ? "text-current" : opt.color}`}
+                    />
                     {opt.label}
                   </button>
                 );
@@ -154,8 +204,12 @@ export function ThemeToggle({ variant = "navbar" }) {
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="font-bold text-sm text-base-content">{opt.label}</span>
-              <OptIcon className={`h-5 w-5 ${isSelected ? "text-primary" : opt.color}`} />
+              <span className="font-bold text-sm text-base-content">
+                {opt.label}
+              </span>
+              <OptIcon
+                className={`h-5 w-5 ${isSelected ? "text-primary" : opt.color}`}
+              />
             </div>
             <p className="text-xs text-base-content/60 mt-1 leading-relaxed">
               {opt.desc}

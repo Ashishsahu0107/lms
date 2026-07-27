@@ -1,6 +1,6 @@
 // src/pages/auth/LoginPage.jsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { apiPost } from "../../services/apiClient";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,7 +95,9 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error("Login failure:", err);
-      setError(err.response?.data?.message || err.message || "Failed to log in");
+      setError(
+        err.response?.data?.message || err.message || "Failed to log in",
+      );
     } finally {
       setLoading(false);
     }
@@ -107,16 +109,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 py-12"
-      style={{ background: "linear-gradient(135deg, #0F172A 0%, #0B1120 50%, #1E293B 100%)" }}
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 py-12"
+      style={{
+        background:
+          "linear-gradient(135deg, #0F172A 0%, #0B1120 50%, #1E293B 100%)",
+      }}
     >
       {/* ── Floating Gold Orbs ── */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 pointer-events-none animate-gold-orb"
-        style={{ background: "radial-gradient(circle, rgba(201,162,39,0.4) 0%, transparent 70%)", filter: "blur(60px)" }} />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-15 pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)", filter: "blur(50px)", animation: "float 8s ease-in-out infinite" }} />
-      <div className="absolute top-10 right-10 w-48 h-48 rounded-full opacity-10 pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(201,162,39,0.5) 0%, transparent 70%)", filter: "blur(40px)", animation: "float 5s ease-in-out 1s infinite" }} />
+      <div
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 pointer-events-none animate-gold-orb"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(201,162,39,0.4) 0%, transparent 70%)",
+          filter: "blur(60px)",
+        }}
+      />
+      <div
+        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-15 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)",
+          filter: "blur(50px)",
+          animation: "float 8s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="absolute top-10 right-10 w-48 h-48 rounded-full opacity-10 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(201,162,39,0.5) 0%, transparent 70%)",
+          filter: "blur(40px)",
+          animation: "float 5s ease-in-out 1s infinite",
+        }}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
@@ -129,13 +155,26 @@ export default function LoginPage() {
           <motion.div
             initial={{ scale: 0, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 20,
+              delay: 0.1,
+            }}
             className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-5 relative"
-            style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", boxShadow: "0 0 30px rgba(201,162,39,0.5), 0 0 80px rgba(201,162,39,0.2)" }}
+            style={{
+              background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+              boxShadow:
+                "0 0 30px rgba(201,162,39,0.5), 0 0 80px rgba(201,162,39,0.2)",
+            }}
           >
             <GraduationCap className="h-10 w-10 text-slate-950" />
-            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)" }}>
+            <div
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
+              style={{
+                background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+              }}
+            >
               <Sparkles className="h-3 w-3 text-slate-950" />
             </div>
           </motion.div>
@@ -170,18 +209,28 @@ export default function LoginPage() {
             WebkitBackdropFilter: "blur(24px)",
             border: "1px solid rgba(201,162,39,0.2)",
             borderRadius: "1.5rem",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,162,39,0.1)",
+            boxShadow:
+              "0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,162,39,0.1)",
           }}
         >
           {/* Gold top border accent */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-0.5 rounded-full"
-            style={{ background: "linear-gradient(90deg, transparent, #C9A227, transparent)" }} />
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-0.5 rounded-full"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, #C9A227, transparent)",
+            }}
+          />
 
           <div className="p-8">
             {/* ── Title ── */}
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-              <p className="text-slate-400 text-sm">Sign in to access your workspace</p>
+              <h2 className="text-2xl font-bold text-white mb-1">
+                Welcome back
+              </h2>
+              <p className="text-slate-400 text-sm">
+                Sign in to access your workspace
+              </p>
             </div>
 
             {/* ── Error ── */}
@@ -192,7 +241,11 @@ export default function LoginPage() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   className="mb-4 rounded-xl p-3.5 flex items-center gap-2 text-sm"
-                  style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171" }}
+                  style={{
+                    background: "rgba(239,68,68,0.1)",
+                    border: "1px solid rgba(239,68,68,0.3)",
+                    color: "#f87171",
+                  }}
                 >
                   <Shield className="h-4 w-4 shrink-0" />
                   {error}
@@ -202,7 +255,6 @@ export default function LoginPage() {
 
             {/* ── Form ── */}
             <form onSubmit={handleLogin} className="space-y-4">
-
               {/* Email */}
               <div>
                 <label className="block text-sm font-semibold text-slate-300 mb-2">
@@ -223,7 +275,8 @@ export default function LoginPage() {
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = "#C9A227";
-                      e.target.style.boxShadow = "0 0 0 3px rgba(201,162,39,0.15)";
+                      e.target.style.boxShadow =
+                        "0 0 0 3px rgba(201,162,39,0.15)";
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = "rgba(201,162,39,0.2)";
@@ -236,12 +289,15 @@ export default function LoginPage() {
               {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-semibold text-slate-300">Password</label>
-                  <Link to="/forgot-password"
+                  <label className="text-sm font-semibold text-slate-300">
+                    Password
+                  </label>
+                  <Link
+                    to="/forgot-password"
                     className="text-xs font-semibold transition-colors"
                     style={{ color: "#C9A227" }}
-                    onMouseEnter={(e) => e.target.style.color = "#F59E0B"}
-                    onMouseLeave={(e) => e.target.style.color = "#C9A227"}
+                    onMouseEnter={(e) => (e.target.style.color = "#F59E0B")}
+                    onMouseLeave={(e) => (e.target.style.color = "#C9A227")}
                   >
                     Forgot password?
                   </Link>
@@ -261,7 +317,8 @@ export default function LoginPage() {
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = "#C9A227";
-                      e.target.style.boxShadow = "0 0 0 3px rgba(201,162,39,0.15)";
+                      e.target.style.boxShadow =
+                        "0 0 0 3px rgba(201,162,39,0.15)";
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = "rgba(201,162,39,0.2)";
@@ -273,7 +330,11 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-gold transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -286,9 +347,13 @@ export default function LoginPage() {
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 mt-2 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
-                  background: loading ? "rgba(201,162,39,0.5)" : "linear-gradient(135deg, #C9A227, #F59E0B)",
+                  background: loading
+                    ? "rgba(201,162,39,0.5)"
+                    : "linear-gradient(135deg, #C9A227, #F59E0B)",
                   color: "#0F172A",
-                  boxShadow: loading ? "none" : "0 4px 20px rgba(201,162,39,0.4)",
+                  boxShadow: loading
+                    ? "none"
+                    : "0 4px 20px rgba(201,162,39,0.4)",
                 }}
               >
                 {loading ? (
@@ -308,12 +373,18 @@ export default function LoginPage() {
             {/* ── Demo Quick Login ── */}
             <div className="mt-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="flex-1 h-px" style={{ background: "rgba(201,162,39,0.15)" }} />
+                <div
+                  className="flex-1 h-px"
+                  style={{ background: "rgba(201,162,39,0.15)" }}
+                />
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Zap className="h-3 w-3" style={{ color: "#C9A227" }} />
                   Quick Demo Login
                 </span>
-                <div className="flex-1 h-px" style={{ background: "rgba(201,162,39,0.15)" }} />
+                <div
+                  className="flex-1 h-px"
+                  style={{ background: "rgba(201,162,39,0.15)" }}
+                />
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {demoUsers.map((demo) => (
@@ -329,11 +400,13 @@ export default function LoginPage() {
                       border: "1px solid rgba(201,162,39,0.15)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(201,162,39,0.4)";
+                      e.currentTarget.style.borderColor =
+                        "rgba(201,162,39,0.4)";
                       e.currentTarget.style.background = "rgba(201,162,39,0.1)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(201,162,39,0.15)";
+                      e.currentTarget.style.borderColor =
+                        "rgba(201,162,39,0.15)";
                       e.currentTarget.style.background = "rgba(30,41,59,0.8)";
                     }}
                   >
@@ -346,11 +419,12 @@ export default function LoginPage() {
             {/* ── Register Link ── */}
             <p className="mt-6 text-center text-sm text-slate-500">
               Don&apos;t have an account?{" "}
-              <Link to="/register"
+              <Link
+                to="/register"
                 className="font-bold transition-colors"
                 style={{ color: "#C9A227" }}
-                onMouseEnter={(e) => e.target.style.color = "#F59E0B"}
-                onMouseLeave={(e) => e.target.style.color = "#C9A227"}
+                onMouseEnter={(e) => (e.target.style.color = "#F59E0B")}
+                onMouseLeave={(e) => (e.target.style.color = "#C9A227")}
               >
                 Create Account
               </Link>
@@ -366,7 +440,9 @@ export default function LoginPage() {
           className="mt-6 text-center flex items-center justify-center gap-2"
         >
           <Shield className="h-3.5 w-3.5 text-slate-600" />
-          <span className="text-xs text-slate-600">256-bit SSL Encrypted · JWT Secured · Role-Based Access</span>
+          <span className="text-xs text-slate-600">
+            256-bit SSL Encrypted · JWT Secured · Role-Based Access
+          </span>
         </motion.div>
       </motion.div>
     </div>

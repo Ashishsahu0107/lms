@@ -1,5 +1,3 @@
-import React from "react";
-
 export function Card({ children, className = "" }) {
   return (
     <div
@@ -12,7 +10,9 @@ export function Card({ children, className = "" }) {
 
 export function CardHeader({ children, className = "" }) {
   return (
-    <div className={`p-6 border-b border-slate-100 dark:border-white/5 ${className}`}>
+    <div
+      className={`p-6 border-b border-slate-100 dark:border-white/5 ${className}`}
+    >
       {children}
     </div>
   );
@@ -20,16 +20,14 @@ export function CardHeader({ children, className = "" }) {
 
 export function CardTitle({ children, className = "" }) {
   return (
-    <h2 className={`text-lg font-bold tracking-tight text-slate-850 dark:text-white ${className}`}>
+    <h2
+      className={`text-lg font-bold tracking-tight text-slate-850 dark:text-white ${className}`}
+    >
       {children}
     </h2>
   );
 }
 
 export function CardContent({ children, className = "" }) {
-  return (
-    <div className={`p-6 ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`p-6 ${className}`}>{children}</div>;
 }

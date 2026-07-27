@@ -1,6 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { BookOpen, FileText, Upload, Plus, Trash2, RefreshCw, Sparkles, HelpCircle } from "lucide-react";
-import { getNotes, createNote, deleteNote } from "../../../services/notesService";
+import { useState, useEffect } from "react";
+import {
+  BookOpen,
+  FileText,
+  Upload,
+  Plus,
+  Trash2,
+  RefreshCw,
+  HelpCircle,
+} from "lucide-react";
+import {
+  getNotes,
+  createNote,
+  deleteNote,
+} from "../../../services/notesService";
 import { getCourses } from "../../../services/courseService";
 import { useSocket } from "../../../context/SocketContext";
 import { toast } from "react-hot-toast";
@@ -24,7 +36,9 @@ export default function NotesDashboard() {
       try {
         const res = await getCourses();
         if (res && res.success) {
-          const list = Array.isArray(res.data) ? res.data : res.data?.courses || [];
+          const list = Array.isArray(res.data)
+            ? res.data
+            : res.data?.courses || [];
           setCourses(list);
           if (list.length > 0) {
             setSelectedCourse(list[0]._id);
@@ -115,7 +129,8 @@ export default function NotesDashboard() {
   };
 
   const handleDelete = async (noteId) => {
-    if (!window.confirm("Are you sure you want to delete this notes resource?")) return;
+    if (!window.confirm("Are you sure you want to delete this notes resource?"))
+      return;
 
     try {
       const res = await deleteNote(noteId);
@@ -136,7 +151,10 @@ export default function NotesDashboard() {
           <h1 className="text-3xl font-extrabold text-white bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
             Notes Management & Resources
           </h1>
-          <p className="text-sm text-white/50 mt-1">Upload PDF materials, rich summaries, and learning study guides for your course classrooms.</p>
+          <p className="text-sm text-white/50 mt-1">
+            Upload PDF materials, rich summaries, and learning study guides for
+            your course classrooms.
+          </p>
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
@@ -155,7 +173,11 @@ export default function NotesDashboard() {
           className="w-full bg-transparent text-sm text-white focus:outline-none cursor-pointer"
         >
           {courses.map((course) => (
-            <option key={course._id} value={course._id} className="bg-neutral-900 text-white">
+            <option
+              key={course._id}
+              value={course._id}
+              className="bg-neutral-900 text-white"
+            >
               {course.title}
             </option>
           ))}
@@ -165,13 +187,17 @@ export default function NotesDashboard() {
       {/* Notes list */}
       {loading ? (
         <div className="py-12 flex items-center justify-center text-white/40 gap-2">
-          <RefreshCw className="h-5 w-5 animate-spin" /> Loading course summaries...
+          <RefreshCw className="h-5 w-5 animate-spin" /> Loading course
+          summaries...
         </div>
       ) : notes.length === 0 ? (
         <div className="rounded-2xl border border-white/5 bg-white/5 p-12 text-center text-white/40 space-y-3">
           <FileText className="h-12 w-12 mx-auto text-white/20" />
           <p className="font-semibold text-white/60">No Notes Uploaded</p>
-          <p className="text-xs max-w-sm mx-auto">You have not published any study summaries or files for this course yet.</p>
+          <p className="text-xs max-w-sm mx-auto">
+            You have not published any study summaries or files for this course
+            yet.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,7 +212,9 @@ export default function NotesDashboard() {
                     <div className="rounded-xl border border-purple-500/20 bg-purple-500/10 p-2 text-purple-400">
                       <FileText className="h-5 w-5" />
                     </div>
-                    <h3 className="font-bold text-white leading-tight">{note.title}</h3>
+                    <h3 className="font-bold text-white leading-tight">
+                      {note.title}
+                    </h3>
                   </div>
                   <button
                     onClick={() => handleDelete(note._id)}
@@ -227,13 +255,16 @@ export default function NotesDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
           <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-neutral-900 p-8 shadow-2xl space-y-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Upload className="h-5 w-5 text-purple-400" /> Upload Course Notes Summary
+              <Upload className="h-5 w-5 text-purple-400" /> Upload Course Notes
+              Summary
             </h2>
 
             <form onSubmit={handleUpload} className="space-y-4">
               {/* Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Document Title</label>
+                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+                  Document Title
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. Lecture 4: State Hook Patterns"
@@ -246,7 +277,9 @@ export default function NotesDashboard() {
 
               {/* Rich text summaries */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Notes Summary (Rich Content)</label>
+                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+                  Notes Summary (Rich Content)
+                </label>
                 <textarea
                   rows="4"
                   placeholder="Type outline summary or HTML study tips here..."
@@ -258,7 +291,9 @@ export default function NotesDashboard() {
 
               {/* File Url */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">PDF notes Document Link</label>
+                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+                  PDF notes Document Link
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. https://domain.edu/notes/lecture-4.pdf"
@@ -282,7 +317,9 @@ export default function NotesDashboard() {
                   disabled={creating}
                   className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 px-5 py-2 text-sm font-bold text-white hover:opacity-90 shadow"
                 >
-                  {creating ? <RefreshCw className="h-4 w-4 animate-spin" /> : null}
+                  {creating ? (
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  ) : null}
                   Publish Note
                 </button>
               </div>

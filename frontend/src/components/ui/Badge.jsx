@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "../../utils/cn";
 
 export function Badge({ className, variant = "default", children, ...props }) {
@@ -16,7 +15,7 @@ export function Badge({ className, variant = "default", children, ...props }) {
       className={cn(
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
         variants[variant],
-        className
+        className,
       )}
       {...props}
     >

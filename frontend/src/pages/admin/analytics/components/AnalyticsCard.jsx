@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
@@ -14,9 +13,12 @@ export default function AnalyticsCard({
 }) {
   const colorGradients = {
     blue: "from-blue-500/20 to-indigo-500/5 border-blue-500/30 text-blue-400",
-    purple: "from-purple-500/20 to-pink-500/5 border-purple-500/30 text-purple-400",
-    emerald: "from-emerald-500/20 to-teal-500/5 border-emerald-500/30 text-emerald-400",
-    amber: "from-amber-500/20 to-orange-500/5 border-amber-500/30 text-amber-400",
+    purple:
+      "from-purple-500/20 to-pink-500/5 border-purple-500/30 text-purple-400",
+    emerald:
+      "from-emerald-500/20 to-teal-500/5 border-emerald-500/30 text-emerald-400",
+    amber:
+      "from-amber-500/20 to-orange-500/5 border-amber-500/30 text-amber-400",
     rose: "from-rose-500/20 to-red-500/5 border-rose-500/30 text-rose-400",
   };
 
@@ -37,7 +39,9 @@ export default function AnalyticsCard({
       }`}
     >
       {/* Background glow orb */}
-      <div className={`absolute -right-12 -top-12 h-24 w-24 rounded-full bg-gradient-to-br opacity-20 blur-2xl ${colorGradients[color]}`} />
+      <div
+        className={`absolute -right-12 -top-12 h-24 w-24 rounded-full bg-gradient-to-br opacity-20 blur-2xl ${colorGradients[color]}`}
+      />
 
       {loading ? (
         <div className="space-y-4 animate-pulse">
@@ -55,7 +59,9 @@ export default function AnalyticsCard({
               {title}
             </span>
             {Icon && (
-              <div className={`rounded-xl border p-2.5 bg-white/5 ${colorGradients[color]}`}>
+              <div
+                className={`rounded-xl border p-2.5 bg-white/5 ${colorGradients[color]}`}
+              >
                 <Icon className="h-5 w-5" />
               </div>
             )}
@@ -84,9 +90,7 @@ export default function AnalyticsCard({
           </div>
 
           {subtext && (
-            <p className="text-xs font-medium text-white/40">
-              {subtext}
-            </p>
+            <p className="text-xs font-medium text-white/40">{subtext}</p>
           )}
         </div>
       )}

@@ -1,19 +1,15 @@
 // src/pages/superadmin/quizzes/AdminQuizzes.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Trash2,
   Search,
   HelpCircle,
-  FileText,
-  Calendar,
-  Eye,
   ShieldAlert,
   Sparkles,
   Users,
-  Award,
   Clock,
   BarChart2,
 } from "lucide-react";
@@ -51,15 +47,21 @@ export default function AdminQuizzes() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("WARNING: You are logged in as SUPER ADMIN. Deleting this quiz will cascade delete ALL associated questions, attempts history, and student scorecards. This action is permanent. Continue?")) {
+    if (
+      !window.confirm(
+        "WARNING: You are logged in as SUPER ADMIN. Deleting this quiz will cascade delete ALL associated questions, attempts history, and student scorecards. This action is permanent. Continue?",
+      )
+    ) {
       return;
     }
 
     try {
       const res = await deleteQuiz(id);
       if (res.data?.success) {
-        setQuizzes(quizzes.filter(q => q._id !== id));
-        toast.success("Platform quiz and all attempts logs permanently purged!");
+        setQuizzes(quizzes.filter((q) => q._id !== id));
+        toast.success(
+          "Platform quiz and all attempts logs permanently purged!",
+        );
       } else {
         toast.error("Failed to purge assessment card");
       }
@@ -69,10 +71,15 @@ export default function AdminQuizzes() {
     }
   };
 
-  const filteredQuizzes = quizzes.filter((q) =>
-    q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (q.courseId?.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (q.createdBy?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredQuizzes = quizzes.filter(
+    (q) =>
+      q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (q.courseId?.title || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (q.createdBy?.name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -90,8 +97,13 @@ export default function AdminQuizzes() {
               <ShieldAlert className="h-3.5 w-3.5" /> Platform Audits Panel
             </span>
           </div>
-          <h1 className="text-3xl font-extrabold text-foreground">Global Quizzes Moderator</h1>
-          <p className="text-sm text-muted-foreground">Monitor, audit and delete corrupt exam materials across all platform courses.</p>
+          <h1 className="text-3xl font-extrabold text-foreground">
+            Global Quizzes Moderator
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Monitor, audit and delete corrupt exam materials across all platform
+            courses.
+          </p>
         </div>
       </div>
 
@@ -103,8 +115,12 @@ export default function AdminQuizzes() {
               <HelpCircle className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total platform quizzes</p>
-              <h3 className="text-2xl font-extrabold text-foreground">{quizzes.length} Quizzes</h3>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Total platform quizzes
+              </p>
+              <h3 className="text-2xl font-extrabold text-foreground">
+                {quizzes.length} Quizzes
+              </h3>
             </div>
           </CardContent>
         </Card>
@@ -115,9 +131,12 @@ export default function AdminQuizzes() {
               <Sparkles className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Active Published Exams</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Active Published Exams
+              </p>
               <h3 className="text-2xl font-extrabold text-foreground">
-                {quizzes.filter(q => q.status === "published").length} Published
+                {quizzes.filter((q) => q.status === "published").length}{" "}
+                Published
               </h3>
             </div>
           </CardContent>
@@ -129,9 +148,11 @@ export default function AdminQuizzes() {
               <Users className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Unique Quiz Creators</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Unique Quiz Creators
+              </p>
               <h3 className="text-2xl font-extrabold text-foreground">
-                {new Set(quizzes.map(q => q.createdBy?._id)).size} Instructors
+                {new Set(quizzes.map((q) => q.createdBy?._id)).size} Instructors
               </h3>
             </div>
           </CardContent>
@@ -158,13 +179,19 @@ export default function AdminQuizzes() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="loading loading-spinner loading-lg text-primary"></div>
-              <p className="text-sm text-muted-foreground animate-pulse font-medium">Auditing assessment database...</p>
+              <p className="text-sm text-muted-foreground animate-pulse font-medium">
+                Auditing assessment database...
+              </p>
             </div>
           ) : filteredQuizzes.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground text-sm flex flex-col items-center">
               <ShieldAlert className="h-10 w-10 text-muted-foreground/60 mb-3" />
-              <h3 className="text-lg font-bold mb-1">No platform quizzes found</h3>
-              <p className="text-xs text-muted-foreground">Audit search returned 0 active exams in database.</p>
+              <h3 className="text-lg font-bold mb-1">
+                No platform quizzes found
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Audit search returned 0 active exams in database.
+              </p>
             </div>
           ) : (
             <table className="table w-full text-sm">
@@ -183,15 +210,22 @@ export default function AdminQuizzes() {
               <tbody>
                 {filteredQuizzes.map((quiz) => {
                   return (
-                    <tr key={quiz._id} className="border-b border-base-200 hover:bg-base-200/40 transition-colors">
+                    <tr
+                      key={quiz._id}
+                      className="border-b border-base-200 hover:bg-base-200/40 transition-colors"
+                    >
                       <td className="font-bold flex items-center gap-3">
                         <div className="p-2 bg-error/10 text-error rounded-xl">
                           <HelpCircle className="h-5 w-5" />
                         </div>
-                        <span className="text-foreground line-clamp-1">{quiz.title}</span>
+                        <span className="text-foreground line-clamp-1">
+                          {quiz.title}
+                        </span>
                       </td>
                       <td>
-                        <span className="font-semibold text-muted-foreground text-xs">{quiz.courseId?.title || "Enrolled Course"}</span>
+                        <span className="font-semibold text-muted-foreground text-xs">
+                          {quiz.courseId?.title || "Enrolled Course"}
+                        </span>
                       </td>
                       <td>
                         <span className="badge badge-neutral text-xs font-semibold py-1 px-2 rounded-lg">
@@ -205,21 +239,32 @@ export default function AdminQuizzes() {
                       </td>
                       <td>
                         <span className="text-xs text-muted-foreground flex items-center gap-1 font-semibold">
-                          <Clock className="h-3.5 w-3.5 text-warning/80" /> {quiz.duration} Mins
+                          <Clock className="h-3.5 w-3.5 text-warning/80" />{" "}
+                          {quiz.duration} Mins
                         </span>
                       </td>
-                      <td className="font-bold text-foreground">{quiz.totalMarks} Marks</td>
+                      <td className="font-bold text-foreground">
+                        {quiz.totalMarks} Marks
+                      </td>
                       <td>
-                        <span className={`badge rounded-xl px-2.5 py-1 text-[10px] font-bold text-white capitalize ${
-                          quiz.status === "published" ? "bg-success" : quiz.status === "closed" ? "bg-error" : "bg-warning"
-                        }`}>
+                        <span
+                          className={`badge rounded-xl px-2.5 py-1 text-[10px] font-bold text-white capitalize ${
+                            quiz.status === "published"
+                              ? "bg-success"
+                              : quiz.status === "closed"
+                                ? "bg-error"
+                                : "bg-warning"
+                          }`}
+                        >
                           {quiz.status}
                         </span>
                       </td>
                       <td className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
-                            onClick={() => navigate(`/teacher/quizzes/analytics/${quiz._id}`)}
+                            onClick={() =>
+                              navigate(`/teacher/quizzes/analytics/${quiz._id}`)
+                            }
                             size="icon"
                             variant="ghost"
                             className="hover:text-primary rounded-full bg-base-200 p-2"

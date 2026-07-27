@@ -1,7 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Trophy, CheckCircle2, XCircle, RefreshCw, Star, HelpCircle, FileCheck, Clock, AlertTriangle, TrendingUp } from "lucide-react";
-import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
+import { useState, useEffect } from "react";
+import {
+  Trophy,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
+  Star,
+  HelpCircle,
+  FileCheck,
+  Clock,
+  AlertTriangle,
+  TrendingUp,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 import { getPerformanceAnalytics } from "../../../services/adminAnalyticsService";
 import AnalyticsCard from "./components/AnalyticsCard";
 import FilterSystem from "./components/FilterSystem";
@@ -53,16 +77,27 @@ export default function PerformanceAnalytics() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-amber-400" /> Quiz & Assignment Academic Performance
+            <Trophy className="h-5 w-5 text-amber-400" /> Quiz & Assignment
+            Academic Performance
           </h2>
-          <p className="text-xs text-white/50">Analyze student quiz accuracy, pass/fail compliance margins, assignment ratios, and top student rankings.</p>
+          <p className="text-xs text-white/50">
+            Analyze student quiz accuracy, pass/fail compliance margins,
+            assignment ratios, and top student rankings.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {data?.leaderboard && (
             <ExportFeatures
               data={data.leaderboard}
               title="Students Leaderboard Rankings"
-              csvHeaders={["name", "email", "avgScore", "avgAccuracy", "quizzesAttempted", "completedCourses"]}
+              csvHeaders={[
+                "name",
+                "email",
+                "avgScore",
+                "avgAccuracy",
+                "quizzesAttempted",
+                "completedCourses",
+              ]}
             />
           )}
           <button
@@ -141,16 +176,25 @@ export default function PerformanceAnalytics() {
         {/* Quiz Attempts Trend */}
         <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
           <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-1.5">
-            <TrendingUp className="h-4 w-4 text-emerald-400" /> Quiz Attempts Trend
+            <TrendingUp className="h-4 w-4 text-emerald-400" /> Quiz Attempts
+            Trend
           </h3>
           <div className="h-80 w-full">
             {loading ? (
-              <div className="h-full flex items-center justify-center text-white/30">Loading attempts trend...</div>
+              <div className="h-full flex items-center justify-center text-white/30">
+                Loading attempts trend...
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={data?.attemptsTrend}>
                   <defs>
-                    <linearGradient id="attemptsGlow" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="attemptsGlow"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                     </linearGradient>
@@ -158,8 +202,20 @@ export default function PerformanceAnalytics() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
                   <XAxis dataKey="date" stroke="#ffffff40" fontSize={11} />
                   <YAxis stroke="#ffffff40" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }} />
-                  <Area type="monotone" dataKey="attempts" stroke="#10B981" fillOpacity={1} fill="url(#attemptsGlow)" strokeWidth={2} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#333",
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="attempts"
+                    stroke="#10B981"
+                    fillOpacity={1}
+                    fill="url(#attemptsGlow)"
+                    strokeWidth={2}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -177,8 +233,17 @@ export default function PerformanceAnalytics() {
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Tooltip contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }} />
-                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 11 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#333",
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    wrapperStyle={{ fontSize: 11 }}
+                  />
                   <Pie
                     data={pieData}
                     cx="50%"
@@ -189,15 +254,22 @@ export default function PerformanceAnalytics() {
                     dataKey="value"
                   >
                     {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
             )}
             <div className="absolute top-[37%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-              <span className="text-2xl font-black text-white">{data?.metrics?.passRate}%</span>
-              <p className="text-[10px] text-white/40 uppercase font-semibold">Pass Compliance</p>
+              <span className="text-2xl font-black text-white">
+                {data?.metrics?.passRate}%
+              </span>
+              <p className="text-[10px] text-white/40 uppercase font-semibold">
+                Pass Compliance
+              </p>
             </div>
           </div>
         </div>
@@ -208,21 +280,32 @@ export default function PerformanceAnalytics() {
         {/* Quiz Distribution */}
         <div className="rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
           <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-1.5">
-            <Trophy className="h-4 w-4 text-amber-400" /> Quiz Grade Accuracy Distribution
+            <Trophy className="h-4 w-4 text-amber-400" /> Quiz Grade Accuracy
+            Distribution
           </h3>
           <div className="h-80 w-full">
             {loading ? (
-              <div className="h-full flex items-center justify-center text-white/30">Loading score distributions...</div>
+              <div className="h-full flex items-center justify-center text-white/30">
+                Loading score distributions...
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data?.quizDistribution}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
                   <XAxis dataKey="range" stroke="#ffffff40" fontSize={11} />
                   <YAxis stroke="#ffffff40" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#333",
+                    }}
+                  />
                   <Bar dataKey="count" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
                     {data?.quizDistribution?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={DIST_COLORS[index % DIST_COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={DIST_COLORS[index % DIST_COLORS.length]}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -235,27 +318,47 @@ export default function PerformanceAnalytics() {
         <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-1.5">
-              <AlertTriangle className="h-4 w-4 text-rose-500" /> Most Difficult Questions
+              <AlertTriangle className="h-4 w-4 text-rose-500" /> Most Difficult
+              Questions
             </h3>
             <div className="space-y-4">
               {loading ? (
-                <div className="text-white/30 text-center py-12">Loading difficult questions...</div>
-              ) : !data?.mostDifficultQuestions || data.mostDifficultQuestions.length === 0 ? (
-                <div className="text-white/30 text-center py-12">No questions data available.</div>
+                <div className="text-white/30 text-center py-12">
+                  Loading difficult questions...
+                </div>
+              ) : !data?.mostDifficultQuestions ||
+                data.mostDifficultQuestions.length === 0 ? (
+                <div className="text-white/30 text-center py-12">
+                  No questions data available.
+                </div>
               ) : (
                 data.mostDifficultQuestions.map((q, idx) => (
-                  <div key={idx} className="p-4 rounded-xl border border-white/5 bg-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl border border-white/5 bg-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  >
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-white/90">{q.questionText}</p>
-                      <span className="text-xs text-white/40">{q.quizTitle}</span>
+                      <p className="text-sm font-semibold text-white/90">
+                        {q.questionText}
+                      </p>
+                      <span className="text-xs text-white/40">
+                        {q.quizTitle}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 self-start sm:self-center">
                       <div className="text-right">
-                        <span className="text-sm font-bold text-rose-400">{q.failureRate}%</span>
-                        <p className="text-[10px] text-white/40 uppercase">Failure Rate</p>
+                        <span className="text-sm font-bold text-rose-400">
+                          {q.failureRate}%
+                        </span>
+                        <p className="text-[10px] text-white/40 uppercase">
+                          Failure Rate
+                        </p>
                       </div>
                       <div className="w-16 bg-white/10 rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-rose-500 h-1.5 rounded-full" style={{ width: `${q.failureRate}%` }} />
+                        <div
+                          className="bg-rose-500 h-1.5 rounded-full"
+                          style={{ width: `${q.failureRate}%` }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -265,7 +368,8 @@ export default function PerformanceAnalytics() {
           </div>
           <div className="mt-4 pt-4 border-t border-white/5">
             <p className="text-xs text-white/40">
-              💡 Tip: Review concepts related to these questions to optimize curriculum performance.
+              💡 Tip: Review concepts related to these questions to optimize
+              curriculum performance.
             </p>
           </div>
         </div>
@@ -275,7 +379,8 @@ export default function PerformanceAnalytics() {
       <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-xl">
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase flex items-center gap-1.5">
-            <Star className="h-4 w-4 text-amber-400" /> Academic Hall of Fame (Top Student Rankings)
+            <Star className="h-4 w-4 text-amber-400" /> Academic Hall of Fame
+            (Top Student Rankings)
           </h3>
         </div>
         <div className="overflow-x-auto">
@@ -294,36 +399,55 @@ export default function PerformanceAnalytics() {
             <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-white/30">Loading leaderboards...</td>
+                  <td colSpan="7" className="py-8 text-center text-white/30">
+                    Loading leaderboards...
+                  </td>
                 </tr>
               ) : data?.leaderboard?.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-white/30">No quiz submissions record found.</td>
+                  <td colSpan="7" className="py-8 text-center text-white/30">
+                    No quiz submissions record found.
+                  </td>
                 </tr>
               ) : (
                 data?.leaderboard?.map((student, index) => (
-                  <tr key={index} className="hover:bg-white/5 transition-colors">
+                  <tr
+                    key={index}
+                    className="hover:bg-white/5 transition-colors"
+                  >
                     <td className="py-4 px-6 text-center">
                       <div className="flex items-center justify-center">
-                        <span className={`h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs ${
-                          index === 0
-                            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                            : index === 1
-                            ? "bg-slate-300/20 text-slate-300 border border-slate-300/30"
-                            : index === 2
-                            ? "bg-amber-700/20 text-amber-600 border border-amber-700/30"
-                            : "bg-white/5 text-white/60"
-                        }`}>
+                        <span
+                          className={`h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs ${
+                            index === 0
+                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                              : index === 1
+                                ? "bg-slate-300/20 text-slate-300 border border-slate-300/30"
+                                : index === 2
+                                  ? "bg-amber-700/20 text-amber-600 border border-amber-700/30"
+                                  : "bg-white/5 text-white/60"
+                          }`}
+                        >
                           {index + 1}
                         </span>
                       </div>
                     </td>
-                    <td className="py-4 px-6 font-semibold text-white">{student.name}</td>
+                    <td className="py-4 px-6 font-semibold text-white">
+                      {student.name}
+                    </td>
                     <td className="py-4 px-6 text-white/50">{student.email}</td>
-                    <td className="py-4 px-6 text-center font-bold text-blue-400">{student.avgScore}/100</td>
-                    <td className="py-4 px-6 text-center font-black text-emerald-400">{student.avgAccuracy}%</td>
-                    <td className="py-4 px-6 text-center text-white/60">{student.quizzesAttempted}</td>
-                    <td className="py-4 px-6 text-center font-semibold text-purple-400">{student.completedCourses} courses</td>
+                    <td className="py-4 px-6 text-center font-bold text-blue-400">
+                      {student.avgScore}/100
+                    </td>
+                    <td className="py-4 px-6 text-center font-black text-emerald-400">
+                      {student.avgAccuracy}%
+                    </td>
+                    <td className="py-4 px-6 text-center text-white/60">
+                      {student.quizzesAttempted}
+                    </td>
+                    <td className="py-4 px-6 text-center font-semibold text-purple-400">
+                      {student.completedCourses} courses
+                    </td>
                   </tr>
                 ))
               )}

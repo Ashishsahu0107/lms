@@ -1,6 +1,6 @@
 // src/components/auth/LoginModal.jsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Eye, EyeOff, Loader2, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -17,7 +17,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -76,7 +76,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
       }
     } catch (err) {
       console.error("Login failure:", err);
-      setError(err.response?.data?.message || err.message || "Failed to log in");
+      setError(
+        err.response?.data?.message || err.message || "Failed to log in",
+      );
     } finally {
       setLoading(false);
     }
@@ -89,13 +91,13 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
       exit={{ opacity: 0, scale: 0.95, y: 15 }}
       transition={{ duration: 0.25, type: "spring", damping: 25 }}
       className={`w-full border shadow-2xl rounded-3xl overflow-hidden p-6 relative backdrop-blur-xl ${
-        isDarkMode 
-          ? "border-white/10 bg-slate-900/90 text-white" 
+        isDarkMode
+          ? "border-white/10 bg-slate-900/90 text-white"
           : "border-slate-200 bg-white/95 text-slate-800"
       }`}
     >
       {/* Close button */}
-      <button 
+      <button
         onClick={onClose}
         className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-slate-500/10 text-slate-400 hover:text-slate-200 transition"
       >
@@ -110,7 +112,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
         <h2 className="text-xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
           Welcome Back to LMS Pro
         </h2>
-        <p className="text-[11px] text-slate-400 mt-1">Sign in to your learning workspace</p>
+        <p className="text-[11px] text-slate-400 mt-1">
+          Sign in to your learning workspace
+        </p>
       </div>
 
       {/* Form */}
@@ -123,7 +127,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
 
         {/* Email */}
         <div>
-          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">Email Address</label>
+          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">
+            Email Address
+          </label>
           <input
             type="email"
             value={email}
@@ -131,8 +137,8 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
             placeholder="you@example.com"
             required
             className={`w-full rounded-xl border py-2 px-3.5 text-xs focus:outline-none transition-all ${
-              isDarkMode 
-                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50" 
+              isDarkMode
+                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50"
                 : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-blue-500"
             }`}
           />
@@ -141,7 +147,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
         {/* Password */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Password</label>
+            <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+              Password
+            </label>
             <button
               type="button"
               onClick={() => {
@@ -161,8 +169,8 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
               placeholder="••••••••"
               required
               className={`w-full rounded-xl border py-2 pl-3.5 pr-10 text-xs focus:outline-none transition-all ${
-                isDarkMode 
-                  ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50" 
+                isDarkMode
+                  ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50"
                   : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-blue-500"
               }`}
             />
@@ -171,7 +179,11 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
             >
-              {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+              {showPassword ? (
+                <EyeOff className="h-4.5 w-4.5" />
+              ) : (
+                <Eye className="h-4.5 w-4.5" />
+              )}
             </button>
           </div>
         </div>
@@ -185,7 +197,10 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
             onChange={(e) => setRememberMe(e.target.checked)}
             className="rounded border-slate-300 dark:border-white/10 accent-blue-500 text-blue-500"
           />
-          <label htmlFor="remember-me-modal" className="text-[10px] font-bold text-slate-400 cursor-pointer">
+          <label
+            htmlFor="remember-me-modal"
+            className="text-[10px] font-bold text-slate-400 cursor-pointer"
+          >
             Remember Email
           </label>
         </div>
@@ -209,8 +224,10 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
 
       {/* Switch to Register */}
       <div className="mt-5 pt-4 border-t border-slate-200 dark:border-white/5 text-center text-xs">
-        <span className="text-slate-400 font-medium">Don't have an account yet?</span>{" "}
-        <button 
+        <span className="text-slate-400 font-medium">
+          Don't have an account yet?
+        </span>{" "}
+        <button
           onClick={onSwitchToRegister}
           className="font-bold text-blue-400 hover:underline"
         >

@@ -1,6 +1,11 @@
-import React, { useState } from "react";
-import { ChevronLeft, Key, Shield, AlertTriangle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { useState } from "react";
+import { ChevronLeft, Shield } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 
@@ -11,7 +16,9 @@ export default function SecuritySettings({
 }) {
   const [sessionLimit, setSessionLimit] = useState(3);
   const [passwordMinLength, setPasswordMinLength] = useState(8);
-  const [uploadSizeMB, setUploadSizeMB] = useState(settings?.allowedUploadSizeMB || 100);
+  const [uploadSizeMB, setUploadSizeMB] = useState(
+    settings?.allowedUploadSizeMB || 100,
+  );
   const [updating, setUpdating] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -33,10 +40,16 @@ export default function SecuritySettings({
   return (
     <div className="space-y-6" id="security-settings-root">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={onBack}>
+        <Button
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={onBack}
+        >
           <ChevronLeft className="h-4 w-4" /> Back to Dashboard
         </Button>
-        <h2 className="text-lg font-bold text-foreground">Hardening Security Settings</h2>
+        <h2 className="text-lg font-bold text-foreground">
+          Hardening Security Settings
+        </h2>
       </div>
 
       <Card className="max-w-xl mx-auto hover:shadow-md border border-border bg-card">
@@ -54,7 +67,9 @@ export default function SecuritySettings({
             )}
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Max Sessions Per User</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Max Sessions Per User
+              </label>
               <Input
                 type="number"
                 value={sessionLimit}
@@ -62,11 +77,16 @@ export default function SecuritySettings({
                 min={1}
                 max={10}
               />
-              <p className="text-[10px] text-muted-foreground mt-1">Locks accounts to a specific number of simultaneous active logins.</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Locks accounts to a specific number of simultaneous active
+                logins.
+              </p>
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Min Password Length</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Min Password Length
+              </label>
               <Input
                 type="number"
                 value={passwordMinLength}
@@ -74,11 +94,15 @@ export default function SecuritySettings({
                 min={6}
                 max={30}
               />
-              <p className="text-[10px] text-muted-foreground mt-1">Ensures complexity constraints on new password registration.</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Ensures complexity constraints on new password registration.
+              </p>
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Allowed Upload File Size Limit (MB)</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Allowed Upload File Size Limit (MB)
+              </label>
               <Input
                 type="number"
                 value={uploadSizeMB}
@@ -86,7 +110,10 @@ export default function SecuritySettings({
                 min={5}
                 max={500}
               />
-              <p className="text-[10px] text-muted-foreground mt-1">Prevents server overload by capping teacher/student PDF upload attachments sizes.</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Prevents server overload by capping teacher/student PDF upload
+                attachments sizes.
+              </p>
             </div>
 
             <div className="pt-2 border-t border-border flex justify-end">

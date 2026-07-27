@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "../../utils/cn";
 import { FileQuestion, AlertCircle, Database } from "lucide-react";
 import { Button } from "./Button";
@@ -13,7 +12,12 @@ export function EmptyState({
   className,
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center py-12 px-4", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-12 px-4",
+        className,
+      )}
+    >
       <div className="p-4 rounded-full bg-muted mb-4">
         <Icon className="h-10 w-10 text-muted-foreground" />
       </div>
@@ -35,7 +39,12 @@ export function ErrorState({
   className,
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center py-12 px-4", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-12 px-4",
+        className,
+      )}
+    >
       <div className="p-4 rounded-full bg-destructive/10 mb-4">
         <AlertCircle className="h-10 w-10 text-destructive" />
       </div>
@@ -58,7 +67,12 @@ export function NoDataState({
   className,
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center py-12 px-4", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-12 px-4",
+        className,
+      )}
+    >
       <div className="p-4 rounded-full bg-muted mb-4">
         <Database className="h-10 w-10 text-muted-foreground" />
       </div>

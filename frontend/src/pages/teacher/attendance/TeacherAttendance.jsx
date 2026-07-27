@@ -1,10 +1,26 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Check, X, Search, CheckCircle, AlertTriangle, Users, BarChart3,
-  PieChart as PieIcon, BookOpen, RefreshCw, ClipboardList, TrendingUp, Save
+  Check,
+  X,
+  Search,
+  CheckCircle,
+  AlertTriangle,
+  Users,
+  BarChart3,
+  PieChart as PieIcon,
+  BookOpen,
+  RefreshCw,
+  ClipboardList,
+  TrendingUp,
+  Save,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Badge } from "../../../components/ui/Badge";
@@ -17,8 +33,16 @@ import {
 } from "../../../services/teacherService";
 import { useSocket } from "../../../context/SocketContext";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import toast from "react-hot-toast";
 
@@ -50,12 +74,16 @@ function StatCard({ icon: Icon, label, value, colorClass, bgClass }) {
   return (
     <Card className="border-border shadow-sm bg-card hover:shadow-md transition-all duration-200">
       <CardContent className="p-5 flex items-center gap-4">
-        <div className={`p-3 ${bgClass} ${colorClass} rounded-xl flex-shrink-0`}>
+        <div
+          className={`p-3 ${bgClass} ${colorClass} rounded-xl flex-shrink-0`}
+        >
           <Icon className="h-6 w-6" />
         </div>
         <div>
           <h3 className={`text-2xl font-bold ${colorClass}`}>{value}</h3>
-          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">{label}</p>
+          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+            {label}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -83,7 +111,11 @@ export default function TeacherAttendance() {
       setCoursesLoading(true);
       const res = await getTeacherCourses();
       // axios response: res.data = API body { success, data }
-      if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+      if (
+        res.data?.success &&
+        Array.isArray(res.data.data) &&
+        res.data.data.length > 0
+      ) {
         setCourses(res.data.data);
         setSelectedCourse((prev) => prev || res.data.data[0]._id);
       } else {
@@ -162,7 +194,7 @@ export default function TeacherAttendance() {
   // ── Toggle Individual Student ──────────────────────────────────────────────
   const handleToggle = (id, isPresent) => {
     setStudents((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, attendance: isPresent } : s))
+      prev.map((s) => (s.id === id ? { ...s, attendance: isPresent } : s)),
     );
     setDirty(true);
   };
@@ -180,7 +212,11 @@ export default function TeacherAttendance() {
 
     try {
       setSaving(true);
-      const res = await markLiveAttendance({ courseId: selectedCourse, date, students });
+      const res = await markLiveAttendance({
+        courseId: selectedCourse,
+        date,
+        students,
+      });
       if (res.data?.success) {
         toast.success(res.data.message || "Attendance saved successfully!");
         setDirty(false);
@@ -199,11 +235,12 @@ export default function TeacherAttendance() {
 
   // ── Derived State ──────────────────────────────────────────────────────────
   const filteredStudents = students.filter(
-    (s) => s.name && s.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (s) => s.name && s.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   const presentCount = students.filter((s) => s.attendance).length;
   const absentCount = students.length - presentCount;
-  const selectedCourseName = courses.find((c) => c._id === selectedCourse)?.title || "";
+  const selectedCourseName =
+    courses.find((c) => c._id === selectedCourse)?.title || "";
 
   // ── No Courses State ───────────────────────────────────────────────────────
   if (!coursesLoading && courses.length === 0) {
@@ -217,10 +254,12 @@ export default function TeacherAttendance() {
         <div className="p-5 bg-emerald-500/10 text-emerald-500 rounded-full mb-6">
           <BookOpen className="h-14 w-14" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-3">No Courses Found</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-3">
+          No Courses Found
+        </h2>
         <p className="text-muted-foreground text-sm leading-relaxed max-w-md mb-8">
-          You don't have any courses assigned to your account yet. Create your first course to
-          start managing attendance for enrolled students.
+          You don't have any courses assigned to your account yet. Create your
+          first course to start managing attendance for enrolled students.
         </p>
         <Button
           onClick={() => (window.location.href = "/teacher/courses")}
@@ -251,7 +290,8 @@ export default function TeacherAttendance() {
             Live Attendance Register
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Course-wise daily attendance — select a course and mark present or absent.
+            Course-wise daily attendance — select a course and mark present or
+            absent.
           </p>
         </div>
 
@@ -269,7 +309,9 @@ export default function TeacherAttendance() {
             className="flex items-center gap-1.5 text-xs"
             id="refresh-attendance-btn"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${studentsLoading ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${studentsLoading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
           <Button
@@ -353,7 +395,10 @@ export default function TeacherAttendance() {
       </motion.div>
 
       {/* ── Stats Row ───────────────────────────────────────────────────────── */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
         <StatCard
           icon={Users}
           label="Total Enrolled"
@@ -399,7 +444,10 @@ export default function TeacherAttendance() {
                   <div className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={stats.weeklyTrend}>
-                        <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3} />
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          strokeOpacity={0.3}
+                        />
                         <XAxis dataKey="week" tick={{ fontSize: 11 }} />
                         <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
                         <Tooltip
@@ -410,7 +458,12 @@ export default function TeacherAttendance() {
                           }}
                           formatter={(v) => [`${v}%`, "Presence Rate"]}
                         />
-                        <Bar dataKey="rate" fill="#10b981" radius={[4, 4, 0, 0]} name="Rate (%)" />
+                        <Bar
+                          dataKey="rate"
+                          fill="#10b981"
+                          radius={[4, 4, 0, 0]}
+                          name="Rate (%)"
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -456,8 +509,10 @@ export default function TeacherAttendance() {
                 {stats.overallRate !== undefined && (
                   <p className="text-center text-xs text-muted-foreground mt-1">
                     Overall Rate:{" "}
-                    <span className="font-bold text-emerald-500">{stats.overallRate}%</span> across{" "}
-                    {stats.totalRecords} record(s)
+                    <span className="font-bold text-emerald-500">
+                      {stats.overallRate}%
+                    </span>{" "}
+                    across {stats.totalRecords} record(s)
                   </p>
                 )}
               </CardContent>
@@ -524,17 +579,25 @@ export default function TeacherAttendance() {
               </thead>
               <tbody className="divide-y divide-border">
                 {studentsLoading ? (
-                  Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonRow key={i} />
+                  ))
                 ) : !selectedCourse ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-14 text-muted-foreground text-sm">
+                    <td
+                      colSpan={5}
+                      className="text-center py-14 text-muted-foreground text-sm"
+                    >
                       <BookOpen className="h-8 w-8 mx-auto mb-2 opacity-30" />
                       Select a course to view enrolled students.
                     </td>
                   </tr>
                 ) : filteredStudents.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-14 text-muted-foreground text-sm">
+                    <td
+                      colSpan={5}
+                      className="text-center py-14 text-muted-foreground text-sm"
+                    >
                       <Users className="h-8 w-8 mx-auto mb-2 opacity-30" />
                       {searchTerm
                         ? `No students match "${searchTerm}".`
@@ -632,7 +695,8 @@ export default function TeacherAttendance() {
           {!studentsLoading && filteredStudents.length > 0 && (
             <div className="px-5 py-3 border-t border-border bg-muted/10 flex items-center justify-between text-xs text-muted-foreground">
               <span>
-                Showing {filteredStudents.length} of {students.length} student(s)
+                Showing {filteredStudents.length} of {students.length}{" "}
+                student(s)
               </span>
               <span className="font-semibold">
                 <span className="text-emerald-500">{presentCount} Present</span>

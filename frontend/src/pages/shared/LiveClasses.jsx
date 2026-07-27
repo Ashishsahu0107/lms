@@ -1,6 +1,6 @@
 // src/pages/shared/LiveClasses.jsx — LUXURY GOLD EDITION
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Video,
   Calendar,
@@ -10,9 +10,7 @@ import {
   Clock,
   Plus,
   ExternalLink,
-  Sparkles,
   Signal,
-  Users,
   Zap,
 } from "lucide-react";
 import { getCalendarEvents } from "../../services/scheduleService";
@@ -38,7 +36,10 @@ function CountdownBadge({ startDate }) {
   useEffect(() => {
     const update = () => {
       const diff = new Date(startDate) - new Date();
-      if (diff <= 0) { setTimeLeft("Starting now!"); return; }
+      if (diff <= 0) {
+        setTimeLeft("Starting now!");
+        return;
+      }
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
@@ -52,8 +53,14 @@ function CountdownBadge({ startDate }) {
   }, [startDate]);
 
   return (
-    <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1"
-      style={{ background: "rgba(201,162,39,0.15)", color: GOLD, border: "1px solid rgba(201,162,39,0.25)" }}>
+    <span
+      className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1"
+      style={{
+        background: "rgba(201,162,39,0.15)",
+        color: GOLD,
+        border: "1px solid rgba(201,162,39,0.25)",
+      }}
+    >
       <Zap className="h-3 w-3" />
       {timeLeft}
     </span>
@@ -77,7 +84,9 @@ export default function LiveClasses() {
       // apiGet returns Axios response → payload is in res.data
       const payload = res?.data ?? res;
       if (payload?.success !== false) {
-        const liveOnly = (payload?.data || []).filter((e) => e.type === "class");
+        const liveOnly = (payload?.data || []).filter(
+          (e) => e.type === "class",
+        );
         setClasses(liveOnly);
       }
     } catch (err) {
@@ -87,7 +96,9 @@ export default function LiveClasses() {
     }
   };
 
-  useEffect(() => { loadClasses(); }, []);
+  useEffect(() => {
+    loadClasses();
+  }, []);
 
   const now = new Date();
   const isLive = (cls) =>
@@ -100,27 +111,36 @@ export default function LiveClasses() {
   const past = classes.filter(isPast);
 
   const filteredClasses =
-    filter === "live" ? liveNow
-    : filter === "upcoming" ? upcoming
-    : filter === "past" ? past
-    : classes;
+    filter === "live"
+      ? liveNow
+      : filter === "upcoming"
+        ? upcoming
+        : filter === "past"
+          ? past
+          : classes;
 
   const isAdmin = user?.role === "super_admin";
   const isTeacher = user?.role === "teacher";
   const canSchedule = isAdmin || isTeacher;
 
-  const scheduleRoute = isAdmin ? "/admin/schedule-manager" : "/teacher/schedule-manager";
+  const scheduleRoute = isAdmin
+    ? "/admin/schedule-manager"
+    : "/teacher/schedule-manager";
 
   const filterTabs = [
     { key: "all", label: "All Classes", count: classes.length },
-    { key: "live", label: "Live Now", count: liveNow.length, pulse: liveNow.length > 0 },
+    {
+      key: "live",
+      label: "Live Now",
+      count: liveNow.length,
+      pulse: liveNow.length > 0,
+    },
     { key: "upcoming", label: "Upcoming", count: upcoming.length },
     { key: "past", label: "Past", count: past.length },
   ];
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-8">
-
       {/* ── Header ── */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
@@ -129,12 +149,19 @@ export default function LiveClasses() {
         style={{ borderBottom: "1px solid rgba(201,162,39,0.12)" }}
       >
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center relative"
-            style={{ background: "linear-gradient(135deg, #C9A227, #F59E0B)", boxShadow: "0 0 25px rgba(201,162,39,0.4)" }}>
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center relative"
+            style={{
+              background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+              boxShadow: "0 0 25px rgba(201,162,39,0.4)",
+            }}
+          >
             <Video className="h-7 w-7 text-slate-950" />
             {liveNow.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 animate-pulse"
-                style={{ background: "#34D399", borderColor: "#0F172A" }} />
+              <span
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 animate-pulse"
+                style={{ background: "#34D399", borderColor: "#0F172A" }}
+              />
             )}
           </div>
           <div>
@@ -154,9 +181,15 @@ export default function LiveClasses() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               className="flex items-center gap-2 px-4 py-2 rounded-full"
-              style={{ background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.3)" }}
+              style={{
+                background: "rgba(52,211,153,0.12)",
+                border: "1px solid rgba(52,211,153,0.3)",
+              }}
             >
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#34D399" }} />
+              <span
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{ background: "#34D399" }}
+              />
               <span className="text-xs font-black uppercase tracking-widest text-emerald-400">
                 {liveNow.length} Live Now
               </span>
@@ -184,9 +217,15 @@ export default function LiveClasses() {
             onClick={loadClasses}
             disabled={loading}
             className="p-2.5 rounded-xl transition-all"
-            style={{ background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.15)" }}
+            style={{
+              background: "rgba(201,162,39,0.08)",
+              border: "1px solid rgba(201,162,39,0.15)",
+            }}
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} style={{ color: GOLD }} />
+            <RefreshCw
+              className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              style={{ color: GOLD }}
+            />
           </button>
         </div>
       </motion.div>
@@ -198,16 +237,30 @@ export default function LiveClasses() {
             key={tab.key}
             onClick={() => setFilter(tab.key)}
             className="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all duration-200"
-            style={filter === tab.key
-              ? { background: "linear-gradient(135deg, #C9A227, #F59E0B)", color: "#0F172A", boxShadow: "0 4px 12px rgba(201,162,39,0.3)" }
-              : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#94A3B8" }
+            style={
+              filter === tab.key
+                ? {
+                    background: "linear-gradient(135deg, #C9A227, #F59E0B)",
+                    color: "#0F172A",
+                    boxShadow: "0 4px 12px rgba(201,162,39,0.3)",
+                  }
+                : {
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "#94A3B8",
+                  }
             }
           >
             {tab.pulse && filter !== tab.key && (
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#34D399" }} />
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ background: "#34D399" }}
+              />
             )}
             {tab.label}
-            <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${filter === tab.key ? "bg-black/20" : "bg-white/5"}`}>
+            <span
+              className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${filter === tab.key ? "bg-black/20" : "bg-white/5"}`}
+            >
               {tab.count}
             </span>
           </button>
@@ -217,9 +270,17 @@ export default function LiveClasses() {
       {/* ── Classes Grid ── */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.15)" }}>
-            <RefreshCw className="h-7 w-7 animate-spin" style={{ color: GOLD }} />
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{
+              background: "rgba(201,162,39,0.1)",
+              border: "1px solid rgba(201,162,39,0.15)",
+            }}
+          >
+            <RefreshCw
+              className="h-7 w-7 animate-spin"
+              style={{ color: GOLD }}
+            />
           </div>
           <p className="text-sm text-slate-500">Loading live classrooms...</p>
         </div>
@@ -233,19 +294,27 @@ export default function LiveClasses() {
             border: "1px solid rgba(201,162,39,0.08)",
           }}
         >
-          <div className="w-20 h-20 rounded-3xl flex items-center justify-center"
-            style={{ background: "rgba(201,162,39,0.08)", border: "1px solid rgba(201,162,39,0.12)" }}>
-            <Video className="h-10 w-10" style={{ color: "rgba(201,162,39,0.3)" }} />
+          <div
+            className="w-20 h-20 rounded-3xl flex items-center justify-center"
+            style={{
+              background: "rgba(201,162,39,0.08)",
+              border: "1px solid rgba(201,162,39,0.12)",
+            }}
+          >
+            <Video
+              className="h-10 w-10"
+              style={{ color: "rgba(201,162,39,0.3)" }}
+            />
           </div>
           <div className="text-center max-w-sm">
             <p className="text-lg font-black text-white mb-2">
               {filter === "live"
                 ? "No Live Classes Right Now"
                 : filter === "upcoming"
-                ? "No Upcoming Classes"
-                : filter === "past"
-                ? "No Past Classes"
-                : "No Classes Scheduled"}
+                  ? "No Upcoming Classes"
+                  : filter === "past"
+                    ? "No Past Classes"
+                    : "No Classes Scheduled"}
             </p>
             <p className="text-sm text-slate-500 leading-relaxed">
               {filter === "live"
@@ -296,32 +365,52 @@ export default function LiveClasses() {
                     border: live
                       ? "1px solid rgba(52,211,153,0.3)"
                       : upcoming_
-                      ? "1px solid rgba(201,162,39,0.15)"
-                      : "1px solid rgba(255,255,255,0.05)",
-                    boxShadow: live
-                      ? "0 0 30px rgba(52,211,153,0.08)"
-                      : "none",
+                        ? "1px solid rgba(201,162,39,0.15)"
+                        : "1px solid rgba(255,255,255,0.05)",
+                    boxShadow: live ? "0 0 30px rgba(52,211,153,0.08)" : "none",
                     backdropFilter: "blur(16px)",
                   }}
                 >
                   {/* Gold top accent for upcoming */}
                   {upcoming_ && !live && (
-                    <div className="absolute top-0 left-0 right-0 h-px"
-                      style={{ background: "linear-gradient(90deg, transparent, #C9A227, transparent)" }} />
+                    <div
+                      className="absolute top-0 left-0 right-0 h-px"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, transparent, #C9A227, transparent)",
+                      }}
+                    />
                   )}
 
                   {/* Status + duration */}
                   <div className="flex items-center justify-between">
                     <span
                       className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full"
-                      style={live
-                        ? { background: "rgba(52,211,153,0.15)", color: "#34D399", border: "1px solid rgba(52,211,153,0.3)" }
-                        : upcoming_
-                        ? { background: "rgba(201,162,39,0.12)", color: GOLD, border: "1px solid rgba(201,162,39,0.25)" }
-                        : { background: "rgba(255,255,255,0.05)", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }
+                      style={
+                        live
+                          ? {
+                              background: "rgba(52,211,153,0.15)",
+                              color: "#34D399",
+                              border: "1px solid rgba(52,211,153,0.3)",
+                            }
+                          : upcoming_
+                            ? {
+                                background: "rgba(201,162,39,0.12)",
+                                color: GOLD,
+                                border: "1px solid rgba(201,162,39,0.25)",
+                              }
+                            : {
+                                background: "rgba(255,255,255,0.05)",
+                                color: "#94A3B8",
+                                border: "1px solid rgba(255,255,255,0.08)",
+                              }
                       }
                     >
-                      {live ? "🔴 Live Now" : upcoming_ ? "⏳ Upcoming" : "✓ Ended"}
+                      {live
+                        ? "🔴 Live Now"
+                        : upcoming_
+                          ? "⏳ Upcoming"
+                          : "✓ Ended"}
                     </span>
 
                     <span className="text-[10px] font-semibold text-slate-500 flex items-center gap-1">
@@ -336,27 +425,46 @@ export default function LiveClasses() {
                       {cls.title}
                     </h3>
                     <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                      {cls.description || "Join this live session to review active concepts with your instructor."}
+                      {cls.description ||
+                        "Join this live session to review active concepts with your instructor."}
                     </p>
                   </div>
 
                   {/* Time info */}
-                  <div className="space-y-1.5 py-3 rounded-xl px-3"
-                    style={{ background: "rgba(15,23,42,0.4)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div
+                    className="space-y-1.5 py-3 rounded-xl px-3"
+                    style={{
+                      background: "rgba(15,23,42,0.4)",
+                      border: "1px solid rgba(255,255,255,0.04)",
+                    }}
+                  >
                     <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-400">
-                      <Calendar className="h-3.5 w-3.5" style={{ color: live ? "#34D399" : GOLD }} />
-                      Start: {new Date(cls.startDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                      <Calendar
+                        className="h-3.5 w-3.5"
+                        style={{ color: live ? "#34D399" : GOLD }}
+                      />
+                      Start:{" "}
+                      {new Date(cls.startDate).toLocaleString([], {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500">
                       <Clock className="h-3.5 w-3.5" />
-                      End: {new Date(cls.endDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                      End:{" "}
+                      {new Date(cls.endDate).toLocaleString([], {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
                     </div>
                   </div>
 
                   {/* Countdown (only for upcoming within 24h) */}
-                  {upcoming_ && (new Date(cls.startDate) - now) < 86400000 && (
+                  {upcoming_ && new Date(cls.startDate) - now < 86400000 && (
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold text-slate-500">Starts in:</span>
+                      <span className="text-[10px] font-semibold text-slate-500">
+                        Starts in:
+                      </span>
                       <CountdownBadge startDate={cls.startDate} />
                     </div>
                   )}
@@ -368,36 +476,51 @@ export default function LiveClasses() {
                       target="_blank"
                       rel="noreferrer"
                       className="w-full py-3 rounded-full font-black text-sm flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105"
-                      style={live
-                        ? {
-                            background: "linear-gradient(135deg, #34D399, #059669)",
-                            color: "#fff",
-                            boxShadow: "0 4px 20px rgba(52,211,153,0.3)",
-                          }
-                        : upcoming_
-                        ? {
-                            background: "linear-gradient(135deg, #C9A227, #F59E0B)",
-                            color: "#0F172A",
-                            boxShadow: "0 4px 15px rgba(201,162,39,0.3)",
-                          }
-                        : {
-                            background: "rgba(255,255,255,0.05)",
-                            color: "#94A3B8",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                          }
+                      style={
+                        live
+                          ? {
+                              background:
+                                "linear-gradient(135deg, #34D399, #059669)",
+                              color: "#fff",
+                              boxShadow: "0 4px 20px rgba(52,211,153,0.3)",
+                            }
+                          : upcoming_
+                            ? {
+                                background:
+                                  "linear-gradient(135deg, #C9A227, #F59E0B)",
+                                color: "#0F172A",
+                                boxShadow: "0 4px 15px rgba(201,162,39,0.3)",
+                              }
+                            : {
+                                background: "rgba(255,255,255,0.05)",
+                                color: "#94A3B8",
+                                border: "1px solid rgba(255,255,255,0.08)",
+                              }
                       }
                     >
                       {live ? (
-                        <><Signal className="h-4 w-4" /> Join Live Session</>
+                        <>
+                          <Signal className="h-4 w-4" /> Join Live Session
+                        </>
                       ) : upcoming_ ? (
-                        <><ExternalLink className="h-4 w-4" /> Open Meeting Link</>
+                        <>
+                          <ExternalLink className="h-4 w-4" /> Open Meeting Link
+                        </>
                       ) : (
-                        <><PlayCircle className="h-4 w-4" /> View Recording</>
+                        <>
+                          <PlayCircle className="h-4 w-4" /> View Recording
+                        </>
                       )}
                     </a>
                   ) : (
-                    <div className="w-full py-3 rounded-full flex items-center justify-center gap-2 text-xs font-bold"
-                      style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", color: "#F59E0B" }}>
+                    <div
+                      className="w-full py-3 rounded-full flex items-center justify-center gap-2 text-xs font-bold"
+                      style={{
+                        background: "rgba(245,158,11,0.08)",
+                        border: "1px solid rgba(245,158,11,0.2)",
+                        color: "#F59E0B",
+                      }}
+                    >
                       <AlertCircle className="h-4 w-4" />
                       No Meeting Link Provided
                     </div>

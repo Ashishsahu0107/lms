@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "../../utils/cn";
 
 export function Avatar({ className, size = "md", ...props }) {
@@ -14,7 +13,7 @@ export function Avatar({ className, size = "md", ...props }) {
       className={cn(
         "relative flex shrink-0 overflow-hidden rounded-full",
         sizes[size],
-        className
+        className,
       )}
       {...props}
     />
@@ -37,7 +36,7 @@ export function AvatarFallback({ children, className }) {
     <div
       className={cn(
         "flex h-full w-full items-center justify-center rounded-full bg-muted text-sm font-medium",
-        className
+        className,
       )}
     >
       {children}

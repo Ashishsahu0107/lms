@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Lock, Shield, RefreshCw } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Lock, RefreshCw } from "lucide-react";
 import { resetPassword } from "../../services/authService";
 import { toast } from "react-hot-toast";
 
@@ -23,7 +23,9 @@ export default function ResetPassword() {
     setOtp(otpParam);
 
     if (!emailParam || !otpParam) {
-      toast.error("Security handshake session missing. Please verify your OTP code first.");
+      toast.error(
+        "Security handshake session missing. Please verify your OTP code first.",
+      );
       navigate("/forgot-password");
     }
   }, [location, navigate]);
@@ -100,16 +102,22 @@ export default function ResetPassword() {
           <div className="mx-auto h-12 w-12 rounded-2xl border border-blue-500/20 bg-blue-500/10 flex items-center justify-center text-blue-400">
             <Lock className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-white">Choose New Password</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-white">
+            Choose New Password
+          </h1>
           <p className="text-xs text-white/50 px-4">
-            Resetting password for <span className="font-bold text-white">{email}</span>. Handshake verified.
+            Resetting password for{" "}
+            <span className="font-bold text-white">{email}</span>. Handshake
+            verified.
           </p>
         </div>
 
         <form onSubmit={handleReset} className="space-y-4">
           {/* New Password */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">New Password</label>
+            <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+              New Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-white/40" />
               <input
@@ -125,17 +133,31 @@ export default function ResetPassword() {
             {newPassword && (
               <div className="space-y-1 pt-1">
                 <div className="flex items-center justify-between text-[10px] font-bold">
-                  <span className="text-white/40 uppercase tracking-widest">Password Strength:</span>
-                  <span className={`${
-                    strength === "Weak" ? "text-rose-400" : strength === "Medium" ? "text-amber-400" : "text-emerald-400"
-                  }`}>
+                  <span className="text-white/40 uppercase tracking-widest">
+                    Password Strength:
+                  </span>
+                  <span
+                    className={`${
+                      strength === "Weak"
+                        ? "text-rose-400"
+                        : strength === "Medium"
+                          ? "text-amber-400"
+                          : "text-emerald-400"
+                    }`}
+                  >
                     {strength}
                   </span>
                 </div>
                 <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
-                  <div className={`h-full transition-all duration-300 ${
-                    strength === "Weak" ? "w-1/3 bg-rose-500" : strength === "Medium" ? "w-2/3 bg-amber-500" : "w-full bg-emerald-500"
-                  }`} />
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      strength === "Weak"
+                        ? "w-1/3 bg-rose-500"
+                        : strength === "Medium"
+                          ? "w-2/3 bg-amber-500"
+                          : "w-full bg-emerald-500"
+                    }`}
+                  />
                 </div>
               </div>
             )}
@@ -143,7 +165,9 @@ export default function ResetPassword() {
 
           {/* Confirm Password */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Confirm Password</label>
+            <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">
+              Confirm Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-white/40" />
               <input
@@ -161,7 +185,11 @@ export default function ResetPassword() {
             disabled={loading}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-sm font-bold text-white hover:opacity-90 shadow-xl shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
           >
-            {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {loading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
             Reset Password
           </button>
         </form>

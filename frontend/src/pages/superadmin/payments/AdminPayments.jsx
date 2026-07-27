@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getPayments, getInvoices, getSubscriptions, processRefund } from "../../../services/adminModulesService";
+import {
+  getPayments,
+  getInvoices,
+  getSubscriptions,
+  processRefund,
+} from "../../../services/adminModulesService";
 import PaymentDashboard from "./PaymentDashboard";
 import Transactions from "./Transactions";
 import Invoices from "./Invoices";
 import SubscriptionPlans from "./SubscriptionPlans";
 import RefundRequests from "./RefundRequests";
-import { Loader2, CreditCard, DollarSign, Sparkles } from "lucide-react";
-import { Badge } from "../../../components/ui/Badge";
+import { Loader2, CreditCard } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 
 export default function AdminPayments() {
@@ -66,9 +70,14 @@ export default function AdminPayments() {
 
   if (loading && view === "dashboard") {
     return (
-      <div className="flex flex-col justify-center items-center py-32 space-y-4" id="payments-loading">
+      <div
+        className="flex flex-col justify-center items-center py-32 space-y-4"
+        id="payments-loading"
+      >
         <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-        <p className="text-muted-foreground text-sm font-medium animate-pulse">Syncing platform ledgers...</p>
+        <p className="text-muted-foreground text-sm font-medium animate-pulse">
+          Syncing platform ledgers...
+        </p>
       </div>
     );
   }
@@ -79,22 +88,27 @@ export default function AdminPayments() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <CreditCard className="h-6 w-6 text-blue-600" /> Revenue & Financial Ledger
+            <CreditCard className="h-6 w-6 text-blue-600" /> Revenue & Financial
+            Ledger
           </h1>
-          <p className="text-muted-foreground">Monitor course sales, subscriptions, invoices and fee refunds</p>
+          <p className="text-muted-foreground">
+            Monitor course sales, subscriptions, invoices and fee refunds
+          </p>
         </div>
         <div className="flex gap-2">
-          {["dashboard", "transactions", "invoices", "plans", "refunds"].map((v) => (
-            <Button
-              key={v}
-              variant={view === v ? "default" : "outline"}
-              size="sm"
-              className="capitalize text-xs font-semibold"
-              onClick={() => setView(v)}
-            >
-              {v}
-            </Button>
-          ))}
+          {["dashboard", "transactions", "invoices", "plans", "refunds"].map(
+            (v) => (
+              <Button
+                key={v}
+                variant={view === v ? "default" : "outline"}
+                size="sm"
+                className="capitalize text-xs font-semibold"
+                onClick={() => setView(v)}
+              >
+                {v}
+              </Button>
+            ),
+          )}
         </div>
       </div>
 
@@ -122,10 +136,7 @@ export default function AdminPayments() {
           )}
 
           {view === "invoices" && (
-            <Invoices
-              invoices={invoices}
-              onBack={() => setView("dashboard")}
-            />
+            <Invoices invoices={invoices} onBack={() => setView("dashboard")} />
           )}
 
           {view === "plans" && (

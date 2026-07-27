@@ -17,8 +17,15 @@ import {
   Plus,
   ArrowUpRight,
 } from "lucide-react";
-import { fetchAssignmentById, editAssignment } from "../../../redux/slices/assignmentSlice";
-import { fetchAssignmentSubmissions, evaluateSubmission, clearSubmissionState } from "../../../redux/slices/submissionSlice";
+import {
+  fetchAssignmentById,
+  editAssignment,
+} from "../../../redux/slices/assignmentSlice";
+import {
+  fetchAssignmentSubmissions,
+  evaluateSubmission,
+  clearSubmissionState,
+} from "../../../redux/slices/submissionSlice";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
 import { Input } from "../../../components/ui/Input";
@@ -35,10 +42,15 @@ export default function TeacherAssignmentDetails() {
   const dispatch = useDispatch();
 
   // Redux Selectors
-  const { currentAssignment, loading: assignmentLoading } = useSelector((state) => state.assignments);
-  const { submissions, loading: submissionsLoading, success: gradingSuccess, error: gradingError } = useSelector(
-    (state) => state.submissions
+  const { currentAssignment, loading: assignmentLoading } = useSelector(
+    (state) => state.assignments,
   );
+  const {
+    submissions,
+    loading: submissionsLoading,
+    success: gradingSuccess,
+    error: gradingError,
+  } = useSelector((state) => state.submissions);
 
   // Local state for grading
   const [selectedSubmission, setSelectedSubmission] = useState(null);
@@ -72,7 +84,9 @@ export default function TeacherAssignmentDetails() {
         setSubmittingGrade(false);
         // Refresh the selected submission with new data
         if (selectedSubmission) {
-          const updated = submissions.find(s => s._id === selectedSubmission._id);
+          const updated = submissions.find(
+            (s) => s._id === selectedSubmission._id,
+          );
           if (updated) setSelectedSubmission(updated);
         }
       }, 0);
@@ -84,14 +98,24 @@ export default function TeacherAssignmentDetails() {
         setSubmittingGrade(false);
       }, 0);
     }
-  }, [gradingSuccess, gradingError, id, dispatch, submissions, selectedSubmission]);
+  }, [
+    gradingSuccess,
+    gradingError,
+    id,
+    dispatch,
+    submissions,
+    selectedSubmission,
+  ]);
 
   // Load grading states upon selecting a submission
   useEffect(() => {
     if (selectedSubmission) {
       const scores = {};
       const feedbacks = {};
-      if (selectedSubmission.rubricEvaluation && selectedSubmission.rubricEvaluation.length > 0) {
+      if (
+        selectedSubmission.rubricEvaluation &&
+        selectedSubmission.rubricEvaluation.length > 0
+      ) {
         selectedSubmission.rubricEvaluation.forEach((re) => {
           scores[re.criterionTitle] = re.score;
           feedbacks[re.criterionTitle] = re.feedback || "";
@@ -120,9 +144,13 @@ export default function TeacherAssignmentDetails() {
       setEditDescription(currentAssignment.description || "");
       setEditInstructions(currentAssignment.instructions || "");
       // Formats due date for input type datetime-local
-      const date = currentAssignment.dueDate ? new Date(currentAssignment.dueDate) : new Date();
+      const date = currentAssignment.dueDate
+        ? new Date(currentAssignment.dueDate)
+        : new Date();
       const offset = date.getTimezoneOffset() * 60000;
-      const localISOTime = new Date(date.getTime() - offset).toISOString().slice(0, 16);
+      const localISOTime = new Date(date.getTime() - offset)
+        .toISOString()
+        .slice(0, 16);
       setEditDueDate(localISOTime);
       setEditTotalMarks(currentAssignment.totalMarks || 100);
       setEditAssignmentType(currentAssignment.assignmentType || "written");
@@ -135,7 +163,7 @@ export default function TeacherAssignmentDetails() {
   const addRubricCriterion = () => {
     setEditRubric([
       ...editRubric,
-      { criterion: "New Criterion", maxPoints: 10, description: "" }
+      { criterion: "New Criterion", maxPoints: 10, description: "" },
     ]);
   };
 
@@ -164,22 +192,27 @@ export default function TeacherAssignmentDetails() {
     // Dynamic total marks sum calculations from rubric if rubric exists
     let calculatedTotal = editTotalMarks;
     if (editRubric.length > 0) {
-      calculatedTotal = editRubric.reduce((sum, item) => sum + (item.maxPoints || 0), 0);
+      calculatedTotal = editRubric.reduce(
+        (sum, item) => sum + (item.maxPoints || 0),
+        0,
+      );
     }
 
     try {
-      const res = await dispatch(editAssignment({
-        id: currentAssignment._id,
-        data: {
-          title: editTitle,
-          description: editDescription,
-          instructions: editInstructions,
-          dueDate: new Date(editDueDate),
-          totalMarks: calculatedTotal,
-          assignmentType: editAssignmentType,
-          rubric: editRubric,
-        }
-      }));
+      const res = await dispatch(
+        editAssignment({
+          id: currentAssignment._id,
+          data: {
+            title: editTitle,
+            description: editDescription,
+            instructions: editInstructions,
+            dueDate: new Date(editDueDate),
+            totalMarks: calculatedTotal,
+            assignmentType: editAssignmentType,
+            rubric: editRubric,
+          },
+        }),
+      );
 
       if (res.payload) {
         toast.success("Assignment brief updated successfully!");
@@ -194,7 +227,10 @@ export default function TeacherAssignmentDetails() {
   // Grade sum score calculations live
   const calculateTotalScore = () => {
     if (currentAssignment?.rubric && currentAssignment.rubric.length > 0) {
-      return currentAssignment.rubric.reduce((sum, r) => sum + (Number(rubricScores[r.criterion]) || 0), 0);
+      return currentAssignment.rubric.reduce(
+        (sum, r) => sum + (Number(rubricScores[r.criterion]) || 0),
+        0,
+      );
     }
     return Number(rubricScores["Overall"]) || 0;
   };
@@ -225,26 +261,38 @@ export default function TeacherAssignmentDetails() {
           feedback: overallFeedback,
           marks: calculateTotalScore(),
         },
-      })
+      }),
     );
   };
 
   if (assignmentLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" id="teacher-details-loading">
+      <div
+        className="flex flex-col items-center justify-center min-h-[60vh] gap-4"
+        id="teacher-details-loading"
+      >
         <div className="loading loading-spinner loading-lg text-primary"></div>
-        <p className="text-sm text-muted-foreground animate-pulse">Retrieving assignment and list of submissions...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">
+          Retrieving assignment and list of submissions...
+        </p>
       </div>
     );
   }
 
   if (!currentAssignment) {
     return (
-      <div className="max-w-xl mx-auto py-20 text-center space-y-4" id="teacher-details-error">
+      <div
+        className="max-w-xl mx-auto py-20 text-center space-y-4"
+        id="teacher-details-error"
+      >
         <AlertTriangle className="h-12 w-12 text-error mx-auto" />
         <h3 className="text-xl font-bold">Assignment not found</h3>
-        <p className="text-sm text-muted-foreground">The requested assignment sheet doesn't exist.</p>
-        <Button onClick={() => navigate(-1)} className="btn-sm rounded-xl">Go Back</Button>
+        <p className="text-sm text-muted-foreground">
+          The requested assignment sheet doesn't exist.
+        </p>
+        <Button onClick={() => navigate(-1)} className="btn-sm rounded-xl">
+          Go Back
+        </Button>
       </div>
     );
   }
@@ -269,8 +317,12 @@ export default function TeacherAssignmentDetails() {
             <ChevronLeft className="h-5 w-5" />
           </Button>
           <div>
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Grading Panel</span>
-            <h1 className="text-2xl font-black text-foreground">{currentAssignment.title}</h1>
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+              Grading Panel
+            </span>
+            <h1 className="text-2xl font-black text-foreground">
+              {currentAssignment.title}
+            </h1>
           </div>
         </div>
 
@@ -291,7 +343,8 @@ export default function TeacherAssignmentDetails() {
         <div className="lg:col-span-1 space-y-4">
           <Card className="border-base-300 shadow-xl rounded-3xl bg-base-100 p-4">
             <h3 className="text-sm font-black text-foreground border-b pb-2 mb-3 flex items-center gap-2">
-              <ClipboardList className="h-4.5 w-4.5 text-primary" /> Class Submissions
+              <ClipboardList className="h-4.5 w-4.5 text-primary" /> Class
+              Submissions
             </h3>
 
             {submissionsLoading ? (
@@ -299,7 +352,9 @@ export default function TeacherAssignmentDetails() {
                 <div className="loading loading-spinner text-primary"></div>
               </div>
             ) : submissions.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-6">No submissions recorded yet.</p>
+              <p className="text-xs text-muted-foreground text-center py-6">
+                No submissions recorded yet.
+              </p>
             ) : (
               <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
                 {submissions.map((sub) => {
@@ -319,17 +374,27 @@ export default function TeacherAssignmentDetails() {
                       <div className="flex items-center gap-2.5">
                         <div className="avatar placeholder rounded-xl bg-base-300 text-foreground text-2xs p-1 shrink-0 h-8 w-8 flex items-center justify-center font-bold">
                           {sub.studentId?.avatar ? (
-                            <img src={sub.studentId.avatar} alt="avatar" className="rounded-xl object-cover" />
+                            <img
+                              src={sub.studentId.avatar}
+                              alt="avatar"
+                              className="rounded-xl object-cover"
+                            />
                           ) : (
                             <User className="h-4.5 w-4.5 text-muted-foreground" />
                           )}
                         </div>
                         <div className="truncate flex-1">
-                          <span className={`block truncate ${isSelected ? "text-white" : "text-foreground"}`}>
+                          <span
+                            className={`block truncate ${isSelected ? "text-white" : "text-foreground"}`}
+                          >
                             {sub.studentId?.name || "Anonymous Student"}
                           </span>
-                          <span className={`text-[10px] block font-semibold ${isSelected ? "text-white/80" : "text-muted-foreground"}`}>
-                            {isGraded ? `Grade: ${sub.marks}/${currentAssignment.totalMarks}` : "Submitted"}
+                          <span
+                            className={`text-[10px] block font-semibold ${isSelected ? "text-white/80" : "text-muted-foreground"}`}
+                          >
+                            {isGraded
+                              ? `Grade: ${sub.marks}/${currentAssignment.totalMarks}`
+                              : "Submitted"}
                           </span>
                         </div>
                         <span
@@ -337,8 +402,8 @@ export default function TeacherAssignmentDetails() {
                             isGraded
                               ? "badge-success text-white"
                               : sub.status === "late"
-                              ? "badge-error"
-                              : "badge-warning"
+                                ? "badge-error"
+                                : "badge-warning"
                           }`}
                         >
                           {sub.status}
@@ -358,8 +423,13 @@ export default function TeacherAssignmentDetails() {
             {!selectedSubmission ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground py-20">
                 <GraduationCap className="h-16 w-16 text-muted-foreground/40 mb-3" />
-                <h4 className="text-base font-black text-foreground">Awaiting Student Evaluation</h4>
-                <p className="text-xs max-w-sm mt-1 leading-relaxed">Select a student record from the left sidebar panel to begin grading their essay, documents, or coding attachments.</p>
+                <h4 className="text-base font-black text-foreground">
+                  Awaiting Student Evaluation
+                </h4>
+                <p className="text-xs max-w-sm mt-1 leading-relaxed">
+                  Select a student record from the left sidebar panel to begin
+                  grading their essay, documents, or coding attachments.
+                </p>
               </div>
             ) : (
               <div className="space-y-6 flex-1 flex flex-col">
@@ -368,22 +438,35 @@ export default function TeacherAssignmentDetails() {
                   <div className="flex items-center gap-3">
                     <div className="avatar placeholder rounded-2xl bg-base-200 text-foreground p-1 h-12 w-12 flex items-center justify-center font-bold">
                       {selectedSubmission.studentId?.avatar ? (
-                        <img src={selectedSubmission.studentId.avatar} alt="student" className="rounded-2xl" />
+                        <img
+                          src={selectedSubmission.studentId.avatar}
+                          alt="student"
+                          className="rounded-2xl"
+                        />
                       ) : (
                         <User className="h-6 w-6 text-muted-foreground" />
                       )}
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-foreground text-sm">{selectedSubmission.studentId?.name}</h4>
-                      <p className="text-2xs text-muted-foreground">{selectedSubmission.studentId?.email}</p>
+                      <h4 className="font-extrabold text-foreground text-sm">
+                        {selectedSubmission.studentId?.name}
+                      </h4>
+                      <p className="text-2xs text-muted-foreground">
+                        {selectedSubmission.studentId?.email}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right text-2xs font-semibold text-muted-foreground space-y-1">
                     <span className="block flex items-center gap-1 justify-end">
-                      <Clock className="h-3.5 w-3.5" /> Received: {new Date(selectedSubmission.submittedAt).toLocaleString()}
+                      <Clock className="h-3.5 w-3.5" /> Received:{" "}
+                      {new Date(
+                        selectedSubmission.submittedAt,
+                      ).toLocaleString()}
                     </span>
                     {selectedSubmission.status === "late" && (
-                      <span className="badge badge-error rounded-xl py-2 px-2 text-[9px] font-black uppercase text-white animate-pulse">Late Submission</span>
+                      <span className="badge badge-error rounded-xl py-2 px-2 text-[9px] font-black uppercase text-white animate-pulse">
+                        Late Submission
+                      </span>
                     )}
                   </div>
                 </div>
@@ -391,44 +474,55 @@ export default function TeacherAssignmentDetails() {
                 {/* Answer body */}
                 <div className="space-y-4 flex-1">
                   <div className="space-y-1">
-                    <span className="text-xs font-black text-muted-foreground uppercase tracking-wider block">Student Text Answer</span>
+                    <span className="text-xs font-black text-muted-foreground uppercase tracking-wider block">
+                      Student Text Answer
+                    </span>
                     {selectedSubmission.textAnswer ? (
                       <div className="bg-base-200/50 p-4 border border-base-300 rounded-2xl text-xs text-foreground leading-relaxed whitespace-pre-wrap font-sans min-h-[120px]">
                         {selectedSubmission.textAnswer}
                       </div>
                     ) : (
-                      <p className="text-xs text-muted-foreground italic">No text answer written.</p>
+                      <p className="text-xs text-muted-foreground italic">
+                        No text answer written.
+                      </p>
                     )}
                   </div>
 
                   {/* Clickable files */}
-                  {selectedSubmission.files && selectedSubmission.files.length > 0 && (
-                    <div className="space-y-2">
-                      <span className="text-xs font-black text-muted-foreground uppercase tracking-wider block">Student Attachments</span>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {selectedSubmission.files.map((fileUrl, index) => {
-                          const parts = fileUrl.split("/");
-                          const filename = parts[parts.length - 1] || `Attachment_${index + 1}`;
+                  {selectedSubmission.files &&
+                    selectedSubmission.files.length > 0 && (
+                      <div className="space-y-2">
+                        <span className="text-xs font-black text-muted-foreground uppercase tracking-wider block">
+                          Student Attachments
+                        </span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {selectedSubmission.files.map((fileUrl, index) => {
+                            const parts = fileUrl.split("/");
+                            const filename =
+                              parts[parts.length - 1] ||
+                              `Attachment_${index + 1}`;
 
-                          return (
-                            <a
-                              key={index}
-                              href={fileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center justify-between p-3.5 bg-base-200/60 border border-base-300/80 rounded-2xl hover:bg-base-200 hover:border-primary/45 transition-all text-xs font-bold text-muted-foreground"
-                            >
-                              <div className="flex items-center gap-2 truncate pr-2">
-                                <FileText className="h-5 w-5 text-primary shrink-0" />
-                                <span className="truncate hover:underline hover:text-primary">{filename}</span>
-                              </div>
-                              <ArrowUpRight className="h-4.5 w-4.5 text-muted-foreground/60 shrink-0" />
-                            </a>
-                          );
-                        })}
+                            return (
+                              <a
+                                key={index}
+                                href={fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-between p-3.5 bg-base-200/60 border border-base-300/80 rounded-2xl hover:bg-base-200 hover:border-primary/45 transition-all text-xs font-bold text-muted-foreground"
+                              >
+                                <div className="flex items-center gap-2 truncate pr-2">
+                                  <FileText className="h-5 w-5 text-primary shrink-0" />
+                                  <span className="truncate hover:underline hover:text-primary">
+                                    {filename}
+                                  </span>
+                                </div>
+                                <ArrowUpRight className="h-4.5 w-4.5 text-muted-foreground/60 shrink-0" />
+                              </a>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
             )}
@@ -441,22 +535,33 @@ export default function TeacherAssignmentDetails() {
             <Card className="border-base-300 shadow-xl rounded-3xl bg-base-100 p-5">
               <form onSubmit={handleGradeSubmit} className="space-y-5">
                 <h3 className="text-sm font-black text-foreground border-b pb-2 flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-primary" /> Grade Evaluation
+                  <GraduationCap className="h-5 w-5 text-primary" /> Grade
+                  Evaluation
                 </h3>
 
                 {/* Rubric Evaluator Sliders */}
-                {currentAssignment.rubric && currentAssignment.rubric.length > 0 ? (
+                {currentAssignment.rubric &&
+                currentAssignment.rubric.length > 0 ? (
                   <div className="space-y-4">
                     {currentAssignment.rubric.map((r, idx) => {
                       const currentScore = rubricScores[r.criterion] || 0;
 
                       return (
-                        <div key={idx} className="space-y-2 border-b border-base-200 pb-3 last:border-b-0 last:pb-0">
+                        <div
+                          key={idx}
+                          className="space-y-2 border-b border-base-200 pb-3 last:border-b-0 last:pb-0"
+                        >
                           <div className="flex justify-between items-center text-xs font-black">
-                            <span className="text-foreground truncate max-w-[70%]">{r.criterion}</span>
-                            <span className="text-primary">{currentScore} / {r.maxPoints} pts</span>
+                            <span className="text-foreground truncate max-w-[70%]">
+                              {r.criterion}
+                            </span>
+                            <span className="text-primary">
+                              {currentScore} / {r.maxPoints} pts
+                            </span>
                           </div>
-                          <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">{r.description}</p>
+                          <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">
+                            {r.description}
+                          </p>
                           <input
                             type="range"
                             min="0"
@@ -489,7 +594,9 @@ export default function TeacherAssignmentDetails() {
                 ) : (
                   // General overall score grading fallback
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-muted-foreground">Overall Marks Score</label>
+                    <label className="text-xs font-bold text-muted-foreground">
+                      Overall Marks Score
+                    </label>
                     <input
                       type="number"
                       min="0"
@@ -509,7 +616,9 @@ export default function TeacherAssignmentDetails() {
 
                 {/* Overall Feedback */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">General Feedback Comments</label>
+                  <label className="text-xs font-bold text-muted-foreground">
+                    General Feedback Comments
+                  </label>
                   <textarea
                     value={overallFeedback}
                     onChange={(e) => setOverallFeedback(e.target.value)}
@@ -520,7 +629,9 @@ export default function TeacherAssignmentDetails() {
 
                 {/* Total Marks sum calculations live */}
                 <div className="bg-primary/15 p-4 rounded-2xl flex justify-between items-center text-xs font-bold">
-                  <span className="text-primary font-extrabold">Evaluated Sum:</span>
+                  <span className="text-primary font-extrabold">
+                    Evaluated Sum:
+                  </span>
                   <span className="text-base font-black text-foreground">
                     {calculateTotalScore()} / {currentAssignment.totalMarks}
                   </span>
@@ -558,7 +669,8 @@ export default function TeacherAssignmentDetails() {
             >
               <div className="p-6 bg-base-200 border-b border-base-300 flex items-center justify-between">
                 <h3 className="font-extrabold text-xl text-foreground flex items-center gap-2">
-                  <Edit className="h-5.5 w-5.5 text-primary" /> Edit Brief Settings
+                  <Edit className="h-5.5 w-5.5 text-primary" /> Edit Brief
+                  Settings
                 </h3>
                 <button
                   type="button"
@@ -573,7 +685,9 @@ export default function TeacherAssignmentDetails() {
                 <form onSubmit={handleUpdateAssignment} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-muted-foreground">Title</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Title
+                      </label>
                       <Input
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
@@ -583,7 +697,9 @@ export default function TeacherAssignmentDetails() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-muted-foreground">Due Date</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Due Date
+                      </label>
                       <Input
                         type="datetime-local"
                         value={editDueDate}
@@ -596,7 +712,9 @@ export default function TeacherAssignmentDetails() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-muted-foreground">Brief Category</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Brief Category
+                      </label>
                       <select
                         className="select select-bordered border-base-300 w-full h-11 rounded-xl px-3 bg-base-200 text-xs"
                         value={editAssignmentType}
@@ -610,11 +728,15 @@ export default function TeacherAssignmentDetails() {
                     </div>
                     {editRubric.length === 0 && (
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Total Marks Score</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Total Marks Score
+                        </label>
                         <Input
                           type="number"
                           value={editTotalMarks}
-                          onChange={(e) => setEditTotalMarks(Number(e.target.value))}
+                          onChange={(e) =>
+                            setEditTotalMarks(Number(e.target.value))
+                          }
                           className="h-11 bg-base-200 border-none rounded-xl pl-4 text-xs font-bold"
                           min={10}
                           max={100}
@@ -624,7 +746,9 @@ export default function TeacherAssignmentDetails() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-muted-foreground">Description Overview</label>
+                    <label className="text-xs font-bold text-muted-foreground">
+                      Description Overview
+                    </label>
                     <textarea
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
@@ -634,7 +758,9 @@ export default function TeacherAssignmentDetails() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-muted-foreground">Instructions Markdown Details</label>
+                    <label className="text-xs font-bold text-muted-foreground">
+                      Instructions Markdown Details
+                    </label>
                     <textarea
                       value={editInstructions}
                       onChange={(e) => setEditInstructions(e.target.value)}
@@ -647,7 +773,8 @@ export default function TeacherAssignmentDetails() {
                   <div className="space-y-4 border-t pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-black text-foreground flex items-center gap-1.5">
-                        <BookOpen className="h-4.5 w-4.5 text-primary" /> Evaluation Criteria Rubric
+                        <BookOpen className="h-4.5 w-4.5 text-primary" />{" "}
+                        Evaluation Criteria Rubric
                       </span>
                       <Button
                         type="button"
@@ -675,21 +802,37 @@ export default function TeacherAssignmentDetails() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                               <div className="md:col-span-2 space-y-1">
-                                <label className="text-[10px] font-bold text-muted-foreground">Criterion Title</label>
+                                <label className="text-[10px] font-bold text-muted-foreground">
+                                  Criterion Title
+                                </label>
                                 <Input
                                   value={rubricItem.criterion}
-                                  onChange={(e) => updateRubricCriterion(index, "criterion", e.target.value)}
+                                  onChange={(e) =>
+                                    updateRubricCriterion(
+                                      index,
+                                      "criterion",
+                                      e.target.value,
+                                    )
+                                  }
                                   placeholder="e.g. Logic Flow, Code Quality"
                                   className="h-9 bg-base-100 border-none rounded-lg pl-3 text-xs"
                                   required
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-muted-foreground">Max Points</label>
+                                <label className="text-[10px] font-bold text-muted-foreground">
+                                  Max Points
+                                </label>
                                 <Input
                                   type="number"
                                   value={rubricItem.maxPoints}
-                                  onChange={(e) => updateRubricCriterion(index, "maxPoints", e.target.value)}
+                                  onChange={(e) =>
+                                    updateRubricCriterion(
+                                      index,
+                                      "maxPoints",
+                                      e.target.value,
+                                    )
+                                  }
                                   className="h-9 bg-base-100 border-none rounded-lg pl-3 text-xs font-bold"
                                   min={1}
                                   required
@@ -698,10 +841,18 @@ export default function TeacherAssignmentDetails() {
                             </div>
 
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-muted-foreground">Criterion Description</label>
+                              <label className="text-[10px] font-bold text-muted-foreground">
+                                Criterion Description
+                              </label>
                               <Input
                                 value={rubricItem.description || ""}
-                                onChange={(e) => updateRubricCriterion(index, "description", e.target.value)}
+                                onChange={(e) =>
+                                  updateRubricCriterion(
+                                    index,
+                                    "description",
+                                    e.target.value,
+                                  )
+                                }
                                 placeholder="Explain criteria evaluation rules..."
                                 className="h-9 bg-base-100 border-none rounded-lg pl-3 text-xs"
                               />
@@ -713,18 +864,36 @@ export default function TeacherAssignmentDetails() {
                         <div className="flex justify-end pr-2 text-2xs font-extrabold text-muted-foreground">
                           Calculated Sum Total:{" "}
                           <span className="text-foreground ml-1">
-                            {editRubric.reduce((sum, item) => sum + (item.maxPoints || 0), 0)} Marks
+                            {editRubric.reduce(
+                              (sum, item) => sum + (item.maxPoints || 0),
+                              0,
+                            )}{" "}
+                            Marks
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <p className="text-2xs text-muted-foreground/60 italic font-bold text-center">No rubric criteria added. The system will use the general overall total marks score default.</p>
+                      <p className="text-2xs text-muted-foreground/60 italic font-bold text-center">
+                        No rubric criteria added. The system will use the
+                        general overall total marks score default.
+                      </p>
                     )}
                   </div>
 
                   <div className="flex justify-end gap-3 pt-3 border-t border-base-300">
-                    <Button variant="ghost" type="button" onClick={() => setShowEditModal(false)}>Cancel</Button>
-                    <Button type="submit" className="btn-primary text-white font-bold text-xs">Update Brief</Button>
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="btn-primary text-white font-bold text-xs"
+                    >
+                      Update Brief
+                    </Button>
                   </div>
                 </form>
               </div>

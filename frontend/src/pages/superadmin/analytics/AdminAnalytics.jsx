@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
@@ -50,13 +50,33 @@ export default function AdminAnalytics() {
   const renderActiveView = () => {
     switch (currentView) {
       case "users":
-        return <UserAnalytics onBack={() => setCurrentView("dashboard")} data={analyticsData} />;
+        return (
+          <UserAnalytics
+            onBack={() => setCurrentView("dashboard")}
+            data={analyticsData}
+          />
+        );
       case "courses":
-        return <CourseAnalytics onBack={() => setCurrentView("dashboard")} data={analyticsData} />;
+        return (
+          <CourseAnalytics
+            onBack={() => setCurrentView("dashboard")}
+            data={analyticsData}
+          />
+        );
       case "quizzes":
-        return <QuizAnalytics onBack={() => setCurrentView("dashboard")} data={analyticsData} />;
+        return (
+          <QuizAnalytics
+            onBack={() => setCurrentView("dashboard")}
+            data={analyticsData}
+          />
+        );
       case "engagement":
-        return <EngagementAnalytics onBack={() => setCurrentView("dashboard")} data={analyticsData} />;
+        return (
+          <EngagementAnalytics
+            onBack={() => setCurrentView("dashboard")}
+            data={analyticsData}
+          />
+        );
       default:
         return (
           <AnalyticsDashboard
@@ -76,13 +96,17 @@ export default function AdminAnalytics() {
       id="admin-analytics-container"
     >
       {/* Header */}
-      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
+      <motion.div
+        variants={item}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5"
+      >
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
             Platform Analytics & Metrics
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Analyze learning patterns, signup curves, and student performance metrics.
+            Analyze learning patterns, signup curves, and student performance
+            metrics.
           </p>
         </div>
         {currentView === "dashboard" && (
@@ -94,7 +118,10 @@ export default function AdminAnalytics() {
               disabled={loading}
               onClick={fetchAnalytics}
             >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh Stats
+              <RefreshCw
+                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              />{" "}
+              Refresh Stats
             </Button>
           </div>
         )}

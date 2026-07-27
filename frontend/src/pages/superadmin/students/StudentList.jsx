@@ -1,8 +1,20 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  Search, Filter, Eye, Edit, Ban, CheckCircle2,
-  Trash2, UserPlus, FileSpreadsheet, BookOpen, Award,
-  ChevronLeft, ChevronRight, Sparkles, TrendingUp, Users
+  Search,
+  Eye,
+  Edit,
+  Ban,
+  CheckCircle2,
+  Trash2,
+  UserPlus,
+  FileSpreadsheet,
+  BookOpen,
+  Award,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
@@ -33,8 +45,10 @@ export default function StudentList({
     const matchesSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.email.toLowerCase().includes(search.toLowerCase());
-    if (statusFilter === "active") return matchesSearch && s.status === "active";
-    if (statusFilter === "suspended") return matchesSearch && s.status === "suspended";
+    if (statusFilter === "active")
+      return matchesSearch && s.status === "active";
+    if (statusFilter === "suspended")
+      return matchesSearch && s.status === "suspended";
     return matchesSearch;
   });
 
@@ -73,10 +87,19 @@ export default function StudentList({
             <option value="active">Active</option>
             <option value="suspended">Suspended</option>
           </select>
-          <Button variant="outline" size="sm" className="gap-2" onClick={onExportCSV}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={onExportCSV}
+          >
             <FileSpreadsheet className="h-4 w-4" /> Export CSV
           </Button>
-          <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white" onClick={onNavigateToCreate}>
+          <Button
+            size="sm"
+            className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={onNavigateToCreate}
+          >
             <UserPlus className="h-4 w-4" /> Create Student
           </Button>
         </div>
@@ -114,7 +137,9 @@ export default function StudentList({
           <div className="text-center py-16 text-muted-foreground">
             <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
             <p className="font-semibold text-foreground">No students found</p>
-            <p className="text-sm">No student profiles match your search filters.</p>
+            <p className="text-sm">
+              No student profiles match your search filters.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -131,13 +156,24 @@ export default function StudentList({
               </thead>
               <tbody>
                 {currentItems.map((student) => (
-                  <tr key={student._id} className="border-b hover:bg-muted/10 transition-colors text-sm">
+                  <tr
+                    key={student._id}
+                    className="border-b hover:bg-muted/10 transition-colors text-sm"
+                  >
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10" src={student.avatar} fallback={student.name.charAt(0)} />
+                        <Avatar
+                          className="w-10 h-10"
+                          src={student.avatar}
+                          fallback={student.name.charAt(0)}
+                        />
                         <div>
-                          <p className="font-bold text-foreground">{student.name}</p>
-                          <p className="text-xs text-muted-foreground">{student.email}</p>
+                          <p className="font-bold text-foreground">
+                            {student.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {student.email}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -150,12 +186,17 @@ export default function StudentList({
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-1.5 font-medium text-muted-foreground">
                         <Award className="h-4 w-4" />
-                        <span>{student.completedCoursesCount || 0} courses</span>
+                        <span>
+                          {student.completedCoursesCount || 0} courses
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
                       <div className="w-28 space-y-1">
-                        <ProgressBar value={student.averageProgress || 0} size="xs" />
+                        <ProgressBar
+                          value={student.averageProgress || 0}
+                          size="xs"
+                        />
                         <span className="text-[10px] font-bold text-muted-foreground mt-1 block">
                           {student.averageProgress || 0}% Complete
                         </span>
@@ -163,7 +204,11 @@ export default function StudentList({
                     </td>
                     <td className="py-4 px-4">
                       <Badge
-                        variant={student.status === "active" ? "success" : "destructive"}
+                        variant={
+                          student.status === "active"
+                            ? "success"
+                            : "destructive"
+                        }
                         className="capitalize font-semibold border-0 text-xs"
                       >
                         {student.status || "active"}
@@ -227,14 +272,16 @@ export default function StudentList({
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3.5 border-t border-border">
             <p className="text-xs text-muted-foreground">
-              Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filtered.length)} of {filtered.length} students
+              Showing {indexOfFirstItem + 1}-
+              {Math.min(indexOfLastItem, filtered.length)} of {filtered.length}{" "}
+              students
             </p>
             <div className="flex items-center gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
                 className="p-2 h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -254,7 +301,9 @@ export default function StudentList({
                 variant="outline"
                 size="sm"
                 className="p-2 h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -269,15 +318,30 @@ export default function StudentList({
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-amber-500 fill-current" />
           <div>
-            <p className="font-semibold text-sm">Need student study telemetry insights?</p>
-            <p className="text-xs text-muted-foreground">Review learning curves, average quiz accuracies, and attendance rate metrics.</p>
+            <p className="font-semibold text-sm">
+              Need student study telemetry insights?
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Review learning curves, average quiz accuracies, and attendance
+              rate metrics.
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2" onClick={onNavigateToAnalytics}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={onNavigateToAnalytics}
+          >
             <TrendingUp className="h-4 w-4" /> View Analytics Graph
           </Button>
-          <Button variant="outline" size="sm" className="gap-2" onClick={onBulkImport}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={onBulkImport}
+          >
             <UserPlus className="h-4 w-4" /> Bulk Import JSON
           </Button>
         </div>

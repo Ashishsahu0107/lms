@@ -1,4 +1,3 @@
-import React from "react";
 import { ChevronRight } from "lucide-react";
 
 export default function DashboardSection({
@@ -24,16 +23,11 @@ export default function DashboardSection({
     >
       {/* Header */}
       <div className="flex flex-col gap-4 border-b border-base-200 p-5 md:flex-row md:items-center md:justify-between">
-
         <div>
-          <h2 className="text-xl font-bold text-base-content">
-            {title}
-          </h2>
+          <h2 className="text-xl font-bold text-base-content">{title}</h2>
 
           {description ? (
-            <p className="mt-1 text-sm text-base-content/60">
-              {description}
-            </p>
+            <p className="mt-1 text-sm text-base-content/60">{description}</p>
           ) : null}
         </div>
 
@@ -46,13 +40,10 @@ export default function DashboardSection({
             <ChevronRight className="h-4 w-4" />
           </button>
         )}
-
       </div>
 
       {/* Content */}
-      <div className="p-5">
-        {children}
-      </div>
+      <div className="p-5">{children}</div>
     </section>
   );
 }

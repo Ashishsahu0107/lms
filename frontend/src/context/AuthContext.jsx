@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
+import { createContext, useContext, useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setTheme } from "../store/themeSlice";
-import { ROLES } from "../constants/roles";
 
 export const AuthContext = createContext(null);
 
@@ -13,7 +12,7 @@ export function AuthProvider({ children }) {
     return saved && token ? JSON.parse(saved) : null;
   });
   const [isLoading] = useState(false);
-  
+
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -35,15 +34,18 @@ export function AuthProvider({ children }) {
     dispatch(setTheme("system"));
   };
 
-  const value = useMemo(() => ({
-    user,
-    role: user?.role || null,
-    isAuthenticated: !!user,
-    isLoading,
-    login,
-    logout,
-    setUser,
-  }), [user, isLoading]);
+  const value = useMemo(
+    () => ({
+      user,
+      role: user?.role || null,
+      isAuthenticated: !!user,
+      isLoading,
+      login,
+      logout,
+      setUser,
+    }),
+    [user, isLoading],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

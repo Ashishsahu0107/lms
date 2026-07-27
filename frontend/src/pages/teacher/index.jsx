@@ -1,4 +1,3 @@
-
 import DashboardSection from "../../components/dashboard/DashboardSection";
 
 export default function TeacherDashboardPage() {
@@ -25,7 +24,9 @@ export default function TeacherDashboardPage() {
       >
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-lg bg-slate-50 p-4">
-            <div className="text-sm font-semibold text-slate-800">My Courses</div>
+            <div className="text-sm font-semibold text-slate-800">
+              My Courses
+            </div>
             <p className="mt-1 text-sm text-slate-600">
               Add course list + quick actions here.
             </p>
@@ -41,4 +42,3 @@ export default function TeacherDashboardPage() {
     </div>
   );
 }
-

@@ -1,4 +1,3 @@
-
 import SidebarShell from "../components/dashboard/SidebarShell";
 import RoleTopbar from "../components/dashboard/RoleTopbar";
 
@@ -27,4 +26,3 @@ export default function SuperAdminLayout({ children }) {
     </div>
   );
 }
-

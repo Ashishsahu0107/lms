@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { cn } from "../../utils/cn";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,7 +18,7 @@ export function Modal({
     (e) => {
       if (e.key === "Escape") onClose();
     },
-    [onClose]
+    [onClose],
   );
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function Modal({
             className={cn(
               "relative w-full mx-4 bg-card rounded-xl shadow-2xl border flex flex-col max-h-[90vh]",
               sizes[size],
-              className
+              className,
             )}
           >
             <button
@@ -87,7 +87,14 @@ export function Modal({
               </div>
             )}
 
-            <div className={cn("flex-1 min-h-0 flex flex-col", noPadding ? "" : "p-6")}>{children}</div>
+            <div
+              className={cn(
+                "flex-1 min-h-0 flex flex-col",
+                noPadding ? "" : "p-6",
+              )}
+            >
+              {children}
+            </div>
           </motion.div>
         </div>
       )}

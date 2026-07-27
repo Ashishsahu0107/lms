@@ -191,8 +191,8 @@ export function Sidebar({
     role === "super_admin"
       ? adminNavItems
       : role === "teacher"
-      ? teacherNavItems
-      : studentNavItems;
+        ? teacherNavItems
+        : studentNavItems;
 
   // ============================================
   // BOTTOM NAVIGATION
@@ -207,73 +207,59 @@ export function Sidebar({
           },
         ]
       : role === "teacher"
-      ? [
-          {
-            icon: User,
-            label: "Profile",
-            path: "/teacher/profile",
-          },
-          {
-            icon: Settings,
-            label: "Settings",
-            path: "/teacher/settings",
-          },
-        ]
-      : [
-          {
-            icon: User,
-            label: "Profile",
-            path: "/student/profile",
-          },
-          {
-            icon: Settings,
-            label: "Settings",
-            path: "/student/settings",
-          },
-        ];
+        ? [
+            {
+              icon: User,
+              label: "Profile",
+              path: "/teacher/profile",
+            },
+            {
+              icon: Settings,
+              label: "Settings",
+              path: "/teacher/settings",
+            },
+          ]
+        : [
+            {
+              icon: User,
+              label: "Profile",
+              path: "/student/profile",
+            },
+            {
+              icon: Settings,
+              label: "Settings",
+              path: "/student/settings",
+            },
+          ];
 
   // ============================================
   // SIDEBAR CONTENT
   // ============================================
   const renderSidebarContent = () => (
     <div className="flex h-full flex-col bg-base-100 sticky top-0">
-
       {/* LOGO */}
       <div className="flex h-20 items-center justify-between border-b border-base-300 px-4">
-
         <div
           className={cn(
             "flex items-center gap-3",
-            isCollapsed &&
-              "justify-center w-full"
+            isCollapsed && "justify-center w-full",
           )}
         >
-
           {/* LOGO ICON */}
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-content shadow-lg">
-
             <GraduationCap className="h-6 w-6" />
-
           </div>
 
           {/* LOGO TEXT */}
           {!isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-
-              <h1 className="text-xl font-bold text-base-content">
-                LMS Pro
-              </h1>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <h1 className="text-xl font-bold text-base-content">LMS Pro</h1>
 
               <p className="text-xs text-base-content/60 capitalize">
                 {role.replace("_", " ")}
               </p>
-
             </motion.div>
           )}
-
         </div>
 
         {/* MOBILE CLOSE */}
@@ -283,31 +269,25 @@ export function Sidebar({
         >
           <X className="h-5 w-5" />
         </button>
-
       </div>
 
       {/* NAVIGATION */}
       <div className="flex-1 overflow-hidden px-3 py-5">
-
         <ul className="menu gap-2">
-
           {navItems.map((item) => {
-            const isActive =
-              location.pathname === item.path;
+            const isActive = location.pathname === item.path;
 
             return (
               <li key={item.path}>
-
                 <NavLink
                   to={item.path}
                   className={cn(
                     "group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300",
                     isActive
                       ? "bg-primary text-primary-content shadow-md"
-                      : "hover:bg-base-200 text-base-content/70 hover:text-base-content"
+                      : "hover:bg-base-200 text-base-content/70 hover:text-base-content",
                   )}
                 >
-
                   {/* ACTIVE INDICATOR */}
                   {isActive && (
                     <motion.div
@@ -325,70 +305,48 @@ export function Sidebar({
                   <item.icon
                     className={cn(
                       "relative z-10 h-5 w-5 shrink-0",
-                      isCollapsed &&
-                        "mx-auto"
+                      isCollapsed && "mx-auto",
                     )}
                   />
 
                   {/* LABEL */}
                   {!isCollapsed && (
-                    <span className="relative z-10">
-                      {item.label}
-                    </span>
+                    <span className="relative z-10">{item.label}</span>
                   )}
-
                 </NavLink>
-
               </li>
             );
           })}
-
         </ul>
-
       </div>
 
       {/* BOTTOM NAV */}
       <div className="border-t border-base-300 px-3 py-4">
-
         <ul className="menu gap-2">
-
           {bottomNavItems.map((item) => {
-            const isActive =
-              location.pathname === item.path;
+            const isActive = location.pathname === item.path;
 
             return (
               <li key={item.path}>
-
                 <NavLink
                   to={item.path}
                   className={cn(
                     "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300",
                     isActive
                       ? "bg-secondary text-secondary-content"
-                      : "hover:bg-base-200 text-base-content/70 hover:text-base-content"
+                      : "hover:bg-base-200 text-base-content/70 hover:text-base-content",
                   )}
                 >
-
                   <item.icon
-                    className={cn(
-                      "h-5 w-5",
-                      isCollapsed &&
-                        "mx-auto"
-                    )}
+                    className={cn("h-5 w-5", isCollapsed && "mx-auto")}
                   />
 
-                  {!isCollapsed && (
-                    <span>{item.label}</span>
-                  )}
-
+                  {!isCollapsed && <span>{item.label}</span>}
                 </NavLink>
-
               </li>
             );
           })}
-
         </ul>
-
       </div>
 
       {/* THEME SWITCHER */}
@@ -399,7 +357,11 @@ export function Sidebar({
             className="btn btn-ghost btn-circle w-full flex items-center justify-center mx-auto"
             title="Toggle theme"
           >
-            {isDarkMode ? <Sun className="h-5 w-5 text-warning" /> : <Moon className="h-5 w-5 text-primary" />}
+            {isDarkMode ? (
+              <Sun className="h-5 w-5 text-warning" />
+            ) : (
+              <Moon className="h-5 w-5 text-primary" />
+            )}
           </button>
         ) : (
           <ThemeToggle variant="sidebar" />
@@ -408,12 +370,10 @@ export function Sidebar({
 
       {/* COLLAPSE BUTTON */}
       <div className="hidden border-t border-base-300 p-4 lg:block">
-
         <button
           onClick={onToggle}
           className="btn btn-outline btn-sm w-full rounded-xl"
         >
-
           {isCollapsed ? (
             <ChevronRight className="h-4 w-4" />
           ) : (
@@ -422,11 +382,8 @@ export function Sidebar({
               Collapse
             </>
           )}
-
         </button>
-
       </div>
-
     </div>
   );
 
@@ -434,7 +391,6 @@ export function Sidebar({
     <>
       {/* MOBILE OVERLAY */}
       <AnimatePresence>
-
         {isMobileOpen && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -444,7 +400,6 @@ export function Sidebar({
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           />
         )}
-
       </AnimatePresence>
 
       {/* MOBILE SIDEBAR */}
@@ -460,23 +415,17 @@ export function Sidebar({
         }}
         className="fixed inset-y-0 left-0 z-50 w-72 overflow-hidden overscroll-none border-r border-base-300 shadow-2xl lg:hidden"
       >
-
         {renderSidebarContent()}
-
       </motion.aside>
 
       {/* DESKTOP SIDEBAR */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-30 hidden overflow-hidden overscroll-none flex-col border-r border-base-300 bg-base-100 shadow-sm transition-all duration-300 lg:flex",
-          isCollapsed
-            ? "w-24"
-            : "w-72"
+          isCollapsed ? "w-24" : "w-72",
         )}
       >
-
         {renderSidebarContent()}
-
       </aside>
     </>
   );

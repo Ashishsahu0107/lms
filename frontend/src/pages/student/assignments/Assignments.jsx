@@ -1,6 +1,6 @@
 // src/pages/student/assignments/Assignments.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -13,21 +13,12 @@ import {
   ChevronRight,
   Sparkles,
   AlertCircle,
-  TrendingUp,
 } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-} from "../../../components/ui/Card";
+import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../../../components/ui/Tabs";
+import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
 import { getAssignments } from "../../../services/assignmentService";
 import toast from "react-hot-toast";
 
@@ -75,7 +66,9 @@ export default function Assignments() {
   const filteredAssignments = assignmentsList.filter((assignment) => {
     const matchesSearch =
       assignment.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (assignment.courseId?.title || "").toLowerCase().includes(searchQuery.toLowerCase());
+      (assignment.courseId?.title || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
 
     const isClosed = new Date() > new Date(assignment.dueDate);
 
@@ -87,8 +80,12 @@ export default function Assignments() {
   });
 
   // Calculate quick stats
-  const activeCount = assignmentsList.filter(a => new Date() <= new Date(a.dueDate)).length;
-  const closedCount = assignmentsList.filter(a => new Date() > new Date(a.dueDate)).length;
+  const activeCount = assignmentsList.filter(
+    (a) => new Date() <= new Date(a.dueDate),
+  ).length;
+  const closedCount = assignmentsList.filter(
+    (a) => new Date() > new Date(a.dueDate),
+  ).length;
 
   return (
     <motion.div
@@ -110,11 +107,15 @@ export default function Assignments() {
               <Sparkles className="h-3 w-3" /> Assignment Board
             </span>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground" id="student-assignments-title">
+          <h1
+            className="text-4xl font-extrabold tracking-tight text-foreground"
+            id="student-assignments-title"
+          >
             Your Assignments
           </h1>
           <p className="text-muted-foreground text-sm">
-            Access course homework sheets, draft submissions, and view graded feedback reports.
+            Access course homework sheets, draft submissions, and view graded
+            feedback reports.
           </p>
         </div>
       </motion.div>
@@ -125,38 +126,59 @@ export default function Assignments() {
         className="grid grid-cols-1 gap-5 sm:grid-cols-3"
         id="student-assignments-stats-grid"
       >
-        <Card className="relative overflow-hidden bg-base-100 shadow-xl border border-base-300 hover:border-primary/30 transition-all duration-300 rounded-3xl" id="student-assignments-total-card">
+        <Card
+          className="relative overflow-hidden bg-base-100 shadow-xl border border-base-300 hover:border-primary/30 transition-all duration-300 rounded-3xl"
+          id="student-assignments-total-card"
+        >
           <CardContent className="flex items-center gap-5 p-6">
             <div className="rounded-2xl bg-primary/10 p-4 text-primary">
               <FileText className="h-8 w-8" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Assigned</p>
-              <h2 className="text-3xl font-extrabold text-foreground">{assignmentsList.length}</h2>
+              <p className="text-sm font-medium text-muted-foreground">
+                Total Assigned
+              </p>
+              <h2 className="text-3xl font-extrabold text-foreground">
+                {assignmentsList.length}
+              </h2>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-base-100 shadow-xl border border-base-300 hover:border-warning/30 transition-all duration-300 rounded-3xl" id="student-assignments-active-card">
+        <Card
+          className="relative overflow-hidden bg-base-100 shadow-xl border border-base-300 hover:border-warning/30 transition-all duration-300 rounded-3xl"
+          id="student-assignments-active-card"
+        >
           <CardContent className="flex items-center gap-5 p-6">
             <div className="rounded-2xl bg-warning/10 p-4 text-warning">
               <Clock className="h-8 w-8" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Active (Ongoing)</p>
-              <h2 className="text-3xl font-extrabold text-foreground">{activeCount}</h2>
+              <p className="text-sm font-medium text-muted-foreground">
+                Active (Ongoing)
+              </p>
+              <h2 className="text-3xl font-extrabold text-foreground">
+                {activeCount}
+              </h2>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-base-100 shadow-xl border border-base-300 hover:border-success/30 transition-all duration-300 rounded-3xl" id="student-assignments-closed-card">
+        <Card
+          className="relative overflow-hidden bg-base-100 shadow-xl border border-base-300 hover:border-success/30 transition-all duration-300 rounded-3xl"
+          id="student-assignments-closed-card"
+        >
           <CardContent className="flex items-center gap-5 p-6">
             <div className="rounded-2xl bg-success/10 p-4 text-success">
               <CheckCircle2 className="h-8 w-8" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Closed/Passed</p>
-              <h2 className="text-3xl font-extrabold text-foreground">{closedCount}</h2>
+              <p className="text-sm font-medium text-muted-foreground">
+                Closed/Passed
+              </p>
+              <h2 className="text-3xl font-extrabold text-foreground">
+                {closedCount}
+              </h2>
             </div>
           </CardContent>
         </Card>
@@ -181,11 +203,34 @@ export default function Assignments() {
         </div>
 
         {/* Tab Selection */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto" id="student-assignments-tabs">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full md:w-auto"
+          id="student-assignments-tabs"
+        >
           <TabsList className="bg-base-200 p-1.5 rounded-2xl border border-base-300 flex w-full md:w-auto gap-1">
-            <TabsTrigger value="all" className="rounded-xl px-4 py-2 text-xs font-semibold" id="student-tab-all">All</TabsTrigger>
-            <TabsTrigger value="active" className="rounded-xl px-4 py-2 text-xs font-semibold" id="student-tab-active">Active</TabsTrigger>
-            <TabsTrigger value="past" className="rounded-xl px-4 py-2 text-xs font-semibold" id="student-tab-past">Passed</TabsTrigger>
+            <TabsTrigger
+              value="all"
+              className="rounded-xl px-4 py-2 text-xs font-semibold"
+              id="student-tab-all"
+            >
+              All
+            </TabsTrigger>
+            <TabsTrigger
+              value="active"
+              className="rounded-xl px-4 py-2 text-xs font-semibold"
+              id="student-tab-active"
+            >
+              Active
+            </TabsTrigger>
+            <TabsTrigger
+              value="past"
+              className="rounded-xl px-4 py-2 text-xs font-semibold"
+              id="student-tab-past"
+            >
+              Passed
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </motion.div>
@@ -193,19 +238,31 @@ export default function Assignments() {
       {/* ASSIGNMENTS GRID/LIST */}
       <motion.div variants={itemVariants} id="student-assignments-list-panel">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4" id="student-assignments-loading-spinner">
+          <div
+            className="flex flex-col items-center justify-center py-20 gap-4"
+            id="student-assignments-loading-spinner"
+          >
             <div className="loading loading-spinner loading-lg text-primary"></div>
-            <p className="text-sm text-muted-foreground animate-pulse font-medium">Fetching assignments from the secure database...</p>
+            <p className="text-sm text-muted-foreground animate-pulse font-medium">
+              Fetching assignments from the secure database...
+            </p>
           </div>
         ) : filteredAssignments.length === 0 ? (
-          <Card className="bg-base-100 shadow-xl border border-base-300 rounded-3xl" id="student-assignments-empty-card">
+          <Card
+            className="bg-base-100 shadow-xl border border-base-300 rounded-3xl"
+            id="student-assignments-empty-card"
+          >
             <CardContent className="py-20 text-center flex flex-col items-center max-w-md mx-auto">
               <div className="rounded-full bg-base-200 p-5 mb-5 text-muted-foreground">
                 <AlertCircle className="h-10 w-10 text-muted-foreground/60" />
               </div>
-              <h3 className="text-xl font-bold mb-2">No Assignments Available</h3>
+              <h3 className="text-xl font-bold mb-2">
+                No Assignments Available
+              </h3>
               <p className="text-muted-foreground text-sm mb-6">
-                There are currently no assignments matching your selection. Check back soon for homework sheets uploaded by your instructors.
+                There are currently no assignments matching your selection.
+                Check back soon for homework sheets uploaded by your
+                instructors.
               </p>
             </CardContent>
           </Card>
@@ -213,13 +270,15 @@ export default function Assignments() {
           <div className="grid grid-cols-1 gap-4" id="student-assignments-list">
             {filteredAssignments.map((assignment) => {
               const isClosed = new Date() > new Date(assignment.dueDate);
-              const formattedDate = new Date(assignment.dueDate).toLocaleDateString("en-US", {
+              const formattedDate = new Date(
+                assignment.dueDate,
+              ).toLocaleDateString("en-US", {
                 weekday: "short",
                 year: "numeric",
                 month: "short",
                 day: "numeric",
                 hour: "2-digit",
-                minute: "2-digit"
+                minute: "2-digit",
               });
 
               return (
@@ -228,20 +287,28 @@ export default function Assignments() {
                   whileHover={{ y: -3 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   className="cursor-pointer"
-                  onClick={() => navigate(`/student/assignments/${assignment._id}`)}
+                  onClick={() =>
+                    navigate(`/student/assignments/${assignment._id}`)
+                  }
                   id={`student-assignment-item-${assignment._id}`}
                 >
                   <Card className="border border-base-300 bg-base-100 shadow-lg hover:shadow-xl hover:border-primary/20 transition-all duration-300 rounded-3xl overflow-hidden">
                     <CardContent className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       {/* Left Info */}
                       <div className="flex items-center gap-4 flex-1">
-                        <div className={`p-3.5 rounded-2xl ${isClosed ? "bg-base-300 text-muted-foreground" : "bg-primary/10 text-primary"}`}>
+                        <div
+                          className={`p-3.5 rounded-2xl ${isClosed ? "bg-base-300 text-muted-foreground" : "bg-primary/10 text-primary"}`}
+                        >
                           <FileText className="h-6 w-6" />
                         </div>
                         <div className="space-y-1.5">
                           <div className="flex items-center flex-wrap gap-2">
-                            <h3 className="text-lg font-bold text-foreground line-clamp-1">{assignment.title}</h3>
-                            <span className={`badge ${isClosed ? "badge-secondary" : "badge-primary"} text-xs font-semibold px-2.5 py-2.5 rounded-xl capitalize`}>
+                            <h3 className="text-lg font-bold text-foreground line-clamp-1">
+                              {assignment.title}
+                            </h3>
+                            <span
+                              className={`badge ${isClosed ? "badge-secondary" : "badge-primary"} text-xs font-semibold px-2.5 py-2.5 rounded-xl capitalize`}
+                            >
                               {assignment.assignmentType}
                             </span>
                           </div>
@@ -262,8 +329,12 @@ export default function Assignments() {
                       {/* Right Actions / Details */}
                       <div className="flex items-center justify-between w-full sm:w-auto border-t sm:border-none pt-4 sm:pt-0 gap-4">
                         <div className="text-left sm:text-right space-y-1">
-                          <span className="text-xs text-muted-foreground block font-medium">Points Value</span>
-                          <span className="text-lg font-extrabold text-foreground">{assignment.totalMarks} Marks</span>
+                          <span className="text-xs text-muted-foreground block font-medium">
+                            Points Value
+                          </span>
+                          <span className="text-lg font-extrabold text-foreground">
+                            {assignment.totalMarks} Marks
+                          </span>
                         </div>
                         <Button
                           variant="ghost"

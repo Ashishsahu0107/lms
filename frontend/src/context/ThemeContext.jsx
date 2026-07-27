@@ -1,4 +1,3 @@
-import React from "react";
 import { ThemeProvider as ReduxThemeProvider } from "../providers/ThemeProvider";
 import { useTheme as useReduxTheme } from "../hooks/useTheme";
 
@@ -10,4 +9,4 @@ export function useTheme() {
   return useReduxTheme();
 }
 
-export default ThemeProvider;
+export default ThemeProvider;

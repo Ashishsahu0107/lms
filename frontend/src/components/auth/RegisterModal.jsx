@@ -1,6 +1,6 @@
 // src/components/auth/RegisterModal.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { GraduationCap, Eye, EyeOff, Loader2, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -18,20 +18,24 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   // Password strength computation state
-  const [strength, setStrength] = useState({ label: "None", score: 0, color: "bg-slate-700" });
+  const [strength, setStrength] = useState({
+    label: "None",
+    score: 0,
+    color: "bg-slate-700",
+  });
 
   useEffect(() => {
     if (!password) {
       setStrength({ label: "None", score: 0, color: "bg-slate-700" });
       return;
     }
-    
+
     let score = 0;
     if (password.length >= 6) score += 1;
     if (/[A-Z]/.test(password)) score += 1;
@@ -95,7 +99,11 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
       }
     } catch (err) {
       console.error("Register failure:", err);
-      setError(err.response?.data?.message || err.message || "Failed to register account.");
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to register account.",
+      );
     } finally {
       setLoading(false);
     }
@@ -108,13 +116,13 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
       exit={{ opacity: 0, scale: 0.95, y: 15 }}
       transition={{ duration: 0.25, type: "spring", damping: 25 }}
       className={`w-full border shadow-2xl rounded-3xl overflow-hidden p-6 relative backdrop-blur-xl ${
-        isDarkMode 
-          ? "border-white/10 bg-slate-900/90 text-white" 
+        isDarkMode
+          ? "border-white/10 bg-slate-900/90 text-white"
           : "border-slate-200 bg-white/95 text-slate-800"
       }`}
     >
       {/* Close button */}
-      <button 
+      <button
         onClick={onClose}
         className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-slate-500/10 text-slate-400 hover:text-slate-200 transition"
       >
@@ -129,7 +137,9 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
         <h2 className="text-xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
           Start Learning Today
         </h2>
-        <p className="text-[11px] text-slate-400 mt-1">Create your global student account</p>
+        <p className="text-[11px] text-slate-400 mt-1">
+          Create your global student account
+        </p>
       </div>
 
       {/* Form */}
@@ -142,7 +152,9 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
 
         {/* Name */}
         <div>
-          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">Full Name</label>
+          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">
+            Full Name
+          </label>
           <input
             type="text"
             value={name}
@@ -150,8 +162,8 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
             placeholder="John Doe"
             required
             className={`w-full rounded-xl border py-2 px-3.5 text-xs focus:outline-none transition-all ${
-              isDarkMode 
-                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50" 
+              isDarkMode
+                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50"
                 : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-blue-500"
             }`}
           />
@@ -159,7 +171,9 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
 
         {/* Email */}
         <div>
-          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">Email Address</label>
+          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">
+            Email Address
+          </label>
           <input
             type="email"
             value={email}
@@ -167,8 +181,8 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
             placeholder="you@example.com"
             required
             className={`w-full rounded-xl border py-2 px-3.5 text-xs focus:outline-none transition-all ${
-              isDarkMode 
-                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50" 
+              isDarkMode
+                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50"
                 : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-blue-500"
             }`}
           />
@@ -176,7 +190,9 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
 
         {/* Password */}
         <div>
-          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">Password</label>
+          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">
+            Password
+          </label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -185,8 +201,8 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
               placeholder="Min. 6 characters"
               required
               className={`w-full rounded-xl border py-2 pl-3.5 pr-10 text-xs focus:outline-none transition-all ${
-                isDarkMode 
-                  ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50" 
+                isDarkMode
+                  ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50"
                   : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-blue-500"
               }`}
             />
@@ -195,7 +211,11 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
             >
-              {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+              {showPassword ? (
+                <EyeOff className="h-4.5 w-4.5" />
+              ) : (
+                <Eye className="h-4.5 w-4.5" />
+              )}
             </button>
           </div>
 
@@ -203,14 +223,31 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
           {password && (
             <div className="mt-2 space-y-1 select-none">
               <div className="flex justify-between items-center text-[9px] font-bold text-slate-400 uppercase">
-                <span>Strength: <span className={
-                  strength.label === "Weak" ? "text-rose-400" : strength.label === "Medium" ? "text-amber-400" : "text-emerald-400"
-                }>{strength.label}</span></span>
+                <span>
+                  Strength:{" "}
+                  <span
+                    className={
+                      strength.label === "Weak"
+                        ? "text-rose-400"
+                        : strength.label === "Medium"
+                          ? "text-amber-400"
+                          : "text-emerald-400"
+                    }
+                  >
+                    {strength.label}
+                  </span>
+                </span>
               </div>
               <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden flex gap-0.5">
-                <div className={`h-full flex-1 transition-all duration-300 ${strength.score >= 1 ? strength.color : "bg-transparent"}`} />
-                <div className={`h-full flex-1 transition-all duration-300 ${strength.score >= 3 ? strength.color : "bg-transparent"}`} />
-                <div className={`h-full flex-1 transition-all duration-300 ${strength.score >= 4 ? strength.color : "bg-transparent"}`} />
+                <div
+                  className={`h-full flex-1 transition-all duration-300 ${strength.score >= 1 ? strength.color : "bg-transparent"}`}
+                />
+                <div
+                  className={`h-full flex-1 transition-all duration-300 ${strength.score >= 3 ? strength.color : "bg-transparent"}`}
+                />
+                <div
+                  className={`h-full flex-1 transition-all duration-300 ${strength.score >= 4 ? strength.color : "bg-transparent"}`}
+                />
               </div>
             </div>
           )}
@@ -218,7 +255,9 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
 
         {/* Confirm Password */}
         <div>
-          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">Confirm Password</label>
+          <label className="mb-1 block text-[10px] uppercase font-bold tracking-wider text-slate-400">
+            Confirm Password
+          </label>
           <input
             type={showPassword ? "text" : "password"}
             value={confirmPassword}
@@ -226,8 +265,8 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
             placeholder="Confirm password"
             required
             className={`w-full rounded-xl border py-2 px-3.5 text-xs focus:outline-none transition-all ${
-              isDarkMode 
-                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50" 
+              isDarkMode
+                ? "border-white/10 bg-black/40 text-white placeholder-white/20 focus:border-blue-500/50"
                 : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-blue-500"
             }`}
           />
@@ -252,8 +291,10 @@ export default function RegisterModal({ onClose, onSwitchToLogin }) {
 
       {/* Switch to Login */}
       <div className="mt-5 pt-4 border-t border-slate-200 dark:border-white/5 text-center text-xs">
-        <span className="text-slate-400 font-medium">Already have an account?</span>{" "}
-        <button 
+        <span className="text-slate-400 font-medium">
+          Already have an account?
+        </span>{" "}
+        <button
           onClick={onSwitchToLogin}
           className="font-bold text-blue-400 hover:underline"
         >

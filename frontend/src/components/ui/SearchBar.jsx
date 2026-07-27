@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "../../utils/cn";
 import { Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";

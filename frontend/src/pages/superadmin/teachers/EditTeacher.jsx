@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, Save, Edit, Check } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 
@@ -33,13 +38,15 @@ export default function EditTeacher({
       setSpecialization(teacher.specialization || "");
       setExperience(teacher.experience || "");
       setStatus(teacher.status || "active");
-      setAssignedCourses(teacher.assignedCourses || teacher.teachingCourses || []);
+      setAssignedCourses(
+        teacher.assignedCourses || teacher.teachingCourses || [],
+      );
     }
   }, [teacher]);
 
   const handleToggleCourse = (cId) => {
     if (assignedCourses.includes(cId)) {
-      setAssignedCourses(assignedCourses.filter(id => id !== cId));
+      setAssignedCourses(assignedCourses.filter((id) => id !== cId));
     } else {
       setAssignedCourses([...assignedCourses, cId]);
     }
@@ -73,7 +80,11 @@ export default function EditTeacher({
   return (
     <div className="space-y-6" id="edit-teacher-root">
       <div className="flex items-center">
-        <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={onCancel}>
+        <Button
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={onCancel}
+        >
           <ChevronLeft className="h-4 w-4" /> Cancel Edits
         </Button>
       </div>
@@ -81,7 +92,8 @@ export default function EditTeacher({
       <Card className="hover:shadow-md transition-all max-w-4xl mx-auto">
         <CardHeader className="pb-4 border-b">
           <CardTitle className="text-base font-bold flex items-center gap-2">
-            <Edit className="h-5 w-5 text-blue-600" /> Edit Teacher Credentials Profile
+            <Edit className="h-5 w-5 text-blue-600" /> Edit Teacher Credentials
+            Profile
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -89,7 +101,9 @@ export default function EditTeacher({
             {/* Basic Info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Full Name *</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Full Name *
+                </label>
                 <Input
                   required
                   placeholder="e.g. Dr. James Wilson"
@@ -98,7 +112,9 @@ export default function EditTeacher({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email Address *</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Email Address *
+                </label>
                 <Input
                   required
                   type="email"
@@ -111,7 +127,9 @@ export default function EditTeacher({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Phone Contact</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Phone Contact
+                </label>
                 <Input
                   placeholder="e.g. +1 (555) 123-4567"
                   value={phone}
@@ -119,7 +137,9 @@ export default function EditTeacher({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Account status</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Account status
+                </label>
                 <select
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none h-10"
                   value={status}
@@ -134,7 +154,9 @@ export default function EditTeacher({
 
             {/* Profile Avatar Url */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Profile Photo Url</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Profile Photo Url
+              </label>
               <Input
                 placeholder="e.g. https://images.unsplash.com/photo-1544005313-94ddf0286df2"
                 value={avatar}
@@ -145,7 +167,9 @@ export default function EditTeacher({
             {/* Qualifications */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Degree / Qualification</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Degree / Qualification
+                </label>
                 <Input
                   placeholder="e.g. Ph.D. Computer Science"
                   value={qualification}
@@ -153,7 +177,9 @@ export default function EditTeacher({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Specialization Topic</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Specialization Topic
+                </label>
                 <Input
                   placeholder="e.g. Full-Stack Dev / React"
                   value={specialization}
@@ -161,7 +187,9 @@ export default function EditTeacher({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Experience (Years)</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Experience (Years)
+                </label>
                 <Input
                   type="number"
                   placeholder="e.g. 8"
@@ -173,7 +201,9 @@ export default function EditTeacher({
 
             {/* Biography */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Short Biography</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Short Biography
+              </label>
               <textarea
                 className="w-full min-h-24 rounded-lg border border-border bg-card p-3 text-sm focus:outline-none"
                 placeholder="Describe educator professional backgrounds..."
@@ -184,9 +214,13 @@ export default function EditTeacher({
 
             {/* Course Checklist Assignments */}
             <div className="space-y-3 pt-4 border-t">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Assign Platform Courses</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+                Assign Platform Courses
+              </label>
               {coursesList.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No active courses registered inside system database to assign.</p>
+                <p className="text-xs text-muted-foreground">
+                  No active courses registered inside system database to assign.
+                </p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {coursesList.map((course) => {
@@ -201,10 +235,16 @@ export default function EditTeacher({
                         }`}
                         onClick={() => handleToggleCourse(course._id)}
                       >
-                        <div className={`h-4 w-4 border rounded flex items-center justify-center ${
-                          isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-muted"
-                        }`}>
-                          {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                        <div
+                          className={`h-4 w-4 border rounded flex items-center justify-center ${
+                            isSelected
+                              ? "bg-blue-600 border-blue-600 text-white"
+                              : "border-muted"
+                          }`}
+                        >
+                          {isSelected && (
+                            <Check className="h-3 w-3 stroke-[3]" />
+                          )}
                         </div>
                         <span className="text-xs truncate">{course.title}</span>
                       </div>
@@ -219,8 +259,13 @@ export default function EditTeacher({
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md">
-                <Save className="h-4 w-4" /> {isSubmitting ? "Updating..." : "Save Changes"}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
+              >
+                <Save className="h-4 w-4" />{" "}
+                {isSubmitting ? "Updating..." : "Save Changes"}
               </Button>
             </div>
           </form>

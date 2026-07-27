@@ -1,21 +1,20 @@
 // src/pages/assignments/ReviewSubmission.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
   CheckCircle2,
   FileText,
   MessageSquare,
-  Award,
-  Calendar,
   AlertTriangle,
-  User,
   Download,
   Sparkles,
 } from "lucide-react";
-import { getSubmissionById, gradeSubmission } from "../../services/submissionService";
+import {
+  getSubmissionById,
+  gradeSubmission,
+} from "../../services/submissionService";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -87,7 +86,9 @@ export default function ReviewSubmission() {
       }
     } catch (err) {
       console.error("Error grading submission:", err);
-      toast.error(err.response?.data?.message || "Encountered error grading submission");
+      toast.error(
+        err.response?.data?.message || "Encountered error grading submission",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -95,9 +96,14 @@ export default function ReviewSubmission() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4" id="review-submission-loading">
+      <div
+        className="flex flex-col items-center justify-center min-h-[60vh] gap-4"
+        id="review-submission-loading"
+      >
         <div className="loading loading-spinner loading-lg text-primary"></div>
-        <p className="text-sm text-muted-foreground animate-pulse">Retrieving student submission workspace...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">
+          Retrieving student submission workspace...
+        </p>
       </div>
     );
   }
@@ -107,7 +113,9 @@ export default function ReviewSubmission() {
       <div className="text-center py-20 bg-base-100 rounded-3xl border border-base-300 shadow-xl max-w-lg mx-auto mt-10">
         <AlertTriangle className="mx-auto mb-4 h-16 w-16 text-warning" />
         <h2 className="text-2xl font-bold mb-2">Submission Not Found</h2>
-        <p className="text-muted-foreground text-sm mb-6">The requested student submission could not be retrieved.</p>
+        <p className="text-muted-foreground text-sm mb-6">
+          The requested student submission could not be retrieved.
+        </p>
         <Button onClick={() => navigate(-1)} className="rounded-2xl gap-2">
           <ArrowLeft className="h-4 w-4" /> Go Back
         </Button>
@@ -149,9 +157,14 @@ export default function ReviewSubmission() {
                 Status: {submission.status}
               </span>
             </div>
-            <h1 className="text-2xl font-extrabold text-foreground">{student?.name || "Student Submission"}</h1>
+            <h1 className="text-2xl font-extrabold text-foreground">
+              {student?.name || "Student Submission"}
+            </h1>
             <p className="text-muted-foreground text-xs font-medium">
-              Evaluating answers for assignment: <span className="font-bold text-primary">"{assignment?.title}"</span>
+              Evaluating answers for assignment:{" "}
+              <span className="font-bold text-primary">
+                "{assignment?.title}"
+              </span>
             </p>
           </div>
         </div>
@@ -161,13 +174,18 @@ export default function ReviewSubmission() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT COLUMN: STUDENT CONTENT */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-base-100 shadow-xl border border-base-300 rounded-3xl overflow-hidden" id="student-submission-work-details">
+          <Card
+            className="bg-base-100 shadow-xl border border-base-300 rounded-3xl overflow-hidden"
+            id="student-submission-work-details"
+          >
             <div className="bg-base-200/50 p-6 border-b border-base-300 flex items-center justify-between">
               <h3 className="font-bold text-md flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" /> Submitted Written Answer
+                <FileText className="h-5 w-5 text-primary" /> Submitted Written
+                Answer
               </h3>
               <span className="text-xs text-muted-foreground font-mono">
-                Submitted At: {new Date(submission.submittedAt).toLocaleString()}
+                Submitted At:{" "}
+                {new Date(submission.submittedAt).toLocaleString()}
               </span>
             </div>
             <CardContent className="p-6 space-y-6">
@@ -185,11 +203,14 @@ export default function ReviewSubmission() {
               {submission.files && submission.files.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                    Uploaded Project Assets & Documentation ({submission.files.length})
+                    Uploaded Project Assets & Documentation (
+                    {submission.files.length})
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {submission.files.map((fileUrl, idx) => {
-                      const name = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+                      const name = fileUrl.substring(
+                        fileUrl.lastIndexOf("/") + 1,
+                      );
                       return (
                         <div
                           key={idx}
@@ -197,7 +218,9 @@ export default function ReviewSubmission() {
                         >
                           <div className="flex items-center gap-2 truncate max-w-[170px]">
                             <FileText className="h-4 w-4 text-primary" />
-                            <span className="font-mono text-muted-foreground truncate">{name}</span>
+                            <span className="font-mono text-muted-foreground truncate">
+                              {name}
+                            </span>
                           </div>
                           <a
                             href={fileUrl}
@@ -219,12 +242,18 @@ export default function ReviewSubmission() {
 
         {/* RIGHT COLUMN: GRADING & FEEDBACK FORM */}
         <div>
-          <Card className="bg-base-100 shadow-xl border border-base-300 rounded-3xl overflow-hidden sticky top-6" id="teacher-grading-panel">
+          <Card
+            className="bg-base-100 shadow-xl border border-base-300 rounded-3xl overflow-hidden sticky top-6"
+            id="teacher-grading-panel"
+          >
             <div className="p-6 bg-gradient-to-r from-primary/10 via-base-100 to-base-100 border-b border-base-300">
               <h3 className="font-bold text-lg flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary animate-pulse" /> Grading Evaluation
+                <Sparkles className="h-5 w-5 text-primary animate-pulse" />{" "}
+                Grading Evaluation
               </h3>
-              <p className="text-xs text-muted-foreground">Rate submission marks out of assignment total allowed.</p>
+              <p className="text-xs text-muted-foreground">
+                Rate submission marks out of assignment total allowed.
+              </p>
             </div>
             <CardContent className="p-6">
               <form onSubmit={handlePostGrade} className="space-y-5">
@@ -255,7 +284,8 @@ export default function ReviewSubmission() {
                 {/* Feedback description */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-muted-foreground flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" /> Instructor Feedback & Review Comments
+                    <MessageSquare className="h-4 w-4" /> Instructor Feedback &
+                    Review Comments
                   </label>
                   <textarea
                     value={feedback}

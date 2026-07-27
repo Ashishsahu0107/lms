@@ -1,22 +1,45 @@
-import React from "react";
-import { ChevronLeft, TrendingUp, Users, CheckCircle, Clock, BarChart3, Award } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/Card";
+import {
+  ChevronLeft,
+  Users,
+  CheckCircle,
+  Clock,
+  BarChart3,
+  Award,
+} from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import {
-  AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
-export default function StudentAnalytics({
-  analyticsData = {},
-  onBack,
-}) {
-  const { totalStudents = 0, activeStudents = 0, learningTrend = [] } = analyticsData;
+export default function StudentAnalytics({ analyticsData = {}, onBack }) {
+  const {
+    totalStudents = 0,
+    activeStudents = 0,
+    learningTrend = [],
+  } = analyticsData;
 
   return (
     <div className="space-y-6" id="student-analytics-root">
       <div className="flex items-center">
-        <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={onBack}>
+        <Button
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={onBack}
+        >
           <ChevronLeft className="h-4 w-4" /> Back to Students List
         </Button>
       </div>
@@ -29,7 +52,9 @@ export default function StudentAnalytics({
           </div>
           <div>
             <p className="text-2xl font-bold">{totalStudents}</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Enrolled</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Total Enrolled
+            </p>
           </div>
         </div>
 
@@ -39,7 +64,9 @@ export default function StudentAnalytics({
           </div>
           <div>
             <p className="text-2xl font-bold">{activeStudents}</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Active Students</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Active Students
+            </p>
           </div>
         </div>
 
@@ -49,7 +76,9 @@ export default function StudentAnalytics({
           </div>
           <div>
             <p className="text-2xl font-bold">58 Hrs</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Average Study Hours</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Average Study Hours
+            </p>
           </div>
         </div>
 
@@ -59,7 +88,9 @@ export default function StudentAnalytics({
           </div>
           <div>
             <p className="text-2xl font-bold">84%</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Quiz Accuracy Mean</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Quiz Accuracy Mean
+            </p>
           </div>
         </div>
       </div>
@@ -84,8 +115,14 @@ export default function StudentAnalytics({
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted/30"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    className="text-xs text-muted-foreground font-medium"
+                  />
                   <YAxis className="text-xs text-muted-foreground font-medium" />
                   <Tooltip
                     contentStyle={{
@@ -120,9 +157,18 @@ export default function StudentAnalytics({
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={learningTrend}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
-                  <YAxis domain={[80, 100]} className="text-xs text-muted-foreground font-medium" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted/30"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    className="text-xs text-muted-foreground font-medium"
+                  />
+                  <YAxis
+                    domain={[80, 100]}
+                    className="text-xs text-muted-foreground font-medium"
+                  />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",

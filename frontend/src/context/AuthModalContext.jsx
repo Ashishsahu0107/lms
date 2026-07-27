@@ -1,6 +1,6 @@
 // src/context/AuthModalContext.jsx
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import LoginModal from "../components/auth/LoginModal";
 import RegisterModal from "../components/auth/RegisterModal";
@@ -51,7 +51,7 @@ export function AuthModalProvider({ children }) {
   const closeModal = () => {
     setIsOpen(false);
     setModalType(null);
-    
+
     // Clean up query param from URL
     const newParams = new URLSearchParams(searchParams);
     newParams.delete("auth");
@@ -72,28 +72,27 @@ export function AuthModalProvider({ children }) {
   }, [isOpen]);
 
   return (
-    <AuthModalContext.Provider value={{ isOpen, modalType, openLogin, openRegister, closeModal }}>
+    <AuthModalContext.Provider
+      value={{ isOpen, modalType, openLogin, openRegister, closeModal }}
+    >
       {children}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
-          <div 
+          <div
             onClick={closeModal}
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-md transition-opacity duration-300"
           />
-          
+
           {/* Modal Container */}
           <div className="relative w-full max-w-md z-10">
             {modalType === "login" ? (
-              <LoginModal 
-                onClose={closeModal} 
-                onSwitchToRegister={openRegister} 
+              <LoginModal
+                onClose={closeModal}
+                onSwitchToRegister={openRegister}
               />
             ) : (
-              <RegisterModal 
-                onClose={closeModal} 
-                onSwitchToLogin={openLogin} 
-              />
+              <RegisterModal onClose={closeModal} onSwitchToLogin={openLogin} />
             )}
           </div>
         </div>

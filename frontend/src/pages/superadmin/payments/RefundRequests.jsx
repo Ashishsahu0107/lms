@@ -1,5 +1,4 @@
-import React from "react";
-import { ChevronLeft, ArrowUpRight, HelpCircle } from "lucide-react";
+import { ChevronLeft, HelpCircle } from "lucide-react";
 import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
@@ -10,12 +9,18 @@ export default function RefundRequests({
   onApproveRefund,
   onRejectRefund,
 }) {
-  const refunds = payments.filter((p) => p.status === "refunded" || p.status === "pending");
+  const refunds = payments.filter(
+    (p) => p.status === "refunded" || p.status === "pending",
+  );
 
   return (
     <div className="space-y-6" id="refund-requests-root">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={onBack}>
+        <Button
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={onBack}
+        >
           <ChevronLeft className="h-4 w-4" /> Back to Dashboard
         </Button>
         <h2 className="text-lg font-bold text-foreground">Refund Queue</h2>
@@ -25,8 +30,12 @@ export default function RefundRequests({
         {refunds.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <HelpCircle className="h-12 w-12 mx-auto mb-3 text-muted-foreground/60" />
-            <p className="font-semibold text-foreground">Refund queue is empty</p>
-            <p className="text-sm">There are no outstanding refund requests to moderate.</p>
+            <p className="font-semibold text-foreground">
+              Refund queue is empty
+            </p>
+            <p className="text-sm">
+              There are no outstanding refund requests to moderate.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -42,12 +51,24 @@ export default function RefundRequests({
               </thead>
               <tbody>
                 {refunds.map((p) => (
-                  <tr key={p._id} className="border-b hover:bg-muted/10 transition-colors text-sm last:border-0">
-                    <td className="py-3.5 px-4 font-bold text-foreground">{p.studentId?.name || "Enrolled Learner"}</td>
-                    <td className="py-3.5 px-4 font-medium text-muted-foreground truncate max-w-xs">{p.courseId?.title || "Syllabus Course"}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-foreground">${p.amount}</td>
+                  <tr
+                    key={p._id}
+                    className="border-b hover:bg-muted/10 transition-colors text-sm last:border-0"
+                  >
+                    <td className="py-3.5 px-4 font-bold text-foreground">
+                      {p.studentId?.name || "Enrolled Learner"}
+                    </td>
+                    <td className="py-3.5 px-4 font-medium text-muted-foreground truncate max-w-xs">
+                      {p.courseId?.title || "Syllabus Course"}
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-bold text-foreground">
+                      ${p.amount}
+                    </td>
                     <td className="py-3.5 px-4 text-center">
-                      <Badge variant="warning" className="capitalize border-0 font-semibold text-[10px]">
+                      <Badge
+                        variant="warning"
+                        className="capitalize border-0 font-semibold text-[10px]"
+                      >
                         {p.status}
                       </Badge>
                     </td>

@@ -20,7 +20,12 @@ import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
-import { getQuizzes, deleteQuiz, cloneQuiz, bulkImportQuestions } from "../../../services/quizService";
+import {
+  getQuizzes,
+  deleteQuiz,
+  cloneQuiz,
+  bulkImportQuestions,
+} from "../../../services/quizService";
 import toast from "react-hot-toast";
 
 export default function TeacherQuizManagement() {
@@ -57,14 +62,18 @@ export default function TeacherQuizManagement() {
   const [importing, setImporting] = useState(false);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("WARNING: Are you absolutely sure you want to permanently delete this quiz? All associated question cards and student attempt score sheets will be cascade deleted. This action cannot be undone.")) {
+    if (
+      !window.confirm(
+        "WARNING: Are you absolutely sure you want to permanently delete this quiz? All associated question cards and student attempt score sheets will be cascade deleted. This action cannot be undone.",
+      )
+    ) {
       return;
     }
 
     try {
       const res = await deleteQuiz(id);
       if (res.data?.success) {
-        setQuizzes(quizzes.filter(q => q._id !== id));
+        setQuizzes(quizzes.filter((q) => q._id !== id));
         toast.success("Quiz and attempts logs cascade deleted successfully!");
       } else {
         toast.error("Failed to delete quiz");
@@ -118,9 +127,12 @@ export default function TeacherQuizManagement() {
     }
   };
 
-  const filteredQuizzes = quizzes.filter(q =>
-    q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (q.courseId?.title || "").toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredQuizzes = quizzes.filter(
+    (q) =>
+      q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (q.courseId?.title || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -138,8 +150,13 @@ export default function TeacherQuizManagement() {
               <Sparkles className="h-3 w-3" /> Teacher Portal
             </span>
           </div>
-          <h1 className="text-3xl font-extrabold text-foreground">Quiz Management</h1>
-          <p className="text-sm text-muted-foreground">Deliver course-wise exam parameters, shuffle question lists, and evaluate results.</p>
+          <h1 className="text-3xl font-extrabold text-foreground">
+            Quiz Management
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Deliver course-wise exam parameters, shuffle question lists, and
+            evaluate results.
+          </p>
         </div>
         <Button
           onClick={() => navigate("/teacher/quizzes/create")}
@@ -158,8 +175,12 @@ export default function TeacherQuizManagement() {
               <HelpCircle className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Quizzes</p>
-              <h3 className="text-2xl font-extrabold text-foreground">{quizzes.length}</h3>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Total Quizzes
+              </p>
+              <h3 className="text-2xl font-extrabold text-foreground">
+                {quizzes.length}
+              </h3>
             </div>
           </CardContent>
         </Card>
@@ -170,9 +191,11 @@ export default function TeacherQuizManagement() {
               <CheckCircle className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Active Assessments</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Active Assessments
+              </p>
               <h3 className="text-2xl font-extrabold text-foreground">
-                {quizzes.filter(q => q.status === "published").length} Quizzes
+                {quizzes.filter((q) => q.status === "published").length} Quizzes
               </h3>
             </div>
           </CardContent>
@@ -184,8 +207,12 @@ export default function TeacherQuizManagement() {
               <Award className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Average Marks Value</p>
-              <h3 className="text-2xl font-extrabold text-foreground">100 Marks</h3>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Average Marks Value
+              </p>
+              <h3 className="text-2xl font-extrabold text-foreground">
+                100 Marks
+              </h3>
             </div>
           </CardContent>
         </Card>
@@ -211,14 +238,24 @@ export default function TeacherQuizManagement() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="loading loading-spinner loading-lg text-primary"></div>
-              <p className="text-sm text-muted-foreground animate-pulse font-medium">Retrieving quizzes dashboard...</p>
+              <p className="text-sm text-muted-foreground animate-pulse font-medium">
+                Retrieving quizzes dashboard...
+              </p>
             </div>
           ) : filteredQuizzes.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground text-sm flex flex-col items-center max-w-md mx-auto">
               <AlertTriangle className="h-10 w-10 text-muted-foreground/60 mb-3" />
               <h3 className="text-lg font-bold mb-1">No Quizzes Published</h3>
-              <p className="text-xs text-muted-foreground mb-6">Create homework checks, true/false grids or comprehensive exams to assess student lessons progress.</p>
-              <Button onClick={() => navigate("/teacher/quizzes/create")} className="btn-sm rounded-xl">Create Quiz</Button>
+              <p className="text-xs text-muted-foreground mb-6">
+                Create homework checks, true/false grids or comprehensive exams
+                to assess student lessons progress.
+              </p>
+              <Button
+                onClick={() => navigate("/teacher/quizzes/create")}
+                className="btn-sm rounded-xl"
+              >
+                Create Quiz
+              </Button>
             </div>
           ) : (
             <table className="table w-full text-sm">
@@ -236,15 +273,22 @@ export default function TeacherQuizManagement() {
               <tbody>
                 {filteredQuizzes.map((quiz) => {
                   return (
-                    <tr key={quiz._id} className="border-b border-base-200 hover:bg-base-200/40 transition-colors">
+                    <tr
+                      key={quiz._id}
+                      className="border-b border-base-200 hover:bg-base-200/40 transition-colors"
+                    >
                       <td className="font-bold flex items-center gap-3">
                         <div className="p-2 bg-primary/10 text-primary rounded-xl">
                           <HelpCircle className="h-5 w-5" />
                         </div>
-                        <span className="text-foreground line-clamp-1">{quiz.title}</span>
+                        <span className="text-foreground line-clamp-1">
+                          {quiz.title}
+                        </span>
                       </td>
                       <td>
-                        <span className="font-semibold text-muted-foreground text-xs">{quiz.courseId?.title || "Enrolled Course"}</span>
+                        <span className="font-semibold text-muted-foreground text-xs">
+                          {quiz.courseId?.title || "Enrolled Course"}
+                        </span>
                       </td>
                       <td>
                         <span className="badge badge-outline border-base-300 text-xs font-semibold px-2 py-1 rounded-lg">
@@ -253,21 +297,30 @@ export default function TeacherQuizManagement() {
                       </td>
                       <td>
                         <span className="text-xs text-muted-foreground flex items-center gap-1 font-semibold">
-                          <Clock className="h-3.5 w-3.5 text-warning/80" /> {quiz.duration} Mins
+                          <Clock className="h-3.5 w-3.5 text-warning/80" />{" "}
+                          {quiz.duration} Mins
                         </span>
                       </td>
                       <td className="font-bold">{quiz.totalMarks} Marks</td>
                       <td>
-                        <span className={`badge rounded-xl px-2.5 py-1 text-[10px] font-bold text-white capitalize ${
-                          quiz.status === "published" ? "bg-success" : quiz.status === "closed" ? "bg-error" : "bg-warning"
-                        }`}>
+                        <span
+                          className={`badge rounded-xl px-2.5 py-1 text-[10px] font-bold text-white capitalize ${
+                            quiz.status === "published"
+                              ? "bg-success"
+                              : quiz.status === "closed"
+                                ? "bg-error"
+                                : "bg-warning"
+                          }`}
+                        >
                           {quiz.status}
                         </span>
                       </td>
                       <td className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
-                            onClick={() => navigate(`/teacher/quizzes/analytics/${quiz._id}`)}
+                            onClick={() =>
+                              navigate(`/teacher/quizzes/analytics/${quiz._id}`)
+                            }
                             size="icon"
                             variant="ghost"
                             className="hover:text-primary rounded-full bg-base-200 p-2"
@@ -294,7 +347,9 @@ export default function TeacherQuizManagement() {
                             <FileDown className="h-4 w-4" />
                           </Button>
                           <Button
-                            onClick={() => navigate(`/teacher/quizzes/edit/${quiz._id}`)}
+                            onClick={() =>
+                              navigate(`/teacher/quizzes/edit/${quiz._id}`)
+                            }
                             size="icon"
                             variant="ghost"
                             className="hover:text-primary rounded-full bg-base-200 p-2"
@@ -331,9 +386,11 @@ export default function TeacherQuizManagement() {
       >
         <div className="space-y-4">
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-muted-foreground block uppercase">JSON Array Format:</span>
+            <span className="text-[10px] font-bold text-muted-foreground block uppercase">
+              JSON Array Format:
+            </span>
             <pre className="text-[9px] bg-base-200 p-3 rounded-lg overflow-auto leading-relaxed border border-base-300 font-mono text-muted-foreground">
-{`[
+              {`[
   {
     "type": "mcq",
     "question": "What is 2 + 2?",
@@ -354,13 +411,19 @@ export default function TeacherQuizManagement() {
           />
 
           <div className="flex justify-end gap-3 pt-3 border-t border-base-300">
-            <Button variant="ghost" onClick={() => setImportQuizId(null)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => setImportQuizId(null)}>
+              Cancel
+            </Button>
             <Button
               onClick={handleImportQuestions}
               disabled={importing || !jsonText.trim()}
               className="btn btn-primary text-white"
             >
-              {importing ? <span className="loading loading-spinner loading-sm"></span> : "Import questions"}
+              {importing ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : (
+                "Import questions"
+              )}
             </Button>
           </div>
         </div>

@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
-import { getSecurityLogs, getSessions, getSettings, updateSettings } from "../../../services/adminModulesService";
+import {
+  getSecurityLogs,
+  getSessions,
+  getSettings,
+  updateSettings,
+} from "../../../services/adminModulesService";
 import SecurityDashboard from "./SecurityDashboard";
 import UserSessions from "./UserSessions";
 import AccessLogs from "./AccessLogs";
@@ -41,8 +46,10 @@ export default function AdminSecurity() {
       ]);
 
       if (logsRes && logsRes.success) setLogs(logsRes.data || []);
-      if (sessionsRes && sessionsRes.success) setSessions(sessionsRes.data || []);
-      if (settingsRes && settingsRes.success) setSettings(settingsRes.data || null);
+      if (sessionsRes && sessionsRes.success)
+        setSessions(sessionsRes.data || []);
+      if (settingsRes && settingsRes.success)
+        setSettings(settingsRes.data || null);
     } catch (err) {
       console.error("Error loading security parameters:", err);
     } finally {
@@ -84,7 +91,9 @@ export default function AdminSecurity() {
           />
         );
       case "audit":
-        return <AccessLogs onBack={() => setCurrentView("dashboard")} logs={logs} />;
+        return (
+          <AccessLogs onBack={() => setCurrentView("dashboard")} logs={logs} />
+        );
       case "permissions":
         return <Permissions onBack={() => setCurrentView("dashboard")} />;
       case "settings":
@@ -100,7 +109,9 @@ export default function AdminSecurity() {
           <SecurityDashboard
             stats={{
               activeSessionsCount: sessions.length,
-              failedAttemptsCount: logs.filter((l) => l.action === "FAILED_LOGIN").length,
+              failedAttemptsCount: logs.filter(
+                (l) => l.action === "FAILED_LOGIN",
+              ).length,
               blockedIpsCount: 2,
             }}
             onNavigateToView={(view) => setCurrentView(view)}
@@ -118,13 +129,17 @@ export default function AdminSecurity() {
       id="admin-security-container"
     >
       {/* Header */}
-      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
+      <motion.div
+        variants={item}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5"
+      >
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-red-500 to-indigo-500 bg-clip-text text-transparent">
             Security Control Center
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Monitor and secure the LMS environment, configure IP blocks, and invalidate active sessions.
+            Monitor and secure the LMS environment, configure IP blocks, and
+            invalidate active sessions.
           </p>
         </div>
         {currentView === "dashboard" && (
@@ -136,7 +151,10 @@ export default function AdminSecurity() {
               disabled={loading}
               onClick={fetchSecurityData}
             >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh Security
+              <RefreshCw
+                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              />{" "}
+              Refresh Security
             </Button>
           </div>
         )}

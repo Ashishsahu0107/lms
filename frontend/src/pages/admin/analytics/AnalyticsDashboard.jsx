@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -30,7 +30,6 @@ import RealTimeAnalytics from "./RealTimeAnalytics";
 
 // Import Components
 import AnalyticsCard from "./components/AnalyticsCard";
-import ExportFeatures from "./components/ExportFeatures";
 
 // AI INSIGHT PANEL COMPONENT
 function AIInsightsPanel({ data, loading }) {
@@ -82,10 +81,12 @@ function AIInsightsPanel({ data, loading }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold tracking-wider text-blue-400 uppercase flex items-center gap-2">
-          <Cpu className="h-5 w-5 text-blue-400 animate-pulse" /> AI Smart Analytical Engine Insights
+          <Cpu className="h-5 w-5 text-blue-400 animate-pulse" /> AI Smart
+          Analytical Engine Insights
         </h3>
         <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-white/40 tracking-widest bg-white/5 border border-white/5 py-1 px-2.5 rounded-full">
-          <Sparkles className="h-3 w-3 text-blue-400 animate-spin" /> Platform AI Engine v2.0
+          <Sparkles className="h-3 w-3 text-blue-400 animate-spin" /> Platform
+          AI Engine v2.0
         </span>
       </div>
 
@@ -102,8 +103,12 @@ function AIInsightsPanel({ data, loading }) {
                 <Icon className="h-5 w-5" />
               </div>
               <div className="space-y-1.5 flex-1">
-                <h4 className="text-sm font-extrabold text-white">{ins.title}</h4>
-                <p className="text-xs text-white/70 leading-relaxed font-medium">{ins.text}</p>
+                <h4 className="text-sm font-extrabold text-white">
+                  {ins.title}
+                </h4>
+                <p className="text-xs text-white/70 leading-relaxed font-medium">
+                  {ins.text}
+                </p>
               </div>
             </motion.div>
           );
@@ -218,45 +223,78 @@ export default function AnalyticsDashboard() {
                   {/* Item 1 */}
                   <div className="rounded-xl border border-white/5 bg-white/5 p-5 space-y-3">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-white/50">Overall syllabus completion Rate</span>
-                      <span className="text-emerald-400 font-bold">{data?.avgCompletion ?? 0}%</span>
+                      <span className="text-white/50">
+                        Overall syllabus completion Rate
+                      </span>
+                      <span className="text-emerald-400 font-bold">
+                        {data?.avgCompletion ?? 0}%
+                      </span>
                     </div>
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${data?.avgCompletion ?? 0}%` }} />
+                      <div
+                        className="bg-emerald-500 h-full rounded-full"
+                        style={{ width: `${data?.avgCompletion ?? 0}%` }}
+                      />
                     </div>
-                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">Cumulative average student progress across all active courses.</p>
+                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">
+                      Cumulative average student progress across all active
+                      courses.
+                    </p>
                   </div>
 
                   {/* Item 2 */}
                   <div className="rounded-xl border border-white/5 bg-white/5 p-5 space-y-3">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-white/50">Quiz accuracy Aggregate</span>
-                      <span className="text-blue-400 font-bold">{data?.quizAccuracy ?? 0}%</span>
+                      <span className="text-white/50">
+                        Quiz accuracy Aggregate
+                      </span>
+                      <span className="text-blue-400 font-bold">
+                        {data?.quizAccuracy ?? 0}%
+                      </span>
                     </div>
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                      <div className="bg-blue-500 h-full rounded-full" style={{ width: `${data?.quizAccuracy ?? 0}%` }} />
+                      <div
+                        className="bg-blue-500 h-full rounded-full"
+                        style={{ width: `${data?.quizAccuracy ?? 0}%` }}
+                      />
                     </div>
-                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">Overall quiz test scores and grade compliance standard average.</p>
+                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">
+                      Overall quiz test scores and grade compliance standard
+                      average.
+                    </p>
                   </div>
 
                   {/* Item 3 */}
                   <div className="rounded-xl border border-white/5 bg-white/5 p-5 space-y-3">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-white/50">Attendance compliance rate</span>
-                      <span className="text-purple-400 font-bold">{data?.overallAttendance ?? 0}%</span>
+                      <span className="text-white/50">
+                        Attendance compliance rate
+                      </span>
+                      <span className="text-purple-400 font-bold">
+                        {data?.overallAttendance ?? 0}%
+                      </span>
                     </div>
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                      <div className="bg-purple-500 h-full rounded-full" style={{ width: `${data?.overallAttendance ?? 0}%` }} />
+                      <div
+                        className="bg-purple-500 h-full rounded-full"
+                        style={{ width: `${data?.overallAttendance ?? 0}%` }}
+                      />
                     </div>
-                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">General attendance status records tracked as present daily.</p>
+                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">
+                      General attendance status records tracked as present
+                      daily.
+                    </p>
                   </div>
 
                   {/* Item 4 */}
                   <div className="rounded-xl border border-white/5 bg-white/5 p-5 space-y-3">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-white/50">Assignment completed / submissions Ratio</span>
+                      <span className="text-white/50">
+                        Assignment completed / submissions Ratio
+                      </span>
                       <span className="text-amber-400 font-bold">
-                        {data?.assignmentStats?.graded ?? 0}/{data?.assignmentStats?.total ?? 0}
+                        {data?.assignmentStats?.graded ?? 0}/
+                        {data?.assignmentStats?.total ?? 0}
                       </span>
                     </div>
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
@@ -265,13 +303,20 @@ export default function AnalyticsDashboard() {
                         style={{
                           width: `${
                             data?.assignmentStats?.total
-                              ? Math.round((data.assignmentStats.graded / data.assignmentStats.total) * 100)
+                              ? Math.round(
+                                  (data.assignmentStats.graded /
+                                    data.assignmentStats.total) *
+                                    100,
+                                )
                               : 75
                           }%`,
                         }}
                       />
                     </div>
-                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">Ratio of assignments graded by teacher versus pending grading.</p>
+                    <p className="text-[10px] text-white/40 leading-relaxed font-semibold">
+                      Ratio of assignments graded by teacher versus pending
+                      grading.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -290,12 +335,19 @@ export default function AnalyticsDashboard() {
 
                 <div className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
                   {loading ? (
-                    <div className="text-white/30 text-xs">Loading activity streams...</div>
+                    <div className="text-white/30 text-xs">
+                      Loading activity streams...
+                    </div>
                   ) : data?.activities?.length === 0 ? (
-                    <div className="text-white/30 text-xs">No recent telemetry activity registered.</div>
+                    <div className="text-white/30 text-xs">
+                      No recent telemetry activity registered.
+                    </div>
                   ) : (
                     data?.activities?.map((act) => (
-                      <div key={act.id} className="flex gap-3 pl-3.5 border-l border-white/10 relative">
+                      <div
+                        key={act.id}
+                        className="flex gap-3 pl-3.5 border-l border-white/10 relative"
+                      >
                         <div className="absolute left-[-3.5px] top-1.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-bold text-white truncate">
@@ -304,9 +356,14 @@ export default function AnalyticsDashboard() {
                               {act.user?.role || "system"}
                             </span>
                           </p>
-                          <p className="text-xs text-white/60 mt-1 leading-snug">{act.details || act.action}</p>
+                          <p className="text-xs text-white/60 mt-1 leading-snug">
+                            {act.details || act.action}
+                          </p>
                           <span className="text-[9px] text-white/30 block mt-1">
-                            {new Date(act.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            {new Date(act.timestamp).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </span>
                         </div>
                       </div>
@@ -321,7 +378,10 @@ export default function AnalyticsDashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8" id="admin-analytics-master">
+    <div
+      className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
+      id="admin-analytics-master"
+    >
       {/* Tab Navigation header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
         <div>
@@ -329,7 +389,8 @@ export default function AnalyticsDashboard() {
             Enterprise Admin Analytics & Smart Console
           </h1>
           <p className="text-sm text-white/50 mt-1">
-            Real-time platform billing models, user behavior analytics, compliance graphs, and automated AI predictions.
+            Real-time platform billing models, user behavior analytics,
+            compliance graphs, and automated AI predictions.
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -338,7 +399,8 @@ export default function AnalyticsDashboard() {
             disabled={loading}
             className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-50"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{" "}
+            Refresh
           </button>
         </div>
       </div>

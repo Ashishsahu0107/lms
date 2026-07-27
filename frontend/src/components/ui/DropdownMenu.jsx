@@ -23,7 +23,7 @@ export function DropdownMenuContent({
       className={cn(
         "absolute z-50 mt-2 min-w-[8rem] overflow-hidden rounded-lg border bg-card shadow-lg animate-in fade-in-0 zoom-in-95",
         align === "end" ? "right-0" : "left-0",
-        className
+        className,
       )}
       {...props}
     >
@@ -32,17 +32,12 @@ export function DropdownMenuContent({
   );
 }
 
-export function DropdownMenuItem({
-  children,
-  className,
-  onClick,
-  ...props
-}) {
+export function DropdownMenuItem({ children, className, onClick, ...props }) {
   return (
     <button
       className={cn(
         "relative flex w-full cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm outline-none transition-colors hover:bg-muted focus:bg-muted",
-        className
+        className,
       )}
       onClick={onClick}
       {...props}

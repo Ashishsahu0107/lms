@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Award, ArrowLeft, Send, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, Send, AlertCircle, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "../../../components/ui/Card";
-import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
 import { getStudents, getCourses } from "../../../services/adminService";
 import { issueCertificate } from "../../../services/certificateService";
@@ -24,17 +23,26 @@ export default function IssueCertificate() {
     async function loadFormOptions() {
       try {
         setLoading(true);
-        const [studRes, courRes] = await Promise.all([getStudents(), getCourses()]);
-        
+        const [studRes, courRes] = await Promise.all([
+          getStudents(),
+          getCourses(),
+        ]);
+
         // Handle varying response envelopes safely
         const rawStudents = Array.isArray(studRes.data)
           ? studRes.data
-          : studRes.data?.data?.students || studRes.data?.students || (Array.isArray(studRes.data?.data) ? studRes.data.data : null) || [];
+          : studRes.data?.data?.students ||
+            studRes.data?.students ||
+            (Array.isArray(studRes.data?.data) ? studRes.data.data : null) ||
+            [];
         setStudents(rawStudents);
 
         const rawCourses = Array.isArray(courRes.data)
           ? courRes.data
-          : courRes.data?.data?.courses || courRes.data?.courses || (Array.isArray(courRes.data?.data) ? courRes.data.data : null) || [];
+          : courRes.data?.data?.courses ||
+            courRes.data?.courses ||
+            (Array.isArray(courRes.data?.data) ? courRes.data.data : null) ||
+            [];
         setCourses(rawCourses);
       } catch (err) {
         toast.error("Failed to load list details");
@@ -54,7 +62,11 @@ export default function IssueCertificate() {
 
     try {
       setSubmitting(true);
-      const res = await issueCertificate({ studentId, courseId, templateStyle });
+      const res = await issueCertificate({
+        studentId,
+        courseId,
+        templateStyle,
+      });
       if (res.data?.success) {
         toast.success("Certificate issued successfully!");
         navigate("/admin/certificates/history");
@@ -67,15 +79,25 @@ export default function IssueCertificate() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto" id="admin-issue-certificate-page">
+    <div
+      className="space-y-6 max-w-2xl mx-auto"
+      id="admin-issue-certificate-page"
+    >
       {/* Back Header */}
       <div className="flex items-center gap-3">
-        <Link to="/admin/certificates" className="p-2 rounded-xl hover:bg-muted transition-colors">
+        <Link
+          to="/admin/certificates"
+          className="p-2 rounded-xl hover:bg-muted transition-colors"
+        >
           <ArrowLeft className="h-5 w-5 text-muted-foreground" />
         </Link>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Issue Certificate</h1>
-          <p className="text-xs text-muted-foreground">Grant validated credentials to deserving students</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+            Issue Certificate
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Grant validated credentials to deserving students
+          </p>
         </div>
       </div>
 
@@ -84,13 +106,17 @@ export default function IssueCertificate() {
           {loading ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3">
               <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin" />
-              <p className="text-xs text-muted-foreground">Loading students and courses list…</p>
+              <p className="text-xs text-muted-foreground">
+                Loading students and courses list…
+              </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Select Student */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Select Enrolled Student</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Select Enrolled Student
+                </label>
                 <select
                   value={studentId}
                   onChange={(e) => setStudentId(e.target.value)}
@@ -108,7 +134,9 @@ export default function IssueCertificate() {
 
               {/* Select Course */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Select Completed Course</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Select Completed Course
+                </label>
                 <select
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
@@ -126,7 +154,9 @@ export default function IssueCertificate() {
 
               {/* Select Template Style */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Choose Design Template</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Choose Design Template
+                </label>
                 <div className="grid grid-cols-3 gap-3">
                   {["Classic", "Modern", "Premium"].map((style) => (
                     <button
@@ -149,9 +179,13 @@ export default function IssueCertificate() {
               <div className="p-3 bg-amber-500/10 text-amber-600 rounded-xl border border-amber-500/20 flex items-start gap-2 text-xs leading-normal">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold">Validation Verification Enforcement</p>
+                  <p className="font-bold">
+                    Validation Verification Enforcement
+                  </p>
                   <p className="text-[11px] mt-0.5">
-                    The platform requires that a student completes at least 90% of the syllabus milestones to be eligible for dynamic certificate generation.
+                    The platform requires that a student completes at least 90%
+                    of the syllabus milestones to be eligible for dynamic
+                    certificate generation.
                   </p>
                 </div>
               </div>
@@ -159,7 +193,11 @@ export default function IssueCertificate() {
               {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <Link to="/admin/certificates" className="flex-1">
-                  <Button type="button" variant="outline" className="w-full h-11 font-semibold">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-11 font-semibold"
+                  >
                     Cancel
                   </Button>
                 </Link>

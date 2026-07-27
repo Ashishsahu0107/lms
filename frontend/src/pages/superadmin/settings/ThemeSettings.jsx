@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Save, Palette, Check } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import ThemeToggle from "../../../components/common/ThemeToggle";
 
@@ -15,7 +20,10 @@ export default function ThemeSettings() {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" id="theme-settings-root">
+    <div
+      className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      id="theme-settings-root"
+    >
       <Card className="hover:shadow-md border border-base-300 bg-base-100/60">
         <CardHeader>
           <CardTitle className="text-base text-base-content font-bold flex items-center gap-2">
@@ -24,12 +32,16 @@ export default function ThemeSettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
-            <label className="text-xs font-semibold text-base-content/60 uppercase tracking-wider block">Interface Mode</label>
+            <label className="text-xs font-semibold text-base-content/60 uppercase tracking-wider block">
+              Interface Mode
+            </label>
             <ThemeToggle variant="settings" />
           </div>
 
           <div className="space-y-3 pt-4 border-t border-base-300">
-            <label className="text-xs font-semibold text-base-content/60 uppercase tracking-wider block">Accent Glow Color</label>
+            <label className="text-xs font-semibold text-base-content/60 uppercase tracking-wider block">
+              Accent Glow Color
+            </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {accents.map((acc) => (
                 <button
@@ -43,10 +55,17 @@ export default function ThemeSettings() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: acc.color }} />
-                    <span className="text-xs font-semibold text-base-content">{acc.id}</span>
+                    <span
+                      className="h-3.5 w-3.5 rounded-full"
+                      style={{ backgroundColor: acc.color }}
+                    />
+                    <span className="text-xs font-semibold text-base-content">
+                      {acc.id}
+                    </span>
                   </div>
-                  {accentColor === acc.id && <Check className="h-3.5 w-3.5 text-primary" />}
+                  {accentColor === acc.id && (
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                  )}
                 </button>
               ))}
             </div>
@@ -62,7 +81,9 @@ export default function ThemeSettings() {
 
       <Card className="hover:shadow-md border border-base-300 bg-base-100/60 flex flex-col justify-between">
         <CardHeader>
-          <CardTitle className="text-base text-base-content font-bold">Theme Previews</CardTitle>
+          <CardTitle className="text-base text-base-content font-bold">
+            Theme Previews
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="p-6 rounded-2xl border border-base-300 bg-gradient-to-br from-base-100 to-base-200 relative overflow-hidden shadow-sm min-h-[160px] flex flex-col justify-between">
@@ -71,12 +92,15 @@ export default function ThemeSettings() {
                 <span className="text-[10px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Sample Tag
                 </span>
-                <h4 className="font-bold text-base text-base-content mt-2">Interactive Dashboard Card</h4>
+                <h4 className="font-bold text-base text-base-content mt-2">
+                  Interactive Dashboard Card
+                </h4>
               </div>
               <Palette className="h-5 w-5 text-base-content/60" />
             </div>
             <p className="text-xs text-base-content/60 leading-relaxed mt-2">
-              This card renders accross light or dark glassmorphic backdrops, glowing smoothly with accent color coordinates.
+              This card renders accross light or dark glassmorphic backdrops,
+              glowing smoothly with accent color coordinates.
             </p>
           </div>
         </CardContent>

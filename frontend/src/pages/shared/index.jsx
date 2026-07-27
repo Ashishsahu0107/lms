@@ -1,5 +1,3 @@
-import React from "react";
-
 export function SharedLanding() {
   return (
     <div className="p-6">
@@ -8,4 +6,3 @@ export function SharedLanding() {
     </div>
   );
 }
-

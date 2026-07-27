@@ -1,4 +1,3 @@
-import React from "react";
 import { Outlet } from "react-router-dom";
 import { GraduationCap } from "lucide-react";
 
@@ -15,8 +14,12 @@ export default function PublicLayout({ children }) {
             <span className="text-xl font-bold text-white">LMS Pro</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-sm text-white/80 hover:text-white">Help</a>
-            <a href="#" className="text-sm text-white/80 hover:text-white">Contact</a>
+            <a href="#" className="text-sm text-white/80 hover:text-white">
+              Help
+            </a>
+            <a href="#" className="text-sm text-white/80 hover:text-white">
+              Contact
+            </a>
           </div>
         </div>
       </div>

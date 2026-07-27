@@ -1,16 +1,26 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building, Palette, Mail, Server, Image, RefreshCw, User } from "lucide-react";
+import {
+  Building,
+  Palette,
+  Mail,
+  Server,
+  Image,
+  RefreshCw,
+  User,
+} from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
-import { getSettings, updateSettings } from "../../../services/adminModulesService";
+import {
+  getSettings,
+  updateSettings,
+} from "../../../services/adminModulesService";
 import GeneralSettings from "./GeneralSettings";
 import ThemeSettings from "./ThemeSettings";
 import EmailSettings from "./EmailSettings";
 import SystemSettings from "./SystemSettings";
 import BrandingSettings from "./BrandingSettings";
 import PersonalSettings from "../../student/settings/Settings";
-
 
 const container = {
   hidden: { opacity: 0 },
@@ -66,13 +76,19 @@ export default function AdminSettings() {
       case "email":
         return <EmailSettings />;
       case "system":
-        return <SystemSettings settings={settings} onSave={handleSaveSettings} />;
+        return (
+          <SystemSettings settings={settings} onSave={handleSaveSettings} />
+        );
       case "branding":
-        return <BrandingSettings settings={settings} onSave={handleSaveSettings} />;
+        return (
+          <BrandingSettings settings={settings} onSave={handleSaveSettings} />
+        );
       case "personal":
         return <PersonalSettings />;
       default:
-        return <GeneralSettings settings={settings} onSave={handleSaveSettings} />;
+        return (
+          <GeneralSettings settings={settings} onSave={handleSaveSettings} />
+        );
     }
   };
 
@@ -85,13 +101,17 @@ export default function AdminSettings() {
       id="admin-settings-container"
     >
       {/* Header */}
-      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
+      <motion.div
+        variants={item}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5"
+      >
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
             Branding & System Settings
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Configure branding assets, platforms taglines, commission rates, and email SMTP servers.
+            Configure branding assets, platforms taglines, commission rates, and
+            email SMTP servers.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -102,7 +122,8 @@ export default function AdminSettings() {
             disabled={loading}
             onClick={fetchSettings}
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh Settings
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{" "}
+            Refresh Settings
           </Button>
         </div>
       </motion.div>
@@ -111,7 +132,10 @@ export default function AdminSettings() {
       <motion.div variants={item}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-muted p-1 rounded-xl">
-            <TabsTrigger value="general" className="gap-2 text-xs font-semibold">
+            <TabsTrigger
+              value="general"
+              className="gap-2 text-xs font-semibold"
+            >
               <Building className="h-4 w-4" /> General Settings
             </TabsTrigger>
             <TabsTrigger value="theme" className="gap-2 text-xs font-semibold">
@@ -123,10 +147,16 @@ export default function AdminSettings() {
             <TabsTrigger value="system" className="gap-2 text-xs font-semibold">
               <Server className="h-4 w-4" /> System Rules
             </TabsTrigger>
-            <TabsTrigger value="branding" className="gap-2 text-xs font-semibold">
+            <TabsTrigger
+              value="branding"
+              className="gap-2 text-xs font-semibold"
+            >
               <Image className="h-4 w-4" /> Logo & Taglines
             </TabsTrigger>
-            <TabsTrigger value="personal" className="gap-2 text-xs font-semibold">
+            <TabsTrigger
+              value="personal"
+              className="gap-2 text-xs font-semibold"
+            >
               <User className="h-4 w-4" /> My Profile & Password
             </TabsTrigger>
           </TabsList>

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Trophy, Star, RefreshCw, BookOpen, Crown, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { RefreshCw, BookOpen, Crown } from "lucide-react";
 import { getPerformanceAnalytics } from "../../../services/adminAnalyticsService";
 import { getCourses } from "../../../services/courseService";
-import { toast } from "react-hot-toast";
 
 export default function Leaderboard() {
   const [courses, setCourses] = useState([]);
@@ -16,7 +15,9 @@ export default function Leaderboard() {
       try {
         const res = await getCourses();
         if (res && res.success) {
-          const list = Array.isArray(res.data) ? res.data : res.data?.courses || [];
+          const list = Array.isArray(res.data)
+            ? res.data
+            : res.data?.courses || [];
           setCourses(list);
         }
       } catch (err) {
@@ -50,9 +51,13 @@ export default function Leaderboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
         <div>
           <h1 className="text-3xl font-extrabold text-white bg-gradient-to-r from-amber-400 to-yellow-400 bg-clip-text text-transparent flex items-center gap-2">
-            <Crown className="h-8 w-8 text-amber-400" /> Global XP Leaderboard Rankings
+            <Crown className="h-8 w-8 text-amber-400" /> Global XP Leaderboard
+            Rankings
           </h1>
-          <p className="text-sm text-white/50 mt-1">Review top performing students globally or filter rankings course-wise.</p>
+          <p className="text-sm text-white/50 mt-1">
+            Review top performing students globally or filter rankings
+            course-wise.
+          </p>
         </div>
 
         <button
@@ -74,9 +79,15 @@ export default function Leaderboard() {
             onChange={(e) => setSelectedCourse(e.target.value)}
             className="w-full bg-transparent text-sm text-white focus:outline-none cursor-pointer"
           >
-            <option value="" className="bg-neutral-900 text-white">Global Leaderboard (All Courses)</option>
+            <option value="" className="bg-neutral-900 text-white">
+              Global Leaderboard (All Courses)
+            </option>
             {courses.map((course) => (
-              <option key={course._id} value={course._id} className="bg-neutral-900 text-white">
+              <option
+                key={course._id}
+                value={course._id}
+                className="bg-neutral-900 text-white"
+              >
                 {course.title}
               </option>
             ))}
@@ -117,9 +128,15 @@ export default function Leaderboard() {
               </span>
             </div>
             <div className="w-full rounded-t-xl bg-slate-300/10 border border-slate-300/25 p-4 text-center space-y-1 h-28">
-              <p className="text-xs font-black text-white truncate">{leaderboard[1].name}</p>
-              <p className="text-[10px] text-slate-300 font-bold">{leaderboard[1].avgAccuracy}% Acc</p>
-              <span className="text-[9px] text-white/40 block mt-1 font-semibold">{leaderboard[1].completedCourses} Finished</span>
+              <p className="text-xs font-black text-white truncate">
+                {leaderboard[1].name}
+              </p>
+              <p className="text-[10px] text-slate-300 font-bold">
+                {leaderboard[1].avgAccuracy}% Acc
+              </p>
+              <span className="text-[9px] text-white/40 block mt-1 font-semibold">
+                {leaderboard[1].completedCourses} Finished
+              </span>
             </div>
           </div>
 
@@ -135,9 +152,15 @@ export default function Leaderboard() {
               </span>
             </div>
             <div className="w-full rounded-t-2xl bg-amber-500/15 border border-amber-500/25 p-4 text-center space-y-1 h-36">
-              <p className="text-sm font-black text-white truncate">{leaderboard[0].name}</p>
-              <p className="text-xs text-amber-400 font-black">{leaderboard[0].avgAccuracy}% Acc</p>
-              <span className="text-[10px] text-white/50 block mt-1 font-semibold">{leaderboard[0].completedCourses} Finished</span>
+              <p className="text-sm font-black text-white truncate">
+                {leaderboard[0].name}
+              </p>
+              <p className="text-xs text-amber-400 font-black">
+                {leaderboard[0].avgAccuracy}% Acc
+              </p>
+              <span className="text-[10px] text-white/50 block mt-1 font-semibold">
+                {leaderboard[0].completedCourses} Finished
+              </span>
             </div>
           </div>
 
@@ -152,9 +175,15 @@ export default function Leaderboard() {
               </span>
             </div>
             <div className="w-full rounded-t-xl bg-amber-700/10 border border-amber-700/25 p-4 text-center space-y-1 h-24">
-              <p className="text-xs font-black text-white truncate">{leaderboard[2].name}</p>
-              <p className="text-[10px] text-amber-600 font-bold">{leaderboard[2].avgAccuracy}% Acc</p>
-              <span className="text-[9px] text-white/40 block mt-1 font-semibold">{leaderboard[2].completedCourses} Finished</span>
+              <p className="text-xs font-black text-white truncate">
+                {leaderboard[2].name}
+              </p>
+              <p className="text-[10px] text-amber-600 font-bold">
+                {leaderboard[2].avgAccuracy}% Acc
+              </p>
+              <span className="text-[9px] text-white/40 block mt-1 font-semibold">
+                {leaderboard[2].completedCourses} Finished
+              </span>
             </div>
           </div>
         </div>
@@ -182,33 +211,50 @@ export default function Leaderboard() {
             <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-white/30">Loading leaderboards...</td>
+                  <td colSpan="6" className="py-8 text-center text-white/30">
+                    Loading leaderboards...
+                  </td>
                 </tr>
               ) : leaderboard.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-8 text-center text-white/30">No active student rankings recorded.</td>
+                  <td colSpan="6" className="py-8 text-center text-white/30">
+                    No active student rankings recorded.
+                  </td>
                 </tr>
               ) : (
                 leaderboard.map((student, index) => (
-                  <tr key={index} className="hover:bg-white/5 transition-colors">
+                  <tr
+                    key={index}
+                    className="hover:bg-white/5 transition-colors"
+                  >
                     <td className="py-4 px-6 text-center">
-                      <span className={`h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs mx-auto ${
-                        index === 0
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                          : index === 1
-                          ? "bg-slate-300/20 text-slate-300 border border-slate-300/30"
-                          : index === 2
-                          ? "bg-amber-700/20 text-amber-600 border border-amber-700/30"
-                          : "bg-white/5 text-white/60"
-                      }`}>
+                      <span
+                        className={`h-6 w-6 rounded-full flex items-center justify-center font-bold text-xs mx-auto ${
+                          index === 0
+                            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                            : index === 1
+                              ? "bg-slate-300/20 text-slate-300 border border-slate-300/30"
+                              : index === 2
+                                ? "bg-amber-700/20 text-amber-600 border border-amber-700/30"
+                                : "bg-white/5 text-white/60"
+                        }`}
+                      >
                         {index + 1}
                       </span>
                     </td>
-                    <td className="py-4 px-6 font-semibold text-white">{student.name}</td>
+                    <td className="py-4 px-6 font-semibold text-white">
+                      {student.name}
+                    </td>
                     <td className="py-4 px-6 text-white/50">{student.email}</td>
-                    <td className="py-4 px-6 text-center font-black text-emerald-400">{student.avgAccuracy}%</td>
-                    <td className="py-4 px-6 text-center text-white/60">{student.quizzesAttempted}</td>
-                    <td className="py-4 px-6 text-center font-semibold text-purple-400">{student.completedCourses} courses</td>
+                    <td className="py-4 px-6 text-center font-black text-emerald-400">
+                      {student.avgAccuracy}%
+                    </td>
+                    <td className="py-4 px-6 text-center text-white/60">
+                      {student.quizzesAttempted}
+                    </td>
+                    <td className="py-4 px-6 text-center font-semibold text-purple-400">
+                      {student.completedCourses} courses
+                    </td>
                   </tr>
                 ))
               )}

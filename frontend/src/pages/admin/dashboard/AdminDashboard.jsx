@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -6,10 +5,6 @@ import {
   BookOpen,
   DollarSign,
   TrendingUp,
-  TrendingDown,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
 } from "lucide-react";
 import {
   Card,
@@ -19,7 +14,6 @@ import {
 } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { StatCard } from "../../components/ui/StatCard";
-import { ProgressBar } from "../../components/ui/ProgressBar";
 import {
   AreaChart,
   Area,
@@ -61,10 +55,30 @@ const revenueDistribution = [
 ];
 
 const recentUsers = [
-  { name: "Emily Watson", email: "emily.w@example.com", role: "student", joined: "2 hours ago" },
-  { name: "Dr. Robert Kim", email: "robert.kim@university.edu", role: "teacher", joined: "5 hours ago" },
-  { name: "Marcus Johnson", email: "marcus.j@example.com", role: "student", joined: "1 day ago" },
-  { name: "Lisa Chen", email: "lisa.chen@example.com", role: "teacher", joined: "1 day ago" },
+  {
+    name: "Emily Watson",
+    email: "emily.w@example.com",
+    role: "student",
+    joined: "2 hours ago",
+  },
+  {
+    name: "Dr. Robert Kim",
+    email: "robert.kim@university.edu",
+    role: "teacher",
+    joined: "5 hours ago",
+  },
+  {
+    name: "Marcus Johnson",
+    email: "marcus.j@example.com",
+    role: "student",
+    joined: "1 day ago",
+  },
+  {
+    name: "Lisa Chen",
+    email: "lisa.chen@example.com",
+    role: "teacher",
+    joined: "1 day ago",
+  },
 ];
 
 const topCourses = [
@@ -108,7 +122,8 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-slate-400 max-w-xl">
-            Monitor platform health, user growth, and revenue metrics across the entire LMS ecosystem.
+            Monitor platform health, user growth, and revenue metrics across the
+            entire LMS ecosystem.
           </p>
         </div>
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-primary/20 rounded-full" />
@@ -116,7 +131,10 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Stats Grid */}
-      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
         <StatCard
           title="Total Users"
           value="2,450"
@@ -149,7 +167,10 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Charts Row */}
-      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
         {/* User Growth */}
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -166,12 +187,21 @@ export default function AdminDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={userGrowth}>
                   <defs>
-                    <linearGradient id="userGrowthGradient" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="userGrowthGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                  />
                   <XAxis dataKey="month" className="text-xs" />
                   <YAxis className="text-xs" />
                   <Tooltip />
@@ -216,7 +246,10 @@ export default function AdminDashboard() {
             </div>
             <div className="space-y-2">
               {revenueDistribution.map((item) => (
-                <div key={item.name} className="flex items-center justify-between text-sm">
+                <div
+                  key={item.name}
+                  className="flex items-center justify-between text-sm"
+                >
                   <div className="flex items-center gap-2">
                     <div
                       className="w-3 h-3 rounded-full"
@@ -233,7 +266,10 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Activity & Recent Users */}
-      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
         {/* Platform Activity */}
         <Card>
           <CardHeader>
@@ -243,7 +279,10 @@ export default function AdminDashboard() {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={platformActivity}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                  />
                   <XAxis dataKey="day" className="text-xs" />
                   <YAxis className="text-xs" />
                   <Tooltip />
@@ -290,11 +329,16 @@ export default function AdminDashboard() {
                   className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center text-white font-medium text-sm">
-                    {user.name.split(" ").map((n) => n[0]).join("")}
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium">{user.name}</p>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
                   </div>
                   <div className="text-right">
                     <Badge

@@ -1,8 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  Search, Filter, Eye, Edit, Ban, CheckCircle2,
-  Trash2, UserPlus, FileSpreadsheet, Mail, BookOpen, Users,
-  ChevronLeft, ChevronRight, AlertTriangle, Sparkles, TrendingUp
+  Search,
+  Eye,
+  Edit,
+  Ban,
+  CheckCircle2,
+  Trash2,
+  UserPlus,
+  FileSpreadsheet,
+  BookOpen,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
@@ -33,9 +44,12 @@ export default function TeacherList({
     const matchesSearch =
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.email.toLowerCase().includes(search.toLowerCase());
-    if (statusFilter === "active") return matchesSearch && t.status === "active";
-    if (statusFilter === "suspended") return matchesSearch && t.status === "suspended";
-    if (statusFilter === "pending") return matchesSearch && t.status === "pending";
+    if (statusFilter === "active")
+      return matchesSearch && t.status === "active";
+    if (statusFilter === "suspended")
+      return matchesSearch && t.status === "suspended";
+    if (statusFilter === "pending")
+      return matchesSearch && t.status === "pending";
     return matchesSearch;
   });
 
@@ -75,10 +89,19 @@ export default function TeacherList({
             <option value="suspended">Suspended</option>
             <option value="pending">Pending</option>
           </select>
-          <Button variant="outline" size="sm" className="gap-2" onClick={onExportCSV}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={onExportCSV}
+          >
             <FileSpreadsheet className="h-4 w-4" /> Export CSV
           </Button>
-          <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white" onClick={onNavigateToCreate}>
+          <Button
+            size="sm"
+            className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={onNavigateToCreate}
+          >
             <UserPlus className="h-4 w-4" /> Create Educator
           </Button>
         </div>
@@ -132,13 +155,24 @@ export default function TeacherList({
               </thead>
               <tbody>
                 {currentItems.map((teacher) => (
-                  <tr key={teacher._id} className="border-b hover:bg-muted/10 transition-colors text-sm">
+                  <tr
+                    key={teacher._id}
+                    className="border-b hover:bg-muted/10 transition-colors text-sm"
+                  >
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10" src={teacher.avatar} fallback={teacher.name.charAt(0)} />
+                        <Avatar
+                          className="w-10 h-10"
+                          src={teacher.avatar}
+                          fallback={teacher.name.charAt(0)}
+                        />
                         <div>
-                          <p className="font-bold text-foreground">{teacher.name}</p>
-                          <p className="text-xs text-muted-foreground">{teacher.email}</p>
+                          <p className="font-bold text-foreground">
+                            {teacher.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {teacher.email}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -151,7 +185,9 @@ export default function TeacherList({
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-1.5 font-medium text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        <span>{(teacher.studentsCount || 0).toLocaleString()}</span>
+                        <span>
+                          {(teacher.studentsCount || 0).toLocaleString()}
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
@@ -160,8 +196,8 @@ export default function TeacherList({
                           teacher.status === "active"
                             ? "success"
                             : teacher.status === "suspended"
-                            ? "destructive"
-                            : "warning"
+                              ? "destructive"
+                              : "warning"
                         }
                         className="capitalize font-semibold border-0 text-xs"
                       >
@@ -226,14 +262,16 @@ export default function TeacherList({
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3.5 border-t border-border">
             <p className="text-xs text-muted-foreground">
-              Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filtered.length)} of {filtered.length} teachers
+              Showing {indexOfFirstItem + 1}-
+              {Math.min(indexOfLastItem, filtered.length)} of {filtered.length}{" "}
+              teachers
             </p>
             <div className="flex items-center gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
                 className="p-2 h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -253,7 +291,9 @@ export default function TeacherList({
                 variant="outline"
                 size="sm"
                 className="p-2 h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -269,14 +309,26 @@ export default function TeacherList({
           <Sparkles className="h-5 w-5 text-amber-500 fill-current" />
           <div>
             <p className="font-semibold text-sm">Need deep system insights?</p>
-            <p className="text-xs text-muted-foreground">View global attendance growth indexes and course enrollments.</p>
+            <p className="text-xs text-muted-foreground">
+              View global attendance growth indexes and course enrollments.
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2" onClick={onNavigateToAnalytics}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={onNavigateToAnalytics}
+          >
             <TrendingUp className="h-4 w-4" /> View Analytics Graph
           </Button>
-          <Button variant="outline" size="sm" className="gap-2" onClick={onBulkImport}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={onBulkImport}
+          >
             <UserPlus className="h-4 w-4" /> Bulk Import JSON
           </Button>
         </div>

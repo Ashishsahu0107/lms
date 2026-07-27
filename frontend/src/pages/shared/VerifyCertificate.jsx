@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ShieldCheck, Award, Calendar, AlertTriangle, ArrowLeft, Printer, ShieldAlert, BadgeCheck } from "lucide-react";
+import {
+  ShieldCheck,
+  Award,
+  Calendar,
+  ArrowLeft,
+  Printer,
+  ShieldAlert,
+  BadgeCheck,
+} from "lucide-react";
 import { apiGet } from "../../services/apiClient";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -24,7 +32,10 @@ export default function VerifyCertificate() {
           setError("This certificate record could not be found or verified.");
         }
       } catch (err) {
-        setError(err.response?.data?.message || "Invalid certificate ID. Please check the URL link or QR code.");
+        setError(
+          err.response?.data?.message ||
+            "Invalid certificate ID. Please check the URL link or QR code.",
+        );
       } finally {
         setLoading(false);
       }
@@ -42,7 +53,9 @@ export default function VerifyCertificate() {
     return (
       <div className="text-center py-20 text-white space-y-4">
         <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm font-medium animate-pulse text-slate-300">Consulting cryptographic registrar registry...</p>
+        <p className="text-sm font-medium animate-pulse text-slate-300">
+          Consulting cryptographic registrar registry...
+        </p>
       </div>
     );
   }
@@ -53,7 +66,9 @@ export default function VerifyCertificate() {
         <CardContent className="p-8 text-center space-y-6">
           <ShieldAlert className="h-16 w-16 text-rose-500 mx-auto drop-shadow-lg animate-pulse" />
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-slate-100">Verification Failure</h2>
+            <h2 className="text-xl font-bold text-slate-100">
+              Verification Failure
+            </h2>
             <p className="text-sm text-slate-400 leading-relaxed">{error}</p>
           </div>
           <div className="border-t border-slate-800 pt-6 flex justify-center">
@@ -95,33 +110,63 @@ export default function VerifyCertificate() {
           <div className="space-y-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-800">
             <div className="flex justify-between items-start gap-4">
               <div className="space-y-1">
-                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Recipient Student</span>
-                <p className="text-lg font-bold text-slate-100">{cert.student?.name}</p>
-                <p className="text-xs text-slate-500 font-medium">{cert.student?.email}</p>
+                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+                  Recipient Student
+                </span>
+                <p className="text-lg font-bold text-slate-100">
+                  {cert.student?.name}
+                </p>
+                <p className="text-xs text-slate-500 font-medium">
+                  {cert.student?.email}
+                </p>
               </div>
               <div className="w-16 h-16 bg-white p-1 rounded-lg shrink-0 border border-slate-200 shadow-sm flex items-center justify-center">
-                <img src={qrCodeUrl} alt="Verification QR Code" className="w-full h-full object-contain" />
+                <img
+                  src={qrCodeUrl}
+                  alt="Verification QR Code"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
 
             <div className="border-t border-slate-800/80 pt-4 space-y-1">
-              <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Course Conquered</span>
-              <p className="text-base font-bold text-amber-400 leading-tight">{cert.course?.title}</p>
+              <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+                Course Conquered
+              </span>
+              <p className="text-base font-bold text-amber-400 leading-tight">
+                {cert.course?.title}
+              </p>
               <div className="flex items-center gap-4 text-xs text-slate-400 pt-1 font-medium">
-                <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5 text-amber-500" /> 100% Completion</span>
-                <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5 text-blue-400" /> Issued {new Date(cert.issueDate).toLocaleDateString()}</span>
+                <span className="flex items-center gap-1">
+                  <Award className="h-3.5 w-3.5 text-amber-500" /> 100%
+                  Completion
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5 text-blue-400" /> Issued{" "}
+                  {new Date(cert.issueDate).toLocaleDateString()}
+                </span>
               </div>
             </div>
 
             <div className="border-t border-slate-800/80 pt-4 grid grid-cols-2 gap-4">
               <div>
-                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Authorized Issuer</span>
-                <p className="text-xs font-bold text-slate-200 mt-0.5">{cert.issuedBy?.name}</p>
-                <p className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider mt-0.5">{cert.issuedBy?.role?.replace("_", " ")}</p>
+                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+                  Authorized Issuer
+                </span>
+                <p className="text-xs font-bold text-slate-200 mt-0.5">
+                  {cert.issuedBy?.name}
+                </p>
+                <p className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider mt-0.5">
+                  {cert.issuedBy?.role?.replace("_", " ")}
+                </p>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">Certificate Serial</span>
-                <p className="text-xs font-mono font-bold text-slate-200 mt-1 uppercase tracking-tight">{cert.certificateId}</p>
+                <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+                  Certificate Serial
+                </span>
+                <p className="text-xs font-mono font-bold text-slate-200 mt-1 uppercase tracking-tight">
+                  {cert.certificateId}
+                </p>
               </div>
             </div>
           </div>
@@ -130,7 +175,10 @@ export default function VerifyCertificate() {
           <div className="flex items-start gap-2.5 bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/10 text-xs text-emerald-300 leading-relaxed">
             <BadgeCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
             <p>
-              This digital badge confirms that the student listed above completed all syllabus components, quiz examinations, and assignment tasks for the course. LMS Pro validates the authenticity of this certificate serial.
+              This digital badge confirms that the student listed above
+              completed all syllabus components, quiz examinations, and
+              assignment tasks for the course. LMS Pro validates the
+              authenticity of this certificate serial.
             </p>
           </div>
 

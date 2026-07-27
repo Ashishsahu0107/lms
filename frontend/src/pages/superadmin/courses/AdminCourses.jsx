@@ -1,23 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Search,
   Filter,
-  Eye,
-  Edit,
   Trash2,
   CheckCircle2,
-  XCircle,
-  Star,
   EyeOff,
-  ChevronLeft,
-  ChevronRight,
   BookOpen,
   Users,
-  DollarSign,
   AlertTriangle,
-  Check,
-  X,
   UserPlus,
   ShieldCheck,
   Loader2,
@@ -28,12 +19,7 @@ import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Avatar } from "../../../components/ui/Avatar";
 import { Modal } from "../../../components/ui/Modal";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../../../components/ui/Tabs";
+import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
 import toast from "react-hot-toast";
 import { getImageUrl, handleImageError } from "../../../utils/image";
 

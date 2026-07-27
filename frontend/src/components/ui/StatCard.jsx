@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "../../utils/cn";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
@@ -17,7 +16,7 @@ export function StatCard({
     <div
       className={cn(
         "rounded-xl border bg-card p-6 shadow-card hover:shadow-elevated transition-all duration-300",
-        className
+        className,
       )}
     >
       <div className="flex items-start justify-between">
@@ -28,7 +27,7 @@ export function StatCard({
             <div
               className={cn(
                 "flex items-center gap-1 text-sm font-medium",
-                isPositive ? "text-emerald-600" : "text-red-600"
+                isPositive ? "text-emerald-600" : "text-red-600",
               )}
             >
               {isPositive ? (

@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, Save, PlusCircle, Check } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 
-export default function CreateTeacher({
-  coursesList = [],
-  onSave,
-  onCancel,
-}) {
+export default function CreateTeacher({ coursesList = [], onSave, onCancel }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("teacher123");
@@ -23,7 +24,7 @@ export default function CreateTeacher({
 
   const handleToggleCourse = (cId) => {
     if (assignedCourses.includes(cId)) {
-      setAssignedCourses(assignedCourses.filter(id => id !== cId));
+      setAssignedCourses(assignedCourses.filter((id) => id !== cId));
     } else {
       setAssignedCourses([...assignedCourses, cId]);
     }
@@ -57,7 +58,11 @@ export default function CreateTeacher({
   return (
     <div className="space-y-6" id="create-teacher-root">
       <div className="flex items-center">
-        <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={onCancel}>
+        <Button
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={onCancel}
+        >
           <ChevronLeft className="h-4 w-4" /> Cancel Creation
         </Button>
       </div>
@@ -65,7 +70,8 @@ export default function CreateTeacher({
       <Card className="hover:shadow-md transition-all max-w-4xl mx-auto">
         <CardHeader className="pb-4 border-b">
           <CardTitle className="text-base font-bold flex items-center gap-2">
-            <PlusCircle className="h-5 w-5 text-blue-600" /> Register New Teacher Account
+            <PlusCircle className="h-5 w-5 text-blue-600" /> Register New
+            Teacher Account
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -73,7 +79,9 @@ export default function CreateTeacher({
             {/* Basic credentials */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Full Name *</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Full Name *
+                </label>
                 <Input
                   required
                   placeholder="e.g. Dr. James Wilson"
@@ -82,7 +90,9 @@ export default function CreateTeacher({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email Address *</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Email Address *
+                </label>
                 <Input
                   required
                   type="email"
@@ -95,16 +105,23 @@ export default function CreateTeacher({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Password Seeding</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Password Seeding
+                </label>
                 <Input
                   placeholder="Seeded default password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <p className="text-[10px] text-muted-foreground">Default password: <strong>teacher123</strong>. Educators can update passwords inside settings.</p>
+                <p className="text-[10px] text-muted-foreground">
+                  Default password: <strong>teacher123</strong>. Educators can
+                  update passwords inside settings.
+                </p>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Phone Contact</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Phone Contact
+                </label>
                 <Input
                   placeholder="e.g. +1 (555) 123-4567"
                   value={phone}
@@ -115,7 +132,9 @@ export default function CreateTeacher({
 
             {/* Profile Avatar Url */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Profile Photo Url</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Profile Photo Url
+              </label>
               <Input
                 placeholder="e.g. https://images.unsplash.com/photo-1544005313-94ddf0286df2"
                 value={avatar}
@@ -126,7 +145,9 @@ export default function CreateTeacher({
             {/* Qualifications */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Degree / Qualification</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Degree / Qualification
+                </label>
                 <Input
                   placeholder="e.g. Ph.D. Computer Science"
                   value={qualification}
@@ -134,7 +155,9 @@ export default function CreateTeacher({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Specialization Topic</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Specialization Topic
+                </label>
                 <Input
                   placeholder="e.g. Full-Stack Dev / React"
                   value={specialization}
@@ -142,7 +165,9 @@ export default function CreateTeacher({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Experience (Years)</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Experience (Years)
+                </label>
                 <Input
                   type="number"
                   placeholder="e.g. 8"
@@ -154,7 +179,9 @@ export default function CreateTeacher({
 
             {/* Biography */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Short Biography</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Short Biography
+              </label>
               <textarea
                 className="w-full min-h-24 rounded-lg border border-border bg-card p-3 text-sm focus:outline-none"
                 placeholder="Describe educator professional backgrounds and course notes..."
@@ -165,9 +192,13 @@ export default function CreateTeacher({
 
             {/* Course Checklist Assignments */}
             <div className="space-y-3 pt-4 border-t">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Assign Platform Courses</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+                Assign Platform Courses
+              </label>
               {coursesList.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No active courses registered inside system database to assign.</p>
+                <p className="text-xs text-muted-foreground">
+                  No active courses registered inside system database to assign.
+                </p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {coursesList.map((course) => {
@@ -182,10 +213,16 @@ export default function CreateTeacher({
                         }`}
                         onClick={() => handleToggleCourse(course._id)}
                       >
-                        <div className={`h-4 w-4 border rounded flex items-center justify-center ${
-                          isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-muted"
-                        }`}>
-                          {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                        <div
+                          className={`h-4 w-4 border rounded flex items-center justify-center ${
+                            isSelected
+                              ? "bg-blue-600 border-blue-600 text-white"
+                              : "border-muted"
+                          }`}
+                        >
+                          {isSelected && (
+                            <Check className="h-3 w-3 stroke-[3]" />
+                          )}
                         </div>
                         <span className="text-xs truncate">{course.title}</span>
                       </div>
@@ -200,8 +237,13 @@ export default function CreateTeacher({
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md">
-                <Save className="h-4 w-4" /> {isSubmitting ? "Seeding Account..." : "Save Educator"}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
+              >
+                <Save className="h-4 w-4" />{" "}
+                {isSubmitting ? "Seeding Account..." : "Save Educator"}
               </Button>
             </div>
           </form>

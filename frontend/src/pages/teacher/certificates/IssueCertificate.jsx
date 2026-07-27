@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Award, Send, AlertCircle, RefreshCw } from "lucide-react";
+import { ArrowLeft, Send, AlertCircle, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { getTeacherCourses } from "../../../services/teacherService";
-import { issueCertificate, getCourseStudents } from "../../../services/certificateService";
+import {
+  issueCertificate,
+  getCourseStudents,
+} from "../../../services/certificateService";
 import toast from "react-hot-toast";
 
 export default function IssueCertificate() {
@@ -82,14 +85,24 @@ export default function IssueCertificate() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto" id="teacher-issue-certificate-page">
+    <div
+      className="space-y-6 max-w-2xl mx-auto"
+      id="teacher-issue-certificate-page"
+    >
       <div className="flex items-center gap-3">
-        <Link to="/teacher/certificates" className="p-2 rounded-xl hover:bg-muted transition-colors">
+        <Link
+          to="/teacher/certificates"
+          className="p-2 rounded-xl hover:bg-muted transition-colors"
+        >
           <ArrowLeft className="h-5 w-5 text-muted-foreground" />
         </Link>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Issue Certificate</h1>
-          <p className="text-xs text-muted-foreground">Verify course requirements and grant completion credentials</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+            Issue Certificate
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Verify course requirements and grant completion credentials
+          </p>
         </div>
       </div>
 
@@ -98,13 +111,17 @@ export default function IssueCertificate() {
           {loadingCourses ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3">
               <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin" />
-              <p className="text-xs text-muted-foreground">Loading your courses list…</p>
+              <p className="text-xs text-muted-foreground">
+                Loading your courses list…
+              </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Select Course */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Select Course</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Select Course
+                </label>
                 <select
                   value={courseId}
                   onChange={(e) => {
@@ -125,7 +142,9 @@ export default function IssueCertificate() {
 
               {/* Select Student */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Select Enrolled Student</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Select Enrolled Student
+                </label>
                 <select
                   value={studentId}
                   onChange={(e) => setStudentId(e.target.value)}
@@ -137,8 +156,8 @@ export default function IssueCertificate() {
                     {loadingStudents
                       ? "Loading students list…"
                       : !courseId
-                      ? "Select course first"
-                      : "-- Choose Student --"}
+                        ? "Select course first"
+                        : "-- Choose Student --"}
                   </option>
                   {students.map((s) => {
                     const progressVal = s.progress ?? 0;
@@ -155,9 +174,13 @@ export default function IssueCertificate() {
               <div className="p-3 bg-amber-500/10 text-amber-600 rounded-xl border border-amber-500/20 flex items-start gap-2 text-xs leading-normal">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold">Course-Completion Policy Requirement</p>
+                  <p className="font-bold">
+                    Course-Completion Policy Requirement
+                  </p>
                   <p className="text-[11px] mt-0.5">
-                    Certificates can only be successfully saved in the registry if the selected student has met the minimum 90% syllabus progress milestone.
+                    Certificates can only be successfully saved in the registry
+                    if the selected student has met the minimum 90% syllabus
+                    progress milestone.
                   </p>
                 </div>
               </div>
@@ -165,7 +188,11 @@ export default function IssueCertificate() {
               {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <Link to="/teacher/certificates" className="flex-1">
-                  <Button type="button" variant="outline" className="w-full h-11 font-semibold">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-11 font-semibold"
+                  >
                     Cancel
                   </Button>
                 </Link>

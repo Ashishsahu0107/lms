@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "../../utils/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "./Avatar";
 
@@ -22,7 +21,7 @@ export function UserCard({
     <div
       className={cn(
         "flex items-center gap-4 p-4 rounded-xl border bg-card hover:shadow-card transition-all duration-300 cursor-pointer",
-        className
+        className,
       )}
       onClick={onClick}
     >
@@ -43,7 +42,7 @@ export function UserCard({
         <span
           className={cn(
             "w-2 h-2 rounded-full",
-            status === "active" ? "bg-emerald-500" : "bg-muted-foreground"
+            status === "active" ? "bg-emerald-500" : "bg-muted-foreground",
           )}
         />
       </div>

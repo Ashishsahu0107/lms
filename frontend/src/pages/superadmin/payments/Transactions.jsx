@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Search, ChevronLeft, Calendar, User, BookOpen } from "lucide-react";
 import { Card } from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 
-export default function Transactions({
-  payments = [],
-  onBack,
-}) {
+export default function Transactions({ payments = [], onBack }) {
   const [search, setSearch] = useState("");
 
   const filtered = payments.filter((p) => {
@@ -23,7 +20,11 @@ export default function Transactions({
   return (
     <div className="space-y-6" id="transactions-root">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={onBack}>
+        <Button
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={onBack}
+        >
           <ChevronLeft className="h-4 w-4" /> Back to Dashboard
         </Button>
         <h2 className="text-lg font-bold text-foreground">Transaction Logs</h2>
@@ -59,7 +60,10 @@ export default function Transactions({
               </thead>
               <tbody>
                 {filtered.map((p) => (
-                  <tr key={p._id} className="border-b hover:bg-muted/10 transition-colors text-sm last:border-0">
+                  <tr
+                    key={p._id}
+                    className="border-b hover:bg-muted/10 transition-colors text-sm last:border-0"
+                  >
                     <td className="py-3.5 px-4 font-bold text-foreground">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
@@ -72,11 +76,21 @@ export default function Transactions({
                         <span>{p.courseId?.title || "Syllabus Course"}</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-bold text-foreground">${p.amount}</td>
-                    <td className="py-3.5 px-4 text-center font-medium text-muted-foreground">{p.paymentMethod}</td>
+                    <td className="py-3.5 px-4 text-center font-bold text-foreground">
+                      ${p.amount}
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-medium text-muted-foreground">
+                      {p.paymentMethod}
+                    </td>
                     <td className="py-3.5 px-4 text-center">
                       <Badge
-                        variant={p.status === "completed" ? "success" : p.status === "pending" ? "warning" : "destructive"}
+                        variant={
+                          p.status === "completed"
+                            ? "success"
+                            : p.status === "pending"
+                              ? "warning"
+                              : "destructive"
+                        }
                         className="capitalize font-semibold border-0 text-[10px]"
                       >
                         {p.status}
@@ -85,7 +99,12 @@ export default function Transactions({
                     <td className="py-3.5 px-4 text-right text-xs text-muted-foreground">
                       <div className="flex items-center justify-end gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
-                        <span>{new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                        <span>
+                          {new Date(p.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
                       </div>
                     </td>
                   </tr>

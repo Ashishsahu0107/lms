@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileSpreadsheet, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import ReportsDashboard from "./ReportsDashboard";
 import StudentReports from "./StudentReports";
@@ -37,7 +37,9 @@ export default function AdminReports() {
       case "courses":
         return <CourseReports onBack={() => setCurrentView("dashboard")} />;
       default:
-        return <ReportsDashboard onNavigateToView={(view) => setCurrentView(view)} />;
+        return (
+          <ReportsDashboard onNavigateToView={(view) => setCurrentView(view)} />
+        );
     }
   };
 
@@ -50,7 +52,10 @@ export default function AdminReports() {
       id="admin-reports-container"
     >
       {/* Header */}
-      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
+      <motion.div
+        variants={item}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5"
+      >
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
             System Telemetry Reports

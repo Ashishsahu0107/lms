@@ -1,44 +1,44 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Search,
-  Filter,
   MoreVertical,
   UserPlus,
   Shield,
   Trash2,
   Edit,
   Ban,
-  CheckCircle,
   Mail,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/Card";
+import { Card, CardContent } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { SearchBar } from "../../components/ui/SearchBar";
-import { Select } from "../../components/ui/Select";
 import { Modal } from "../../components/ui/Modal";
-import { Input } from "../../components/ui/Input";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/Avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../components/ui/Avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/DropdownMenu";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/Tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "../../components/ui/Tabs";
 
 const users = [
   {
     id: 1,
     name: "Emma Thompson",
     email: "emma.t@example.com",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
     role: "student",
     status: "active",
     joined: "2024-01-05",
@@ -48,7 +48,8 @@ const users = [
     id: 2,
     name: "Dr. James Wilson",
     email: "james.w@university.edu",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
     role: "teacher",
     status: "active",
     joined: "2024-01-01",
@@ -58,7 +59,8 @@ const users = [
     id: 3,
     name: "Michael Chen",
     email: "michael.c@example.com",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
     role: "student",
     status: "active",
     joined: "2024-01-08",
@@ -68,7 +70,8 @@ const users = [
     id: 4,
     name: "Sofia Rodriguez",
     email: "sofia.r@example.com",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
     role: "teacher",
     status: "inactive",
     joined: "2024-01-03",
@@ -78,7 +81,8 @@ const users = [
     id: 5,
     name: "David Lee",
     email: "david.l@example.com",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100",
     role: "student",
     status: "blocked",
     joined: "2023-12-28",
@@ -111,9 +115,7 @@ const getStatusBadge = (status) => {
 
 const getRoleBadge = (role) => {
   return (
-    <Badge variant={role === "teacher" ? "default" : "secondary"}>
-      {role}
-    </Badge>
+    <Badge variant={role === "teacher" ? "default" : "secondary"}>{role}</Badge>
   );
 };
 
@@ -143,11 +145,10 @@ export default function UserManagement() {
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    const matchesStatus = statusFilter === "all" || user.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
-
-
 
   return (
     <motion.div
@@ -218,10 +219,14 @@ export default function UserManagement() {
             <UsersTable users={filteredUsers} />
           </TabsContent>
           <TabsContent value="students">
-            <UsersTable users={filteredUsers.filter((u) => u.role === "student")} />
+            <UsersTable
+              users={filteredUsers.filter((u) => u.role === "student")}
+            />
           </TabsContent>
           <TabsContent value="teachers">
-            <UsersTable users={filteredUsers.filter((u) => u.role === "teacher")} />
+            <UsersTable
+              users={filteredUsers.filter((u) => u.role === "teacher")}
+            />
           </TabsContent>
         </Tabs>
       </motion.div>
@@ -239,15 +244,30 @@ export default function UserManagement() {
             </p>
             <div className="space-y-2">
               <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50">
-                <input type="radio" name="role" value="student" defaultChecked={selectedUser.role === "student"} />
+                <input
+                  type="radio"
+                  name="role"
+                  value="student"
+                  defaultChecked={selectedUser.role === "student"}
+                />
                 <span>Student</span>
               </label>
               <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50">
-                <input type="radio" name="role" value="teacher" defaultChecked={selectedUser.role === "teacher"} />
+                <input
+                  type="radio"
+                  name="role"
+                  value="teacher"
+                  defaultChecked={selectedUser.role === "teacher"}
+                />
                 <span>Teacher</span>
               </label>
               <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50">
-                <input type="radio" name="role" value="admin" defaultChecked={selectedUser.role === "admin"} />
+                <input
+                  type="radio"
+                  name="role"
+                  value="admin"
+                  defaultChecked={selectedUser.role === "admin"}
+                />
                 <span>Admin</span>
               </label>
             </div>
@@ -271,10 +291,15 @@ export default function UserManagement() {
         {selectedUser && (
           <div className="space-y-4">
             <p className="text-sm">
-              Are you sure you want to delete <strong>{selectedUser.name}</strong>? All their data will be permanently removed.
+              Are you sure you want to delete{" "}
+              <strong>{selectedUser.name}</strong>? All their data will be
+              permanently removed.
             </p>
             <div className="flex gap-3 justify-end pt-4 border-t">
-              <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 Cancel
               </Button>
               <Button variant="destructive">Delete User</Button>
@@ -326,18 +351,26 @@ function UsersTable({ users }) {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="border-b hover:bg-muted/50 transition-colors">
+              <tr
+                key={user.id}
+                className="border-b hover:bg-muted/50 transition-colors"
+              >
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar} alt={user.name} />
                       <AvatarFallback>
-                        {user.name.split(" ").map((n) => n[0]).join("")}
+                        {user.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
                 </td>

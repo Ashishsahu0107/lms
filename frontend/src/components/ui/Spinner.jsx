@@ -1,4 +1,3 @@
-import React from "react";
 import { cn } from "../../utils/cn";
 import { motion } from "framer-motion";
 
@@ -43,10 +42,7 @@ export function Spinner({ size = "md", className }) {
 export function LoadingSkeleton({ className, ...props }) {
   return (
     <div
-      className={cn(
-        "animate-pulse rounded-lg bg-muted",
-        className
-      )}
+      className={cn("animate-pulse rounded-lg bg-muted", className)}
       {...props}
     />
   );

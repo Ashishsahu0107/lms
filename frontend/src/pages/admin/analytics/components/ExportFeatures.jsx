@@ -2,7 +2,11 @@ import React from "react";
 import { FileDown, Printer, Copy, Check } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-export default function ExportFeatures({ data, title = "Analytics Report", csvHeaders = [] }) {
+export default function ExportFeatures({
+  data,
+  title = "Analytics Report",
+  csvHeaders = [],
+}) {
   const [copied, setCopied] = React.useState(false);
 
   const handleExportCSV = () => {
@@ -15,15 +19,16 @@ export default function ExportFeatures({ data, title = "Analytics Report", csvHe
       // Build CSV
       const headers = csvHeaders.length > 0 ? csvHeaders : Object.keys(data[0]);
       const csvRows = [];
-      
+
       // Add Header Row
       csvRows.push(headers.join(","));
 
       // Add Data Rows
       for (const row of data) {
-        const values = headers.map(header => {
+        const values = headers.map((header) => {
           const val = row[header];
-          const stringVal = val === null || val === undefined ? "" : String(val);
+          const stringVal =
+            val === null || val === undefined ? "" : String(val);
           // Escape quotes
           const cleanVal = stringVal.replace(/"/g, '""');
           return `"${cleanVal}"`;
@@ -36,7 +41,10 @@ export default function ExportFeatures({ data, title = "Analytics Report", csvHe
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${title.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}.csv`);
+      link.setAttribute(
+        "download",
+        `${title.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}.csv`,
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -79,7 +87,11 @@ export default function ExportFeatures({ data, title = "Analytics Report", csvHe
         className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 transition-all"
         title="Copy JSON to clipboard"
       >
-        {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+        {copied ? (
+          <Check className="h-4 w-4 text-emerald-400" />
+        ) : (
+          <Copy className="h-4 w-4" />
+        )}
         {copied ? "Copied!" : "Copy Data"}
       </button>
 

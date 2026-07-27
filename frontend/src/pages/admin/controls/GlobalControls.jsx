@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Settings as SettingsIcon,
@@ -14,9 +14,17 @@ import {
   TrendingUp,
   Percent,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../../components/ui/Card";
 import { Badge } from "../../../components/ui/Badge";
-import { getSettings, updateSettings } from "../../../services/adminModulesService";
+import {
+  getSettings,
+  updateSettings,
+} from "../../../services/adminModulesService";
 import { toast } from "react-hot-toast";
 
 export default function GlobalControls() {
@@ -134,14 +142,18 @@ export default function GlobalControls() {
             Platform Configuration
           </h1>
           <p className="text-slate-400 max-w-xl text-sm">
-            Control global features, maintenance modes, upload restrictions, SMTP parameters, and create platform-wide database backups.
+            Control global features, maintenance modes, upload restrictions,
+            SMTP parameters, and create platform-wide database backups.
           </p>
         </div>
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute right-20 top-10 w-20 h-20 bg-indigo-500/10 rounded-full blur-2xl" />
       </motion.div>
 
-      <form onSubmit={handleSave} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form
+        onSubmit={handleSave}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
         {/* Main Settings */}
         <motion.div variants={item} className="lg:col-span-2 space-y-6">
           <Card className="border-white/10 bg-black/40 backdrop-blur-xl">
@@ -239,16 +251,22 @@ export default function GlobalControls() {
                 <div className="flex items-start gap-3">
                   <ShieldAlert className="h-5 w-5 text-rose-500 mt-0.5" />
                   <div>
-                    <h3 className="text-sm font-semibold text-white">Maintenance Mode</h3>
+                    <h3 className="text-sm font-semibold text-white">
+                      Maintenance Mode
+                    </h3>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Activating maintenance mode blocks non-admin users from viewing courses and dashboards.
+                      Activating maintenance mode blocks non-admin users from
+                      viewing courses and dashboards.
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() =>
-                    setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })
+                    setSettings({
+                      ...settings,
+                      maintenanceMode: !settings.maintenanceMode,
+                    })
                   }
                   className="text-slate-300 hover:text-white transition"
                 >
@@ -296,28 +314,47 @@ export default function GlobalControls() {
             <CardContent className="pt-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">SMTP Host</span>
-                  <p className="text-sm font-semibold text-white">{smtpSettings.host}</p>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">
+                    SMTP Host
+                  </span>
+                  <p className="text-sm font-semibold text-white">
+                    {smtpSettings.host}
+                  </p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Port</span>
-                  <p className="text-sm font-semibold text-white">{smtpSettings.port}</p>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">
+                    Port
+                  </span>
+                  <p className="text-sm font-semibold text-white">
+                    {smtpSettings.port}
+                  </p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Auth Username</span>
-                  <p className="text-sm font-semibold text-white">{smtpSettings.user}</p>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">
+                    Auth Username
+                  </span>
+                  <p className="text-sm font-semibold text-white">
+                    {smtpSettings.user}
+                  </p>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">SSL/TLS Encryption</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">
+                    SSL/TLS Encryption
+                  </span>
                   <span className="inline-flex mt-1">
-                    <Badge variant={smtpSettings.secure ? "success" : "secondary"}>
-                      {smtpSettings.secure ? "Enabled" : "Disabled (Console fallback)"}
+                    <Badge
+                      variant={smtpSettings.secure ? "success" : "secondary"}
+                    >
+                      {smtpSettings.secure
+                        ? "Enabled"
+                        : "Disabled (Console fallback)"}
                     </Badge>
                   </span>
                 </div>
               </div>
               <div className="p-3.5 rounded-xl border border-amber-500/10 bg-amber-500/5 text-xs text-amber-300">
-                🚀 Verification & OTP emails will automatically log to the local terminal if the main SMTP host remains unconfigured.
+                🚀 Verification & OTP emails will automatically log to the local
+                terminal if the main SMTP host remains unconfigured.
               </div>
             </CardContent>
           </Card>
@@ -338,8 +375,12 @@ export default function GlobalControls() {
                   <HardDrive className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Database Cluster Size</h4>
-                  <p className="text-[11px] text-slate-400">8.42 MB in MongoDB Atlas</p>
+                  <h4 className="text-xs font-bold text-white">
+                    Database Cluster Size
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    8.42 MB in MongoDB Atlas
+                  </p>
                 </div>
               </div>
 
@@ -382,11 +423,15 @@ export default function GlobalControls() {
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Platform Take (Total)</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  Platform Take (Total)
+                </span>
                 <p className="text-2xl font-extrabold text-white">$4,850.00</p>
               </div>
               <div className="p-3 rounded-xl bg-white/5 text-[11px] text-slate-400">
-                Calculated dynamically from courses sales and custom subscriptions on the platform based on current {settings.commissionRate}% commission.
+                Calculated dynamically from courses sales and custom
+                subscriptions on the platform based on current{" "}
+                {settings.commissionRate}% commission.
               </div>
             </CardContent>
           </Card>

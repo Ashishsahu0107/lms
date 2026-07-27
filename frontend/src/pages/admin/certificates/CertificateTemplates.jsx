@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Award, Check, Settings, Star, Palette } from "lucide-react";
+import { ArrowLeft, Award, Check } from "lucide-react";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import toast from "react-hot-toast";
@@ -44,12 +44,19 @@ export default function CertificateTemplates() {
     <div className="space-y-6 max-w-4xl mx-auto" id="admin-templates-page">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link to="/admin/certificates" className="p-2 rounded-xl hover:bg-muted transition-colors">
+        <Link
+          to="/admin/certificates"
+          className="p-2 rounded-xl hover:bg-muted transition-colors"
+        >
           <ArrowLeft className="h-5 w-5 text-muted-foreground" />
         </Link>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Certificate Templates</h1>
-          <p className="text-xs text-muted-foreground">Manage layouts and visual structures for generated credentials</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+            Certificate Templates
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Manage layouts and visual structures for generated credentials
+          </p>
         </div>
       </div>
 
@@ -61,14 +68,22 @@ export default function CertificateTemplates() {
               activeTemplate === tpl.name ? "ring-2 ring-indigo-500" : ""
             }`}
           >
-            <div className={`p-8 ${tpl.bg} ${tpl.border} aspect-[4/3] flex flex-col justify-between text-center`}>
+            <div
+              className={`p-8 ${tpl.bg} ${tpl.border} aspect-[4/3] flex flex-col justify-between text-center`}
+            >
               <div className="space-y-1">
                 <Award className={`h-8 w-8 mx-auto ${tpl.accent}`} />
-                <h4 className={`text-sm font-extrabold uppercase tracking-wider ${tpl.text}`}>CERTIFICATE</h4>
+                <h4
+                  className={`text-sm font-extrabold uppercase tracking-wider ${tpl.text}`}
+                >
+                  CERTIFICATE
+                </h4>
               </div>
               <div className="space-y-0.5">
                 <div className="w-10 h-0.5 bg-border mx-auto" />
-                <p className="text-[10px] text-muted-foreground uppercase font-semibold">Granted To</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-semibold">
+                  Granted To
+                </p>
                 <p className={`text-xs font-bold ${tpl.text}`}>Jane Doe</p>
               </div>
               <div className="flex justify-between items-end text-[7px] text-muted-foreground font-mono">
@@ -95,7 +110,9 @@ export default function CertificateTemplates() {
                 }`}
                 onClick={() => handleSelect(tpl.name)}
               >
-                {activeTemplate === tpl.name ? "Currently Active" : "Select Style"}
+                {activeTemplate === tpl.name
+                  ? "Currently Active"
+                  : "Select Style"}
               </Button>
             </CardContent>
           </Card>

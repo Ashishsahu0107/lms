@@ -1,6 +1,19 @@
-import React from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { DollarSign, ArrowUpRight, TrendingUp, Sparkles, Award } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  DollarSign,
+  ArrowUpRight,
+  TrendingUp,
+  Sparkles,
+  Award,
+} from "lucide-react";
 import { Card } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 
@@ -9,7 +22,7 @@ export default function PaymentDashboard({
   onNavigateToTransactions,
   onNavigateToRefunds,
 }) {
-  const completed = payments.filter(p => p.status === "completed");
+  const completed = payments.filter((p) => p.status === "completed");
   const totalRevenue = completed.reduce((acc, p) => acc + p.amount, 0);
   const totalCommission = completed.reduce((acc, p) => acc + p.commission, 0);
 
@@ -32,8 +45,12 @@ export default function PaymentDashboard({
             <DollarSign className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-emerald-600">${totalRevenue.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Sales Billings</p>
+            <p className="text-2xl font-bold text-emerald-600">
+              ${totalRevenue.toLocaleString()}
+            </p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Total Sales Billings
+            </p>
           </div>
         </div>
 
@@ -42,8 +59,12 @@ export default function PaymentDashboard({
             <ArrowUpRight className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-blue-600">${totalCommission.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">LMS Commission (20%)</p>
+            <p className="text-2xl font-bold text-blue-600">
+              ${totalCommission.toLocaleString()}
+            </p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              LMS Commission (20%)
+            </p>
           </div>
         </div>
 
@@ -52,8 +73,12 @@ export default function PaymentDashboard({
             <TrendingUp className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-indigo-600">${(totalRevenue - totalCommission).toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Teacher Earnings (80%)</p>
+            <p className="text-2xl font-bold text-indigo-600">
+              ${(totalRevenue - totalCommission).toLocaleString()}
+            </p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Teacher Earnings (80%)
+            </p>
           </div>
         </div>
 
@@ -63,7 +88,9 @@ export default function PaymentDashboard({
           </div>
           <div>
             <p className="text-2xl font-bold text-amber-600">96.4%</p>
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Payment Success Rate</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              Payment Success Rate
+            </p>
           </div>
         </div>
       </div>
@@ -72,7 +99,8 @@ export default function PaymentDashboard({
       <Card className="hover:shadow-md transition-all">
         <div className="p-6 pb-2 border-b">
           <h3 className="font-bold text-base flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" /> Platform Billings growth Timeline ($)
+            <TrendingUp className="h-5 w-5 text-blue-600" /> Platform Billings
+            growth Timeline ($)
           </h3>
         </div>
         <div className="p-6">
@@ -85,8 +113,14 @@ export default function PaymentDashboard({
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  className="stroke-muted/30"
+                />
+                <XAxis
+                  dataKey="month"
+                  className="text-xs text-muted-foreground font-medium"
+                />
                 <YAxis className="text-xs text-muted-foreground font-medium" />
                 <Tooltip
                   contentStyle={{
@@ -114,16 +148,30 @@ export default function PaymentDashboard({
         <div className="flex items-center gap-2.5">
           <Award className="h-5 w-5 text-indigo-600" />
           <div>
-            <p className="font-semibold text-sm">Need to review transaction records or refunds?</p>
-            <p className="text-xs text-muted-foreground">Manage invoices, refund request approvals, and transactional logs.</p>
+            <p className="font-semibold text-sm">
+              Need to review transaction records or refunds?
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Manage invoices, refund request approvals, and transactional logs.
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onNavigateToTransactions}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onNavigateToTransactions}
+          >
             View Transactions Log
           </Button>
-          <Button variant="outline" size="sm" className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200" onClick={onNavigateToRefunds}>
-            Refund Queue ({payments.filter(p => p.status === "refunded").length})
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200"
+            onClick={onNavigateToRefunds}
+          >
+            Refund Queue (
+            {payments.filter((p) => p.status === "refunded").length})
           </Button>
         </div>
       </div>

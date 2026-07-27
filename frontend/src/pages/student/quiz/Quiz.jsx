@@ -1,18 +1,15 @@
 // src/pages/student/quiz/Quiz.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   HelpCircle,
   Clock,
   CheckCircle2,
-  Calendar,
-  BookOpen,
   Search,
   ChevronRight,
   Sparkles,
-  AlertCircle,
   Award,
 } from "lucide-react";
 
@@ -89,9 +86,12 @@ export default function StudentQuizList() {
     navigate(`/student/quizzes/attempt/${selectedQuiz._id}`);
   };
 
-  const filteredQuizzes = quizzesList.filter((quiz) =>
-    quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (quiz.courseId?.title || "").toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredQuizzes = quizzesList.filter(
+    (quiz) =>
+      quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (quiz.courseId?.title || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -113,9 +113,12 @@ export default function StudentQuizList() {
               <Sparkles className="h-3 w-3 animate-pulse" /> Assessment Hub
             </span>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Interactive Quizzes</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+            Interactive Quizzes
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Evaluate your knowledge base. Take course-wise exams, view grades, and unlock achievements.
+            Evaluate your knowledge base. Take course-wise exams, view grades,
+            and unlock achievements.
           </p>
         </div>
       </motion.div>
@@ -142,22 +145,31 @@ export default function StudentQuizList() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="loading loading-spinner loading-lg text-primary"></div>
-            <p className="text-sm text-muted-foreground animate-pulse font-medium">Fetching active assessments...</p>
+            <p className="text-sm text-muted-foreground animate-pulse font-medium">
+              Fetching active assessments...
+            </p>
           </div>
         ) : filteredQuizzes.length === 0 ? (
-          <Card className="bg-base-100 shadow-xl border border-base-300 rounded-3xl" id="student-quizzes-empty-card">
+          <Card
+            className="bg-base-100 shadow-xl border border-base-300 rounded-3xl"
+            id="student-quizzes-empty-card"
+          >
             <CardContent className="py-20 text-center flex flex-col items-center max-w-md mx-auto">
               <div className="rounded-full bg-base-200 p-5 mb-5 text-muted-foreground">
                 <HelpCircle className="h-10 w-10 text-muted-foreground/60" />
               </div>
               <h3 className="text-xl font-bold mb-2">No Quizzes Published</h3>
               <p className="text-muted-foreground text-sm mb-6">
-                Your instructors have not published any exams or practice challenges for your enrolled courses yet.
+                Your instructors have not published any exams or practice
+                challenges for your enrolled courses yet.
               </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="student-quizzes-grid">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            id="student-quizzes-grid"
+          >
             {filteredQuizzes.map((quiz) => (
               <motion.div
                 key={quiz._id}
@@ -179,19 +191,24 @@ export default function StudentQuizList() {
                         </span>
                       </div>
 
-                      <h3 className="text-xl font-bold text-foreground line-clamp-1 mb-2">{quiz.title}</h3>
+                      <h3 className="text-xl font-bold text-foreground line-clamp-1 mb-2">
+                        {quiz.title}
+                      </h3>
                       <p className="text-muted-foreground text-xs line-clamp-2 leading-relaxed mb-4">
-                        {quiz.description || "Take this course assessment to evaluate your concepts."}
+                        {quiz.description ||
+                          "Take this course assessment to evaluate your concepts."}
                       </p>
                     </div>
 
                     <div className="border-t border-base-300 pt-4 flex items-center justify-between text-xs font-semibold text-muted-foreground">
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1">
-                          <Clock className="h-4 w-4 text-warning/80" /> {quiz.duration} mins
+                          <Clock className="h-4 w-4 text-warning/80" />{" "}
+                          {quiz.duration} mins
                         </span>
                         <span className="flex items-center gap-1">
-                          <Award className="h-4 w-4 text-primary/80" /> {quiz.totalMarks} Marks
+                          <Award className="h-4 w-4 text-primary/80" />{" "}
+                          {quiz.totalMarks} Marks
                         </span>
                       </div>
 
@@ -220,13 +237,19 @@ export default function StudentQuizList() {
         {selectedQuiz && (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-primary/10 to-base-200 p-5 rounded-2xl border border-primary/15 space-y-1.5">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Target Course</span>
-              <h3 className="font-bold text-lg text-foreground">{selectedQuiz.courseId?.title}</h3>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">
+                Target Course
+              </span>
+              <h3 className="font-bold text-lg text-foreground">
+                {selectedQuiz.courseId?.title}
+              </h3>
             </div>
 
             {selectedQuiz.instructions && (
               <div className="space-y-1.5">
-                <span className="text-xs font-bold text-muted-foreground block">Quiz Instructions:</span>
+                <span className="text-xs font-bold text-muted-foreground block">
+                  Quiz Instructions:
+                </span>
                 <p className="text-xs text-muted-foreground leading-relaxed bg-base-200 p-4 rounded-xl border border-base-300 font-mono overflow-auto max-h-[120px]">
                   {selectedQuiz.instructions}
                 </p>
@@ -235,22 +258,36 @@ export default function StudentQuizList() {
 
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 bg-base-200 border border-base-300 rounded-xl text-center space-y-0.5">
-                <span className="text-xl font-extrabold text-foreground">{selectedQuiz.duration}</span>
-                <span className="text-[10px] font-bold text-muted-foreground block">Minutes</span>
+                <span className="text-xl font-extrabold text-foreground">
+                  {selectedQuiz.duration}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground block">
+                  Minutes
+                </span>
               </div>
               <div className="p-3 bg-base-200 border border-base-300 rounded-xl text-center space-y-0.5">
-                <span className="text-xl font-extrabold text-foreground">{selectedQuiz.totalMarks}</span>
-                <span className="text-[10px] font-bold text-muted-foreground block">Total Marks</span>
+                <span className="text-xl font-extrabold text-foreground">
+                  {selectedQuiz.totalMarks}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground block">
+                  Total Marks
+                </span>
               </div>
               <div className="p-3 bg-base-200 border border-base-300 rounded-xl text-center space-y-0.5">
-                <span className="text-xl font-extrabold text-foreground">{selectedQuiz.passingMarks}</span>
-                <span className="text-[10px] font-bold text-muted-foreground block">Pass score</span>
+                <span className="text-xl font-extrabold text-foreground">
+                  {selectedQuiz.passingMarks}
+                </span>
+                <span className="text-[10px] font-bold text-muted-foreground block">
+                  Pass score
+                </span>
               </div>
             </div>
 
             {/* Attempts History List */}
             <div className="space-y-2">
-              <span className="text-xs font-bold text-muted-foreground block">Your Attempts History:</span>
+              <span className="text-xs font-bold text-muted-foreground block">
+                Your Attempts History:
+              </span>
               {loadingAttempts ? (
                 <div className="flex justify-center py-4">
                   <span className="loading loading-spinner loading-sm text-primary"></span>
@@ -272,11 +309,17 @@ export default function StudentQuizList() {
                     >
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span className="font-bold text-foreground">Attempt #{attemptsHistory.length - index}</span>
-                        <span className="text-[10px] text-muted-foreground">({new Date(attempt.submittedAt).toLocaleDateString()})</span>
+                        <span className="font-bold text-foreground">
+                          Attempt #{attemptsHistory.length - index}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          ({new Date(attempt.submittedAt).toLocaleDateString()})
+                        </span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="font-mono font-bold text-success">{attempt.score} / {selectedQuiz.totalMarks}</span>
+                        <span className="font-mono font-bold text-success">
+                          {attempt.score} / {selectedQuiz.totalMarks}
+                        </span>
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </div>
@@ -288,16 +331,20 @@ export default function StudentQuizList() {
             {/* Action Start Button */}
             <Button
               onClick={handleStartAttempt}
-              disabled={selectedQuiz.attemptLimit > 0 && attemptsHistory.length >= selectedQuiz.attemptLimit}
+              disabled={
+                selectedQuiz.attemptLimit > 0 &&
+                attemptsHistory.length >= selectedQuiz.attemptLimit
+              }
               className="btn btn-primary w-full rounded-2xl text-white font-bold h-12 flex items-center justify-center gap-2"
               id="student-start-quiz-btn"
             >
               <Sparkles className="h-5 w-5" />
-              {selectedQuiz.attemptLimit > 0 && attemptsHistory.length >= selectedQuiz.attemptLimit
+              {selectedQuiz.attemptLimit > 0 &&
+              attemptsHistory.length >= selectedQuiz.attemptLimit
                 ? "Attempt Limit Exceeded"
                 : attemptsHistory.length > 0
-                ? `Retake Quiz (${selectedQuiz.attemptLimit - attemptsHistory.length} Left)`
-                : "Start Quiz Attempt"}
+                  ? `Retake Quiz (${selectedQuiz.attemptLimit - attemptsHistory.length} Left)`
+                  : "Start Quiz Attempt"}
             </Button>
           </div>
         )}

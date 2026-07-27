@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Search, Calendar, BookOpen, Users, SlidersHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  Search,
+  Calendar,
+  BookOpen,
+  Users,
+  SlidersHorizontal,
+} from "lucide-react";
 import { getCourses, getTeachers } from "../../../../services/adminService";
 
 export default function FilterSystem({ onFilterChange }) {
@@ -22,7 +28,7 @@ export default function FilterSystem({ onFilterChange }) {
             : courseRes.data?.courses || [];
           setCourses(dataList);
         }
-        
+
         const teacherRes = await getTeachers();
         if (teacherRes && teacherRes.success) {
           const teacherList = Array.isArray(teacherRes.data)
@@ -41,7 +47,7 @@ export default function FilterSystem({ onFilterChange }) {
     // Calculate dates
     let startDate = "";
     let endDate = new Date().toISOString();
-    
+
     if (selectedDate !== "all") {
       const days = parseInt(selectedDate);
       const start = new Date();
@@ -54,7 +60,7 @@ export default function FilterSystem({ onFilterChange }) {
       endDate,
       courseId: selectedCourse,
       teacherId: selectedTeacher,
-      studentSearch
+      studentSearch,
     });
   };
 
@@ -89,11 +95,21 @@ export default function FilterSystem({ onFilterChange }) {
               onChange={(e) => setSelectedDate(e.target.value)}
               className="bg-transparent text-sm text-white focus:outline-none cursor-pointer"
             >
-              <option value="7" className="bg-neutral-900 text-white">Last 7 Days</option>
-              <option value="30" className="bg-neutral-900 text-white">Last 30 Days</option>
-              <option value="90" className="bg-neutral-900 text-white">Last 90 Days</option>
-              <option value="365" className="bg-neutral-900 text-white">Last 1 Year</option>
-              <option value="all" className="bg-neutral-900 text-white">Lifetime</option>
+              <option value="7" className="bg-neutral-900 text-white">
+                Last 7 Days
+              </option>
+              <option value="30" className="bg-neutral-900 text-white">
+                Last 30 Days
+              </option>
+              <option value="90" className="bg-neutral-900 text-white">
+                Last 90 Days
+              </option>
+              <option value="365" className="bg-neutral-900 text-white">
+                Last 1 Year
+              </option>
+              <option value="all" className="bg-neutral-900 text-white">
+                Lifetime
+              </option>
             </select>
           </div>
 
@@ -126,7 +142,11 @@ export default function FilterSystem({ onFilterChange }) {
             >
               <option value="">All Courses</option>
               {courses.map((course) => (
-                <option key={course._id} value={course._id} className="bg-neutral-900">
+                <option
+                  key={course._id}
+                  value={course._id}
+                  className="bg-neutral-900"
+                >
                   {course.title}
                 </option>
               ))}
@@ -145,7 +165,11 @@ export default function FilterSystem({ onFilterChange }) {
             >
               <option value="">All Teachers</option>
               {teachers.map((teacher) => (
-                <option key={teacher._id} value={teacher._id} className="bg-neutral-900">
+                <option
+                  key={teacher._id}
+                  value={teacher._id}
+                  className="bg-neutral-900"
+                >
                   {teacher.name}
                 </option>
               ))}

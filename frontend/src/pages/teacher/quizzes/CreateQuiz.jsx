@@ -10,7 +10,12 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { getCourses } from "../../../services/courseService";
-import { getQuizById, createQuiz, updateQuiz, getQuestionBank } from "../../../services/quizService";
+import {
+  getQuizById,
+  createQuiz,
+  updateQuiz,
+  getQuestionBank,
+} from "../../../services/quizService";
 import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
@@ -84,8 +89,16 @@ export default function CreateQuiz() {
             setAttemptLimit(quiz.attemptLimit);
             setShuffleQuestions(!!quiz.shuffleQuestions);
             setShuffleOptions(!!quiz.shuffleOptions);
-            setStartDate(quiz.startDate ? new Date(quiz.startDate).toISOString().slice(0, 16) : "");
-            setEndDate(quiz.endDate ? new Date(quiz.endDate).toISOString().slice(0, 16) : "");
+            setStartDate(
+              quiz.startDate
+                ? new Date(quiz.startDate).toISOString().slice(0, 16)
+                : "",
+            );
+            setEndDate(
+              quiz.endDate
+                ? new Date(quiz.endDate).toISOString().slice(0, 16)
+                : "",
+            );
             setNegativeMarking(!!quiz.negativeMarking);
             setStatus(quiz.status || "published");
 
@@ -180,7 +193,9 @@ export default function CreateQuiz() {
     setQuestions([...questions, ...formatted]);
     setSelectedBankIds(new Set());
     setShowBankModal(false);
-    toast.success(`Successfully imported ${formatted.length} question(s) from bank!`);
+    toast.success(
+      `Successfully imported ${formatted.length} question(s) from bank!`,
+    );
   };
 
   const removeQuestionCard = (tempId) => {
@@ -195,11 +210,20 @@ export default function CreateQuiz() {
           if (field === "type") {
             let defaults;
             if (value === "true_false") {
-              defaults = { options: ["True", "False"], correctAnswer: ["True"] };
+              defaults = {
+                options: ["True", "False"],
+                correctAnswer: ["True"],
+              };
             } else if (value === "mcq") {
-              defaults = { options: ["Option A", "Option B", "Option C", "Option D"], correctAnswer: ["Option A"] };
+              defaults = {
+                options: ["Option A", "Option B", "Option C", "Option D"],
+                correctAnswer: ["Option A"],
+              };
             } else if (value === "multiple_select") {
-              defaults = { options: ["Option A", "Option B", "Option C", "Option D"], correctAnswer: ["Option A"] };
+              defaults = {
+                options: ["Option A", "Option B", "Option C", "Option D"],
+                correctAnswer: ["Option A"],
+              };
             } else {
               defaults = { options: [], correctAnswer: [""] }; // Text based
             }
@@ -208,7 +232,7 @@ export default function CreateQuiz() {
           return { ...q, [field]: value };
         }
         return q;
-      })
+      }),
     );
   };
 
@@ -223,13 +247,17 @@ export default function CreateQuiz() {
 
           // Sync correct answer selection array if option text changes
           const updatedCorrectAnswers = q.correctAnswer.map((ans) =>
-            ans === oldOptionVal ? text : ans
+            ans === oldOptionVal ? text : ans,
           );
 
-          return { ...q, options: updatedOptions, correctAnswer: updatedCorrectAnswers };
+          return {
+            ...q,
+            options: updatedOptions,
+            correctAnswer: updatedCorrectAnswers,
+          };
         }
         return q;
-      })
+      }),
     );
   };
 
@@ -252,7 +280,7 @@ export default function CreateQuiz() {
           return { ...q, correctAnswer: updatedCorrect };
         }
         return q;
-      })
+      }),
     );
   };
 
@@ -267,7 +295,7 @@ export default function CreateQuiz() {
           };
         }
         return q;
-      })
+      }),
     );
   };
 
@@ -276,12 +304,20 @@ export default function CreateQuiz() {
       questions.map((q) => {
         if (q.id === qId) {
           const optToRemove = q.options[optionIdx];
-          const updatedOptions = q.options.filter((_, idx) => idx !== optionIdx);
-          const updatedCorrect = q.correctAnswer.filter((ans) => ans !== optToRemove);
-          return { ...q, options: updatedOptions, correctAnswer: updatedCorrect };
+          const updatedOptions = q.options.filter(
+            (_, idx) => idx !== optionIdx,
+          );
+          const updatedCorrect = q.correctAnswer.filter(
+            (ans) => ans !== optToRemove,
+          );
+          return {
+            ...q,
+            options: updatedOptions,
+            correctAnswer: updatedCorrect,
+          };
         }
         return q;
-      })
+      }),
     );
   };
 
@@ -307,21 +343,34 @@ export default function CreateQuiz() {
     // Verify sum of questions points matches total marks
     const sumMarks = questions.reduce((sum, q) => sum + Number(q.marks), 0);
     if (sumMarks !== Number(totalMarks)) {
-      toast.error(`Marks Mismatch: The sum of all question marks (${sumMarks} pts) must exactly match the Quiz Total Marks (${totalMarks} pts). Please adjust.`);
+      toast.error(
+        `Marks Mismatch: The sum of all question marks (${sumMarks} pts) must exactly match the Quiz Total Marks (${totalMarks} pts). Please adjust.`,
+      );
       return;
     }
 
     // Verify all choices have correct answer keys
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (q.type === "mcq" || q.type === "true_false" || q.type === "multiple_select") {
+      if (
+        q.type === "mcq" ||
+        q.type === "true_false" ||
+        q.type === "multiple_select"
+      ) {
         if (!q.correctAnswer.length || q.correctAnswer[0] === "") {
-          toast.error(`Blank Solutions: Question #${i + 1} has no correct solution selected.`);
+          toast.error(
+            `Blank Solutions: Question #${i + 1} has no correct solution selected.`,
+          );
           return;
         }
       } else {
-        if (q.correctAnswer[0] === undefined || q.correctAnswer[0].trim() === "") {
-          toast.error(`Blank Guidelines: Question #${i + 1} has no correct guideline solution typed.`);
+        if (
+          q.correctAnswer[0] === undefined ||
+          q.correctAnswer[0].trim() === ""
+        ) {
+          toast.error(
+            `Blank Guidelines: Question #${i + 1} has no correct guideline solution typed.`,
+          );
           return;
         }
       }
@@ -348,10 +397,16 @@ export default function CreateQuiz() {
         questions,
       };
 
-      const res = isEditing ? await updateQuiz(id, dataPayload) : await createQuiz(dataPayload);
+      const res = isEditing
+        ? await updateQuiz(id, dataPayload)
+        : await createQuiz(dataPayload);
 
       if (res.data?.success) {
-        toast.success(isEditing ? "Quiz details updated successfully!" : "Quiz brief published to course successfully!");
+        toast.success(
+          isEditing
+            ? "Quiz details updated successfully!"
+            : "Quiz brief published to course successfully!",
+        );
         navigate("/teacher/quizzes");
       } else {
         toast.error("Failed to save quiz");
@@ -366,9 +421,14 @@ export default function CreateQuiz() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4" id="quiz-editor-loading">
+      <div
+        className="flex flex-col items-center justify-center min-h-[70vh] gap-4"
+        id="quiz-editor-loading"
+      >
         <div className="loading loading-spinner loading-lg text-primary"></div>
-        <p className="text-sm text-muted-foreground animate-pulse">Preparing dynamic curriculum canvas...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">
+          Preparing dynamic curriculum canvas...
+        </p>
       </div>
     );
   }
@@ -387,7 +447,9 @@ export default function CreateQuiz() {
         </Button>
 
         <h1 className="text-2xl font-black text-foreground">
-          {isEditing ? "Modify Assessment Brief" : "Publish New Assessment Brief"}
+          {isEditing
+            ? "Modify Assessment Brief"
+            : "Publish New Assessment Brief"}
         </h1>
       </div>
 
@@ -396,13 +458,16 @@ export default function CreateQuiz() {
         <Card className="border border-base-300 bg-base-100 shadow-xl rounded-3xl overflow-hidden">
           <div className="bg-base-200/50 p-6 border-b border-base-300 flex items-center justify-between">
             <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" /> Quiz Configuration Parameters
+              <Sparkles className="h-5 w-5 text-primary" /> Quiz Configuration
+              Parameters
             </h3>
           </div>
           <CardContent className="p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Quiz Title</label>
+                <label className="text-xs font-bold text-muted-foreground">
+                  Quiz Title
+                </label>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -413,7 +478,9 @@ export default function CreateQuiz() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Target Course</label>
+                <label className="text-xs font-bold text-muted-foreground">
+                  Target Course
+                </label>
                 <select
                   className="select select-bordered border-base-300 w-full h-11 rounded-xl px-3 bg-base-200 text-sm font-semibold"
                   value={courseId}
@@ -421,7 +488,9 @@ export default function CreateQuiz() {
                   required
                 >
                   {courses.map((c) => (
-                    <option key={c._id} value={c._id}>{c.title}</option>
+                    <option key={c._id} value={c._id}>
+                      {c.title}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -429,7 +498,9 @@ export default function CreateQuiz() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-muted-foreground">Total Marks</label>
+                <label className="text-xs font-bold text-muted-foreground">
+                  Total Marks
+                </label>
                 <Input
                   type="number"
                   value={totalMarks}
@@ -440,7 +511,9 @@ export default function CreateQuiz() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-muted-foreground">Passing Marks</label>
+                <label className="text-xs font-bold text-muted-foreground">
+                  Passing Marks
+                </label>
                 <Input
                   type="number"
                   value={passingMarks}
@@ -451,7 +524,9 @@ export default function CreateQuiz() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-muted-foreground">Time Limit (Mins)</label>
+                <label className="text-xs font-bold text-muted-foreground">
+                  Time Limit (Mins)
+                </label>
                 <Input
                   type="number"
                   value={duration}
@@ -462,7 +537,9 @@ export default function CreateQuiz() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-muted-foreground">Attempts Limit</label>
+                <label className="text-xs font-bold text-muted-foreground">
+                  Attempts Limit
+                </label>
                 <Input
                   type="number"
                   value={attemptLimit}
@@ -474,7 +551,9 @@ export default function CreateQuiz() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-muted-foreground">Category</label>
+                <label className="text-xs font-bold text-muted-foreground">
+                  Category
+                </label>
                 <select
                   className="select select-bordered border-base-300 w-full h-11 rounded-xl px-3 bg-base-200 text-sm font-semibold"
                   value={quizType}
@@ -522,7 +601,10 @@ export default function CreateQuiz() {
                   className="checkbox checkbox-primary rounded-lg"
                   id="toggle-shuffle"
                 />
-                <label htmlFor="toggle-shuffle" className="text-xs font-bold text-muted-foreground cursor-pointer select-none">
+                <label
+                  htmlFor="toggle-shuffle"
+                  className="text-xs font-bold text-muted-foreground cursor-pointer select-none"
+                >
                   Randomize Questions
                 </label>
               </div>
@@ -535,7 +617,10 @@ export default function CreateQuiz() {
                   className="checkbox checkbox-primary rounded-lg"
                   id="toggle-shuffle-opts"
                 />
-                <label htmlFor="toggle-shuffle-opts" className="text-xs font-bold text-muted-foreground cursor-pointer select-none">
+                <label
+                  htmlFor="toggle-shuffle-opts"
+                  className="text-xs font-bold text-muted-foreground cursor-pointer select-none"
+                >
                   Randomize Options
                 </label>
               </div>
@@ -548,13 +633,18 @@ export default function CreateQuiz() {
                   className="checkbox checkbox-primary rounded-lg"
                   id="toggle-negative"
                 />
-                <label htmlFor="toggle-negative" className="text-xs font-bold text-muted-foreground cursor-pointer select-none">
+                <label
+                  htmlFor="toggle-negative"
+                  className="text-xs font-bold text-muted-foreground cursor-pointer select-none"
+                >
                   Negative Marking (25%)
                 </label>
               </div>
 
               <div className="flex items-center gap-3">
-                <label className="text-xs font-bold text-muted-foreground mr-2">Status:</label>
+                <label className="text-xs font-bold text-muted-foreground mr-2">
+                  Status:
+                </label>
                 <select
                   className="select select-bordered border-base-300 select-xs h-9 rounded-lg px-2 bg-base-200 text-xs font-bold"
                   value={status}
@@ -568,7 +658,9 @@ export default function CreateQuiz() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground">Quiz Guidelines Instructions</label>
+              <label className="text-xs font-bold text-muted-foreground">
+                Quiz Guidelines Instructions
+              </label>
               <textarea
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
@@ -583,8 +675,12 @@ export default function CreateQuiz() {
         <div className="space-y-5" id="questions-editor-canvas">
           <div className="flex justify-between items-center bg-base-100 border border-base-300 p-5 rounded-2xl shadow-md">
             <div>
-              <h3 className="text-lg font-black text-foreground">Questions Canvas</h3>
-              <p className="text-xs text-muted-foreground">Add question sheets, options selections, and scores.</p>
+              <h3 className="text-lg font-black text-foreground">
+                Questions Canvas
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Add question sheets, options selections, and scores.
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -608,9 +704,14 @@ export default function CreateQuiz() {
           {/* Canvas cards list */}
           <div className="space-y-6">
             {questions.map((q, index) => (
-              <Card key={q.id} className="border border-base-300 bg-base-100 shadow-xl rounded-3xl overflow-hidden">
+              <Card
+                key={q.id}
+                className="border border-base-300 bg-base-100 shadow-xl rounded-3xl overflow-hidden"
+              >
                 <div className="p-4 bg-base-200/50 border-b border-base-300 flex justify-between items-center flex-wrap gap-2">
-                  <span className="font-extrabold text-xs text-primary">Question Card #{index + 1}</span>
+                  <span className="font-extrabold text-xs text-primary">
+                    Question Card #{index + 1}
+                  </span>
                   <Button
                     type="button"
                     onClick={() => removeQuestionCard(q.id)}
@@ -624,10 +725,14 @@ export default function CreateQuiz() {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {/* Question text */}
                     <div className="md:col-span-2 space-y-1">
-                      <label className="text-xs font-bold text-muted-foreground">Question Text</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Question Text
+                      </label>
                       <Input
                         value={q.question}
-                        onChange={(e) => updateQuestionField(q.id, "question", e.target.value)}
+                        onChange={(e) =>
+                          updateQuestionField(q.id, "question", e.target.value)
+                        }
                         placeholder="Type question prompt..."
                         className="h-10 bg-base-200 border-none rounded-lg pl-3 text-xs font-bold"
                         required
@@ -636,14 +741,20 @@ export default function CreateQuiz() {
 
                     {/* Question type select */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-muted-foreground">Question Type</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Question Type
+                      </label>
                       <select
                         className="select select-bordered border-base-300 w-full h-10 rounded-lg px-2 bg-base-200 text-xs font-semibold"
                         value={q.type}
-                        onChange={(e) => updateQuestionField(q.id, "type", e.target.value)}
+                        onChange={(e) =>
+                          updateQuestionField(q.id, "type", e.target.value)
+                        }
                       >
                         <option value="mcq">Single MCQ Choice</option>
-                        <option value="multiple_select">Multiple Select choices</option>
+                        <option value="multiple_select">
+                          Multiple Select choices
+                        </option>
                         <option value="true_false">True / False</option>
                         <option value="short">Short Answer string</option>
                         <option value="long">Long Essay Description</option>
@@ -654,22 +765,38 @@ export default function CreateQuiz() {
                     {/* Marks & Difficulty */}
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Points</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Points
+                        </label>
                         <Input
                           type="number"
                           value={q.marks}
-                          onChange={(e) => updateQuestionField(q.id, "marks", Number(e.target.value))}
+                          onChange={(e) =>
+                            updateQuestionField(
+                              q.id,
+                              "marks",
+                              Number(e.target.value),
+                            )
+                          }
                           className="h-10 bg-base-200 border-none rounded-lg pl-3 font-bold text-xs"
                           min={1}
                           required
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Difficulty</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Difficulty
+                        </label>
                         <select
                           className="select select-bordered border-base-300 w-full h-10 rounded-lg px-2 bg-base-200 text-xs font-semibold"
                           value={q.difficulty}
-                          onChange={(e) => updateQuestionField(q.id, "difficulty", e.target.value)}
+                          onChange={(e) =>
+                            updateQuestionField(
+                              q.id,
+                              "difficulty",
+                              e.target.value,
+                            )
+                          }
                         >
                           <option value="easy">Easy</option>
                           <option value="medium">Medium</option>
@@ -680,7 +807,9 @@ export default function CreateQuiz() {
                   </div>
 
                   {/* Options/Choices Area */}
-                  {(q.type === "mcq" || q.type === "multiple_select" || q.type === "true_false") && (
+                  {(q.type === "mcq" ||
+                    q.type === "multiple_select" ||
+                    q.type === "true_false") && (
                     <div className="space-y-3 bg-base-200/40 p-5 rounded-2xl border border-base-300">
                       <div className="flex justify-between items-center">
                         <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
@@ -707,7 +836,9 @@ export default function CreateQuiz() {
                                 <input
                                   type="checkbox"
                                   checked={isCorrect}
-                                  onChange={() => toggleCorrectOption(q.id, opt, true)}
+                                  onChange={() =>
+                                    toggleCorrectOption(q.id, opt, true)
+                                  }
                                   className="checkbox checkbox-xs checkbox-primary rounded"
                                   title="Check if correct choice"
                                 />
@@ -715,7 +846,9 @@ export default function CreateQuiz() {
                                 <input
                                   type="radio"
                                   checked={isCorrect}
-                                  onChange={() => toggleCorrectOption(q.id, opt, false)}
+                                  onChange={() =>
+                                    toggleCorrectOption(q.id, opt, false)
+                                  }
                                   className="radio radio-xs radio-primary"
                                   name={`correct-radio-${q.id}`}
                                   title="Select single correct choice"
@@ -724,22 +857,27 @@ export default function CreateQuiz() {
 
                               <Input
                                 value={opt}
-                                onChange={(e) => updateOptionText(q.id, idx, e.target.value)}
+                                onChange={(e) =>
+                                  updateOptionText(q.id, idx, e.target.value)
+                                }
                                 disabled={q.type === "true_false"}
                                 className="h-9 bg-base-200 border-none rounded-lg pl-3 text-xs flex-1"
                                 placeholder={`Enter Option Choice ${idx + 1}`}
                                 required
                               />
 
-                              {q.type !== "true_false" && q.options.length > 2 && (
-                                <button
-                                  type="button"
-                                  onClick={() => removeOptionChoice(q.id, idx)}
-                                  className="btn btn-circle btn-ghost btn-xs text-error"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              )}
+                              {q.type !== "true_false" &&
+                                q.options.length > 2 && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      removeOptionChoice(q.id, idx)
+                                    }
+                                    className="btn btn-circle btn-ghost btn-xs text-error"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                )}
                             </div>
                           );
                         })}
@@ -748,20 +886,26 @@ export default function CreateQuiz() {
                   )}
 
                   {/* Short / Long / Coding Text response key */}
-                  {(q.type === "short" || q.type === "long" || q.type === "code") && (
+                  {(q.type === "short" ||
+                    q.type === "long" ||
+                    q.type === "code") && (
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-muted-foreground block uppercase">
                         Correct Answer Solution / Evaluation Guidelines
                       </label>
                       <textarea
                         value={q.correctAnswer[0] || ""}
-                        onChange={(e) => updateQuestionField(q.id, "correctAnswer", [e.target.value])}
+                        onChange={(e) =>
+                          updateQuestionField(q.id, "correctAnswer", [
+                            e.target.value,
+                          ])
+                        }
                         placeholder={
                           q.type === "code"
                             ? "e.g. function sum(a,b) { return a+b; }"
                             : q.type === "short"
-                            ? "e.g. closure, block-scoped"
-                            : "Enter the complete essay guidelines or correct sample answer details here..."
+                              ? "e.g. closure, block-scoped"
+                              : "Enter the complete essay guidelines or correct sample answer details here..."
                         }
                         className="textarea textarea-bordered border-base-300 w-full h-[80px] rounded-xl bg-base-200 text-xs p-3 font-mono leading-relaxed"
                         required
@@ -771,10 +915,14 @@ export default function CreateQuiz() {
 
                   {/* Explanation text */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-muted-foreground">Explanatory Solution Notes</label>
+                    <label className="text-xs font-bold text-muted-foreground">
+                      Explanatory Solution Notes
+                    </label>
                     <textarea
                       value={q.explanation}
-                      onChange={(e) => updateQuestionField(q.id, "explanation", e.target.value)}
+                      onChange={(e) =>
+                        updateQuestionField(q.id, "explanation", e.target.value)
+                      }
                       placeholder="Add why this solution is correct, providing students with learning summaries..."
                       className="textarea textarea-bordered border-base-300 w-full h-[60px] rounded-xl bg-base-200 text-xs p-3 leading-relaxed"
                     />
@@ -826,10 +974,14 @@ export default function CreateQuiz() {
             {loadingBank ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
                 <span className="loading loading-spinner text-primary"></span>
-                <span className="text-xs text-muted-foreground animate-pulse">Loading question library...</span>
+                <span className="text-xs text-muted-foreground animate-pulse">
+                  Loading question library...
+                </span>
               </div>
             ) : bankQuestions.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic text-center py-10">No questions found in library.</p>
+              <p className="text-xs text-muted-foreground italic text-center py-10">
+                No questions found in library.
+              </p>
             ) : (
               bankQuestions.map((q) => {
                 const isSelected = selectedBankIds.has(q._id);
@@ -844,13 +996,23 @@ export default function CreateQuiz() {
                     }`}
                   >
                     <div className="space-y-1 max-w-[85%]">
-                      <span className="block font-bold text-foreground line-clamp-2">{q.question}</span>
+                      <span className="block font-bold text-foreground line-clamp-2">
+                        {q.question}
+                      </span>
                       <span className="block text-[10px] text-muted-foreground">
-                        Quiz: <span className="font-bold">{q.quizId?.title || "Previous quiz"}</span> | Type: {q.type.toUpperCase()} | Points: {q.marks}
+                        Quiz:{" "}
+                        <span className="font-bold">
+                          {q.quizId?.title || "Previous quiz"}
+                        </span>{" "}
+                        | Type: {q.type.toUpperCase()} | Points: {q.marks}
                       </span>
                     </div>
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected ? "border-primary bg-primary text-white" : "border-muted-foreground"}`}>
-                      {isSelected && <span className="text-[10px] font-black">✓</span>}
+                    <div
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected ? "border-primary bg-primary text-white" : "border-muted-foreground"}`}
+                    >
+                      {isSelected && (
+                        <span className="text-[10px] font-black">✓</span>
+                      )}
                     </div>
                   </div>
                 );
@@ -859,7 +1021,9 @@ export default function CreateQuiz() {
           </div>
 
           <div className="flex justify-end gap-3 pt-3 border-t border-base-300">
-            <Button variant="ghost" onClick={() => setShowBankModal(false)}>Close</Button>
+            <Button variant="ghost" onClick={() => setShowBankModal(false)}>
+              Close
+            </Button>
             <Button
               onClick={handleImportSelected}
               disabled={selectedBankIds.size === 0}

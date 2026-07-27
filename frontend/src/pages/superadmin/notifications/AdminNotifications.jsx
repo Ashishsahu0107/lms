@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Megaphone, Clock, Send, ShieldAlert, RefreshCw } from "lucide-react";
-import { Card, CardContent } from "../../../components/ui/Card";
+import { Bell, Megaphone, Clock, RefreshCw } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
-import { getNotifications, sendNotification } from "../../../services/adminModulesService";
+import {
+  getNotifications,
+  sendNotification,
+} from "../../../services/adminModulesService";
 import NotificationCenter from "./NotificationCenter";
 import CreateNotification from "./CreateNotification";
 import NotificationHistory from "./NotificationHistory";
@@ -38,9 +40,15 @@ export default function AdminNotifications() {
         // Divide notifications
         const allNotifs = res.data || [];
         setNotifications(allNotifs);
-        
+
         // System broadcasts are filtered where type is 'announcement' or targetRole is defined
-        const broads = allNotifs.filter((n) => n.targetRole === "all" || n.targetRole === "teacher" || n.targetRole === "student" || n.type === "announcement");
+        const broads = allNotifs.filter(
+          (n) =>
+            n.targetRole === "all" ||
+            n.targetRole === "teacher" ||
+            n.targetRole === "student" ||
+            n.type === "announcement",
+        );
         setBroadcasts(broads);
       }
     } catch (err) {
@@ -56,7 +64,7 @@ export default function AdminNotifications() {
 
   const handleMarkAsRead = (id) => {
     setNotifications((prev) =>
-      prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n._id === id ? { ...n, read: true } : n)),
     );
   };
 
@@ -111,13 +119,17 @@ export default function AdminNotifications() {
       id="admin-notifications-container"
     >
       {/* Header */}
-      <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5">
+      <motion.div
+        variants={item}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-5"
+      >
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
             System Notifications
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Dispatch announcements, inspect platform-wide alert logs, and target learning roles.
+            Dispatch announcements, inspect platform-wide alert logs, and target
+            learning roles.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -128,7 +140,8 @@ export default function AdminNotifications() {
             disabled={loading}
             onClick={fetchNotifications}
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh Alerts
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />{" "}
+            Refresh Alerts
           </Button>
         </div>
       </motion.div>
@@ -138,12 +151,19 @@ export default function AdminNotifications() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-muted p-1 rounded-xl">
             <TabsTrigger value="alerts" className="gap-2 text-xs font-semibold">
-              <Bell className="h-4 w-4" /> Live Alerts ({notifications.filter(n => !n.read).length})
+              <Bell className="h-4 w-4" /> Live Alerts (
+              {notifications.filter((n) => !n.read).length})
             </TabsTrigger>
-            <TabsTrigger value="broadcast" className="gap-2 text-xs font-semibold">
+            <TabsTrigger
+              value="broadcast"
+              className="gap-2 text-xs font-semibold"
+            >
               <Megaphone className="h-4 w-4" /> Send Broadcast
             </TabsTrigger>
-            <TabsTrigger value="history" className="gap-2 text-xs font-semibold">
+            <TabsTrigger
+              value="history"
+              className="gap-2 text-xs font-semibold"
+            >
               <Clock className="h-4 w-4" /> Broadcast History
             </TabsTrigger>
           </TabsList>

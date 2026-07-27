@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 
@@ -27,7 +27,9 @@ export function SocketProvider({ children }) {
     if (!token) return;
 
     // Initialize Socket connection with auth handshake
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || `http://${window.location.hostname}:5000`;
+    const socketUrl =
+      import.meta.env.VITE_SOCKET_URL ||
+      `http://${window.location.hostname}:5000`;
     const newSocket = io(socketUrl, {
       auth: { token },
       autoConnect: true,

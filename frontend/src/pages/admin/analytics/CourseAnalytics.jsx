@@ -1,7 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { BookOpen, GraduationCap, Clock, AlertTriangle, RefreshCw, BarChart2, Star } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, FunnelChart, Funnel, LabelList } from "recharts";
+import { useState, useEffect } from "react";
+import {
+  BookOpen,
+  GraduationCap,
+  Clock,
+  AlertTriangle,
+  RefreshCw,
+  BarChart2,
+  Star,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Cell,
+  FunnelChart,
+  Funnel,
+  LabelList,
+} from "recharts";
 import { getCourseAnalytics } from "../../../services/adminAnalyticsService";
 import AnalyticsCard from "./components/AnalyticsCard";
 import FilterSystem from "./components/FilterSystem";
@@ -34,7 +53,14 @@ export default function CourseAnalytics() {
     setFilters(newFilters);
   };
 
-  const COLORS = ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"];
+  const COLORS = [
+    "#3B82F6",
+    "#8B5CF6",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444",
+    "#EC4899",
+  ];
 
   return (
     <div className="space-y-6">
@@ -42,16 +68,25 @@ export default function CourseAnalytics() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-indigo-400" /> Course Health & Completion Funnels
+            <BookOpen className="h-5 w-5 text-indigo-400" /> Course Health &
+            Completion Funnels
           </h2>
-          <p className="text-xs text-white/50">Analyze which courses attract the highest enrollments and monitor dropout rates.</p>
+          <p className="text-xs text-white/50">
+            Analyze which courses attract the highest enrollments and monitor
+            dropout rates.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {data?.popularCourses && (
             <ExportFeatures
               data={data.popularCourses}
               title="Course Popularity Analytics"
-              csvHeaders={["title", "teacherName", "enrollments", "completionRate"]}
+              csvHeaders={[
+                "title",
+                "teacherName",
+                "enrollments",
+                "completionRate",
+              ]}
             />
           )}
           <button
@@ -112,21 +147,41 @@ export default function CourseAnalytics() {
         {/* Popularity Bar Chart */}
         <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
           <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-2">
-            <BarChart2 className="h-4 w-4 text-blue-400" /> Enrollment Trends & Syllabus Popularity
+            <BarChart2 className="h-4 w-4 text-blue-400" /> Enrollment Trends &
+            Syllabus Popularity
           </h3>
           <div className="h-80 w-full">
             {loading ? (
-              <div className="h-full flex items-center justify-center text-white/30">Loading course stats...</div>
+              <div className="h-full flex items-center justify-center text-white/30">
+                Loading course stats...
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data?.popularCourses}>
                   <CartesianGrid stroke="#ffffff08" strokeDasharray="3 3" />
-                  <XAxis dataKey="title" stroke="#ffffff40" fontSize={9} tickFormatter={(tick) => tick.substring(0, 15) + "..."} />
+                  <XAxis
+                    dataKey="title"
+                    stroke="#ffffff40"
+                    fontSize={9}
+                    tickFormatter={(tick) => tick.substring(0, 15) + "..."}
+                  />
                   <YAxis stroke="#ffffff40" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }} />
-                  <Bar dataKey="enrollments" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#333",
+                    }}
+                  />
+                  <Bar
+                    dataKey="enrollments"
+                    fill="#8B5CF6"
+                    radius={[4, 4, 0, 0]}
+                  >
                     {data?.popularCourses?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -146,9 +201,23 @@ export default function CourseAnalytics() {
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <FunnelChart>
-                  <Tooltip contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }} />
-                  <Funnel data={data?.completionFunnel} dataKey="count" nameKey="name">
-                    <LabelList position="right" fill="#fff" stroke="none" dataKey="name" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#333",
+                    }}
+                  />
+                  <Funnel
+                    data={data?.completionFunnel}
+                    dataKey="count"
+                    nameKey="name"
+                  >
+                    <LabelList
+                      position="right"
+                      fill="#fff"
+                      stroke="none"
+                      dataKey="name"
+                    />
                   </Funnel>
                 </FunnelChart>
               </ResponsiveContainer>
@@ -181,41 +250,69 @@ export default function CourseAnalytics() {
             <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="py-8 text-center text-white/30">Loading courses matrix...</td>
+                  <td colSpan="8" className="py-8 text-center text-white/30">
+                    Loading courses matrix...
+                  </td>
                 </tr>
               ) : data?.popularCourses?.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="py-8 text-center text-white/30">No courses match selected filters.</td>
+                  <td colSpan="8" className="py-8 text-center text-white/30">
+                    No courses match selected filters.
+                  </td>
                 </tr>
               ) : (
                 data?.popularCourses?.map((course) => (
-                  <tr key={course.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-6 font-semibold text-white">{course.title}</td>
-                    <td className="py-4 px-6 text-white/60">{course.teacherName}</td>
-                    <td className="py-4 px-6 text-center font-bold text-blue-400">{course.enrollments}</td>
+                  <tr
+                    key={course.id}
+                    className="hover:bg-white/5 transition-colors"
+                  >
+                    <td className="py-4 px-6 font-semibold text-white">
+                      {course.title}
+                    </td>
+                    <td className="py-4 px-6 text-white/60">
+                      {course.teacherName}
+                    </td>
+                    <td className="py-4 px-6 text-center font-bold text-blue-400">
+                      {course.enrollments}
+                    </td>
                     <td className="py-4 px-6 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <span className="font-bold text-emerald-400">{course.completionRate}%</span>
+                        <span className="font-bold text-emerald-400">
+                          {course.completionRate}%
+                        </span>
                         <div className="w-16 bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5">
-                          <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${course.completionRate}%` }} />
+                          <div
+                            className="bg-emerald-500 h-full rounded-full"
+                            style={{ width: `${course.completionRate}%` }}
+                          />
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-6 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                        <span className="font-bold text-amber-400">{course.averageRating?.toFixed(1) ?? "0.0"}</span>
-                        <span className="text-xs text-white/40">({course.totalRatings ?? 0})</span>
+                        <span className="font-bold text-amber-400">
+                          {course.averageRating?.toFixed(1) ?? "0.0"}
+                        </span>
+                        <span className="text-xs text-white/40">
+                          ({course.totalRatings ?? 0})
+                        </span>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-center text-white/70 font-semibold">{course.totalWatchTime ?? 0} hrs</td>
-                    <td className="py-4 px-6 text-center font-semibold text-amber-400">${course.price}</td>
+                    <td className="py-4 px-6 text-center text-white/70 font-semibold">
+                      {course.totalWatchTime ?? 0} hrs
+                    </td>
+                    <td className="py-4 px-6 text-center font-semibold text-amber-400">
+                      ${course.price}
+                    </td>
                     <td className="py-4 px-6 text-center">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
-                        course.status === "published"
-                          ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
-                          : "bg-amber-500/20 border border-amber-500/30 text-amber-400"
-                      }`}>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                          course.status === "published"
+                            ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
+                            : "bg-amber-500/20 border border-amber-500/30 text-amber-400"
+                        }`}
+                      >
                         {course.status}
                       </span>
                     </td>

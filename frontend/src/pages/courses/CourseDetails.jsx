@@ -1,8 +1,18 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  BookOpen, Clock, Play, CheckCircle2, ChevronDown, ChevronRight,
-  Download, ArrowLeft, ArrowRight, Loader2, Sparkles, CheckSquare, Award
+  BookOpen,
+  Clock,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Download,
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  Sparkles,
+  CheckSquare,
+  Award,
 } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -11,7 +21,10 @@ import { ProgressBar } from "../../components/ui/ProgressBar";
 import toast from "react-hot-toast";
 
 import { getCourseById } from "../../services/courseService";
-import { getStudentEnrollments, markTopicProgress } from "../../services/enrollmentService";
+import {
+  getStudentEnrollments,
+  markTopicProgress,
+} from "../../services/enrollmentService";
 import { useAuth } from "../../context/AuthContext";
 
 export default function CourseDetails() {
@@ -35,16 +48,16 @@ export default function CourseDetails() {
       setLoading(true);
       const [courseRes, enrollRes] = await Promise.all([
         getCourseById(courseId),
-        getStudentEnrollments(user.id)
+        getStudentEnrollments(user.id),
       ]);
 
       if (courseRes.data?.success) {
         const courseData = courseRes.data.data;
         setCourse(courseData);
-        
+
         // Auto-expand all modules initially
         const expanded = {};
-        courseData.modules?.forEach(mod => {
+        courseData.modules?.forEach((mod) => {
           expanded[mod._id] = true;
         });
         setExpandedModules(expanded);
@@ -57,7 +70,9 @@ export default function CourseDetails() {
 
       if (enrollRes.data?.success) {
         const studentEnrollments = enrollRes.data.data;
-        const match = studentEnrollments.find(e => e.courseId?._id === courseId);
+        const match = studentEnrollments.find(
+          (e) => e.courseId?._id === courseId,
+        );
         if (match) {
           setEnrollment(match);
           setCompletedTopics(match.completedTopics || []);
@@ -78,22 +93,22 @@ export default function CourseDetails() {
 
   // Toggle Module Accordion
   const toggleModule = (moduleId) => {
-    setExpandedModules(prev => ({
+    setExpandedModules((prev) => ({
       ...prev,
-      [moduleId]: !prev[moduleId]
+      [moduleId]: !prev[moduleId],
     }));
   };
 
   // Toggle topic progress complete/incomplete
   const handleToggleComplete = async (topicId) => {
     const isCompleted = completedTopics.includes(topicId);
-    
+
     try {
       const res = await markTopicProgress(courseId, topicId, !isCompleted);
       if (res.data?.success) {
         const updatedProgress = res.data.data.progress;
         const updatedCompleted = res.data.data.completedTopics;
-        
+
         setProgress(updatedProgress);
         setCompletedTopics(updatedCompleted);
 
@@ -109,14 +124,15 @@ export default function CourseDetails() {
   };
 
   // Flatten all topics across all modules in order for navigation
-  const flatTopics = course?.modules?.reduce((acc, mod) => {
-    if (mod.topics) {
-      return [...acc, ...mod.topics];
-    }
-    return acc;
-  }, []) || [];
+  const flatTopics =
+    course?.modules?.reduce((acc, mod) => {
+      if (mod.topics) {
+        return [...acc, ...mod.topics];
+      }
+      return acc;
+    }, []) || [];
 
-  const activeIndex = flatTopics.findIndex(t => t._id === activeTopic?._id);
+  const activeIndex = flatTopics.findIndex((t) => t._id === activeTopic?._id);
 
   // Navigate to Next Topic
   const handleNextTopic = () => {
@@ -144,8 +160,13 @@ export default function CourseDetails() {
     return (
       <Card className="p-12 text-center border max-w-md mx-auto mt-12 bg-base-100">
         <h3 className="text-xl font-bold mb-2">Course not found</h3>
-        <p className="text-muted-foreground mb-4">The course you are trying to access does not exist or you lack permission.</p>
-        <Button onClick={() => navigate("/student/courses")}>Back to My Courses</Button>
+        <p className="text-muted-foreground mb-4">
+          The course you are trying to access does not exist or you lack
+          permission.
+        </p>
+        <Button onClick={() => navigate("/student/courses")}>
+          Back to My Courses
+        </Button>
       </Card>
     );
   }
@@ -160,8 +181,12 @@ export default function CourseDetails() {
       <aside className="w-full lg:w-80 bg-base-100 border-r border-base-300 flex flex-col shrink-0">
         {/* Course Progress header */}
         <div className="p-5 border-b border-base-300 space-y-3 bg-base-200/50">
-          <h2 className="font-extrabold text-lg line-clamp-1">{course.title}</h2>
-          <span className="text-xs text-muted-foreground font-semibold">Instructor: {course.teacherId?.name}</span>
+          <h2 className="font-extrabold text-lg line-clamp-1">
+            {course.title}
+          </h2>
+          <span className="text-xs text-muted-foreground font-semibold">
+            Instructor: {course.teacherId?.name}
+          </span>
           <ProgressBar value={progress} size="sm" showLabel />
         </div>
 
@@ -182,10 +207,16 @@ export default function CourseDetails() {
                     className="flex items-center justify-between p-4 hover:bg-base-200/50 transition-colors w-full text-left bg-base-100 font-bold"
                   >
                     <div className="max-w-[80%]">
-                      <span className="text-[10px] text-primary/70 uppercase tracking-widest block font-bold">Module #{mod.order || 0}</span>
+                      <span className="text-[10px] text-primary/70 uppercase tracking-widest block font-bold">
+                        Module #{mod.order || 0}
+                      </span>
                       <span className="text-sm line-clamp-1">{mod.title}</span>
                     </div>
-                    {isExpanded ? <ChevronDown className="h-4.5 w-4.5 opacity-60" /> : <ChevronRight className="h-4.5 w-4.5 opacity-60" />}
+                    {isExpanded ? (
+                      <ChevronDown className="h-4.5 w-4.5 opacity-60" />
+                    ) : (
+                      <ChevronRight className="h-4.5 w-4.5 opacity-60" />
+                    )}
                   </button>
 
                   {/* Nested Topics list inside Module */}
@@ -198,20 +229,28 @@ export default function CourseDetails() {
                       ) : (
                         mod.topics.map((topic) => {
                           const isActive = activeTopic?._id === topic._id;
-                          const isCompleted = completedTopics.includes(topic._id);
+                          const isCompleted = completedTopics.includes(
+                            topic._id,
+                          );
 
                           return (
                             <button
                               key={topic._id}
                               onClick={() => setActiveTopic(topic)}
                               className={`flex items-center gap-3 p-4 w-full text-left transition-colors text-xs font-semibold ${
-                                isActive ? "bg-primary/10 text-primary border-l-4 border-primary" : "hover:bg-base-200/50"
+                                isActive
+                                  ? "bg-primary/10 text-primary border-l-4 border-primary"
+                                  : "hover:bg-base-200/50"
                               }`}
                             >
-                              <div className={`p-1.5 rounded-full shrink-0 ${isCompleted ? "bg-success/15 text-success" : "bg-base-300 text-muted-foreground"}`}>
+                              <div
+                                className={`p-1.5 rounded-full shrink-0 ${isCompleted ? "bg-success/15 text-success" : "bg-base-300 text-muted-foreground"}`}
+                              >
                                 <CheckCircle2 className="h-4 w-4" />
                               </div>
-                              <span className="flex-1 line-clamp-2">{topic.title}</span>
+                              <span className="flex-1 line-clamp-2">
+                                {topic.title}
+                              </span>
                             </button>
                           );
                         })
@@ -234,10 +273,16 @@ export default function CourseDetails() {
             {/* Topic Header banner */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-base-300 pb-5">
               <div>
-                <Badge variant="primary" className="capitalize text-[10px] tracking-widest font-bold mb-1">{course.category || "Curriculum"}</Badge>
+                <Badge
+                  variant="primary"
+                  className="capitalize text-[10px] tracking-widest font-bold mb-1"
+                >
+                  {course.category || "Curriculum"}
+                </Badge>
                 <h1 className="text-2xl font-extrabold">{activeTopic.title}</h1>
                 <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5 mt-1">
-                  <Clock className="h-3.5 w-3.5" /> Duration: {activeTopic.duration || 0} minutes
+                  <Clock className="h-3.5 w-3.5" /> Duration:{" "}
+                  {activeTopic.duration || 0} minutes
                 </span>
               </div>
               <Button
@@ -253,7 +298,9 @@ export default function CourseDetails() {
             {/* Embedded Video Player */}
             {activeTopic.videoUrl ? (
               <div className="relative aspect-video rounded-3xl overflow-hidden shadow-xl border border-base-300 bg-black">
-                {activeTopic.videoUrl.includes("youtube.com") || activeTopic.videoUrl.includes("youtu.be") || activeTopic.videoUrl.includes("embed") ? (
+                {activeTopic.videoUrl.includes("youtube.com") ||
+                activeTopic.videoUrl.includes("youtu.be") ||
+                activeTopic.videoUrl.includes("embed") ? (
                   <iframe
                     className="w-full h-full"
                     src={activeTopic.videoUrl}
@@ -273,8 +320,13 @@ export default function CourseDetails() {
               <Card className="border border-base-300 bg-base-100/50 shadow-md">
                 <CardContent className="py-12 text-center text-muted-foreground flex flex-col items-center">
                   <Sparkles className="h-12 w-12 text-primary/50 mb-3" />
-                  <p className="font-bold text-foreground">Lecture Notes & Guide</p>
-                  <p className="text-sm max-w-sm mt-0.5">This topic focuses on reading and writing study materials. See notes and resources below.</p>
+                  <p className="font-bold text-foreground">
+                    Lecture Notes & Guide
+                  </p>
+                  <p className="text-sm max-w-sm mt-0.5">
+                    This topic focuses on reading and writing study materials.
+                    See notes and resources below.
+                  </p>
                 </CardContent>
               </Card>
             )}
@@ -285,10 +337,14 @@ export default function CourseDetails() {
               <div className="lg:col-span-2 space-y-4">
                 <Card className="border border-base-300 bg-base-100 shadow-md">
                   <div className="p-5 border-b border-base-200">
-                    <h3 className="font-extrabold text-lg flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /> Lecture Notes</h3>
+                    <h3 className="font-extrabold text-lg flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-primary" /> Lecture
+                      Notes
+                    </h3>
                   </div>
                   <CardContent className="p-6 prose max-w-none text-foreground/90 whitespace-pre-line text-sm leading-relaxed">
-                    {activeTopic.content || "No lecture notes uploaded for this topic. Pay close attention to the video curriculum above!"}
+                    {activeTopic.content ||
+                      "No lecture notes uploaded for this topic. Pay close attention to the video curriculum above!"}
                   </CardContent>
                 </Card>
               </div>
@@ -297,11 +353,19 @@ export default function CourseDetails() {
               <div className="space-y-4">
                 <Card className="border border-base-300 bg-base-100 shadow-md">
                   <div className="p-5 border-b border-base-200">
-                    <h3 className="font-extrabold text-lg flex items-center gap-2"><Award className="h-5 w-5 text-primary" /> Downloadable Resources</h3>
+                    <h3 className="font-extrabold text-lg flex items-center gap-2">
+                      <Award className="h-5 w-5 text-primary" /> Downloadable
+                      Resources
+                    </h3>
                   </div>
                   <CardContent className="p-5">
-                    {(!activeTopic.resources || activeTopic.resources.length === 0) && (!activeTopic.attachments || activeTopic.attachments.length === 0) ? (
-                      <p className="text-xs text-muted-foreground/60 italic text-center py-4">No attachments uploaded.</p>
+                    {(!activeTopic.resources ||
+                      activeTopic.resources.length === 0) &&
+                    (!activeTopic.attachments ||
+                      activeTopic.attachments.length === 0) ? (
+                      <p className="text-xs text-muted-foreground/60 italic text-center py-4">
+                        No attachments uploaded.
+                      </p>
                     ) : (
                       <div className="space-y-3">
                         {activeTopic.resources?.map((res, index) => (
@@ -312,7 +376,9 @@ export default function CourseDetails() {
                             rel="noopener noreferrer"
                             className="flex items-center justify-between p-3 border border-base-300 rounded-xl hover:bg-base-200/50 transition-colors w-full text-left group"
                           >
-                            <span className="text-xs font-bold line-clamp-1 group-hover:text-primary transition-colors">{res.title || `Resource #${index + 1}`}</span>
+                            <span className="text-xs font-bold line-clamp-1 group-hover:text-primary transition-colors">
+                              {res.title || `Resource #${index + 1}`}
+                            </span>
                             <Download className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                           </a>
                         ))}
@@ -324,7 +390,9 @@ export default function CourseDetails() {
                             rel="noopener noreferrer"
                             className="flex items-center justify-between p-3 border border-base-300 rounded-xl hover:bg-base-200/50 transition-colors w-full text-left group"
                           >
-                            <span className="text-xs font-bold line-clamp-1 group-hover:text-primary transition-colors">Lecture Guide #{index + 1}</span>
+                            <span className="text-xs font-bold line-clamp-1 group-hover:text-primary transition-colors">
+                              Lecture Guide #{index + 1}
+                            </span>
                             <Download className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                           </a>
                         ))}
@@ -358,8 +426,13 @@ export default function CourseDetails() {
         ) : (
           <div className="flex-1 flex flex-col justify-center items-center p-8 text-center text-muted-foreground min-h-[50vh]">
             <BookOpen className="h-16 w-16 text-primary/45 mb-4" />
-            <h2 className="text-xl font-bold text-foreground">Select a Topic</h2>
-            <p className="max-w-xs mt-1 text-sm">Choose a lesson from the left sidebar syllabus to begin learning and tracking progress!</p>
+            <h2 className="text-xl font-bold text-foreground">
+              Select a Topic
+            </h2>
+            <p className="max-w-xs mt-1 text-sm">
+              Choose a lesson from the left sidebar syllabus to begin learning
+              and tracking progress!
+            </p>
           </div>
         )}
       </main>

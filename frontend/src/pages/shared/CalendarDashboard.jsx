@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Calendar, Video, Clock, Trophy, Plus, RefreshCw, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Video,
+  Clock,
+  Trophy,
+  Plus,
+  RefreshCw,
+  AlertCircle,
+} from "lucide-react";
 import { getCalendarEvents } from "../../services/scheduleService";
 import { getStoredUser } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
 
 export default function CalendarDashboard() {
   const navigate = useNavigate();
   const user = getStoredUser();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Date states
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDayEvents, setSelectedDayEvents] = useState([]);
@@ -62,7 +71,7 @@ export default function CalendarDashboard() {
   const getEventsForDate = (date) => {
     if (!date) return [];
     const dateStr = date.toDateString();
-    return events.filter(event => {
+    return events.filter((event) => {
       const eDate = new Date(event.startDate);
       return eDate.toDateString() === dateStr;
     });
@@ -76,22 +85,35 @@ export default function CalendarDashboard() {
   };
 
   const monthsList = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const typeStyles = {
-    class: "bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/35",
-    assignment: "bg-amber-500/20 border-amber-500/30 text-amber-400 hover:bg-amber-500/35",
+    class:
+      "bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/35",
+    assignment:
+      "bg-amber-500/20 border-amber-500/30 text-amber-400 hover:bg-amber-500/35",
     quiz: "bg-purple-500/20 border-purple-500/30 text-purple-400 hover:bg-purple-500/35",
-    event: "bg-emerald-500/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/35"
+    event:
+      "bg-emerald-500/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/35",
   };
 
   const typeIcons = {
     class: Video,
     assignment: Clock,
     quiz: Trophy,
-    event: Calendar
+    event: Calendar,
   };
 
   return (
@@ -102,9 +124,12 @@ export default function CalendarDashboard() {
           <h1 className="text-3xl font-extrabold text-white bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
             Calendar & Schedules Console
           </h1>
-          <p className="text-sm text-white/50 mt-1">Review live class schedules, quizzes timings, and assignment deadline notifications.</p>
+          <p className="text-sm text-white/50 mt-1">
+            Review live class schedules, quizzes timings, and assignment
+            deadline notifications.
+          </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {(user?.role === "teacher" || user?.role === "super_admin") && (
             <button
@@ -156,7 +181,10 @@ export default function CalendarDashboard() {
         <div className="grid grid-cols-7 gap-2">
           {/* Weekday headers */}
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div key={day} className="text-center text-xs font-bold uppercase tracking-wider text-white/30 py-2 border-b border-white/5">
+            <div
+              key={day}
+              className="text-center text-xs font-bold uppercase tracking-wider text-white/30 py-2 border-b border-white/5"
+            >
               {day}
             </div>
           ))}
@@ -164,7 +192,8 @@ export default function CalendarDashboard() {
           {/* Days cells */}
           {days.map((day, index) => {
             const dateEvents = getEventsForDate(day);
-            const isToday = day && day.toDateString() === new Date().toDateString();
+            const isToday =
+              day && day.toDateString() === new Date().toDateString();
 
             return (
               <div
@@ -179,9 +208,13 @@ export default function CalendarDashboard() {
                 }`}
               >
                 {day && (
-                  <span className={`text-xs font-black tracking-wide p-1.5 h-6 w-6 rounded-full flex items-center justify-center ${
-                    isToday ? "bg-blue-500 text-white shadow" : "text-white/40"
-                  }`}>
+                  <span
+                    className={`text-xs font-black tracking-wide p-1.5 h-6 w-6 rounded-full flex items-center justify-center ${
+                      isToday
+                        ? "bg-blue-500 text-white shadow"
+                        : "text-white/40"
+                    }`}
+                  >
                     {day.getDate()}
                   </span>
                 )}
@@ -202,7 +235,9 @@ export default function CalendarDashboard() {
                       );
                     })}
                     {dateEvents.length > 2 && (
-                      <p className="text-[8px] text-white/30 text-center font-bold font-mono">+{dateEvents.length - 2} more</p>
+                      <p className="text-[8px] text-white/30 text-center font-bold font-mono">
+                        +{dateEvents.length - 2} more
+                      </p>
                     )}
                   </div>
                 )}
@@ -218,7 +253,8 @@ export default function CalendarDashboard() {
           <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-neutral-900 p-8 shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <h2 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-400" /> Day Event Schedule
+                <Calendar className="h-5 w-5 text-blue-400" /> Day Event
+                Schedule
               </h2>
               <button
                 onClick={() => setShowEventsDrawer(false)}
@@ -244,11 +280,15 @@ export default function CalendarDashboard() {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className={`rounded-xl border p-2 ${typeStyles[e.type]}`}>
+                          <div
+                            className={`rounded-xl border p-2 ${typeStyles[e.type]}`}
+                          >
                             <Icon className="h-5 w-5" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-white text-sm leading-tight">{e.title}</h3>
+                            <h3 className="font-bold text-white text-sm leading-tight">
+                              {e.title}
+                            </h3>
                             <span className="text-[9px] uppercase tracking-wider font-extrabold text-white/30">
                               {e.type} Schedule
                             </span>
@@ -271,7 +311,8 @@ export default function CalendarDashboard() {
                             rel="noreferrer"
                             className="flex items-center gap-1 text-xs font-bold text-blue-400 hover:underline"
                           >
-                            <Video className="h-4 w-4 text-blue-400 animate-pulse" /> Launch Zoom Meeting
+                            <Video className="h-4 w-4 text-blue-400 animate-pulse" />{" "}
+                            Launch Zoom Meeting
                           </a>
                         </div>
                       )}

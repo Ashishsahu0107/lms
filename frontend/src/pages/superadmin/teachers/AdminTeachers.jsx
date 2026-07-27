@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getTeachers, createTeacher, getTeacher, updateTeacher, deleteTeacher, getTeacherAnalytics } from "../../../services/adminService";
+import {
+  getTeachers,
+  createTeacher,
+  getTeacher,
+  updateTeacher,
+  deleteTeacher,
+  getTeacherAnalytics,
+} from "../../../services/adminService";
 import { getCourses } from "../../../services/courseService";
 import TeacherList from "./TeacherList";
 import TeacherDetails from "./TeacherDetails";
 import CreateTeacher from "./CreateTeacher";
 import EditTeacher from "./EditTeacher";
 import TeacherAnalytics from "./TeacherAnalytics";
-import { Loader2, AlertCircle, Sparkles } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
 import { Button } from "../../../components/ui/Button";
 
@@ -159,7 +166,10 @@ export default function AdminTeachers() {
 
   const handleExportCSV = () => {
     // Generate browser download link directly to CSV endpoint
-    window.open(`http://${window.location.hostname}:5000/api/admin/users/export`, "_blank");
+    window.open(
+      `http://${window.location.hostname}:5000/api/admin/users/export`,
+      "_blank",
+    );
   };
 
   const handleBulkImportTrigger = () => {
@@ -180,7 +190,9 @@ export default function AdminTeachers() {
       setImportPayload("");
       await loadTeachersList();
     } catch (err) {
-      alert("Invalid JSON format. Please upload a correct array of user profiles.");
+      alert(
+        "Invalid JSON format. Please upload a correct array of user profiles.",
+      );
     } finally {
       setLoading(false);
     }
@@ -188,9 +200,14 @@ export default function AdminTeachers() {
 
   if (loading && view === "list") {
     return (
-      <div className="flex flex-col justify-center items-center py-32 space-y-4" id="admin-teachers-loading">
+      <div
+        className="flex flex-col justify-center items-center py-32 space-y-4"
+        id="admin-teachers-loading"
+      >
         <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-        <p className="text-muted-foreground text-sm font-medium animate-pulse">Syncing educator archives...</p>
+        <p className="text-muted-foreground text-sm font-medium animate-pulse">
+          Syncing educator archives...
+        </p>
       </div>
     );
   }
@@ -232,7 +249,9 @@ export default function AdminTeachers() {
             <TeacherDetails
               data={teacherDetailData}
               onBack={() => setView("list")}
-              onSendEmail={(email) => window.location.href = `mailto:${email}`}
+              onSendEmail={(email) =>
+                (window.location.href = `mailto:${email}`)
+              }
             />
           )}
 
@@ -263,28 +282,43 @@ export default function AdminTeachers() {
       </AnimatePresence>
 
       {/* Confirmation Action Modal */}
-      <Modal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} title="System Credentials Warning">
+      <Modal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        title="System Credentials Warning"
+      >
         {targetTeacher && (
           <div className="space-y-4 text-sm" id="confirm-action-modal">
             {confirmActionType === "delete" ? (
               <div className="flex gap-3 p-4 rounded-xl bg-red-500/10 text-red-600 border border-red-500/20">
                 <AlertCircle className="h-6 w-6 shrink-0" />
                 <p>
-                  Permanently delete educator account <strong>{targetTeacher.name}</strong>? This action terminates all course reference keys and cannot be undone.
+                  Permanently delete educator account{" "}
+                  <strong>{targetTeacher.name}</strong>? This action terminates
+                  all course reference keys and cannot be undone.
                 </p>
               </div>
             ) : (
               <div className="flex gap-3 p-4 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
                 <AlertCircle className="h-6 w-6 shrink-0" />
                 <p>
-                  Are you sure you want to {confirmActionType} educator account <strong>{targetTeacher.name}</strong>? Suspended teachers cannot host lessons or grade students.
+                  Are you sure you want to {confirmActionType} educator account{" "}
+                  <strong>{targetTeacher.name}</strong>? Suspended teachers
+                  cannot host lessons or grade students.
                 </p>
               </div>
             )}
             <div className="flex gap-3 justify-end pt-2">
-              <Button variant="outline" onClick={() => setShowConfirmModal(false)}>Cancel</Button>
               <Button
-                variant={confirmActionType === "delete" ? "destructive" : "default"}
+                variant="outline"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={
+                  confirmActionType === "delete" ? "destructive" : "default"
+                }
                 onClick={handleExecuteConfirm}
                 className="font-semibold shadow"
               >
@@ -296,9 +330,16 @@ export default function AdminTeachers() {
       </Modal>
 
       {/* Bulk JSON Import Modal */}
-      <Modal isOpen={showImportModal} onClose={() => setShowImportModal(false)} title="Bulk JSON Data Import">
+      <Modal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        title="Bulk JSON Data Import"
+      >
         <div className="space-y-4 text-sm" id="import-users-modal">
-          <p className="text-muted-foreground">Paste a JSON array containing teacher/student objects mapping name and email fields:</p>
+          <p className="text-muted-foreground">
+            Paste a JSON array containing teacher/student objects mapping name
+            and email fields:
+          </p>
           <textarea
             className="w-full min-h-36 rounded-lg border border-border bg-card p-3 font-mono text-xs focus:outline-none"
             placeholder='[{"name": "Alice Smith", "email": "alice@lms.com", "role": "teacher"}]'
@@ -306,8 +347,13 @@ export default function AdminTeachers() {
             onChange={(e) => setImportPayload(e.target.value)}
           />
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="outline" onClick={() => setShowImportModal(false)}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold" onClick={handleExecuteImport}>
+            <Button variant="outline" onClick={() => setShowImportModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              onClick={handleExecuteImport}
+            >
               Execute Import
             </Button>
           </div>

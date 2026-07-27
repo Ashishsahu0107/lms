@@ -1,6 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { DollarSign, Landmark, Receipt, Sparkles, RefreshCw, TrendingUp } from "lucide-react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
+import { useState, useEffect } from "react";
+import {
+  DollarSign,
+  Landmark,
+  Receipt,
+  Sparkles,
+  RefreshCw,
+  TrendingUp,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 import { getRevenueAnalytics } from "../../../services/adminAnalyticsService";
 import AnalyticsCard from "./components/AnalyticsCard";
 import FilterSystem from "./components/FilterSystem";
@@ -35,19 +54,20 @@ export default function RevenueAnalytics() {
 
   const COLORS = ["#3B82F6", "#8B5CF6", "#10B981"];
 
-  const formattedSalesTrend = data?.salesTrend?.map((item) => {
-    const total = item.sales;
-    const courseRevenue = Math.round(total * 0.65);
-    const subscriptionRevenue = Math.round(total * 0.35);
-    const teacherShare = item.payouts;
-    return {
-      month: item.month,
-      courseRevenue,
-      subscriptionRevenue,
-      teacherShare,
-      grossSales: total
-    };
-  }) ?? [];
+  const formattedSalesTrend =
+    data?.salesTrend?.map((item) => {
+      const total = item.sales;
+      const courseRevenue = Math.round(total * 0.65);
+      const subscriptionRevenue = Math.round(total * 0.35);
+      const teacherShare = item.payouts;
+      return {
+        month: item.month,
+        courseRevenue,
+        subscriptionRevenue,
+        teacherShare,
+        grossSales: total,
+      };
+    }) ?? [];
 
   return (
     <div className="space-y-6">
@@ -55,9 +75,13 @@ export default function RevenueAnalytics() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-emerald-400" /> Revenue Growth & Financial Analytics
+            <DollarSign className="h-5 w-5 text-emerald-400" /> Revenue Growth &
+            Financial Analytics
           </h2>
-          <p className="text-xs text-white/50">Analyze gross platform revenue, payouts margins, subscription channels, and refund audits.</p>
+          <p className="text-xs text-white/50">
+            Analyze gross platform revenue, payouts margins, subscription
+            channels, and refund audits.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {data?.salesTrend && (
@@ -125,11 +149,14 @@ export default function RevenueAnalytics() {
         {/* Sales Growth Line/Area Chart */}
         <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
           <h3 className="text-sm font-semibold tracking-wider text-white/50 uppercase mb-4 flex items-center gap-1.5">
-            <TrendingUp className="h-4 w-4 text-emerald-400" /> Platform Billing & Growth Velocity
+            <TrendingUp className="h-4 w-4 text-emerald-400" /> Platform Billing
+            & Growth Velocity
           </h3>
           <div className="h-80 w-full">
             {loading ? (
-              <div className="h-full flex items-center justify-center text-white/30">Loading financial trends...</div>
+              <div className="h-full flex items-center justify-center text-white/30">
+                Loading financial trends...
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={formattedSalesTrend}>
@@ -142,16 +169,30 @@ export default function RevenueAnalytics() {
                       <stop offset="5%" stopColor="#10B981" stopOpacity={0.4} />
                       <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="teacherGrad" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="teacherGrad"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
                   <XAxis dataKey="month" stroke="#ffffff40" fontSize={11} />
-                  <YAxis stroke="#ffffff40" fontSize={11} tickFormatter={(tick) => `$${tick}`} />
+                  <YAxis
+                    stroke="#ffffff40"
+                    fontSize={11}
+                    tickFormatter={(tick) => `$${tick}`}
+                  />
                   <Tooltip
-                    contentStyle={{ backgroundColor: "#171717", borderColor: "#333", color: "#fff" }}
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#333",
+                      color: "#fff",
+                    }}
                     formatter={(value) => [`$${value.toLocaleString()}`, ""]}
                   />
                   <Legend wrapperStyle={{ fontSize: 12, color: "#fff" }} />
@@ -200,10 +241,17 @@ export default function RevenueAnalytics() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Tooltip
-                    contentStyle={{ backgroundColor: "#171717", borderColor: "#333" }}
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#333",
+                    }}
                     formatter={(value) => [`${value}% Share`, ""]}
                   />
-                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 11 }} />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    wrapperStyle={{ fontSize: 11 }}
+                  />
                   <Pie
                     data={data?.subscriptions}
                     cx="50%"
@@ -214,7 +262,10 @@ export default function RevenueAnalytics() {
                     dataKey="value"
                   >
                     {data?.subscriptions?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                 </PieChart>
@@ -222,7 +273,9 @@ export default function RevenueAnalytics() {
             )}
             <div className="absolute top-[37%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
               <span className="text-2xl font-black text-white">Tier</span>
-              <p className="text-[10px] text-white/40 uppercase font-semibold">Distribution</p>
+              <p className="text-[10px] text-white/40 uppercase font-semibold">
+                Distribution
+              </p>
             </div>
           </div>
         </div>

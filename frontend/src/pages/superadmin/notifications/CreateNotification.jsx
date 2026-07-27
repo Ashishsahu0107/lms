@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Send, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 
-export default function CreateNotification({
-  onSend,
-}) {
+export default function CreateNotification({ onSend }) {
   const [target, setTarget] = useState("all");
   const [type, setType] = useState("info");
   const [title, setTitle] = useState("");
@@ -27,7 +30,9 @@ export default function CreateNotification({
       setError("");
       setSuccess("");
       await onSend({ target, type, title, message });
-      setSuccess("Your broadcast has been successfully dispatched across the platform!");
+      setSuccess(
+        "Your broadcast has been successfully dispatched across the platform!",
+      );
       setTitle("");
       setMessage("");
     } catch (err) {
@@ -38,9 +43,14 @@ export default function CreateNotification({
   };
 
   return (
-    <Card className="max-w-2xl mx-auto hover:shadow-md transition-all border border-border" id="create-notification-root">
+    <Card
+      className="max-w-2xl mx-auto hover:shadow-md transition-all border border-border"
+      id="create-notification-root"
+    >
       <CardHeader>
-        <CardTitle className="text-lg text-foreground font-bold">Dispatch Targeted System Broadcast</CardTitle>
+        <CardTitle className="text-lg text-foreground font-bold">
+          Dispatch Targeted System Broadcast
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -58,7 +68,9 @@ export default function CreateNotification({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Recipient Audience</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Recipient Audience
+              </label>
               <select
                 className="w-full h-10 px-3 rounded-lg border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={target}
@@ -71,7 +83,9 @@ export default function CreateNotification({
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Alert Level Type</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Alert Level Type
+              </label>
               <select
                 className="w-full h-10 px-3 rounded-lg border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={type}
@@ -86,7 +100,9 @@ export default function CreateNotification({
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Notification Title</label>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+              Notification Title
+            </label>
             <Input
               placeholder="e.g. Summer Break Extended Announcement"
               value={title}
@@ -95,7 +111,9 @@ export default function CreateNotification({
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Broadcast Message Content</label>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+              Broadcast Message Content
+            </label>
             <textarea
               className="w-full h-32 px-3 py-2 rounded-lg border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Type your official platform announcement message here..."
@@ -110,7 +128,8 @@ export default function CreateNotification({
               disabled={submitting}
               className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm"
             >
-              <Send className="h-4 w-4" /> {submitting ? "Dispatching..." : "Send Broadcast"}
+              <Send className="h-4 w-4" />{" "}
+              {submitting ? "Dispatching..." : "Send Broadcast"}
             </Button>
           </div>
         </form>

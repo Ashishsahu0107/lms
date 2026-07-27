@@ -1,23 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, FileText, Search, Printer } from "lucide-react";
 import { Card } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 
-export default function Invoices({
-  invoices = [],
-  onBack,
-}) {
+export default function Invoices({ invoices = [], onBack }) {
   const [search, setSearch] = useState("");
 
   const filtered = invoices.filter((inv) =>
-    inv.invoiceNumber.toLowerCase().includes(search.toLowerCase())
+    inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <div className="space-y-6" id="invoices-root">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-foreground" onClick={onBack}>
+        <Button
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          onClick={onBack}
+        >
           <ChevronLeft className="h-4 w-4" /> Back to Dashboard
         </Button>
         <h2 className="text-lg font-bold text-foreground">Invoicing Archive</h2>
@@ -51,7 +52,10 @@ export default function Invoices({
               </thead>
               <tbody>
                 {filtered.map((inv) => (
-                  <tr key={inv._id} className="border-b hover:bg-muted/10 transition-colors text-sm last:border-0">
+                  <tr
+                    key={inv._id}
+                    className="border-b hover:bg-muted/10 transition-colors text-sm last:border-0"
+                  >
                     <td className="py-3.5 px-4 font-bold text-foreground">
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
@@ -59,12 +63,24 @@ export default function Invoices({
                       </div>
                     </td>
                     <td className="py-3.5 px-4 font-medium text-muted-foreground">
-                      <div>{inv.billingDetails?.address || "Silicon Valley Billing Address"}</div>
-                      <div className="text-[10px] text-muted-foreground">Contact: {inv.billingDetails?.phone || "555-0100"}</div>
+                      <div>
+                        {inv.billingDetails?.address ||
+                          "Silicon Valley Billing Address"}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">
+                        Contact: {inv.billingDetails?.phone || "555-0100"}
+                      </div>
                     </td>
-                    <td className="py-3.5 px-4 text-center font-bold text-blue-600">${inv.paymentId?.amount || 120}</td>
+                    <td className="py-3.5 px-4 text-center font-bold text-blue-600">
+                      ${inv.paymentId?.amount || 120}
+                    </td>
                     <td className="py-3.5 px-4 text-right">
-                      <Button variant="outline" size="sm" className="gap-2" onClick={() => window.print()}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => window.print()}
+                      >
                         <Printer className="h-3.5 w-3.5" /> Print Invoice
                       </Button>
                     </td>

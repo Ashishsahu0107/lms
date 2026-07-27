@@ -1,25 +1,22 @@
 // src/pages/teacher/assignments/TeacherAssignmentManagement.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Search,
   ClipboardList,
-  CheckCircle,
   FileText,
-  Edit3,
   Trash2,
   Calendar,
   FileCheck,
   Sparkles,
-  ChevronRight,
   BrainCircuit,
   Eye,
   AlertTriangle,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/Card";
+import { Card, CardContent } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { getCourses } from "../../../services/courseService";
@@ -65,7 +62,7 @@ export default function TeacherAssignmentManagement() {
         setLoading(true);
         const [assRes, coursesRes] = await Promise.all([
           getAssignments(),
-          getCourses()
+          getCourses(),
         ]);
 
         if (assRes.data?.success) {
@@ -92,14 +89,16 @@ export default function TeacherAssignmentManagement() {
   const handleAIGenerate = async (e) => {
     e.preventDefault();
     if (!topicTitle.trim() && !notesText.trim()) {
-      toast.error("Please provide either a Topic Title or paste Lecture Notes/Keywords.");
+      toast.error(
+        "Please provide either a Topic Title or paste Lecture Notes/Keywords.",
+      );
       return;
     }
 
     try {
       setIsGenerating(true);
       const res = await generateAssignmentDraft({ notesText, topicTitle });
-      
+
       if (res.data?.success) {
         const draft = res.data.data;
         // Populate standard form states automatically
@@ -137,7 +136,8 @@ export default function TeacherAssignmentManagement() {
         dueDate,
         totalMarks: Number(totalMarks),
         assignmentType,
-        generatedFromDocument: activeFormTab === "ai" || instructions.includes("MCQ"),
+        generatedFromDocument:
+          activeFormTab === "ai" || instructions.includes("MCQ"),
       });
 
       if (res.data?.success) {
@@ -150,7 +150,9 @@ export default function TeacherAssignmentManagement() {
         setNotesText("");
         setTopicTitle("");
         setShowCreateModal(false);
-        toast.success("Assignment published successfully to course enrolled students!");
+        toast.success(
+          "Assignment published successfully to course enrolled students!",
+        );
       } else {
         toast.error("Failed to create assignment");
       }
@@ -162,14 +164,18 @@ export default function TeacherAssignmentManagement() {
 
   // Delete Assignment Handler
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you absolutely sure you want to permanently delete this assignment? All student submission records will be lost.")) {
+    if (
+      !window.confirm(
+        "Are you absolutely sure you want to permanently delete this assignment? All student submission records will be lost.",
+      )
+    ) {
       return;
     }
 
     try {
       const res = await deleteAssignment(id);
       if (res.data?.success) {
-        setAssignments(assignments.filter(a => a._id !== id));
+        setAssignments(assignments.filter((a) => a._id !== id));
         toast.success("Assignment permanently deleted");
       } else {
         toast.error("Failed to delete assignment");
@@ -181,9 +187,12 @@ export default function TeacherAssignmentManagement() {
   };
 
   // Search Filter
-  const filteredAssignments = assignments.filter((a) =>
-    a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (a.courseId?.title || "").toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAssignments = assignments.filter(
+    (a) =>
+      a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (a.courseId?.title || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -201,8 +210,12 @@ export default function TeacherAssignmentManagement() {
               <Sparkles className="h-3 w-3" /> Teacher Portal
             </span>
           </div>
-          <h1 className="text-3xl font-extrabold text-foreground">Assignment Management</h1>
-          <p className="text-sm text-muted-foreground">Deliver briefs, compile AI quizzes, and evaluate student workspaces.</p>
+          <h1 className="text-3xl font-extrabold text-foreground">
+            Assignment Management
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Deliver briefs, compile AI quizzes, and evaluate student workspaces.
+          </p>
         </div>
         <Button
           onClick={() => setShowCreateModal(true)}
@@ -221,8 +234,12 @@ export default function TeacherAssignmentManagement() {
               <ClipboardList className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Assignments</p>
-              <h3 className="text-2xl font-extrabold text-foreground">{assignments.length}</h3>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Total Assignments
+              </p>
+              <h3 className="text-2xl font-extrabold text-foreground">
+                {assignments.length}
+              </h3>
             </div>
           </CardContent>
         </Card>
@@ -233,9 +250,11 @@ export default function TeacherAssignmentManagement() {
               <FileCheck className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">AI Generated</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                AI Generated
+              </p>
               <h3 className="text-2xl font-extrabold text-foreground">
-                {assignments.filter(a => a.generatedFromDocument).length}
+                {assignments.filter((a) => a.generatedFromDocument).length}
               </h3>
             </div>
           </CardContent>
@@ -247,8 +266,12 @@ export default function TeacherAssignmentManagement() {
               <BrainCircuit className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Average Points</p>
-              <h3 className="text-2xl font-extrabold text-foreground">100 Marks</h3>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Average Points
+              </p>
+              <h3 className="text-2xl font-extrabold text-foreground">
+                100 Marks
+              </h3>
             </div>
           </CardContent>
         </Card>
@@ -274,14 +297,26 @@ export default function TeacherAssignmentManagement() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="loading loading-spinner loading-lg text-primary"></div>
-              <p className="text-sm text-muted-foreground animate-pulse font-medium">Retrieving assignments dashboard data...</p>
+              <p className="text-sm text-muted-foreground animate-pulse font-medium">
+                Retrieving assignments dashboard data...
+              </p>
             </div>
           ) : filteredAssignments.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground text-sm flex flex-col items-center max-w-md mx-auto">
               <AlertTriangle className="h-10 w-10 text-muted-foreground/60 mb-3" />
-              <h3 className="text-lg font-bold mb-1">No Assignments Published</h3>
-              <p className="text-xs text-muted-foreground mb-6">Create homework briefs manually or try our AI generation tool to get started instantly.</p>
-              <Button onClick={() => setShowCreateModal(true)} className="btn-sm rounded-xl">Create assignment</Button>
+              <h3 className="text-lg font-bold mb-1">
+                No Assignments Published
+              </h3>
+              <p className="text-xs text-muted-foreground mb-6">
+                Create homework briefs manually or try our AI generation tool to
+                get started instantly.
+              </p>
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="btn-sm rounded-xl"
+              >
+                Create assignment
+              </Button>
             </div>
           ) : (
             <table className="table w-full text-sm">
@@ -298,27 +333,37 @@ export default function TeacherAssignmentManagement() {
               </thead>
               <tbody>
                 {filteredAssignments.map((ass) => {
-                  const formattedDate = new Date(ass.dueDate).toLocaleDateString("en-US", {
+                  const formattedDate = new Date(
+                    ass.dueDate,
+                  ).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
-                    year: "numeric"
+                    year: "numeric",
                   });
 
                   return (
-                    <tr key={ass._id} className="border-b border-base-200 hover:bg-base-200/40 transition-colors">
+                    <tr
+                      key={ass._id}
+                      className="border-b border-base-200 hover:bg-base-200/40 transition-colors"
+                    >
                       <td className="font-bold flex items-center gap-3">
                         <div className="p-2 bg-primary/10 text-primary rounded-xl">
                           <FileText className="h-5 w-5" />
                         </div>
-                        <span className="text-foreground line-clamp-1">{ass.title}</span>
+                        <span className="text-foreground line-clamp-1">
+                          {ass.title}
+                        </span>
                       </td>
                       <td>
-                        <span className="font-semibold text-muted-foreground text-xs">{ass.courseId?.title || "Enrolled Course"}</span>
+                        <span className="font-semibold text-muted-foreground text-xs">
+                          {ass.courseId?.title || "Enrolled Course"}
+                        </span>
                       </td>
                       <td className="font-bold">{ass.totalMarks} Marks</td>
                       <td>
                         <span className="text-xs text-muted-foreground flex items-center gap-1 font-semibold">
-                          <Calendar className="h-3.5 w-3.5 text-warning/80" /> {formattedDate}
+                          <Calendar className="h-3.5 w-3.5 text-warning/80" />{" "}
+                          {formattedDate}
                         </span>
                       </td>
                       <td>
@@ -332,13 +377,17 @@ export default function TeacherAssignmentManagement() {
                             <BrainCircuit className="h-3.5 w-3.5" /> YES
                           </span>
                         ) : (
-                          <span className="text-xs text-muted-foreground/60 italic font-semibold">No</span>
+                          <span className="text-xs text-muted-foreground/60 italic font-semibold">
+                            No
+                          </span>
                         )}
                       </td>
                       <td className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
-                            onClick={() => navigate(`/teacher/assignments/${ass._id}`)}
+                            onClick={() =>
+                              navigate(`/teacher/assignments/${ass._id}`)
+                            }
                             size="icon"
                             variant="ghost"
                             className="hover:text-primary rounded-full bg-base-200 p-2"
@@ -379,13 +428,17 @@ export default function TeacherAssignmentManagement() {
               {/* Modal Tabs Header */}
               <div className="p-6 bg-base-200 border-b border-base-300 flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-extrabold text-xl text-foreground">Publish Brief</h3>
+                  <h3 className="font-extrabold text-xl text-foreground">
+                    Publish Brief
+                  </h3>
                 </div>
                 <div className="flex bg-base-300 p-1 rounded-2xl border border-base-300 gap-1">
                   <button
                     onClick={() => setActiveFormTab("manual")}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                      activeFormTab === "manual" ? "bg-base-100 text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      activeFormTab === "manual"
+                        ? "bg-base-100 text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     Manual Sheet
@@ -393,7 +446,9 @@ export default function TeacherAssignmentManagement() {
                   <button
                     onClick={() => setActiveFormTab("ai")}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-                      activeFormTab === "ai" ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      activeFormTab === "ai"
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     <BrainCircuit className="h-3.5 w-3.5" /> AI Draft Creator
@@ -408,15 +463,21 @@ export default function TeacherAssignmentManagement() {
                   <form onSubmit={handleAIGenerate} className="space-y-4">
                     <div className="bg-gradient-to-r from-primary/10 via-base-100 to-base-100 p-5 rounded-2xl border border-primary/20 space-y-2">
                       <h4 className="font-extrabold text-sm text-primary flex items-center gap-2">
-                        <Sparkles className="h-4.5 w-4.5 text-primary animate-spin" /> Automated Question Generator
+                        <Sparkles className="h-4.5 w-4.5 text-primary animate-spin" />{" "}
+                        Automated Question Generator
                       </h4>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        Input a topic title or paste lecture transcripts and note concepts. The simulated generator will read keywords to draft full MCQ matrices, short questions, and code challenges instantly.
+                        Input a topic title or paste lecture transcripts and
+                        note concepts. The simulated generator will read
+                        keywords to draft full MCQ matrices, short questions,
+                        and code challenges instantly.
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground">Concept Topic / Title</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Concept Topic / Title
+                      </label>
                       <Input
                         value={topicTitle}
                         onChange={(e) => setTopicTitle(e.target.value)}
@@ -427,7 +488,9 @@ export default function TeacherAssignmentManagement() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-muted-foreground">Notes / Lecture Materials</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Notes / Lecture Materials
+                      </label>
                       <textarea
                         value={notesText}
                         onChange={(e) => setNotesText(e.target.value)}
@@ -438,13 +501,24 @@ export default function TeacherAssignmentManagement() {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-3 border-t mt-4 border-base-300">
-                      <Button variant="ghost" type="button" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-                      <Button type="submit" disabled={isGenerating} className="btn-primary text-white gap-2">
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() => setShowCreateModal(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={isGenerating}
+                        className="btn-primary text-white gap-2"
+                      >
                         {isGenerating ? (
                           <span className="loading loading-spinner loading-sm"></span>
                         ) : (
                           <>
-                            <BrainCircuit className="h-4 w-4" /> Draft Brief Questions
+                            <BrainCircuit className="h-4 w-4" /> Draft Brief
+                            Questions
                           </>
                         )}
                       </Button>
@@ -452,10 +526,15 @@ export default function TeacherAssignmentManagement() {
                   </form>
                 ) : (
                   /* MANUAL SHEET PUBLISH FORM */
-                  <form onSubmit={handlePublishAssignment} className="space-y-4">
+                  <form
+                    onSubmit={handlePublishAssignment}
+                    className="space-y-4"
+                  >
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Assignment Title</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Assignment Title
+                        </label>
                         <Input
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
@@ -465,7 +544,9 @@ export default function TeacherAssignmentManagement() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Target Course</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Target Course
+                        </label>
                         <select
                           className="select select-bordered border-base-300 w-full h-11 rounded-xl px-3 bg-base-200 text-sm"
                           value={courseId}
@@ -473,7 +554,9 @@ export default function TeacherAssignmentManagement() {
                           required
                         >
                           {courses.map((c) => (
-                            <option key={c._id} value={c._id}>{c.title}</option>
+                            <option key={c._id} value={c._id}>
+                              {c.title}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -481,7 +564,9 @@ export default function TeacherAssignmentManagement() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Marks Value</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Marks Value
+                        </label>
                         <Input
                           type="number"
                           value={totalMarks}
@@ -493,7 +578,9 @@ export default function TeacherAssignmentManagement() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Due Date</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Due Date
+                        </label>
                         <Input
                           type="datetime-local"
                           value={dueDate}
@@ -503,7 +590,9 @@ export default function TeacherAssignmentManagement() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-muted-foreground">Brief Category</label>
+                        <label className="text-xs font-bold text-muted-foreground">
+                          Brief Category
+                        </label>
                         <select
                           className="select select-bordered border-base-300 w-full h-11 rounded-xl px-3 bg-base-200 text-sm"
                           value={assignmentType}
@@ -518,7 +607,9 @@ export default function TeacherAssignmentManagement() {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-muted-foreground">Overview Description</label>
+                      <label className="text-xs font-bold text-muted-foreground">
+                        Overview Description
+                      </label>
                       <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
@@ -531,7 +622,9 @@ export default function TeacherAssignmentManagement() {
                       <label className="text-xs font-bold text-muted-foreground flex items-center justify-between">
                         <span>Instructions & Questions Matrix</span>
                         {instructions && (
-                          <span className="text-[10px] badge badge-outline text-primary font-bold">Imported Questions Sheet</span>
+                          <span className="text-[10px] badge badge-outline text-primary font-bold">
+                            Imported Questions Sheet
+                          </span>
                         )}
                       </label>
                       <textarea
@@ -543,8 +636,16 @@ export default function TeacherAssignmentManagement() {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-3 border-t mt-4 border-base-300">
-                      <Button variant="ghost" type="button" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-                      <Button type="submit" className="btn-primary text-white">Publish to Course</Button>
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() => setShowCreateModal(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" className="btn-primary text-white">
+                        Publish to Course
+                      </Button>
                     </div>
                   </form>
                 )}

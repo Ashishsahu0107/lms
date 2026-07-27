@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Save, Mail, RefreshCw, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 
@@ -34,7 +39,10 @@ export default function EmailSettings() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" id="email-settings-root">
+    <div
+      className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      id="email-settings-root"
+    >
       <Card className="hover:shadow-md border border-border bg-card">
         <CardHeader>
           <CardTitle className="text-base text-foreground font-bold flex items-center gap-2">
@@ -50,7 +58,9 @@ export default function EmailSettings() {
             )}
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">SMTP Server Host</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                SMTP Server Host
+              </label>
               <Input
                 value={smtpHost}
                 onChange={(e) => setSmtpHost(e.target.value)}
@@ -58,7 +68,9 @@ export default function EmailSettings() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">SMTP Port</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                SMTP Port
+              </label>
               <Input
                 type="number"
                 value={smtpPort}
@@ -67,7 +79,9 @@ export default function EmailSettings() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">SMTP Username / Email</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                SMTP Username / Email
+              </label>
               <Input
                 value={smtpUser}
                 onChange={(e) => setSmtpUser(e.target.value)}
@@ -75,7 +89,9 @@ export default function EmailSettings() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">From Name Header</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                From Name Header
+              </label>
               <Input
                 value={fromName}
                 onChange={(e) => setFromName(e.target.value)}
@@ -83,7 +99,10 @@ export default function EmailSettings() {
             </div>
 
             <div className="pt-2 border-t border-border flex justify-end">
-              <Button type="submit" className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm text-xs">
+              <Button
+                type="submit"
+                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm text-xs"
+              >
                 <Save className="h-4 w-4" /> Save SMTP SMTP
               </Button>
             </div>
@@ -93,15 +112,20 @@ export default function EmailSettings() {
 
       <Card className="hover:shadow-md border border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-base text-foreground font-bold">SMTP Connection Verification</CardTitle>
+          <CardTitle className="text-base text-foreground font-bold">
+            SMTP Connection Verification
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Validate that your SMTP credentials connect successfully to Gmail/AWS SES by sending a quick test email text.
+            Validate that your SMTP credentials connect successfully to
+            Gmail/AWS SES by sending a quick test email text.
           </p>
           <form onSubmit={handleSendTest} className="space-y-4 pt-2">
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Recipient Verification Email</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Recipient Verification Email
+              </label>
               <Input
                 type="email"
                 placeholder="test@example.com"
@@ -115,7 +139,10 @@ export default function EmailSettings() {
               disabled={sendingTest}
               className="gap-2 text-xs font-semibold"
             >
-              <RefreshCw className={`h-4 w-4 ${sendingTest ? "animate-spin" : ""}`} /> Verify Mail Connection
+              <RefreshCw
+                className={`h-4 w-4 ${sendingTest ? "animate-spin" : ""}`}
+              />{" "}
+              Verify Mail Connection
             </Button>
           </form>
         </CardContent>

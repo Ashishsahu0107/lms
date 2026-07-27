@@ -1,6 +1,6 @@
 // src/providers/ThemeProvider.jsx
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadTheme } from "../store/themeSlice";
 import themeService from "../services/themeService";

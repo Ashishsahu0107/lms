@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
-import { getStudentStats, getStudentProgress } from "../../../services/dashboardService";
+import {
+  getStudentStats,
+  getStudentProgress,
+} from "../../../services/dashboardService";
 import { getStudentEnrollments } from "../../../services/enrollmentService";
 import { getImageUrl, handleImageError } from "../../../utils/image";
 import {
@@ -97,7 +100,9 @@ export default function StudentDashboard() {
         }
       } catch (err) {
         console.error("Failed to load student dashboard metrics:", err);
-        setError("Unable to sync dashboard with LMS server. Please check your network connection.");
+        setError(
+          "Unable to sync dashboard with LMS server. Please check your network connection.",
+        );
       } finally {
         setLoading(false);
       }
@@ -108,9 +113,14 @@ export default function StudentDashboard() {
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center py-32 space-y-4" id="student-dashboard-loading">
+      <div
+        className="flex flex-col justify-center items-center py-32 space-y-4"
+        id="student-dashboard-loading"
+      >
         <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
-        <p className="text-muted-foreground text-sm font-medium animate-pulse">Syncing dynamic curriculum maps...</p>
+        <p className="text-muted-foreground text-sm font-medium animate-pulse">
+          Syncing dynamic curriculum maps...
+        </p>
       </div>
     );
   }
@@ -123,7 +133,9 @@ export default function StudentDashboard() {
       title: course.title || "Untitled Course",
       instructor: course.teacherId?.name || "LMS Instructor",
       progress: enrollment.progress || 0,
-      thumbnail: course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300",
+      thumbnail:
+        course.thumbnail ||
+        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300",
     };
   });
 
@@ -149,24 +161,42 @@ export default function StudentDashboard() {
         id="student-welcome-banner"
       >
         <div className="relative z-10">
-          <Badge variant="secondary" className="mb-4 bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-md">
-            <Sparkles className="h-3 w-3 mr-1.5 fill-current" /> Enrolled Student Cockpit
+          <Badge
+            variant="secondary"
+            className="mb-4 bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-md"
+          >
+            <Sparkles className="h-3 w-3 mr-1.5 fill-current" /> Enrolled
+            Student Cockpit
           </Badge>
-          <h1 className="text-3xl font-bold text-white mb-2" id="student-welcome-title">
+          <h1
+            className="text-3xl font-bold text-white mb-2"
+            id="student-welcome-title"
+          >
             Hello, {user?.name || "Learner"}! Ready to learn?
           </h1>
           <p className="text-white/80 max-w-xl mb-6">
-            Welcome to your updated learning center! You have completed {courses.filter(c => c.progress === 100).length} of your courses. Keep up the high standard!
+            Welcome to your updated learning center! You have completed{" "}
+            {courses.filter((c) => c.progress === 100).length} of your courses.
+            Keep up the high standard!
           </p>
           <div className="flex flex-wrap gap-3">
             <Link to="/student/courses">
-              <Button size="lg" className="bg-white text-indigo-600 hover:bg-white/95 font-semibold shadow-md" id="continue-learning-btn">
+              <Button
+                size="lg"
+                className="bg-white text-indigo-600 hover:bg-white/95 font-semibold shadow-md"
+                id="continue-learning-btn"
+              >
                 <Play className="h-4 w-4 mr-2 fill-current" />
                 Continue Learning
               </Button>
             </Link>
             <Link to="/student/assignments">
-              <Button size="lg" variant="outline" className="text-white border-white/30 bg-white/10 hover:bg-white/25 hover:border-white/50" id="view-assignments-btn">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-white border-white/30 bg-white/10 hover:bg-white/25 hover:border-white/50"
+                id="view-assignments-btn"
+              >
                 View Assignments
               </Button>
             </Link>
@@ -178,14 +208,22 @@ export default function StudentDashboard() {
       </motion.div>
 
       {/* Analytics Statistics Metrics */}
-      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="student-stats-grid">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        id="student-stats-grid"
+      >
         <StatCard
           title="Enrolled Courses"
           value={stats.enrolledCourses}
           change="+1 this month"
           changeType="positive"
           icon={BookOpen}
-          trend={stats.enrolledCourses > 0 ? Math.min(stats.enrolledCourses * 10, 100) : 0}
+          trend={
+            stats.enrolledCourses > 0
+              ? Math.min(stats.enrolledCourses * 10, 100)
+              : 0
+          }
           id="stat-courses"
         />
         <StatCard
@@ -208,7 +246,9 @@ export default function StudentDashboard() {
         <div className="rounded-xl border bg-card p-6 shadow-card hover:shadow-elevated transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-card to-amber-600/5 border-amber-500/20">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">LMS Leaderboard</p>
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                LMS Leaderboard
+              </p>
               <p className="text-3xl font-extrabold tracking-tight text-amber-700 dark:text-amber-300">
                 #{stats.leaderboardRank}
               </p>
@@ -225,7 +265,11 @@ export default function StudentDashboard() {
       </motion.div>
 
       {/* Double Dynamic Recharts layout */}
-      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="student-charts-section">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        id="student-charts-section"
+      >
         {/* Weekly Study Hours Area Chart */}
         <Card className="lg:col-span-2 hover:shadow-md transition-all">
           <CardHeader className="pb-2">
@@ -239,13 +283,25 @@ export default function StudentDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={progressData.weeklyStudy}>
                   <defs>
-                    <linearGradient id="studyHoursGrad" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="studyHoursGrad"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                  <XAxis dataKey="month" className="text-xs text-muted-foreground font-medium" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted/30"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    className="text-xs text-muted-foreground font-medium"
+                  />
                   <YAxis className="text-xs text-muted-foreground font-medium" />
                   <Tooltip
                     contentStyle={{
@@ -279,9 +335,18 @@ export default function StudentDashboard() {
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={progressData.scoreTrend}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                  <XAxis dataKey="name" className="text-xs text-muted-foreground font-medium text-ellipsis overflow-hidden" />
-                  <YAxis domain={[0, 100]} className="text-xs text-muted-foreground font-medium" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted/30"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    className="text-xs text-muted-foreground font-medium text-ellipsis overflow-hidden"
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    className="text-xs text-muted-foreground font-medium"
+                  />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
@@ -294,7 +359,12 @@ export default function StudentDashboard() {
                     dataKey="score"
                     stroke="#f59e0b"
                     strokeWidth={3}
-                    dot={{ stroke: "#f59e0b", strokeWidth: 2, r: 4, fill: "#fff" }}
+                    dot={{
+                      stroke: "#f59e0b",
+                      strokeWidth: 2,
+                      r: 4,
+                      fill: "#fff",
+                    }}
                     activeDot={{ r: 6 }}
                   />
                 </LineChart>
@@ -310,7 +380,10 @@ export default function StudentDashboard() {
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-indigo-500" /> Continue Learning
           </h2>
-          <Link to="/student/courses" className="text-sm text-indigo-600 font-semibold hover:underline flex items-center gap-1">
+          <Link
+            to="/student/courses"
+            className="text-sm text-indigo-600 font-semibold hover:underline flex items-center gap-1"
+          >
             Browse Curriculum <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -320,7 +393,8 @@ export default function StudentDashboard() {
             <BookOpen className="h-12 w-12 mx-auto mb-3 text-muted-foreground/60" />
             <h3 className="text-base font-bold mb-1">No Active Enrollments</h3>
             <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
-              You are not currently enrolled in active syllabus paths. Please ask your teacher to assign you access.
+              You are not currently enrolled in active syllabus paths. Please
+              ask your teacher to assign you access.
             </p>
           </Card>
         ) : (
@@ -354,9 +428,19 @@ export default function StudentDashboard() {
                       </p>
                     </div>
                     <div className="space-y-3">
-                      <ProgressBar value={course.progress} size="sm" showLabel />
-                      <Link to={`/student/courses/${course.id}`} className="block">
-                        <Button className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white" size="sm">
+                      <ProgressBar
+                        value={course.progress}
+                        size="sm"
+                        showLabel
+                      />
+                      <Link
+                        to={`/student/courses/${course.id}`}
+                        className="block"
+                      >
+                        <Button
+                          className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                          size="sm"
+                        >
                           <Play className="h-3.5 w-3.5 fill-current" />
                           Resume Study
                         </Button>
@@ -371,7 +455,11 @@ export default function StudentDashboard() {
       </motion.div>
 
       {/* Deadlines Section */}
-      <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-6" id="student-deadlines-section">
+      <motion.div
+        variants={item}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        id="student-deadlines-section"
+      >
         {/* Assignments List */}
         <Card className="hover:shadow-md transition-all">
           <CardHeader className="pb-3">
@@ -384,8 +472,12 @@ export default function StudentDashboard() {
             {stats.upcomingAssignments.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground flex flex-col items-center justify-center space-y-2">
                 <CheckCircle2 className="h-8 w-8 text-emerald-500" />
-                <p className="text-sm font-semibold text-foreground">All Submissions Completed!</p>
-                <p className="text-xs">No pending assignments to grade or upload.</p>
+                <p className="text-sm font-semibold text-foreground">
+                  All Submissions Completed!
+                </p>
+                <p className="text-xs">
+                  No pending assignments to grade or upload.
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -395,16 +487,28 @@ export default function StudentDashboard() {
                     className="flex items-center justify-between p-3.5 rounded-xl border bg-card/50 hover:bg-muted/30 transition-all border-l-4 border-l-indigo-500"
                   >
                     <div className="space-y-1">
-                      <p className="font-semibold text-sm line-clamp-1">{assignment.title}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{assignment.course}</p>
+                      <p className="font-semibold text-sm line-clamp-1">
+                        {assignment.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {assignment.course}
+                      </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <p className="text-xs font-semibold text-indigo-600">Due {assignment.dueDate}</p>
-                        <Badge variant="warning" className="text-[10px] py-0.5">Pending</Badge>
+                        <p className="text-xs font-semibold text-indigo-600">
+                          Due {assignment.dueDate}
+                        </p>
+                        <Badge variant="warning" className="text-[10px] py-0.5">
+                          Pending
+                        </Badge>
                       </div>
                       <Link to="/student/assignments">
-                        <Button size="sm" variant="ghost" className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-indigo-600 hover:text-indigo-700">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-indigo-600 hover:text-indigo-700"
+                        >
                           <ArrowRight className="h-4 w-4" />
                         </Button>
                       </Link>
@@ -428,8 +532,12 @@ export default function StudentDashboard() {
             {stats.upcomingQuizzes.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground flex flex-col items-center justify-center space-y-2">
                 <CheckCircle2 className="h-8 w-8 text-emerald-500" />
-                <p className="text-sm font-semibold text-foreground">Quizzes Fully Answered!</p>
-                <p className="text-xs">No outstanding examinations pending attempts.</p>
+                <p className="text-sm font-semibold text-foreground">
+                  Quizzes Fully Answered!
+                </p>
+                <p className="text-xs">
+                  No outstanding examinations pending attempts.
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -439,16 +547,28 @@ export default function StudentDashboard() {
                     className="flex items-center justify-between p-3.5 rounded-xl border bg-card/50 hover:bg-muted/30 transition-all border-l-4 border-l-amber-500"
                   >
                     <div className="space-y-1">
-                      <p className="font-semibold text-sm line-clamp-1">{quiz.title}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{quiz.course}</p>
+                      <p className="font-semibold text-sm line-clamp-1">
+                        {quiz.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {quiz.course}
+                      </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <p className="text-xs font-semibold text-amber-600">{quiz.duration} Mins Limit</p>
-                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-[10px] py-0.5">Attempt</Badge>
+                        <p className="text-xs font-semibold text-amber-600">
+                          {quiz.duration} Mins Limit
+                        </p>
+                        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-[10px] py-0.5">
+                          Attempt
+                        </Badge>
                       </div>
                       <Link to={`/student/courses/${quiz._id}`}>
-                        <Button size="sm" variant="ghost" className="p-2 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-600 hover:text-amber-700">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="p-2 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-600 hover:text-amber-700"
+                        >
                           <Play className="h-3.5 w-3.5" />
                         </Button>
                       </Link>

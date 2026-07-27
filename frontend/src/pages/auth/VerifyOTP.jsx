@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, CheckCircle2, ArrowLeft, RefreshCw, Shield } from "lucide-react";
+import { CheckCircle2, ArrowLeft, RefreshCw, Shield } from "lucide-react";
 import { verifyResetOtp, resendResetOtp } from "../../services/authService";
 import { toast } from "react-hot-toast";
 
@@ -19,7 +19,9 @@ export default function VerifyOTP() {
 
   useEffect(() => {
     if (!email) {
-      toast.error("Recovery session missing. Please request a new recovery link.");
+      toast.error(
+        "Recovery session missing. Please request a new recovery link.",
+      );
       navigate("/forgot-password");
     }
   }, [email, navigate]);
@@ -36,7 +38,9 @@ export default function VerifyOTP() {
   const handleChange = (element, index) => {
     if (isNaN(element.value)) return false;
 
-    const newOtp = [...otp.map((d, idx) => (idx === index ? element.value : d))];
+    const newOtp = [
+      ...otp.map((d, idx) => (idx === index ? element.value : d)),
+    ];
     setOtp(newOtp);
 
     // Focus next cell
@@ -47,7 +51,11 @@ export default function VerifyOTP() {
 
   const handleKeyDown = (e, index) => {
     // Backspace handles focusing previous
-    if (e.key === "Backspace" && otp[index] === "" && e.target.previousSibling) {
+    if (
+      e.key === "Backspace" &&
+      otp[index] === "" &&
+      e.target.previousSibling
+    ) {
       e.target.previousSibling.focus();
     }
   };
@@ -65,7 +73,9 @@ export default function VerifyOTP() {
       const res = await verifyResetOtp(email, otpCode);
       if (res && res.success) {
         toast.success(res.message || "OTP code verified successfully!");
-        navigate(`/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otpCode)}`);
+        navigate(
+          `/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otpCode)}`,
+        );
       }
     } catch (err) {
       console.error(err);
@@ -113,9 +123,13 @@ export default function VerifyOTP() {
           <div className="mx-auto h-12 w-12 rounded-2xl border border-blue-500/20 bg-blue-500/10 flex items-center justify-center text-blue-400">
             <Shield className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-white">Enter Recovery Code</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-white">
+            Enter Recovery Code
+          </h1>
           <p className="text-xs text-white/50 px-4">
-            We dispatched a 6-digit recovery code to <span className="font-bold text-white">{email}</span>. It will expire in 5 minutes.
+            We dispatched a 6-digit recovery code to{" "}
+            <span className="font-bold text-white">{email}</span>. It will
+            expire in 5 minutes.
           </p>
         </div>
 
@@ -139,7 +153,11 @@ export default function VerifyOTP() {
             disabled={loading}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-sm font-bold text-white hover:opacity-90 shadow-xl shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
           >
-            {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+            {loading ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
             Confirm Code
           </button>
         </form>
@@ -150,7 +168,9 @@ export default function VerifyOTP() {
             onClick={handleResend}
             disabled={!canResend || loading}
             className={`text-xs font-bold transition-all ${
-              canResend ? "text-blue-400 hover:underline" : "text-white/30 cursor-not-allowed"
+              canResend
+                ? "text-blue-400 hover:underline"
+                : "text-white/30 cursor-not-allowed"
             }`}
           >
             {canResend ? "Resend Recovery Code" : `Resend Code in ${timer}s`}

@@ -1,7 +1,10 @@
-export const DEFAULT_THUMBNAIL = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800";
+export const DEFAULT_THUMBNAIL =
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800";
 
 const getBaseUrl = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+  const apiUrl =
+    import.meta.env.VITE_API_URL ||
+    `http://${window.location.hostname}:5000/api`;
   return apiUrl.replace(/\/api\/?$/, "");
 };
 
@@ -15,7 +18,11 @@ export const getImageUrl = (path, fallback = DEFAULT_THUMBNAIL) => {
   if (path.startsWith("http://") || path.startsWith("https://")) {
     const hostname = window.location.hostname;
     // Rewrite localhost URL if we are testing on a LAN IP / external address
-    if (path.includes("localhost:5000") && hostname !== "localhost" && hostname !== "127.0.0.1") {
+    if (
+      path.includes("localhost:5000") &&
+      hostname !== "localhost" &&
+      hostname !== "127.0.0.1"
+    ) {
       const base = getBaseUrl();
       return path.replace("http://localhost:5000", base);
     }
