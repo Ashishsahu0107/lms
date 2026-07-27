@@ -12,7 +12,15 @@ const userProj = "-password";
 // ─── Dashboard Statistics ───────────────────────────────────────────────────
 export const adminService = {
   async getDashboardStats() {
-    const [totalUsers, teachers, students, courses, publishedCourses, assignments, quizzes] = await Promise.all([
+    const [
+      totalUsers,
+      teachers,
+      students,
+      courses,
+      publishedCourses,
+      assignments,
+      quizzes,
+    ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ role: "teacher" }),
       User.countDocuments({ role: "student" }),
@@ -23,7 +31,10 @@ export const adminService = {
     ]);
 
     // Calculate revenue estimate from published courses
-    const coursesWithPrice = await Course.find({ status: "published", price: { $gt: 0 } }).select("price students");
+    const coursesWithPrice = await Course.find({
+      status: "published",
+      price: { $gt: 0 },
+    }).select("price students");
     let totalRevenue = 0;
     let totalEnrollments = 0;
     for (const c of coursesWithPrice) {
@@ -33,7 +44,9 @@ export const adminService = {
 
     // Active users today (simplified - users updated in last 24h)
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const activeUsers = await User.countDocuments({ updatedAt: { $gte: oneDayAgo } });
+    const activeUsers = await User.countDocuments({
+      updatedAt: { $gte: oneDayAgo },
+    });
 
     // Pending courses (draft status)
     const pendingCourses = await Course.countDocuments({ status: "draft" });
@@ -65,7 +78,14 @@ export const adminService = {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
       const start = new Date(date.getFullYear(), date.getMonth(), 1);
-      const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+      const end = new Date(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+      );
 
       const [usersJoined, coursesCreated, enrollments] = await Promise.all([
         User.countDocuments({ createdAt: { $gte: start, $lte: end } }),
@@ -97,7 +117,14 @@ export const adminService = {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
       const start = new Date(date.getFullYear(), date.getMonth(), 1);
-      const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+      const end = new Date(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+      );
 
       const courses = await Course.find({
         status: "published",
@@ -131,23 +158,35 @@ export const adminService = {
 
     const skip = (page - 1) * limit;
     const [teachers, total] = await Promise.all([
-      User.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).select(userProj),
+      User.find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .select(userProj),
       User.countDocuments(query),
     ]);
 
     // Enrich with course data
     const enriched = await Promise.all(
       teachers.map(async (t) => {
-        const courses = await Course.find({ teacherId: t._id }).select("_id students price");
-        const totalStudents = courses.reduce((a, c) => a + (c.students?.length || 0), 0);
-        const totalRevenue = courses.reduce((a, c) => a + c.price * (c.students?.length || 0), 0);
+        const courses = await Course.find({ teacherId: t._id }).select(
+          "_id students price",
+        );
+        const totalStudents = courses.reduce(
+          (a, c) => a + (c.students?.length || 0),
+          0,
+        );
+        const totalRevenue = courses.reduce(
+          (a, c) => a + c.price * (c.students?.length || 0),
+          0,
+        );
         return {
           ...t.toObject(),
           coursesCount: courses.length,
           studentsCount: totalStudents,
           totalRevenue,
         };
-      })
+      }),
     );
 
     return { teachers: enriched, total, page, pages: Math.ceil(total / limit) };
@@ -166,7 +205,10 @@ export const adminService = {
   },
 
   async deleteTeacher(teacherId) {
-    const teacher = await User.findOneAndDelete({ _id: teacherId, role: "teacher" });
+    const teacher = await User.findOneAndDelete({
+      _id: teacherId,
+      role: "teacher",
+    });
     if (!teacher) throw new NotFoundError("Teacher not found");
     return teacher;
   },
@@ -180,7 +222,11 @@ export const adminService = {
 
     const skip = (page - 1) * limit;
     const [students, total] = await Promise.all([
-      User.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).select(userProj),
+      User.find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .select(userProj),
       User.countDocuments(query),
     ]);
 
@@ -188,13 +234,15 @@ export const adminService = {
     const enriched = await Promise.all(
       students.map(async (s) => {
         const progress = await StudentProgress.find({ studentId: s._id });
-        const completedCourses = progress.filter((p) => p.progress === 100).length;
+        const completedCourses = progress.filter(
+          (p) => p.progress === 100,
+        ).length;
         return {
           ...s.toObject(),
           enrolledCourses: progress.length,
           completedCourses,
         };
-      })
+      }),
     );
 
     return { students: enriched, total, page, pages: Math.ceil(total / limit) };
@@ -213,13 +261,22 @@ export const adminService = {
   },
 
   async deleteStudent(studentId) {
-    const student = await User.findOneAndDelete({ _id: studentId, role: "student" });
+    const student = await User.findOneAndDelete({
+      _id: studentId,
+      role: "student",
+    });
     if (!student) throw new NotFoundError("Student not found");
     return student;
   },
 
   // ─── Course Management ──────────────────────────────────────────────────────
-  async getCourses({ page = 1, limit = 10, search = "", status = "", category = "" } = {}) {
+  async getCourses({
+    page = 1,
+    limit = 10,
+    search = "",
+    status = "",
+    category = "",
+  } = {}) {
     const query = {};
     if (search) query.title = { $regex: search, $options: "i" };
     if (status === "published") query.status = "published";
@@ -252,7 +309,16 @@ export const adminService = {
     const course = await Course.findById(courseId);
     if (!course) throw new NotFoundError("Course not found");
 
-    const allowed = ["title", "description", "category", "price", "thumbnail", "status", "difficulty", "tags"];
+    const allowed = [
+      "title",
+      "description",
+      "category",
+      "price",
+      "thumbnail",
+      "status",
+      "difficulty",
+      "tags",
+    ];
     allowed.forEach((k) => {
       if (updates[k] !== undefined) course[k] = updates[k];
     });
@@ -268,7 +334,10 @@ export const adminService = {
 
   // ─── Payments ──────────────────────────────────────────────────────────────
   async getPayments({ page = 1, limit = 20, search = "", status = "" } = {}) {
-    const courses = await Course.find({ status: "published", price: { $gt: 0 } })
+    const courses = await Course.find({
+      status: "published",
+      price: { $gt: 0 },
+    })
       .populate("teacherId", "name")
       .populate("students", "_id");
 
@@ -300,7 +369,7 @@ export const adminService = {
       payments = payments.filter(
         (p) =>
           p.courseTitle.toLowerCase().includes(search.toLowerCase()) ||
-          p.teacherName.toLowerCase().includes(search.toLowerCase())
+          p.teacherName.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
@@ -308,7 +377,12 @@ export const adminService = {
     const skip = (page - 1) * limit;
     const paginated = payments.slice(skip, skip + limit);
 
-    return { payments: paginated, total, page, pages: Math.ceil(total / limit) };
+    return {
+      payments: paginated,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    };
   },
 
   // ─── Reports ───────────────────────────────────────────────────────────────
@@ -332,22 +406,59 @@ export const adminService = {
       Course.countDocuments(),
       Course.aggregate([
         { $match: { status: "published", price: { $gt: 0 } } },
-        { $project: { revenue: { $multiply: ["$price", { $size: { $ifNull: ["$students", []] } }] } } },
+        {
+          $project: {
+            revenue: {
+              $multiply: ["$price", { $size: { $ifNull: ["$students", []] } }],
+            },
+          },
+        },
         { $group: { _id: null, total: { $sum: "$revenue" } } },
       ]),
       User.countDocuments({ createdAt: { $gte: startOfMonth } }),
       Course.aggregate([
         { $match: { status: "published" } },
-        { $project: { title: 1, teacherId: 1, studentsCount: { $size: { $ifNull: ["$students", []] } }, revenue: { $multiply: ["$price", { $size: { $ifNull: ["$students", []] } }] } } },
+        {
+          $project: {
+            title: 1,
+            teacherId: 1,
+            studentsCount: { $size: { $ifNull: ["$students", []] } },
+            revenue: {
+              $multiply: ["$price", { $size: { $ifNull: ["$students", []] } }],
+            },
+          },
+        },
         { $sort: { studentsCount: -1 } },
         { $limit: 10 },
-        { $lookup: { from: "users", localField: "teacherId", foreignField: "_id", as: "teacher" } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "teacherId",
+            foreignField: "_id",
+            as: "teacher",
+          },
+        },
         { $unwind: "$teacher" },
-        { $project: { title: 1, studentsCount: 1, revenue: 1, teacherName: "$teacher.name" } },
+        {
+          $project: {
+            title: 1,
+            studentsCount: 1,
+            revenue: 1,
+            teacherName: "$teacher.name",
+          },
+        },
       ]),
       Course.aggregate([
         { $match: { status: "published" } },
-        { $project: { title: 1, studentsCount: { $size: { $ifNull: ["$students", []] } }, revenue: { $multiply: ["$price", { $size: { $ifNull: ["$students", []] } }] } } },
+        {
+          $project: {
+            title: 1,
+            studentsCount: { $size: { $ifNull: ["$students", []] } },
+            revenue: {
+              $multiply: ["$price", { $size: { $ifNull: ["$students", []] } }],
+            },
+          },
+        },
         { $sort: { studentsCount: -1 } },
         { $limit: 10 },
         { $project: { title: 1, studentsCount: 1, revenue: 1 } },
@@ -355,7 +466,14 @@ export const adminService = {
     ]);
 
     return {
-      overview: { totalUsers, totalTeachers, totalStudents, totalCourses, totalRevenue: totalRevenue[0]?.total || 0, monthlyNewUsers },
+      overview: {
+        totalUsers,
+        totalTeachers,
+        totalStudents,
+        totalCourses,
+        totalRevenue: totalRevenue[0]?.total || 0,
+        monthlyNewUsers,
+      },
       topTeachers,
       topCourses,
     };
@@ -366,14 +484,40 @@ export const adminService = {
     // Generate system notifications based on platform data
     const [pendingCourses, newTeachers, activeUsers] = await Promise.all([
       Course.countDocuments({ status: "draft" }),
-      User.countDocuments({ role: "teacher", createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }),
-      User.countDocuments({ updatedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }),
+      User.countDocuments({
+        role: "teacher",
+        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+      }),
+      User.countDocuments({
+        updatedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      }),
     ]);
 
     return [
-      { id: 1, type: "warning", title: "Pending Course Reviews", message: `${pendingCourses} courses awaiting approval`, read: false, time: new Date() },
-      { id: 2, type: "info", title: "New Teachers", message: `${newTeachers} new teachers registered this week`, read: false, time: new Date(Date.now() - 2 * 60 * 60 * 1000) },
-      { id: 3, type: "success", title: "Platform Activity", message: `${activeUsers} users active in last 24 hours`, read: true, time: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      {
+        id: 1,
+        type: "warning",
+        title: "Pending Course Reviews",
+        message: `${pendingCourses} courses awaiting approval`,
+        read: false,
+        time: new Date(),
+      },
+      {
+        id: 2,
+        type: "info",
+        title: "New Teachers",
+        message: `${newTeachers} new teachers registered this week`,
+        read: false,
+        time: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      },
+      {
+        id: 3,
+        type: "success",
+        title: "Platform Activity",
+        message: `${activeUsers} users active in last 24 hours`,
+        read: true,
+        time: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      },
     ];
   },
 
@@ -403,11 +547,51 @@ export const adminService = {
   async getAuditLogs({ page = 1, limit = 50, userId = "", action = "" } = {}) {
     // Mock audit logs for demonstration
     const logs = [
-      { _id: "1", userId: "admin", action: "UPDATE_TEACHER", target: "teacher_id_1", details: "Updated teacher profile", ip: "192.168.1.1", timestamp: new Date() },
-      { _id: "2", userId: "admin", action: "DELETE_COURSE", target: "course_id_1", details: "Deleted course for policy violation", ip: "192.168.1.1", timestamp: new Date(Date.now() - 60 * 60 * 1000) },
-      { _id: "3", userId: "admin", action: "SUSPEND_STUDENT", target: "student_id_1", details: "Suspended student for spam", ip: "192.168.1.1", timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000) },
-      { _id: "4", userId: "admin", action: "APPROVE_COURSE", target: "course_id_2", details: "Approved course publication", ip: "192.168.1.1", timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000) },
-      { _id: "5", userId: "admin", action: "UPDATE_SETTINGS", target: "system", details: "Changed platform commission to 20%", ip: "192.168.1.1", timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      {
+        _id: "1",
+        userId: "admin",
+        action: "UPDATE_TEACHER",
+        target: "teacher_id_1",
+        details: "Updated teacher profile",
+        ip: "192.168.1.1",
+        timestamp: new Date(),
+      },
+      {
+        _id: "2",
+        userId: "admin",
+        action: "DELETE_COURSE",
+        target: "course_id_1",
+        details: "Deleted course for policy violation",
+        ip: "192.168.1.1",
+        timestamp: new Date(Date.now() - 60 * 60 * 1000),
+      },
+      {
+        _id: "3",
+        userId: "admin",
+        action: "SUSPEND_STUDENT",
+        target: "student_id_1",
+        details: "Suspended student for spam",
+        ip: "192.168.1.1",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+      },
+      {
+        _id: "4",
+        userId: "admin",
+        action: "APPROVE_COURSE",
+        target: "course_id_2",
+        details: "Approved course publication",
+        ip: "192.168.1.1",
+        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
+      },
+      {
+        _id: "5",
+        userId: "admin",
+        action: "UPDATE_SETTINGS",
+        target: "system",
+        details: "Changed platform commission to 20%",
+        ip: "192.168.1.1",
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      },
     ];
 
     let filtered = logs;
@@ -416,6 +600,11 @@ export const adminService = {
 
     const total = filtered.length;
     const skip = (page - 1) * limit;
-    return { logs: filtered.slice(skip, skip + limit), total, page, pages: Math.ceil(total / limit) };
+    return {
+      logs: filtered.slice(skip, skip + limit),
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    };
   },
 };

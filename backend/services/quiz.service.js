@@ -27,8 +27,10 @@ export const quizService = {
   },
 
   async getQuizResults(quizId, teacherId) {
-    const quiz = await Quiz.findOne({ _id: quizId, teacherId })
-      .populate("results.studentId", "name email avatar");
+    const quiz = await Quiz.findOne({ _id: quizId, teacherId }).populate(
+      "results.studentId",
+      "name email avatar",
+    );
     if (!quiz) throw new NotFoundError("Quiz not found");
     return quiz;
   },

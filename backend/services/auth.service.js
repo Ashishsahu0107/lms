@@ -4,10 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import { env } from "../config/env.js";
 
-import {
-  UnauthorizedError,
-  BadRequestError,
-} from "../utils/errors.js";
+import { UnauthorizedError, BadRequestError } from "../utils/errors.js";
 
 // =====================================
 // GENERATE JWT TOKEN
@@ -22,7 +19,7 @@ function generateToken(user) {
     env.JWT_SECRET,
     {
       expiresIn: "7d",
-    }
+    },
   );
 }
 
@@ -41,17 +38,13 @@ function sanitizeUser(user) {
 }
 
 export const authService = {
-
   // =====================================
   // LOGIN
   // =====================================
   async login({ email, password }) {
-
     // Validate Inputs
     if (!email || !password) {
-      throw new BadRequestError(
-        "Email and password are required"
-      );
+      throw new BadRequestError("Email and password are required");
     }
 
     // Find User
@@ -61,22 +54,15 @@ export const authService = {
 
     // User Not Found
     if (!user) {
-      throw new UnauthorizedError(
-        "Invalid email or password"
-      );
+      throw new UnauthorizedError("Invalid email or password");
     }
 
     // Compare Password
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     // Wrong Password
     if (!isPasswordValid) {
-      throw new UnauthorizedError(
-        "Invalid email or password"
-      );
+      throw new UnauthorizedError("Invalid email or password");
     }
 
     // Generate JWT
@@ -92,18 +78,10 @@ export const authService = {
   // =====================================
   // REGISTER
   // =====================================
-  async register({
-    name,
-    email,
-    password,
-    role = "student",
-  }) {
-
+  async register({ name, email, password, role = "student" }) {
     // Validate Inputs
     if (!name || !email || !password) {
-      throw new BadRequestError(
-        "Name, email and password are required"
-      );
+      throw new BadRequestError("Name, email and password are required");
     }
 
     // Check Existing User
@@ -112,16 +90,11 @@ export const authService = {
     });
 
     if (existingUser) {
-      throw new BadRequestError(
-        "Email already registered"
-      );
+      throw new BadRequestError("Email already registered");
     }
 
     // Hash Password
-    const hashedPassword = await bcrypt.hash(
-      password,
-      12
-    );
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create User
     const user = await User.create({
@@ -145,36 +118,22 @@ export const authService = {
   // VERIFY TOKEN
   // =====================================
   async verifyToken(token) {
-
     if (!token) {
-      throw new UnauthorizedError(
-        "Authentication token missing"
-      );
+      throw new UnauthorizedError("Authentication token missing");
     }
 
     try {
+      const decoded = jwt.verify(token, env.JWT_SECRET);
 
-      const decoded = jwt.verify(
-        token,
-        env.JWT_SECRET
-      );
-
-      const user = await User.findById(
-        decoded.userId
-      ).select("-password");
+      const user = await User.findById(decoded.userId).select("-password");
 
       if (!user) {
-        throw new UnauthorizedError(
-          "User not found"
-        );
+        throw new UnauthorizedError("User not found");
       }
 
       return user;
-
     } catch (error) {
-      throw new UnauthorizedError(
-        "Invalid or expired token"
-      );
+      throw new UnauthorizedError("Invalid or expired token");
     }
   },
 };

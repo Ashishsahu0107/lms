@@ -49,7 +49,7 @@ export const courseService = {
     course.totalLectures = course.lectures.length;
     course.totalDuration = course.lectures.reduce(
       (sum, item) => sum + (item.duration || 0),
-      0
+      0,
     );
 
     await course.save();
@@ -64,7 +64,7 @@ export const courseService = {
     }
 
     const alreadyEnrolled = course.students.some(
-      (id) => id.toString() === studentId.toString()
+      (id) => id.toString() === studentId.toString(),
     );
 
     if (alreadyEnrolled) {

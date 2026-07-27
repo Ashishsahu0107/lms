@@ -19,7 +19,7 @@ async function getOpenAI() {
 // Generate a helpful simulated coaching response for fallback mode
 function getSimulatedCoachReply(prompt, userName) {
   const p = prompt.toLowerCase();
-  
+
   if (p.includes("react") || p.includes("hook") || p.includes("state")) {
     return `Hello **${userName}**! ⚛️ Let's dive into **React Hooks & State Management**!
 
@@ -38,7 +38,12 @@ In React, **State** represents a component's local memory. To work with state, w
 What specific React component are you building? Tell me, and we can draft the code together!`;
   }
 
-  if (p.includes("mongodb") || p.includes("db") || p.includes("aggregate") || p.includes("schema")) {
+  if (
+    p.includes("mongodb") ||
+    p.includes("db") ||
+    p.includes("aggregate") ||
+    p.includes("schema")
+  ) {
     return `Hello **${userName}**! 🍃 Let's talk about **MongoDB & Aggregations**!
 
 MongoDB is a document-oriented database. Unlike SQL, it utilizes flexible schemas. When running advanced analytics, we use **Aggregation Pipelines**:
@@ -58,7 +63,12 @@ const stats = await Enrollment.aggregate([
 Are you optimizing a specific database query? Share your MongoDB schema and I'll write the aggregate pipeline for you!`;
   }
 
-  if (p.includes("schedule") || p.includes("calendar") || p.includes("time") || p.includes("class")) {
+  if (
+    p.includes("schedule") ||
+    p.includes("calendar") ||
+    p.includes("time") ||
+    p.includes("class")
+  ) {
     return `Hello **${userName}**! 📅 Looking at your **Timetable & Timelines**:
 
 Your LMS Timetable synchronizes your quizzes, assignment deadlines, and live classrooms:
@@ -69,7 +79,13 @@ Your LMS Timetable synchronizes your quizzes, assignment deadlines, and live cla
 Would you like tips on organizing a daily study schedule to secure high-tier achievements?`;
   }
 
-  if (p.includes("streak") || p.includes("xp") || p.includes("leaderboard") || p.includes("badge") || p.includes("award")) {
+  if (
+    p.includes("streak") ||
+    p.includes("xp") ||
+    p.includes("leaderboard") ||
+    p.includes("badge") ||
+    p.includes("award")
+  ) {
     return `Hello **${userName}**! 🏆 Let's check your **Gamification Status**:
 
 You can rapidly climb the class leaderboards by accumulating **XP points**:
@@ -140,11 +156,13 @@ Guidelines:
       systemInstruction,
       (token) => onWord(token),
       (completeText) => onComplete(completeText),
-      signal
+      signal,
     );
   } catch (err) {
     console.error("[AI Chat Stream Error]:", err.message);
-    onWord(`\n*(Generation error: ${err.message || "Unable to contact provider"})*`);
+    onWord(
+      `\n*(Generation error: ${err.message || "Unable to contact provider"})*`,
+    );
     onComplete(`*(Generation error: ${err.message})*`);
   }
 }

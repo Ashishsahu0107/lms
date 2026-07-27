@@ -42,14 +42,16 @@ export const analyticsService = {
     const courses = await Course.find({ teacherId });
 
     const totalStudents = new Set(
-      courses.flatMap((c) => c.students.map((s) => s.toString()))
+      courses.flatMap((c) => c.students.map((s) => s.toString())),
     ).size;
 
     const totalRevenue = courses
       .filter((c) => c.status === "published")
       .reduce((sum, c) => sum + c.price * (c.students?.length || 0), 0);
 
-    const publishedCourses = courses.filter((c) => c.status === "published").length;
+    const publishedCourses = courses.filter(
+      (c) => c.status === "published",
+    ).length;
 
     const progressRecords = await StudentProgress.find({
       courseId: { $in: courses.map((c) => c._id) },
@@ -59,7 +61,7 @@ export const analyticsService = {
       progressRecords.length > 0
         ? Math.round(
             progressRecords.reduce((sum, p) => sum + (p.progress || 0), 0) /
-              progressRecords.length
+              progressRecords.length,
           )
         : 0;
 
@@ -69,10 +71,13 @@ export const analyticsService = {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const next = new Date(d.getFullYear(), d.getMonth() + 1, 1);
       const count = courses.reduce((sum, c) => {
-        return sum + c.students.filter((s) => {
-          const enrolled = c.createdAt;
-          return enrolled >= d && enrolled < next;
-        }).length;
+        return (
+          sum +
+          c.students.filter((s) => {
+            const enrolled = c.createdAt;
+            return enrolled >= d && enrolled < next;
+          }).length
+        );
       }, 0);
       monthlyStudents.push({
         month: d.toLocaleString("default", { month: "short" }),
@@ -85,14 +90,17 @@ export const analyticsService = {
         const progress = await StudentProgress.find({ courseId: course._id });
         const avgProg =
           progress.length > 0
-            ? Math.round(progress.reduce((s, p) => s + (p.progress || 0), 0) / progress.length)
+            ? Math.round(
+                progress.reduce((s, p) => s + (p.progress || 0), 0) /
+                  progress.length,
+              )
             : 0;
         return {
           title: course.title,
           students: course.students.length,
           completionRate: avgProg,
         };
-      })
+      }),
     );
 
     const pendingAssignments = await Assignment.countDocuments({
@@ -132,32 +140,34 @@ export const analyticsService = {
 
     const onlineUsers = await User.countDocuments({ isOnline: true });
     const activeDaily = await User.countDocuments({
-      lastSeen: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      lastSeen: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     });
     const activeMonthly = await User.countDocuments({
-      lastSeen: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+      lastSeen: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
     });
 
     const progressAvg = await StudentProgress.aggregate([
-      { $group: { _id: null, avg: { $avg: "$progress" } } }
+      { $group: { _id: null, avg: { $avg: "$progress" } } },
     ]);
-    const avgCompletion = progressAvg.length > 0 ? Math.round(progressAvg[0].avg) : 74;
+    const avgCompletion =
+      progressAvg.length > 0 ? Math.round(progressAvg[0].avg) : 74;
 
     const quizPerf = await QuizAttempt.aggregate([
       { $match: { status: "completed" } },
-      { $group: { _id: null, avgAccuracy: { $avg: "$accuracy" } } }
+      { $group: { _id: null, avgAccuracy: { $avg: "$accuracy" } } },
     ]);
-    const quizAccuracy = quizPerf.length > 0 ? Math.round(quizPerf[0].avgAccuracy) : 83;
+    const quizAccuracy =
+      quizPerf.length > 0 ? Math.round(quizPerf[0].avgAccuracy) : 83;
 
     const totalSubmissions = await Submission.countDocuments();
     const assignmentStats = {
       total: totalSubmissions || 142,
       graded: (await Submission.countDocuments({ status: "graded" })) || 116,
-      pending: (await Submission.countDocuments({ status: "pending" })) || 26
+      pending: (await Submission.countDocuments({ status: "pending" })) || 26,
     };
 
     const attendanceStats = await Attendance.aggregate([
-      { $group: { _id: "$status", count: { $sum: 1 } } }
+      { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
     let totalAtt = 0;
     let presentAtt = 0;
@@ -165,11 +175,12 @@ export const analyticsService = {
       totalAtt += item.count;
       if (item._id === "present") presentAtt += item.count;
     });
-    const overallAttendance = totalAtt > 0 ? Math.round((presentAtt / totalAtt) * 100) : 92;
+    const overallAttendance =
+      totalAtt > 0 ? Math.round((presentAtt / totalAtt) * 100) : 92;
 
     const revenueSum = await Payment.aggregate([
       { $match: { status: "completed" } },
-      { $group: { _id: null, total: { $sum: "$amount" } } }
+      { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
     const totalRevenue = revenueSum.length > 0 ? revenueSum[0].total : 48900;
 
@@ -187,7 +198,8 @@ export const analyticsService = {
       activeUsers: {
         online: onlineUsers || 4,
         daily: activeDaily || Math.max(16, totalStudents - 4),
-        monthly: activeMonthly || Math.max(34, totalStudents + totalTeachers - 1)
+        monthly:
+          activeMonthly || Math.max(34, totalStudents + totalTeachers - 1),
       },
       avgCompletion,
       quizAccuracy,
@@ -201,13 +213,13 @@ export const analyticsService = {
               name: act.userId.name,
               role: act.userId.role,
               avatar: act.userId.avatar,
-              email: act.userId.email
+              email: act.userId.email,
             }
           : { name: "System User", role: "system" },
         action: act.action,
         details: act.details,
-        timestamp: act.timestamp
-      }))
+        timestamp: act.timestamp,
+      })),
     };
 
     setCached(cacheKey, result);
@@ -237,18 +249,31 @@ export const analyticsService = {
         $group: {
           _id: {
             year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" }
+            month: { $month: "$createdAt" },
           },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
-      { $sort: { "_id.year": 1, "_id.month": 1 } }
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
     ]);
 
-    const monthsName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthsName = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const formattedGrowth = growthData.map((item) => ({
       month: `${monthsName[item._id.month - 1]} ${item._id.year}`,
-      users: item.count
+      users: item.count,
     }));
 
     const finalGrowth =
@@ -259,7 +284,7 @@ export const analyticsService = {
             { month: "Feb 2026", users: 178 },
             { month: "Mar 2026", users: 224 },
             { month: "Apr 2026", users: 310 },
-            { month: "May 2026", users: 442 }
+            { month: "May 2026", users: 442 },
           ];
 
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -269,7 +294,7 @@ export const analyticsService = {
         heatmap.push({
           day: days[d],
           hour: `${h}:00`,
-          value: Math.floor(Math.random() * 85) + 15
+          value: Math.floor(Math.random() * 85) + 15,
         });
       }
     }
@@ -277,29 +302,32 @@ export const analyticsService = {
     const dailyRegistrationsAgg = await User.aggregate([
       {
         $match: {
-          createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-        }
+          createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        },
       },
       {
         $group: {
           _id: { $dateToString: { format: "%m-%d", date: "$createdAt" } },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
-    const dailyRegistrations = dailyRegistrationsAgg.length > 0 ? dailyRegistrationsAgg.map(item => ({
-      date: item._id,
-      registrations: item.count
-    })) : [
-      { date: "06-02", registrations: 4 },
-      { date: "06-03", registrations: 7 },
-      { date: "06-04", registrations: 5 },
-      { date: "06-05", registrations: 9 },
-      { date: "06-06", registrations: 12 },
-      { date: "06-07", registrations: 8 },
-      { date: "06-08", registrations: 11 }
-    ];
+    const dailyRegistrations =
+      dailyRegistrationsAgg.length > 0
+        ? dailyRegistrationsAgg.map((item) => ({
+            date: item._id,
+            registrations: item.count,
+          }))
+        : [
+            { date: "06-02", registrations: 4 },
+            { date: "06-03", registrations: 7 },
+            { date: "06-04", registrations: 5 },
+            { date: "06-05", registrations: 9 },
+            { date: "06-06", registrations: 12 },
+            { date: "06-07", registrations: 8 },
+            { date: "06-08", registrations: 11 },
+          ];
 
     const result = {
       totalStudents,
@@ -315,7 +343,7 @@ export const analyticsService = {
         { date: "May 23", logins: 360, activeHours: 920 },
         { date: "May 24", logins: 310, activeHours: 810 },
         { date: "May 25", logins: 556, activeHours: 1640 },
-        { date: "May 26", logins: 602, activeHours: 1840 }
+        { date: "May 26", logins: 602, activeHours: 1840 },
       ],
       retention: [
         { cohort: "Week 1", rate: 100 },
@@ -323,8 +351,8 @@ export const analyticsService = {
         { cohort: "Week 3", rate: 79 },
         { cohort: "Week 4", rate: 71 },
         { cohort: "Week 5", rate: 64 },
-        { cohort: "Week 6", rate: 59 }
-      ]
+        { cohort: "Week 6", rate: 59 },
+      ],
     };
 
     setCached(cacheKey, result);
@@ -345,19 +373,25 @@ export const analyticsService = {
       courseMatch.teacherId = safeObjectId(filters.teacherId);
     }
 
-    const coursesList = await Course.find(courseMatch).populate("teacherId", "name").lean();
+    const coursesList = await Course.find(courseMatch)
+      .populate("teacherId", "name")
+      .lean();
 
     const popularCourses = await Promise.all(
       coursesList.map(async (c) => {
         const progressList = await StudentProgress.find({ courseId: c._id });
         const avgProg =
           progressList.length > 0
-            ? Math.round(progressList.reduce((sum, p) => sum + (p.progress || 0), 0) / progressList.length)
+            ? Math.round(
+                progressList.reduce((sum, p) => sum + (p.progress || 0), 0) /
+                  progressList.length,
+              )
             : 0;
-        
-        const totalWatch = progressList.length > 0
-          ? progressList.reduce((sum, p) => sum + (p.totalWatchTime || 0), 0)
-          : 0;
+
+        const totalWatch =
+          progressList.length > 0
+            ? progressList.reduce((sum, p) => sum + (p.totalWatchTime || 0), 0)
+            : 0;
 
         return {
           id: c._id,
@@ -369,31 +403,82 @@ export const analyticsService = {
           status: c.status || "published",
           averageRating: c.averageRating || 4.8,
           totalRatings: c.totalRatings || 12,
-          totalWatchTime: Math.round(totalWatch / 3600) // Watch time in hours
+          totalWatchTime: Math.round(totalWatch / 3600), // Watch time in hours
         };
-      })
+      }),
     );
 
     popularCourses.sort((a, b) => b.enrollments - a.enrollments);
 
-    const totalEnrollments = popularCourses.reduce((sum, c) => sum + c.enrollments, 0);
+    const totalEnrollments = popularCourses.reduce(
+      (sum, c) => sum + c.enrollments,
+      0,
+    );
 
     const funnelData = [
       { name: "Enrolled", count: totalEnrollments || 450 },
       { name: "Active", count: Math.round((totalEnrollments || 450) * 0.88) },
       { name: "Halfway", count: Math.round((totalEnrollments || 450) * 0.58) },
-      { name: "Completed", count: Math.round((totalEnrollments || 450) * 0.38) }
+      {
+        name: "Completed",
+        count: Math.round((totalEnrollments || 450) * 0.38),
+      },
     ];
 
     const finalPopular =
       popularCourses.length > 0
         ? popularCourses
         : [
-            { title: "React Premium Masterclass", teacherName: "Dr. Sarah Jenkins", enrollments: 120, completionRate: 64, price: 99, averageRating: 4.9, totalRatings: 28, totalWatchTime: 180 },
-            { title: "Fullstack Node.js Enterprise Development", teacherName: "Prof. Alan Smith", enrollments: 94, completionRate: 52, price: 149, averageRating: 4.7, totalRatings: 18, totalWatchTime: 142 },
-            { title: "MongoDB Aggregation Advanced Techniques", teacherName: "Dr. Sarah Jenkins", enrollments: 76, completionRate: 81, price: 79, averageRating: 4.8, totalRatings: 15, totalWatchTime: 85 },
-            { title: "CSS Grid, Flexbox & Framer Motion", teacherName: "Michael Clark", enrollments: 58, completionRate: 48, price: 49, averageRating: 4.5, totalRatings: 10, totalWatchTime: 52 },
-            { title: "UI/UX Design Systems for Developers", teacherName: "Emma Watson", enrollments: 45, completionRate: 72, price: 89, averageRating: 4.6, totalRatings: 8, totalWatchTime: 40 }
+            {
+              title: "React Premium Masterclass",
+              teacherName: "Dr. Sarah Jenkins",
+              enrollments: 120,
+              completionRate: 64,
+              price: 99,
+              averageRating: 4.9,
+              totalRatings: 28,
+              totalWatchTime: 180,
+            },
+            {
+              title: "Fullstack Node.js Enterprise Development",
+              teacherName: "Prof. Alan Smith",
+              enrollments: 94,
+              completionRate: 52,
+              price: 149,
+              averageRating: 4.7,
+              totalRatings: 18,
+              totalWatchTime: 142,
+            },
+            {
+              title: "MongoDB Aggregation Advanced Techniques",
+              teacherName: "Dr. Sarah Jenkins",
+              enrollments: 76,
+              completionRate: 81,
+              price: 79,
+              averageRating: 4.8,
+              totalRatings: 15,
+              totalWatchTime: 85,
+            },
+            {
+              title: "CSS Grid, Flexbox & Framer Motion",
+              teacherName: "Michael Clark",
+              enrollments: 58,
+              completionRate: 48,
+              price: 49,
+              averageRating: 4.5,
+              totalRatings: 10,
+              totalWatchTime: 52,
+            },
+            {
+              title: "UI/UX Design Systems for Developers",
+              teacherName: "Emma Watson",
+              enrollments: 45,
+              completionRate: 72,
+              price: 89,
+              averageRating: 4.6,
+              totalRatings: 8,
+              totalWatchTime: 40,
+            },
           ];
 
     const result = {
@@ -403,11 +488,14 @@ export const analyticsService = {
         totalEnrollments: totalEnrollments || 393,
         avgCompletionRate:
           popularCourses.length > 0
-            ? Math.round(popularCourses.reduce((sum, c) => sum + c.completionRate, 0) / popularCourses.length)
+            ? Math.round(
+                popularCourses.reduce((sum, c) => sum + c.completionRate, 0) /
+                  popularCourses.length,
+              )
             : 64,
         dropoutRate: 12,
-        avgActiveHours: 5.2
-      }
+        avgActiveHours: 5.2,
+      },
     };
 
     setCached(cacheKey, result);
@@ -427,18 +515,30 @@ export const analyticsService = {
     }
     if (filters.startDate || filters.endDate) {
       paymentMatch.createdAt = {};
-      if (filters.startDate) paymentMatch.createdAt.$gte = new Date(filters.startDate);
-      if (filters.endDate) paymentMatch.createdAt.$lte = new Date(filters.endDate);
+      if (filters.startDate)
+        paymentMatch.createdAt.$gte = new Date(filters.startDate);
+      if (filters.endDate)
+        paymentMatch.createdAt.$lte = new Date(filters.endDate);
     }
 
     const payments = await Payment.find(paymentMatch);
     const totalRev = payments.reduce((sum, p) => sum + p.amount, 0);
-    const commission = payments.reduce((sum, p) => sum + (p.commission || 0), 0);
-    const teacherEarnings = payments.reduce((sum, p) => sum + (p.earnings || 0), 0);
+    const commission = payments.reduce(
+      (sum, p) => sum + (p.commission || 0),
+      0,
+    );
+    const teacherEarnings = payments.reduce(
+      (sum, p) => sum + (p.earnings || 0),
+      0,
+    );
 
-    const refundedPayments = await Payment.countDocuments({ status: "refunded" });
+    const refundedPayments = await Payment.countDocuments({
+      status: "refunded",
+    });
     const failedPayments = await Payment.countDocuments({ status: "pending" });
-    const successPayments = await Payment.countDocuments({ status: "completed" });
+    const successPayments = await Payment.countDocuments({
+      status: "completed",
+    });
 
     const salesByMonth = await Payment.aggregate([
       { $match: { status: "completed" } },
@@ -446,20 +546,33 @@ export const analyticsService = {
         $group: {
           _id: {
             year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" }
+            month: { $month: "$createdAt" },
           },
           revenue: { $sum: "$amount" },
-          earnings: { $sum: "$earnings" }
-        }
+          earnings: { $sum: "$earnings" },
+        },
       },
-      { $sort: { "_id.year": 1, "_id.month": 1 } }
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
     ]);
 
-    const monthsName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthsName = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const salesTrend = salesByMonth.map((item) => ({
       month: `${monthsName[item._id.month - 1]} ${item._id.year}`,
       sales: item.revenue,
-      payouts: item.earnings
+      payouts: item.earnings,
     }));
 
     const finalSalesTrend =
@@ -470,7 +583,7 @@ export const analyticsService = {
             { month: "Feb 2026", sales: 15400, payouts: 10780 },
             { month: "Mar 2026", sales: 18900, payouts: 13230 },
             { month: "Apr 2026", sales: 24500, payouts: 17150 },
-            { month: "May 2026", sales: 32000, payouts: 22400 }
+            { month: "May 2026", sales: 32000, payouts: 22400 },
           ];
 
     const result = {
@@ -480,14 +593,14 @@ export const analyticsService = {
         teacherEarnings: teacherEarnings || 71960,
         refundRate: refundedPayments || 2,
         failedRate: failedPayments || 4,
-        successRate: successPayments || 142
+        successRate: successPayments || 142,
       },
       salesTrend: finalSalesTrend,
       subscriptions: [
         { name: "Basic Membership", value: 45, color: "#3B82F6" },
         { name: "Premium Membership", value: 38, color: "#8B5CF6" },
-        { name: "Enterprise Custom", value: 17, color: "#10B981" }
-      ]
+        { name: "Enterprise Custom", value: 17, color: "#10B981" },
+      ],
     };
 
     setCached(cacheKey, result);
@@ -502,16 +615,24 @@ export const analyticsService = {
 
     const attemptMatch = {};
     if (filters.courseId) {
-      const quizzes = await Quiz.find({ courseId: safeObjectId(filters.courseId) });
+      const quizzes = await Quiz.find({
+        courseId: safeObjectId(filters.courseId),
+      });
       attemptMatch.quizId = { $in: quizzes.map((q) => q._id) };
     }
 
     const attempts = await QuizAttempt.find(attemptMatch);
     const avgScore =
-      attempts.length > 0 ? Math.round(attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length) : 84;
+      attempts.length > 0
+        ? Math.round(
+            attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length,
+          )
+        : 84;
     const avgAccuracy =
       attempts.length > 0
-        ? Math.round(attempts.reduce((sum, a) => sum + a.accuracy, 0) / attempts.length)
+        ? Math.round(
+            attempts.reduce((sum, a) => sum + a.accuracy, 0) / attempts.length,
+          )
         : 81;
 
     const passCount = attempts.filter((a) => a.accuracy >= 60).length;
@@ -520,49 +641,80 @@ export const analyticsService = {
     const totalStudents = await User.countDocuments({ role: "student" });
     const totalAssignments = await Assignment.countDocuments();
     const totalSubmissions = await Submission.countDocuments();
-    const gradedSubmissions = await Submission.countDocuments({ status: "graded" });
-    const pendingSubmissions = await Submission.countDocuments({ status: "pending" });
+    const gradedSubmissions = await Submission.countDocuments({
+      status: "graded",
+    });
+    const pendingSubmissions = await Submission.countDocuments({
+      status: "pending",
+    });
 
     // Aggregates
     const attemptsTrendAgg = await QuizAttempt.aggregate([
       {
         $group: {
           _id: { $dateToString: { format: "%m-%d", date: "$createdAt" } },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       { $sort: { _id: 1 } },
-      { $limit: 10 }
+      { $limit: 10 },
     ]);
-    const attemptsTrend = attemptsTrendAgg.length > 0 ? attemptsTrendAgg.map(item => ({
-      date: item._id,
-      attempts: item.count
-    })) : [
-      { date: "06-02", attempts: 12 },
-      { date: "06-03", attempts: 18 },
-      { date: "06-04", attempts: 15 },
-      { date: "06-05", attempts: 22 },
-      { date: "06-06", attempts: 30 },
-      { date: "06-07", attempts: 25 },
-      { date: "06-08", attempts: 28 }
-    ];
+    const attemptsTrend =
+      attemptsTrendAgg.length > 0
+        ? attemptsTrendAgg.map((item) => ({
+            date: item._id,
+            attempts: item.count,
+          }))
+        : [
+            { date: "06-02", attempts: 12 },
+            { date: "06-03", attempts: 18 },
+            { date: "06-04", attempts: 15 },
+            { date: "06-05", attempts: 22 },
+            { date: "06-06", attempts: 30 },
+            { date: "06-07", attempts: 25 },
+            { date: "06-08", attempts: 28 },
+          ];
 
-    const submissionRate = totalAssignments > 0 && totalStudents > 0
-      ? Math.min(100, Math.round((totalSubmissions / (totalStudents * totalAssignments)) * 100))
-      : 74;
+    const submissionRate =
+      totalAssignments > 0 && totalStudents > 0
+        ? Math.min(
+            100,
+            Math.round(
+              (totalSubmissions / (totalStudents * totalAssignments)) * 100,
+            ),
+          )
+        : 74;
 
     const avgGradeAgg = await Submission.aggregate([
       { $match: { status: "graded" } },
-      { $group: { _id: null, avgMarks: { $avg: "$marks" } } }
+      { $group: { _id: null, avgMarks: { $avg: "$marks" } } },
     ]);
-    const averageGrade = avgGradeAgg.length > 0 ? Math.round(avgGradeAgg[0].avgMarks) : 82;
+    const averageGrade =
+      avgGradeAgg.length > 0 ? Math.round(avgGradeAgg[0].avgMarks) : 82;
 
-    const lateSubmissionsCount = await Submission.countDocuments({ status: "late" });
+    const lateSubmissionsCount = await Submission.countDocuments({
+      status: "late",
+    });
 
     const mostDifficultQuestions = [
-      { questionText: "Which hook should be used to memoize callback functions in React functional components?", failureRate: 42, quizTitle: "React Hooks Advanced" },
-      { questionText: "Explain the differences between Lexical Environment and execution context stack queues.", failureRate: 38, quizTitle: "JavaScript Core Engine" },
-      { questionText: "How do you leverage secondary compound indexes with prefix searches in MongoDB?", failureRate: 35, quizTitle: "Database Indexing Masters" }
+      {
+        questionText:
+          "Which hook should be used to memoize callback functions in React functional components?",
+        failureRate: 42,
+        quizTitle: "React Hooks Advanced",
+      },
+      {
+        questionText:
+          "Explain the differences between Lexical Environment and execution context stack queues.",
+        failureRate: 38,
+        quizTitle: "JavaScript Core Engine",
+      },
+      {
+        questionText:
+          "How do you leverage secondary compound indexes with prefix searches in MongoDB?",
+        failureRate: 35,
+        quizTitle: "Database Indexing Masters",
+      },
     ];
 
     const studentsByXP = await User.find({ role: "student" })
@@ -572,18 +724,29 @@ export const analyticsService = {
 
     const populatedLeaderboard = await Promise.all(
       studentsByXP.map(async (student) => {
-        const studentAttempts = await QuizAttempt.find({ studentId: student._id, status: "completed" }).lean();
+        const studentAttempts = await QuizAttempt.find({
+          studentId: student._id,
+          status: "completed",
+        }).lean();
         const quizzesAttempted = studentAttempts.length;
-        const avgAccuracy = quizzesAttempted > 0
-          ? Math.round(studentAttempts.reduce((sum, a) => sum + a.accuracy, 0) / quizzesAttempted)
-          : 0;
-        const avgScore = quizzesAttempted > 0
-          ? Math.round(studentAttempts.reduce((sum, a) => sum + a.score, 0) / quizzesAttempted)
-          : 0;
+        const avgAccuracy =
+          quizzesAttempted > 0
+            ? Math.round(
+                studentAttempts.reduce((sum, a) => sum + a.accuracy, 0) /
+                  quizzesAttempted,
+              )
+            : 0;
+        const avgScore =
+          quizzesAttempted > 0
+            ? Math.round(
+                studentAttempts.reduce((sum, a) => sum + a.score, 0) /
+                  quizzesAttempted,
+              )
+            : 0;
 
         const progressCount = await StudentProgress.countDocuments({
           studentId: student._id,
-          progress: 100
+          progress: 100,
         });
 
         return {
@@ -596,35 +759,81 @@ export const analyticsService = {
           avgScore,
           avgAccuracy,
           quizzesAttempted,
-          completedCourses: progressCount
+          completedCourses: progressCount,
         };
-      })
+      }),
     );
 
     const finalLeaderboard =
       populatedLeaderboard.length > 0
         ? populatedLeaderboard
         : [
-            { name: "Ashish Sahu", email: "ashish@example.com", avgScore: 98, avgAccuracy: 98, quizzesAttempted: 8, completedCourses: 4, xp: 1200 },
-            { name: "John Doe", email: "john@example.com", avgScore: 92, avgAccuracy: 90, quizzesAttempted: 6, completedCourses: 3, xp: 950 },
-            { name: "Sarah Connor", email: "sarah@example.com", avgScore: 89, avgAccuracy: 88, quizzesAttempted: 7, completedCourses: 2, xp: 700 },
-            { name: "Alex Mercer", email: "alex@example.com", avgScore: 86, avgAccuracy: 85, quizzesAttempted: 5, completedCourses: 2, xp: 580 },
-            { name: "Bruce Wayne", email: "bruce@example.com", avgScore: 85, avgAccuracy: 84, quizzesAttempted: 9, completedCourses: 5, xp: 550 }
+            {
+              name: "Ashish Sahu",
+              email: "ashish@example.com",
+              avgScore: 98,
+              avgAccuracy: 98,
+              quizzesAttempted: 8,
+              completedCourses: 4,
+              xp: 1200,
+            },
+            {
+              name: "John Doe",
+              email: "john@example.com",
+              avgScore: 92,
+              avgAccuracy: 90,
+              quizzesAttempted: 6,
+              completedCourses: 3,
+              xp: 950,
+            },
+            {
+              name: "Sarah Connor",
+              email: "sarah@example.com",
+              avgScore: 89,
+              avgAccuracy: 88,
+              quizzesAttempted: 7,
+              completedCourses: 2,
+              xp: 700,
+            },
+            {
+              name: "Alex Mercer",
+              email: "alex@example.com",
+              avgScore: 86,
+              avgAccuracy: 85,
+              quizzesAttempted: 5,
+              completedCourses: 2,
+              xp: 580,
+            },
+            {
+              name: "Bruce Wayne",
+              email: "bruce@example.com",
+              avgScore: 85,
+              avgAccuracy: 84,
+              quizzesAttempted: 9,
+              completedCourses: 5,
+              xp: 550,
+            },
           ];
 
     const result = {
       metrics: {
         avgQuizScore: avgScore,
         avgQuizAccuracy: avgAccuracy,
-        passRate: attempts.length > 0 ? Math.round((passCount / attempts.length) * 100) : 88,
-        failRate: attempts.length > 0 ? Math.round((failCount / attempts.length) * 100) : 12,
+        passRate:
+          attempts.length > 0
+            ? Math.round((passCount / attempts.length) * 100)
+            : 88,
+        failRate:
+          attempts.length > 0
+            ? Math.round((failCount / attempts.length) * 100)
+            : 12,
         totalAssignments,
         totalSubmissions,
         gradedSubmissions,
         pendingSubmissions,
         submissionRate,
         averageGrade,
-        lateSubmissionsCount
+        lateSubmissionsCount,
       },
       leaderboard: finalLeaderboard,
       quizDistribution: [
@@ -632,10 +841,10 @@ export const analyticsService = {
         { range: "80-89%", count: 32 },
         { range: "70-79%", count: 18 },
         { range: "60-69%", count: 8 },
-        { range: "<60%", count: 4 }
+        { range: "<60%", count: 4 },
       ],
       attemptsTrend,
-      mostDifficultQuestions
+      mostDifficultQuestions,
     };
 
     setCached(cacheKey, result);
@@ -672,10 +881,10 @@ export const analyticsService = {
           _id: "$courseId",
           total: { $sum: 1 },
           present: {
-            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] }
-          }
-        }
-      }
+            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
     const populatedCourseStats = await Promise.all(
@@ -684,9 +893,9 @@ export const analyticsService = {
         return {
           id: item._id,
           title: course ? course.title : "Course",
-          rate: Math.round((item.present / item.total) * 100)
+          rate: Math.round((item.present / item.total) * 100),
         };
-      })
+      }),
     );
 
     const studentAttendance = await Attendance.aggregate([
@@ -696,17 +905,19 @@ export const analyticsService = {
           _id: { studentId: "$studentId", courseId: "$courseId" },
           total: { $sum: 1 },
           present: {
-            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] }
-          }
-        }
-      }
+            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
     const alerts = [];
     for (const item of studentAttendance) {
       const rate = Math.round((item.present / item.total) * 100);
       if (rate < 75) {
-        const student = await User.findById(item._id.studentId).select("name email avatar");
+        const student = await User.findById(item._id.studentId).select(
+          "name email avatar",
+        );
         const course = await Course.findById(item._id.courseId).select("title");
         if (student && course) {
           alerts.push({
@@ -715,7 +926,7 @@ export const analyticsService = {
             email: student.email,
             avatar: student.avatar,
             courseTitle: course.title,
-            rate
+            rate,
           });
         }
       }
@@ -725,8 +936,18 @@ export const analyticsService = {
       alerts.length > 0
         ? alerts.slice(0, 5)
         : [
-            { name: "John Doe", email: "john@example.com", courseTitle: "React Premium Masterclass", rate: 68 },
-            { name: "Harry Styles", email: "harry@example.com", courseTitle: "Fullstack Node.js Enterprise", rate: 58 }
+            {
+              name: "John Doe",
+              email: "john@example.com",
+              courseTitle: "React Premium Masterclass",
+              rate: 68,
+            },
+            {
+              name: "Harry Styles",
+              email: "harry@example.com",
+              courseTitle: "Fullstack Node.js Enterprise",
+              rate: 58,
+            },
           ];
 
     const finalCourseStats =
@@ -736,7 +957,7 @@ export const analyticsService = {
             { title: "React Premium Masterclass", rate: 89 },
             { title: "Fullstack Node.js Enterprise Development", rate: 82 },
             { title: "MongoDB Aggregation Advanced Techniques", rate: 94 },
-            { title: "CSS Grid, Flexbox & Framer Motion", rate: 76 }
+            { title: "CSS Grid, Flexbox & Framer Motion", rate: 76 },
           ];
 
     const result = {
@@ -745,7 +966,7 @@ export const analyticsService = {
         presentRate: total > 0 ? Math.round((present / total) * 100) : 89,
         absentRate: total > 0 ? Math.round((absent / total) * 100) : 6,
         lateRate: total > 0 ? Math.round((late / total) * 100) : 3,
-        leaveRate: total > 0 ? Math.round((leave / total) * 100) : 2
+        leaveRate: total > 0 ? Math.round((leave / total) * 100) : 2,
       },
       courseAttendance: finalCourseStats,
       alerts: finalAlerts,
@@ -756,8 +977,8 @@ export const analyticsService = {
         { date: "May 23", attendance: 94 },
         { date: "May 24", attendance: 95 },
         { date: "May 25", attendance: 87 },
-        { date: "May 26", attendance: 92 }
-      ]
+        { date: "May 26", attendance: 92 },
+      ],
     };
 
     setCached(cacheKey, result);
@@ -773,7 +994,7 @@ export const analyticsService = {
     const online = await User.countDocuments({ isOnline: true });
 
     const activeDaily = await User.countDocuments({
-      lastSeen: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      lastSeen: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     });
 
     const enrollmentsCount = await Course.aggregate([
@@ -783,26 +1004,31 @@ export const analyticsService = {
             $filter: {
               input: "$students",
               as: "s",
-              cond: { $gt: ["$createdAt", new Date(Date.now() - 24 * 60 * 60 * 1000)] }
-            }
-          }
-        }
-      }
+              cond: {
+                $gt: ["$createdAt", new Date(Date.now() - 24 * 60 * 60 * 1000)],
+              },
+            },
+          },
+        },
+      },
     ]);
-    const liveEnrollments = enrollmentsCount.reduce((sum, item) => sum + (item.enrollments24h?.length || 0), 0);
+    const liveEnrollments = enrollmentsCount.reduce(
+      (sum, item) => sum + (item.enrollments24h?.length || 0),
+      0,
+    );
 
     const liveRevenue = await Payment.aggregate([
       {
         $match: {
           status: "completed",
-          createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-        }
+          createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        },
       },
-      { $group: { _id: null, total: { $sum: "$amount" } } }
+      { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
 
     const liveQuizzes = await QuizAttempt.countDocuments({
-      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     });
 
     const result = {
@@ -811,8 +1037,8 @@ export const analyticsService = {
         activeUsers: activeDaily || 18,
         enrollments: liveEnrollments || 3,
         revenue: liveRevenue.length > 0 ? liveRevenue[0].total : 398,
-        quizzes: liveQuizzes || 6
-      }
+        quizzes: liveQuizzes || 6,
+      },
     };
 
     setCached(cacheKey, result);
@@ -822,5 +1048,5 @@ export const analyticsService = {
   clearCache() {
     cache.clear();
     console.log("[AnalyticsCache] Cache cleared.");
-  }
-};
+  },
+};
