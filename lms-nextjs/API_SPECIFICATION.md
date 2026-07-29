@@ -7,6 +7,7 @@ This document provides the complete, production-ready REST API specification for
 ## 📐 Standard API Response Format
 
 ### Success Response Structure (HTTP 200 / 201)
+
 ```json
 {
   "success": true,
@@ -16,6 +17,7 @@ This document provides the complete, production-ready REST API specification for
 ```
 
 ### Error Response Structure (HTTP 400 / 401 / 403 / 404 / 409 / 422 / 500)
+
 ```json
 {
   "success": false,
@@ -82,6 +84,7 @@ This document provides the complete, production-ready REST API specification for
 ## 1. Authentication API Module
 
 ### 1.1 User Login
+
 - **API Name**: User Login
 - **HTTP Method**: `POST`
 - **Endpoint URL**: `/api/auth/login`
@@ -129,6 +132,7 @@ This document provides the complete, production-ready REST API specification for
 ---
 
 ### 1.2 Student Registration
+
 - **API Name**: Student Self-Registration
 - **HTTP Method**: `POST`
 - **Endpoint URL**: `/api/auth/register`
@@ -175,6 +179,7 @@ This document provides the complete, production-ready REST API specification for
 ---
 
 ### 1.3 Get Current User Profile
+
 - **API Name**: Get Current User Profile
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/auth/me`
@@ -212,6 +217,7 @@ This document provides the complete, production-ready REST API specification for
 ## 2. Courses API Module
 
 ### 2.1 List Courses
+
 - **API Name**: List Courses Catalog
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/courses`
@@ -248,6 +254,7 @@ This document provides the complete, production-ready REST API specification for
 ---
 
 ### 2.2 Create Course
+
 - **API Name**: Create Course
 - **HTTP Method**: `POST`
 - **Endpoint URL**: `/api/courses`
@@ -287,6 +294,7 @@ This document provides the complete, production-ready REST API specification for
 ---
 
 ### 2.3 Get Course Details
+
 - **API Name**: Get Course Details
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/courses/{id}`
@@ -309,7 +317,11 @@ This document provides the complete, production-ready REST API specification for
             "id": "m-1",
             "title": "Module 1: Introduction",
             "topics": [
-              { "id": "tp-1", "title": "Lesson 1: App Router Overview", "videoUrl": "https://..." }
+              {
+                "id": "tp-1",
+                "title": "Lesson 1: App Router Overview",
+                "videoUrl": "https://..."
+              }
             ]
           }
         ]
@@ -323,6 +335,7 @@ This document provides the complete, production-ready REST API specification for
 ## 3. Enrollments & Dashboard API Module
 
 ### 3.1 Student Dashboard Overview
+
 - **API Name**: Get Student Dashboard
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/dashboard`
@@ -354,6 +367,7 @@ This document provides the complete, production-ready REST API specification for
 ## 4. Quizzes & Attempts API Module
 
 ### 4.1 Submit & Auto-grade Quiz
+
 - **API Name**: Submit Quiz Attempt
 - **HTTP Method**: `POST`
 - **Endpoint URL**: `/api/quiz-attempts`
@@ -393,6 +407,7 @@ This document provides the complete, production-ready REST API specification for
 ## 5. Attendance & Certificates API Module
 
 ### 5.1 Verify Certificate Publicly
+
 - **API Name**: Verify Certificate Credential
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/certificates/verify/{id}`
@@ -423,6 +438,7 @@ This document provides the complete, production-ready REST API specification for
 ## 6. Messaging & Notifications Module
 
 ### 6.1 Send Direct Message
+
 - **API Name**: Send Direct Message
 - **HTTP Method**: `POST`
 - **Endpoint URL**: `/api/messages`
@@ -458,6 +474,7 @@ This document provides the complete, production-ready REST API specification for
 ## 7. Admin & Health API Module
 
 ### 7.1 List User Accounts
+
 - **API Name**: List Users
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/admin/users`
@@ -488,6 +505,7 @@ This document provides the complete, production-ready REST API specification for
 ---
 
 ### 7.2 System Health Diagnostics
+
 - **API Name**: Health Check
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/health`
@@ -510,6 +528,7 @@ This document provides the complete, production-ready REST API specification for
 ## 8. Contact Support API Module
 
 ### 8.1 Submit Support Request
+
 - **API Name**: Submit Contact Support Form
 - **HTTP Method**: `POST`
 - **Endpoint URL**: `/api/contact`
@@ -552,6 +571,7 @@ This document provides the complete, production-ready REST API specification for
   ```
 
 ### 8.2 List Contact Submissions (Admin)
+
 - **API Name**: Retrieve Support Submissions
 - **HTTP Method**: `GET`
 - **Endpoint URL**: `/api/admin/contact`
@@ -585,6 +605,7 @@ This document provides the complete, production-ready REST API specification for
   ```
 
 ### 8.3 Update Submission Status (Admin)
+
 - **API Name**: Update Contact Request Status
 - **HTTP Method**: `PATCH`
 - **Endpoint URL**: `/api/admin/contact/{id}`
@@ -610,6 +631,7 @@ This document provides the complete, production-ready REST API specification for
   ```
 
 ### 8.4 Delete Submission (Admin)
+
 - **API Name**: Delete Contact Request
 - **HTTP Method**: `DELETE`
 - **Endpoint URL**: `/api/admin/contact/{id}`
