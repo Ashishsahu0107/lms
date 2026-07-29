@@ -61,7 +61,11 @@ app.prepare().then(() => {
         const isLocal =
           origin.startsWith("http://localhost:") ||
           origin.startsWith("http://127.0.0.1:");
-        if (isLocal || origin === process.env.NEXT_PUBLIC_SOCKET_URL) {
+        const isLan =
+          origin.startsWith("http://192.168.") ||
+          origin.startsWith("http://172.") ||
+          origin.startsWith("http://10.");
+        if (isLocal || isLan || origin === process.env.NEXT_PUBLIC_SOCKET_URL) {
           callback(null, true);
         } else {
           callback(new Error("Not allowed by CORS"));
@@ -114,7 +118,9 @@ app.prepare().then(() => {
         };
 
         if (recipientSocketId) {
-          ioInstance.to(recipientSocketId).emit(EVENTS.NEW_MESSAGE, messagePayload);
+          ioInstance
+            .to(recipientSocketId)
+            .emit(EVENTS.NEW_MESSAGE, messagePayload);
         }
         socket.emit(EVENTS.MESSAGE_SENT, messagePayload);
       } catch (err) {
@@ -126,14 +132,18 @@ app.prepare().then(() => {
     socket.on("typing", ({ recipientId }) => {
       const recipientSocketId = onlineUsers.get(recipientId);
       if (recipientSocketId) {
-        ioInstance.to(recipientSocketId).emit(EVENTS.TYPING, { senderId: userId });
+        ioInstance
+          .to(recipientSocketId)
+          .emit(EVENTS.TYPING, { senderId: userId });
       }
     });
 
     socket.on("stop-typing", ({ recipientId }) => {
       const recipientSocketId = onlineUsers.get(recipientId);
       if (recipientSocketId) {
-        ioInstance.to(recipientSocketId).emit(EVENTS.STOP_TYPING, { senderId: userId });
+        ioInstance
+          .to(recipientSocketId)
+          .emit(EVENTS.STOP_TYPING, { senderId: userId });
       }
     });
 
@@ -142,14 +152,19 @@ app.prepare().then(() => {
       try {
         const openaiApiKey = process.env.OPENAI_API_KEY;
         if (!openaiApiKey) {
-          socket.emit(EVENTS.AI_CHAT_ERROR, { message: "AI service is not configured" });
+          socket.emit(EVENTS.AI_CHAT_ERROR, {
+            message: "AI service is not configured",
+          });
           return;
         }
 
         socket.emit(EVENTS.AI_TYPING);
 
         // Simulate streaming (replace with real OpenAI streaming)
-        const mockWords = `I understand your question about "${prompt}". Let me explain this concept step by step...`.split(" ");
+        const mockWords =
+          `I understand your question about "${prompt}". Let me explain this concept step by step...`.split(
+            " ",
+          );
         let delay = 0;
         for (const word of mockWords) {
           setTimeout(() => {

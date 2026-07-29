@@ -57,7 +57,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { assignments } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch assignments" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch assignments" },
+      { status: 500 },
+    );
   }
 }
 
@@ -69,17 +72,38 @@ export async function POST(req: NextRequest) {
     if (roleError) return roleError;
 
     const body = await req.json();
-    const { title, description, instructions, courseId, moduleId, topicId,
-      dueDate, totalMarks, assignmentType, status, rubrics } = body;
+    const {
+      title,
+      description,
+      instructions,
+      courseId,
+      moduleId,
+      topicId,
+      dueDate,
+      totalMarks,
+      assignmentType,
+      status,
+      rubrics,
+    } = body;
 
     if (!title || !courseId || !dueDate) {
-      return NextResponse.json({ success: false, message: "title, courseId, and dueDate are required" }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "title, courseId, and dueDate are required",
+        },
+        { status: 400 },
+      );
     }
 
     const assignment = await prisma.assignment.create({
       data: {
-        title, description: description || "", instructions: instructions || "",
-        courseId, moduleId: moduleId || null, topicId: topicId || null,
+        title,
+        description: description || "",
+        instructions: instructions || "",
+        courseId,
+        moduleId: moduleId || null,
+        topicId: topicId || null,
         createdById: user!.id,
         dueDate: new Date(dueDate),
         totalMarks: totalMarks || 100,
@@ -90,9 +114,13 @@ export async function POST(req: NextRequest) {
       include: { rubrics: true },
     });
 
-    return NextResponse.json({ success: true, message: "Assignment created", data: { assignment } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: "Assignment created", data: { assignment } },
+      { status: 201 },
+    );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to create assignment";
+    const message =
+      err instanceof Error ? err.message : "Failed to create assignment";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message }, { status });
   }

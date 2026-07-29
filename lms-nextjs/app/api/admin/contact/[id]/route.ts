@@ -5,7 +5,7 @@ import { authenticate, authorize } from "@/lib/middleware";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { user, error } = await authenticate(req);
@@ -20,8 +20,11 @@ export async function PATCH(
     const validStatuses = ["NEW", "IN_PROGRESS", "RESOLVED"];
     if (!status || !validStatuses.includes(status)) {
       return NextResponse.json(
-        { success: false, message: "Invalid status. Must be NEW, IN_PROGRESS, or RESOLVED." },
-        { status: 400 }
+        {
+          success: false,
+          message: "Invalid status. Must be NEW, IN_PROGRESS, or RESOLVED.",
+        },
+        { status: 400 },
       );
     }
 
@@ -37,13 +40,16 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Error updating contact request:", error);
-    return NextResponse.json({ success: false, message: "Unable to update contact request." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Unable to update contact request." },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { user, error } = await authenticate(req);
@@ -64,6 +70,9 @@ export async function DELETE(
     });
   } catch (error) {
     console.error("Error deleting contact request:", error);
-    return NextResponse.json({ success: false, message: "Unable to delete contact request." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Unable to delete contact request." },
+      { status: 500 },
+    );
   }
 }

@@ -5,6 +5,7 @@ Welcome to the comprehensive technical documentation for **LMS Pro** — an ente
 ---
 
 ## 📑 Table of Contents
+
 1. [Executive Summary & Technology Stack](#1-executive-summary--technology-stack)
 2. [Project Architecture & System Design](#2-project-architecture--system-design)
 3. [Complete Folder & Directory Structure](#3-complete-folder--directory-structure)
@@ -31,18 +32,18 @@ LMS Pro consolidates legacy MERN stack applications (React Vite SPA + Express.js
 
 ### Core Technology Stack
 
-| Layer | Technology | Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Framework** | Next.js | 15.0+ | Server-side rendering, Client UI, App Router API routes |
-| **Language** | TypeScript / ES Modules | 5.0+ | Strict type safety across client and server |
-| **Database** | PostgreSQL | 15+ | Enterprise relational data storage |
-| **ORM** | Prisma ORM | 6.19+ | Type-safe database queries, schema migrations, seeding |
-| **Realtime** | Socket.io | 4.8+ | WebSocket server for direct chat, presence, AI streaming |
-| **State** | Redux Toolkit & React Context | 2.5+ | Global UI state management and authentication sessions |
-| **Styling** | Tailwind CSS & FlyonUI | 4.0+ | Responsive utility-first minimalist design system |
-| **API Docs** | Swagger (swagger-jsdoc & dist)| 3.0 / 5.18 | Interactive OpenAPI specification (`/api-docs`) |
-| **Auth** | JWT & bcryptjs | 9.0 / 2.4 | Stateless token authentication with password hashing |
-| **File Engine**| Multer & Custom Route Serving | 1.4+ | Upload validation, static file streaming, path sanitization |
+| Layer           | Technology                     | Version    | Purpose                                                     |
+| :-------------- | :----------------------------- | :--------- | :---------------------------------------------------------- |
+| **Framework**   | Next.js                        | 15.0+      | Server-side rendering, Client UI, App Router API routes     |
+| **Language**    | TypeScript / ES Modules        | 5.0+       | Strict type safety across client and server                 |
+| **Database**    | PostgreSQL                     | 15+        | Enterprise relational data storage                          |
+| **ORM**         | Prisma ORM                     | 6.19+      | Type-safe database queries, schema migrations, seeding      |
+| **Realtime**    | Socket.io                      | 4.8+       | WebSocket server for direct chat, presence, AI streaming    |
+| **State**       | Redux Toolkit & React Context  | 2.5+       | Global UI state management and authentication sessions      |
+| **Styling**     | Tailwind CSS & FlyonUI         | 4.0+       | Responsive utility-first minimalist design system           |
+| **API Docs**    | Swagger (swagger-jsdoc & dist) | 3.0 / 5.18 | Interactive OpenAPI specification (`/api-docs`)             |
+| **Auth**        | JWT & bcryptjs                 | 9.0 / 2.4  | Stateless token authentication with password hashing        |
+| **File Engine** | Multer & Custom Route Serving  | 1.4+       | Upload validation, static file streaming, path sanitization |
 
 ---
 
@@ -283,6 +284,7 @@ model Course {
 ## 6. Authentication & Security Architecture
 
 ### Authentication Mechanism
+
 1. User submits login credentials to `POST /api/auth/login`.
 2. Password is verified using `bcrypt.compare(password, user.password)`.
 3. Server returns a signed JWT token containing `{ userId, email, role }` valid for 7 days.
@@ -293,44 +295,44 @@ model Course {
 
 ## 7. Role-Based Access Control (RBAC) Matrix
 
-| Route / Resource | Student | Teacher | Super Admin | Public |
-| :--- | :---: | :---: | :---: | :---: |
-| `POST /api/auth/login` | ✅ | ✅ | ✅ | ✅ |
-| `POST /api/auth/register` | ✅ | ❌ | ❌ | ✅ |
-| `GET /api/courses` | ✅ | ✅ | ✅ | ✅ |
-| `POST /api/courses` | ❌ | ✅ | ✅ | ❌ |
-| `DELETE /api/courses/[id]` | ❌ | ✅ (Owner) | ✅ | ❌ |
-| `GET /api/dashboard` | ✅ | ❌ | ❌ | ❌ |
-| `GET /api/admin/users` | ❌ | ❌ | ✅ | ❌ |
-| `POST /api/submissions` | ✅ | ❌ | ❌ | ❌ |
-| `POST /api/attendance` | ❌ | ✅ | ✅ | ❌ |
-| `GET /api/certificates/verify/[id]` | ✅ | ✅ | ✅ | ✅ |
+| Route / Resource                    | Student |  Teacher   | Super Admin | Public |
+| :---------------------------------- | :-----: | :--------: | :---------: | :----: |
+| `POST /api/auth/login`              |   ✅    |     ✅     |     ✅      |   ✅   |
+| `POST /api/auth/register`           |   ✅    |     ❌     |     ❌      |   ✅   |
+| `GET /api/courses`                  |   ✅    |     ✅     |     ✅      |   ✅   |
+| `POST /api/courses`                 |   ❌    |     ✅     |     ✅      |   ❌   |
+| `DELETE /api/courses/[id]`          |   ❌    | ✅ (Owner) |     ✅      |   ❌   |
+| `GET /api/dashboard`                |   ✅    |     ❌     |     ❌      |   ❌   |
+| `GET /api/admin/users`              |   ❌    |     ❌     |     ✅      |   ❌   |
+| `POST /api/submissions`             |   ✅    |     ❌     |     ❌      |   ❌   |
+| `POST /api/attendance`              |   ❌    |     ✅     |     ✅      |   ❌   |
+| `GET /api/certificates/verify/[id]` |   ✅    |     ✅     |     ✅      |   ✅   |
 
 ---
 
 ## 8. Frontend Routing & API Integration Map
 
-| Path | View Component | Key API Route(s) | Functionality |
-| :--- | :--- | :--- | :--- |
-| `/login` | `LoginPage.tsx` | `POST /api/auth/login` | User login & token storage |
-| `/register` | `RegisterPage.tsx` | `POST /api/auth/register` | Student self-registration |
-| `/student/dashboard` | `StudentDashboard.tsx` | `GET /api/dashboard` | Metrics, progress chart, pending tasks |
-| `/student/courses` | `BrowseCourses.tsx` | `GET /api/courses` | Searchable course catalog |
-| `/student/courses/[id]`| `CourseDetailView.tsx` | `GET /api/courses/[id]`, `POST /api/enrollments` | Video lesson player & curriculum accordion |
-| `/student/my-courses` | `MyCourses.tsx` | `GET /api/enrollments` | Progress tracking for enrolled courses |
-| `/student/assignments`| `StudentAssignments.tsx`| `GET /api/assignments`, `POST /api/submissions` | Coursework submission & grade feedback |
-| `/student/quizzes` | `StudentQuizzes.tsx` | `GET /api/quizzes`, `POST /api/quiz-attempts` | Quiz attempt player & accuracy report |
-| `/student/attendance` | `StudentAttendance.tsx` | `GET /api/attendance` | Session attendance log |
-| `/student/certificates`| `StudentCertificates.tsx`| `GET /api/certificates` | Printable certificate credential modal |
-| `/student/messages` | `MessagesView.tsx` | `GET /api/messages`, `POST /api/messages` | Realtime direct messaging |
-| `/teacher/dashboard` | `TeacherDashboard.tsx` | `GET /api/courses?teacherId=...` | Teacher metrics & course roster |
-| `/teacher/courses` | `TeacherCourseManager.tsx`| `POST /api/courses`, `POST /api/modules` | Course authoring & module builder |
-| `/teacher/assignments`| `TeacherAssignmentsView.tsx`| `POST /api/assignments` | Assignment builder & grading |
-| `/teacher/quizzes` | `TeacherQuizBuilderView.tsx`| `POST /api/quizzes` | Quiz builder |
-| `/teacher/attendance` | `TeacherAttendanceSheet.tsx`| `POST /api/attendance` | Session attendance marking sheet |
-| `/teacher/students` | `StudentRoster.tsx` | `GET /api/enrollments` | Student performance roster |
-| `/admin/users` | `UserManagementView.tsx`| `GET /api/admin/users`, `POST /api/admin/users` | User management & role promotion |
-| `/admin/health` | `SystemHealthView.tsx` | `GET /api/health` | System liveness probe output |
+| Path                    | View Component               | Key API Route(s)                                 | Functionality                              |
+| :---------------------- | :--------------------------- | :----------------------------------------------- | :----------------------------------------- |
+| `/login`                | `LoginPage.tsx`              | `POST /api/auth/login`                           | User login & token storage                 |
+| `/register`             | `RegisterPage.tsx`           | `POST /api/auth/register`                        | Student self-registration                  |
+| `/student/dashboard`    | `StudentDashboard.tsx`       | `GET /api/dashboard`                             | Metrics, progress chart, pending tasks     |
+| `/student/courses`      | `BrowseCourses.tsx`          | `GET /api/courses`                               | Searchable course catalog                  |
+| `/student/courses/[id]` | `CourseDetailView.tsx`       | `GET /api/courses/[id]`, `POST /api/enrollments` | Video lesson player & curriculum accordion |
+| `/student/my-courses`   | `MyCourses.tsx`              | `GET /api/enrollments`                           | Progress tracking for enrolled courses     |
+| `/student/assignments`  | `StudentAssignments.tsx`     | `GET /api/assignments`, `POST /api/submissions`  | Coursework submission & grade feedback     |
+| `/student/quizzes`      | `StudentQuizzes.tsx`         | `GET /api/quizzes`, `POST /api/quiz-attempts`    | Quiz attempt player & accuracy report      |
+| `/student/attendance`   | `StudentAttendance.tsx`      | `GET /api/attendance`                            | Session attendance log                     |
+| `/student/certificates` | `StudentCertificates.tsx`    | `GET /api/certificates`                          | Printable certificate credential modal     |
+| `/student/messages`     | `MessagesView.tsx`           | `GET /api/messages`, `POST /api/messages`        | Realtime direct messaging                  |
+| `/teacher/dashboard`    | `TeacherDashboard.tsx`       | `GET /api/courses?teacherId=...`                 | Teacher metrics & course roster            |
+| `/teacher/courses`      | `TeacherCourseManager.tsx`   | `POST /api/courses`, `POST /api/modules`         | Course authoring & module builder          |
+| `/teacher/assignments`  | `TeacherAssignmentsView.tsx` | `POST /api/assignments`                          | Assignment builder & grading               |
+| `/teacher/quizzes`      | `TeacherQuizBuilderView.tsx` | `POST /api/quizzes`                              | Quiz builder                               |
+| `/teacher/attendance`   | `TeacherAttendanceSheet.tsx` | `POST /api/attendance`                           | Session attendance marking sheet           |
+| `/teacher/students`     | `StudentRoster.tsx`          | `GET /api/enrollments`                           | Student performance roster                 |
+| `/admin/users`          | `UserManagementView.tsx`     | `GET /api/admin/users`, `POST /api/admin/users`  | User management & role promotion           |
+| `/admin/health`         | `SystemHealthView.tsx`       | `GET /api/health`                                | System liveness probe output               |
 
 ---
 
@@ -339,6 +341,7 @@ model Course {
 ### Standard API Response Wrapper
 
 #### Success Response (HTTP 200 / 201)
+
 ```json
 {
   "success": true,
@@ -348,6 +351,7 @@ model Course {
 ```
 
 #### Error Response (HTTP 400 / 401 / 403 / 404 / 500)
+
 ```json
 {
   "success": false,
@@ -358,6 +362,7 @@ model Course {
 ### 1. Authentication Endpoints
 
 #### `POST /api/auth/login`
+
 - **Request Body**:
   ```json
   {
@@ -401,6 +406,7 @@ model Course {
 ## 11. Real-time WebSockets & File Upload Engine
 
 ### WebSockets (`server.js`)
+
 - `send-message`: Transmits live chat messages to recipient sockets.
 - `typing` / `stop-typing`: Emits typing indicator events.
 - `send-ai-message`: Streams AI tutor responses word-by-word (`ai-word`).
@@ -432,6 +438,7 @@ Interactive API documentation is live at **`http://localhost:3000/api-docs`**.
 ## 15. Testing & Quality Assurance
 
 ### Validation Commands
+
 ```bash
 # Run TypeScript compilation check
 npx tsc --noEmit
@@ -445,6 +452,7 @@ npx prisma validate
 ## 16. Deployment & DevOps Guide
 
 ### Self-Hosted Production (Node.js + PostgreSQL)
+
 ```bash
 # Build production bundle
 npm run build
@@ -457,8 +465,8 @@ npm run start
 
 ## 17. Troubleshooting & Common Issues
 
-| Issue | Root Cause | Solution |
-| :--- | :--- | :--- |
-| `P1000: Authentication failed` | Invalid PostgreSQL credentials in `.env` | Update `DATABASE_URL` password in `.env` |
-| `EADDRINUSE: 3000` | Port 3000 occupied | Kill running Node process or change `PORT` in `.env` |
-| `No layout defined for StandaloneLayout` | Missing preset import | Import `swagger-ui-standalone-preset` dynamically |
+| Issue                                    | Root Cause                               | Solution                                             |
+| :--------------------------------------- | :--------------------------------------- | :--------------------------------------------------- |
+| `P1000: Authentication failed`           | Invalid PostgreSQL credentials in `.env` | Update `DATABASE_URL` password in `.env`             |
+| `EADDRINUSE: 3000`                       | Port 3000 occupied                       | Kill running Node process or change `PORT` in `.env` |
+| `No layout defined for StandaloneLayout` | Missing preset import                    | Import `swagger-ui-standalone-preset` dynamically    |

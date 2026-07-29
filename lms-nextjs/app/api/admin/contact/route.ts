@@ -40,6 +40,9 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching contact requests:", error);
-    return NextResponse.json({ success: false, message: "Unable to retrieve contact requests." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Unable to retrieve contact requests." },
+      { status: 500 },
+    );
   }
 }
