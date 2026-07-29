@@ -17,7 +17,8 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "LMS Pro",
     title: "LMS Pro — Learning Management System",
-    description: "Enterprise-grade LMS with AI, real-time features, and gamification",
+    description:
+      "Enterprise-grade LMS with AI, real-time features, and gamification",
   },
   robots: { index: false, follow: false },
 };
@@ -32,7 +33,11 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
       </head>
       <body suppressHydrationWarning className="relative">
         <AppProviders>

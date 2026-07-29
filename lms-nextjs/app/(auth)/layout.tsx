@@ -3,7 +3,11 @@ import React from "react";
 import Link from "next/link";
 import GlobalThreeBackground from "@/components/ui/GlobalThreeBackground";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-base-200 text-base-content">
       {/* Background WebGL Animation */}
@@ -35,7 +39,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Back to Home Link */}
         <div className="text-center mt-6">
-          <Link href="/" className="text-xs font-medium text-base-content/60 hover:text-primary transition-colors">
+          <Link
+            href="/"
+            className="text-xs font-medium text-base-content/60 hover:text-primary transition-colors"
+          >
             ← Back to Public Home
           </Link>
         </div>
