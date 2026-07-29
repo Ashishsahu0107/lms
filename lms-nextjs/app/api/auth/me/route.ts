@@ -27,7 +27,14 @@ export async function GET(req: NextRequest) {
     include: { achievements: true },
   });
 
-  const { password: _pw, refreshToken: _rt, ...safeUser } = fullUser as Record<string, unknown> & { password?: unknown; refreshToken?: unknown };
+  const {
+    password: _pw,
+    refreshToken: _rt,
+    ...safeUser
+  } = fullUser as Record<string, unknown> & {
+    password?: unknown;
+    refreshToken?: unknown;
+  };
 
   return NextResponse.json({
     success: true,

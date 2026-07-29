@@ -34,7 +34,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (role && role !== "student") {
-      throw new BadRequestError("Self-registration is only allowed for student accounts");
+      throw new BadRequestError(
+        "Self-registration is only allowed for student accounts",
+      );
     }
 
     if (password.length < 6) {
@@ -64,19 +66,25 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const token = signToken({ userId: user.id, email: user.email, role: user.role });
+    const token = signToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
 
     // Log security event
-    prisma.securityLog.create({
-      data: {
-        userId: user.id,
-        action: "USER_REGISTERED",
-        details: `New student registration: ${user.email}`,
-        ip: req.headers.get("x-forwarded-for") || "",
-        device: req.headers.get("user-agent") || "",
-        severity: "low",
-      },
-    }).catch(console.error);
+    prisma.securityLog
+      .create({
+        data: {
+          userId: user.id,
+          action: "USER_REGISTERED",
+          details: `New student registration: ${user.email}`,
+          ip: req.headers.get("x-forwarded-for") || "",
+          device: req.headers.get("user-agent") || "",
+          severity: "low",
+        },
+      })
+      .catch(console.error);
 
     const { password: _pw, ...safeUser } = user;
 
@@ -86,7 +94,7 @@ export async function POST(req: NextRequest) {
         message: "Registration successful",
         data: { token, user: safeUser },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Registration failed";

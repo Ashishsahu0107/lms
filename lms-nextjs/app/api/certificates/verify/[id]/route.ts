@@ -23,7 +23,7 @@ import prisma from "@/lib/db";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -38,7 +38,10 @@ export async function GET(
     });
 
     if (!cert) {
-      return NextResponse.json({ success: false, message: "Certificate not found or invalid" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Certificate not found or invalid" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -47,6 +50,9 @@ export async function GET(
       data: { certificate: cert },
     });
   } catch {
-    return NextResponse.json({ success: false, message: "Verification failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Verification failed" },
+      { status: 500 },
+    );
   }
 }

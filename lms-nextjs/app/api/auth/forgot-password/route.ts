@@ -33,7 +33,9 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
     if (!email) throw new BadRequestError("Email is required");
 
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
     if (!user) throw new BadRequestError("User account not found");
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -51,7 +53,10 @@ export async function POST(req: NextRequest) {
 
     await sendOtpEmail(user.email, otp, "Password Recovery OTP Code");
 
-    return NextResponse.json({ success: true, message: "Password reset OTP has been sent to your email." });
+    return NextResponse.json({
+      success: true,
+      message: "Password reset OTP has been sent to your email.",
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Request failed";
     const status = (err as { statusCode?: number }).statusCode ?? 500;

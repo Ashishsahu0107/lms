@@ -62,7 +62,9 @@ export async function GET(req: NextRequest) {
     const attendance = await prisma.attendance.findMany({
       where,
       include: {
-        student: { select: { id: true, name: true, email: true, avatar: true } },
+        student: {
+          select: { id: true, name: true, email: true, avatar: true },
+        },
         course: { select: { id: true, title: true } },
       },
       orderBy: { date: "desc" },
@@ -70,7 +72,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { attendance } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch attendance" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch attendance" },
+      { status: 500 },
+    );
   }
 }
 
@@ -85,15 +90,27 @@ export async function POST(req: NextRequest) {
     const { studentId, courseId, date, status, remarks, sessionId } = body;
 
     if (!studentId || !courseId || !date || !status) {
-      return NextResponse.json({ success: false, message: "studentId, courseId, date, status are required" }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "studentId, courseId, date, status are required",
+        },
+        { status: 400 },
+      );
     }
 
     const attendance = await prisma.attendance.upsert({
-      where: { studentId_courseId_date: { studentId, courseId, date: new Date(date) } },
+      where: {
+        studentId_courseId_date: { studentId, courseId, date: new Date(date) },
+      },
       update: { status, remarks: remarks || "", markedById: user!.id },
       create: {
-        studentId, courseId, teacherId: user!.id,
-        date: new Date(date), status, remarks: remarks || "",
+        studentId,
+        courseId,
+        teacherId: user!.id,
+        date: new Date(date),
+        status,
+        remarks: remarks || "",
         markedById: user!.id,
         sessionId: sessionId || null,
       },
@@ -102,9 +119,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, message: "Attendance marked", data: { attendance } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: "Attendance marked", data: { attendance } },
+      { status: 201 },
+    );
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Failed to mark attendance";
+    const msg =
+      err instanceof Error ? err.message : "Failed to mark attendance";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message: msg }, { status });
   }

@@ -31,17 +31,27 @@ export async function POST(req: NextRequest) {
     const { email, otp } = await req.json();
     if (!email || !otp) throw new BadRequestError("Email and OTP are required");
 
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
     if (!user) throw new BadRequestError("User account not found");
 
     const now = new Date();
     const isValid =
-      (user.resetOTP === otp && user.resetOTPExpire && now <= user.resetOTPExpire) ||
-      (user.resetPasswordOTP === otp && user.resetPasswordOTPExpires && now <= user.resetPasswordOTPExpires);
+      (user.resetOTP === otp &&
+        user.resetOTPExpire &&
+        now <= user.resetOTPExpire) ||
+      (user.resetPasswordOTP === otp &&
+        user.resetPasswordOTPExpires &&
+        now <= user.resetPasswordOTPExpires);
 
-    if (!isValid) throw new BadRequestError("Invalid or expired password recovery OTP");
+    if (!isValid)
+      throw new BadRequestError("Invalid or expired password recovery OTP");
 
-    return NextResponse.json({ success: true, message: "OTP verified. You can now reset your password." });
+    return NextResponse.json({
+      success: true,
+      message: "OTP verified. You can now reset your password.",
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Verification failed";
     const status = (err as { statusCode?: number }).statusCode ?? 500;

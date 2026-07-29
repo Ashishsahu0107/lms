@@ -75,10 +75,18 @@ export async function GET(req: NextRequest) {
         take: limit,
         orderBy: { createdAt: "desc" },
         select: {
-          id: true, name: true, email: true, role: true,
-          status: true, isActive: true, isVerified: true,
-          avatar: true, xp: true, streak: true,
-          createdAt: true, lastSeen: true,
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          status: true,
+          isActive: true,
+          isVerified: true,
+          avatar: true,
+          xp: true,
+          streak: true,
+          createdAt: true,
+          lastSeen: true,
           _count: { select: { enrollments: true, teachingCourses: true } },
         },
       }),
@@ -87,10 +95,16 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: { users, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } },
+      data: {
+        users,
+        meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+      },
     });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch users" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch users" },
+      { status: 500 },
+    );
   }
 }
 
@@ -105,12 +119,20 @@ export async function POST(req: NextRequest) {
     const { name, email, password, role: newRole = "student" } = body;
 
     if (!name || !email || !password) {
-      return NextResponse.json({ success: false, message: "name, email, password required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "name, email, password required" },
+        { status: 400 },
+      );
     }
 
-    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    const existing = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
     if (existing) {
-      return NextResponse.json({ success: false, message: "Email already exists" }, { status: 409 });
+      return NextResponse.json(
+        { success: false, message: "Email already exists" },
+        { status: 409 },
+      );
     }
 
     const hashed = await bcrypt.hash(password, 12);
@@ -125,10 +147,20 @@ export async function POST(req: NextRequest) {
         status: "active",
         isActive: true,
       },
-      select: { id: true, name: true, email: true, role: true, status: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+      },
     });
 
-    return NextResponse.json({ success: true, message: "User created", data: { user: newUser } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: "User created", data: { user: newUser } },
+      { status: 201 },
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to create user";
     const status = (err as { statusCode?: number }).statusCode ?? 500;

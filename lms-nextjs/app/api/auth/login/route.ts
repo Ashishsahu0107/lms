@@ -44,15 +44,17 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       // Log security event (non-blocking)
-      prisma.securityLog.create({
-        data: {
-          action: "FAILED_LOGIN",
-          details: `Failed login attempt: user with email ${email} not found`,
-          ip: req.headers.get("x-forwarded-for") || "",
-          device: req.headers.get("user-agent") || "",
-          severity: "medium",
-        },
-      }).catch(console.error);
+      prisma.securityLog
+        .create({
+          data: {
+            action: "FAILED_LOGIN",
+            details: `Failed login attempt: user with email ${email} not found`,
+            ip: req.headers.get("x-forwarded-for") || "",
+            device: req.headers.get("user-agent") || "",
+            severity: "medium",
+          },
+        })
+        .catch(console.error);
 
       throw new UnauthorizedError("Invalid email or password");
     }
@@ -60,16 +62,18 @@ export async function POST(req: NextRequest) {
     // Verify password
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      prisma.securityLog.create({
-        data: {
-          userId: user.id,
-          action: "FAILED_LOGIN",
-          details: `Failed login attempt: incorrect password for ${email}`,
-          ip: req.headers.get("x-forwarded-for") || "",
-          device: req.headers.get("user-agent") || "",
-          severity: "medium",
-        },
-      }).catch(console.error);
+      prisma.securityLog
+        .create({
+          data: {
+            userId: user.id,
+            action: "FAILED_LOGIN",
+            details: `Failed login attempt: incorrect password for ${email}`,
+            ip: req.headers.get("x-forwarded-for") || "",
+            device: req.headers.get("user-agent") || "",
+            severity: "medium",
+          },
+        })
+        .catch(console.error);
 
       throw new UnauthorizedError("Invalid email or password");
     }
@@ -90,29 +94,37 @@ export async function POST(req: NextRequest) {
         yesterday.setDate(yesterday.getDate() - 1);
         const wasYesterday = lastActive === yesterday.toDateString();
 
-        prisma.user.update({
-          where: { id: user.id },
-          data: {
-            streak: wasYesterday ? user.streak + 1 : 1,
-            lastActiveDate: new Date(),
-          },
-        }).catch(console.error);
+        prisma.user
+          .update({
+            where: { id: user.id },
+            data: {
+              streak: wasYesterday ? user.streak + 1 : 1,
+              lastActiveDate: new Date(),
+            },
+          })
+          .catch(console.error);
       }
     }
 
-    const token = signToken({ userId: user.id, email: user.email, role: user.role });
+    const token = signToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
 
     // Log successful login
-    prisma.securityLog.create({
-      data: {
-        userId: user.id,
-        action: "USER_LOGIN",
-        details: `Successful login: ${user.email}`,
-        ip: req.headers.get("x-forwarded-for") || "",
-        device: req.headers.get("user-agent") || "",
-        severity: "low",
-      },
-    }).catch(console.error);
+    prisma.securityLog
+      .create({
+        data: {
+          userId: user.id,
+          action: "USER_LOGIN",
+          details: `Successful login: ${user.email}`,
+          ip: req.headers.get("x-forwarded-for") || "",
+          device: req.headers.get("user-agent") || "",
+          severity: "low",
+        },
+      })
+      .catch(console.error);
 
     const { password: _pw, ...safeUser } = user;
 

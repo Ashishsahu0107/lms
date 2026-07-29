@@ -38,13 +38,19 @@ export async function POST(req: NextRequest) {
       throw new BadRequestError("Password must be at least 6 characters");
     }
 
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
     if (!user) throw new BadRequestError("User not found");
 
     const now = new Date();
     const isValid =
-      (user.resetOTP === otp && user.resetOTPExpire && now <= user.resetOTPExpire) ||
-      (user.resetPasswordOTP === otp && user.resetPasswordOTPExpires && now <= user.resetPasswordOTPExpires);
+      (user.resetOTP === otp &&
+        user.resetOTPExpire &&
+        now <= user.resetOTPExpire) ||
+      (user.resetPasswordOTP === otp &&
+        user.resetPasswordOTPExpires &&
+        now <= user.resetPasswordOTPExpires);
 
     if (!isValid) throw new BadRequestError("Invalid or expired OTP");
 
@@ -64,16 +70,21 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    prisma.securityLog.create({
-      data: {
-        userId: user.id,
-        action: "PASSWORD_RESET",
-        details: `Password reset for ${user.email}`,
-        severity: "medium",
-      },
-    }).catch(console.error);
+    prisma.securityLog
+      .create({
+        data: {
+          userId: user.id,
+          action: "PASSWORD_RESET",
+          details: `Password reset for ${user.email}`,
+          severity: "medium",
+        },
+      })
+      .catch(console.error);
 
-    return NextResponse.json({ success: true, message: "Password reset successfully! You can now log in." });
+    return NextResponse.json({
+      success: true,
+      message: "Password reset successfully! You can now log in.",
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Reset failed";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
