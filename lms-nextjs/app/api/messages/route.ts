@@ -51,16 +51,17 @@ export async function GET(req: NextRequest) {
       // Get conversation list — last message per user
       const messages = await prisma.message.findMany({
         where: {
-          OR: [
-            { senderId: user!.id },
-            { recipientId: user!.id },
-          ],
+          OR: [{ senderId: user!.id }, { recipientId: user!.id }],
           deleted: false,
         },
         orderBy: { createdAt: "desc" },
         include: {
-          sender: { select: { id: true, name: true, avatar: true, isOnline: true } },
-          recipient: { select: { id: true, name: true, avatar: true, isOnline: true } },
+          sender: {
+            select: { id: true, name: true, avatar: true, isOnline: true },
+          },
+          recipient: {
+            select: { id: true, name: true, avatar: true, isOnline: true },
+          },
         },
         take: 50,
       });
@@ -94,7 +95,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { messages } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch messages" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch messages" },
+      { status: 500 },
+    );
   }
 }
 
@@ -105,7 +109,10 @@ export async function POST(req: NextRequest) {
 
     const { recipientId, content, messageType, attachments } = await req.json();
     if (!recipientId || !content) {
-      return NextResponse.json({ success: false, message: "recipientId and content are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "recipientId and content are required" },
+        { status: 400 },
+      );
     }
 
     const message = await prisma.message.create({
@@ -114,9 +121,7 @@ export async function POST(req: NextRequest) {
         recipientId,
         content: content.trim(),
         messageType: messageType || "text",
-        attachments: attachments
-          ? { create: attachments }
-          : undefined,
+        attachments: attachments ? { create: attachments } : undefined,
       },
       include: {
         sender: { select: { id: true, name: true, avatar: true } },
@@ -124,7 +129,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, message: "Message sent", data: { message } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: "Message sent", data: { message } },
+      { status: 201 },
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to send message";
     const status = (err as { statusCode?: number }).statusCode ?? 500;

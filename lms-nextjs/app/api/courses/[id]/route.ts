@@ -54,7 +54,7 @@ import { checkCourseOwnership } from "@/lib/middleware";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -73,7 +73,9 @@ export async function GET(
           },
         },
         ratings: {
-          include: { student: { select: { id: true, name: true, avatar: true } } },
+          include: {
+            student: { select: { id: true, name: true, avatar: true } },
+          },
           orderBy: { createdAt: "desc" },
           take: 10,
         },
@@ -82,7 +84,10 @@ export async function GET(
     });
 
     if (!course) {
-      return NextResponse.json({ success: false, message: "Course not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Course not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -91,13 +96,16 @@ export async function GET(
       data: { course },
     });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch course" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch course" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { user, error } = await authenticate(req);
@@ -108,7 +116,16 @@ export async function PUT(
     if (ownerErr) return ownerErr;
 
     const body = await req.json();
-    const { title, description, category, difficulty, price, tags, status, duration } = body;
+    const {
+      title,
+      description,
+      category,
+      difficulty,
+      price,
+      tags,
+      status,
+      duration,
+    } = body;
 
     const course = await prisma.course.update({
       where: { id },
@@ -124,9 +141,14 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ success: true, message: "Course updated successfully", data: { course } });
+    return NextResponse.json({
+      success: true,
+      message: "Course updated successfully",
+      data: { course },
+    });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to update course";
+    const message =
+      err instanceof Error ? err.message : "Failed to update course";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message }, { status });
   }
@@ -134,7 +156,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { user, error } = await authenticate(req);
@@ -146,9 +168,13 @@ export async function DELETE(
 
     await prisma.course.delete({ where: { id } });
 
-    return NextResponse.json({ success: true, message: "Course deleted successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "Course deleted successfully",
+    });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to delete course";
+    const message =
+      err instanceof Error ? err.message : "Failed to delete course";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message }, { status });
   }

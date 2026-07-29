@@ -71,7 +71,9 @@ export async function GET(req: NextRequest) {
     const where: Record<string, unknown> = {};
 
     // Non-admins only see published courses
-    const { user } = await authenticate(req).catch(() => ({ user: null })) as { user: { role: string } | null };
+    const { user } = (await authenticate(req).catch(() => ({
+      user: null,
+    }))) as { user: { role: string } | null };
     const role = user?.role;
     if (!role || role === "student") {
       where.status = "published";
@@ -113,7 +115,10 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch courses" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch courses" },
+      { status: 500 },
+    );
   }
 }
 
@@ -126,10 +131,14 @@ export async function POST(req: NextRequest) {
     if (roleError) return roleError;
 
     const body = await req.json();
-    const { title, description, category, difficulty, price, tags, status } = body;
+    const { title, description, category, difficulty, price, tags, status } =
+      body;
 
     if (!title) {
-      return NextResponse.json({ success: false, message: "Course title is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Course title is required" },
+        { status: 400 },
+      );
     }
 
     const course = await prisma.course.create({
@@ -149,11 +158,16 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { success: true, message: "Course created successfully", data: { course } },
-      { status: 201 }
+      {
+        success: true,
+        message: "Course created successfully",
+        data: { course },
+      },
+      { status: 201 },
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to create course";
+    const message =
+      err instanceof Error ? err.message : "Failed to create course";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message }, { status });
   }

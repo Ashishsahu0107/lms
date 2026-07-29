@@ -20,15 +20,24 @@ export async function GET(req: NextRequest) {
     const enrollments = await prisma.enrollment.findMany({
       where,
       include: {
-        course: { include: { teacher: { select: { id: true, name: true, avatar: true } } } },
-        student: { select: { id: true, name: true, email: true, avatar: true } },
+        course: {
+          include: {
+            teacher: { select: { id: true, name: true, avatar: true } },
+          },
+        },
+        student: {
+          select: { id: true, name: true, email: true, avatar: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ success: true, data: { enrollments } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch enrollments" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch enrollments" },
+      { status: 500 },
+    );
   }
 }
 
@@ -38,7 +47,8 @@ export async function POST(req: NextRequest) {
     if (error) return error;
 
     const body = await req.json();
-    let { studentId, courseId } = body;
+    const { courseId } = body;
+    let studentId = body.studentId;
 
     // If role is student, default studentId to authenticated user's ID
     if (user!.role === "student") {
@@ -46,7 +56,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (!studentId || !courseId) {
-      return NextResponse.json({ success: false, message: "studentId and courseId are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "studentId and courseId are required" },
+        { status: 400 },
+      );
     }
 
     // Check if already enrolled
@@ -54,7 +67,13 @@ export async function POST(req: NextRequest) {
       where: { studentId_courseId: { studentId, courseId } },
     });
     if (existing) {
-      return NextResponse.json({ success: false, message: "Student is already enrolled in this course" }, { status: 409 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Student is already enrolled in this course",
+        },
+        { status: 409 },
+      );
     }
 
     const enrollment = await prisma.enrollment.create({
@@ -73,8 +92,12 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { success: true, message: "Course assigned / enrolled successfully", data: { enrollment } },
-      { status: 201 }
+      {
+        success: true,
+        message: "Course assigned / enrolled successfully",
+        data: { enrollment },
+      },
+      { status: 201 },
     );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Enrollment failed";

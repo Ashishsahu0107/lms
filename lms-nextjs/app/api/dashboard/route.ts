@@ -24,7 +24,13 @@ export async function GET(req: NextRequest) {
 
     const studentId = user!.id;
 
-    const [enrollments, pendingAssignments, certificates, progressRecords, fullUser] = await Promise.all([
+    const [
+      enrollments,
+      pendingAssignments,
+      certificates,
+      progressRecords,
+      fullUser,
+    ] = await Promise.all([
       // Enrolled courses with progress
       prisma.enrollment.findMany({
         where: { studentId },
@@ -78,8 +84,12 @@ export async function GET(req: NextRequest) {
         user: fullUser,
         stats: {
           totalCourses: enrollments.length,
-          completedCourses: progressRecords.filter((p) => p.progress >= 100).length,
-          totalWatchTime: progressRecords.reduce((sum, p) => sum + p.totalWatchTime, 0),
+          completedCourses: progressRecords.filter((p) => p.progress >= 100)
+            .length,
+          totalWatchTime: progressRecords.reduce(
+            (sum, p) => sum + p.totalWatchTime,
+            0,
+          ),
           xp: fullUser?.xp || 0,
           streak: fullUser?.streak || 0,
           badges: fullUser?.badges || [],
@@ -87,6 +97,9 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch dashboard" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch dashboard" },
+      { status: 500 },
+    );
   }
 }

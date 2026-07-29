@@ -63,7 +63,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { certificates } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch certificates" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch certificates" },
+      { status: 500 },
+    );
   }
 }
 
@@ -76,7 +79,13 @@ export async function POST(req: NextRequest) {
 
     const { studentId, courseId, completionPercentage } = await req.json();
     if (!studentId || !courseId || completionPercentage === undefined) {
-      return NextResponse.json({ success: false, message: "studentId, courseId, completionPercentage are required" }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "studentId, courseId, completionPercentage are required",
+        },
+        { status: 400 },
+      );
     }
 
     const cert = await prisma.certificate.create({
@@ -94,9 +103,17 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, message: "Certificate issued", data: { certificate: cert } }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Certificate issued",
+        data: { certificate: cert },
+      },
+      { status: 201 },
+    );
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Failed to issue certificate";
+    const msg =
+      err instanceof Error ? err.message : "Failed to issue certificate";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message: msg }, { status });
   }

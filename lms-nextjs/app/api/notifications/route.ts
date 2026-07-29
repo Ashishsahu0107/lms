@@ -48,7 +48,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { notifications } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch notifications" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch notifications" },
+      { status: 500 },
+    );
   }
 }
 
@@ -61,7 +64,10 @@ export async function POST(req: NextRequest) {
 
     const { title, message, type, targetRole, recipientId } = await req.json();
     if (!title || !message) {
-      return NextResponse.json({ success: false, message: "title and message are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "title and message are required" },
+        { status: 400 },
+      );
     }
 
     const notification = await prisma.notification.create({
@@ -75,9 +81,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, message: "Notification sent", data: { notification } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: "Notification sent", data: { notification } },
+      { status: 201 },
+    );
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Failed to send notification";
+    const msg =
+      err instanceof Error ? err.message : "Failed to send notification";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message: msg }, { status });
   }
