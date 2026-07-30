@@ -33,16 +33,31 @@ const storage = multer.diskStorage({
 });
 
 // ── Strict file-type filter
-function fileFilter(_req: unknown, file: Express.Multer.File, cb: multer.FileFilterCallback) {
+function fileFilter(
+  _req: unknown,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback,
+) {
   const allowed = [
-    "image/jpeg", "image/png", "image/webp", "image/gif",
-    "video/mp4", "video/webm", "video/quicktime",
-    "application/pdf", "application/msword",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "application/pdf",
+    "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.ms-powerpoint",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "application/zip", "application/x-zip-compressed",
-    "audio/webm", "audio/mp3", "audio/wav", "audio/ogg", "audio/mpeg",
+    "application/zip",
+    "application/x-zip-compressed",
+    "audio/webm",
+    "audio/mp3",
+    "audio/wav",
+    "audio/ogg",
+    "audio/mpeg",
   ];
 
   if (allowed.includes(file.mimetype)) {
@@ -77,7 +92,11 @@ export function deleteUploadedFile(filename: string): void {
     const fullPath = path.join(dir, filename);
     if (fs.existsSync(fullPath)) {
       fs.unlink(fullPath, (err) => {
-        if (err) console.error(`[upload] Failed to delete file: ${fullPath}`, err.message);
+        if (err)
+          console.error(
+            `[upload] Failed to delete file: ${fullPath}`,
+            err.message,
+          );
       });
       return;
     }
@@ -85,9 +104,14 @@ export function deleteUploadedFile(filename: string): void {
 }
 
 // ── Build public URL for uploaded file
-export function buildFileUrl(filename: string, subdir: keyof typeof DIRS = "thumbnails"): string {
+export function buildFileUrl(
+  filename: string,
+  subdir: keyof typeof DIRS = "thumbnails",
+): string {
   if (!filename) return "";
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3000";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
+    "http://localhost:3000";
   return `${baseUrl}/api/uploads/${subdir}/${filename}`;
 }
 

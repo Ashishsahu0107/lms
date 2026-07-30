@@ -8,9 +8,10 @@ type Role = "student" | "teacher" | "super_admin";
 // ============================================================
 // AUTHENTICATE — require a valid JWT, returns user or 401
 // ============================================================
-export async function authenticate(req: NextRequest): Promise<
-  | { user: AuthUser; error: null }
-  | { user: null; error: NextResponse }
+export async function authenticate(
+  req: NextRequest,
+): Promise<
+  { user: AuthUser; error: null } | { user: null; error: NextResponse }
 > {
   const user = await getAuthUser(req);
 
@@ -19,17 +20,20 @@ export async function authenticate(req: NextRequest): Promise<
       user: null,
       error: NextResponse.json(
         { success: false, message: "Authentication token missing or invalid" },
-        { status: 401 }
+        { status: 401 },
       ),
     };
   }
 
-  if (user.isActive === false || String(user.status).toLowerCase() === "suspended") {
+  if (
+    user.isActive === false ||
+    String(user.status).toLowerCase() === "suspended"
+  ) {
     return {
       user: null,
       error: NextResponse.json(
         { success: false, message: "Your account has been suspended" },
-        { status: 403 }
+        { status: 403 },
       ),
     };
   }
@@ -40,11 +44,14 @@ export async function authenticate(req: NextRequest): Promise<
 // ============================================================
 // AUTHORIZE — restrict to specific roles
 // ============================================================
-export function authorize(user: AuthUser, ...roles: Role[]): NextResponse | null {
+export function authorize(
+  user: AuthUser,
+  ...roles: Role[]
+): NextResponse | null {
   if (!roles.includes(user.role as Role)) {
     return NextResponse.json(
       { success: false, message: "Access denied: insufficient permissions" },
-      { status: 403 }
+      { status: 403 },
     );
   }
   return null;
@@ -55,7 +62,7 @@ export function authorize(user: AuthUser, ...roles: Role[]): NextResponse | null
 // ============================================================
 export async function checkCourseOwnership(
   user: AuthUser,
-  courseId: string
+  courseId: string,
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
@@ -67,14 +74,14 @@ export async function checkCourseOwnership(
   if (!course) {
     return NextResponse.json(
       { success: false, message: "Course not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
   if (course.teacherId !== user.id) {
     return NextResponse.json(
       { success: false, message: "Access denied: you do not own this course" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -86,7 +93,7 @@ export async function checkCourseOwnership(
 // ============================================================
 export async function checkModuleOwnership(
   user: AuthUser,
-  moduleId: string
+  moduleId: string,
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
@@ -98,14 +105,17 @@ export async function checkModuleOwnership(
   if (!mod) {
     return NextResponse.json(
       { success: false, message: "Module not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
   if (mod.course.teacherId !== user.id) {
     return NextResponse.json(
-      { success: false, message: "Access denied: you do not own this module's course" },
-      { status: 403 }
+      {
+        success: false,
+        message: "Access denied: you do not own this module's course",
+      },
+      { status: 403 },
     );
   }
 
@@ -117,7 +127,7 @@ export async function checkModuleOwnership(
 // ============================================================
 export async function checkTopicOwnership(
   user: AuthUser,
-  topicId: string
+  topicId: string,
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
@@ -133,14 +143,17 @@ export async function checkTopicOwnership(
   if (!topic) {
     return NextResponse.json(
       { success: false, message: "Topic not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
   if (topic.module.course.teacherId !== user.id) {
     return NextResponse.json(
-      { success: false, message: "Access denied: you do not own this topic's course" },
-      { status: 403 }
+      {
+        success: false,
+        message: "Access denied: you do not own this topic's course",
+      },
+      { status: 403 },
     );
   }
 
@@ -151,10 +164,17 @@ export async function checkTopicOwnership(
 // HELPER — create standard API handler with auth
 // ============================================================
 export function withAuth(
-  handler: (req: NextRequest, user: AuthUser, params?: Record<string, string>) => Promise<NextResponse>,
+  handler: (
+    req: NextRequest,
+    user: AuthUser,
+    params?: Record<string, string>,
+  ) => Promise<NextResponse>,
   ...requiredRoles: Role[]
 ) {
-  return async (req: NextRequest, context?: { params: Record<string, string> }) => {
+  return async (
+    req: NextRequest,
+    context?: { params: Record<string, string> },
+  ) => {
     try {
       const { user, error } = await authenticate(req);
       if (error) return error;
@@ -167,7 +187,8 @@ export function withAuth(
       return await handler(req, user!, context?.params);
     } catch (err: unknown) {
       console.error("[API Error]", err);
-      const message = err instanceof Error ? err.message : "Internal server error";
+      const message =
+        err instanceof Error ? err.message : "Internal server error";
       const status = (err as { statusCode?: number }).statusCode ?? 500;
       return NextResponse.json({ success: false, message }, { status });
     }

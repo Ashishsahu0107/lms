@@ -10,7 +10,9 @@ async function main() {
 
   // ── Super Admin
   const adminEmail = "admin@gmail.com";
-  const existing = await prisma.user.findUnique({ where: { email: adminEmail } });
+  const existing = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
 
   if (!existing) {
     const hashedPassword = await bcrypt.hash("admin123", 12);
