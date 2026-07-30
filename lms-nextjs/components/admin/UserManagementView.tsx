@@ -3,7 +3,7 @@
 // components/admin/UserManagementView.tsx — User Management UI in Unified Design System
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Card, CardHeader } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Table, TableRow, TableCell } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -20,7 +20,12 @@ export default function UserManagementView() {
   const [roleFilter, setRoleFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "student" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "student",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchUsers = useCallback(async () => {
@@ -30,7 +35,9 @@ export default function UserManagementView() {
       if (search) url += `&search=${encodeURIComponent(search)}`;
       if (roleFilter) url += `&role=${roleFilter}`;
 
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
       if (data.success) {
         setUsers(data.data.users || []);
@@ -84,7 +91,8 @@ export default function UserManagementView() {
             User Account Roster 👥
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage platform users, update access roles, and provision new accounts.
+            Manage platform users, update access roles, and provision new
+            accounts.
           </p>
         </div>
         <Button variant="primary" onClick={() => setIsModalOpen(true)}>
@@ -124,11 +132,23 @@ export default function UserManagementView() {
             {users.map((u) => (
               <TableRow key={u.id as string}>
                 <TableCell>
-                  <div className="font-semibold text-slate-900 dark:text-white">{u.name as string}</div>
-                  <div className="text-slate-400 text-[11px]">{u.email as string}</div>
+                  <div className="font-semibold text-slate-900 dark:text-white">
+                    {u.name as string}
+                  </div>
+                  <div className="text-slate-400 text-[11px]">
+                    {u.email as string}
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={u.role === "super_admin" ? "error" : u.role === "teacher" ? "primary" : "neutral"}>
+                  <Badge
+                    variant={
+                      u.role === "super_admin"
+                        ? "error"
+                        : u.role === "teacher"
+                          ? "primary"
+                          : "neutral"
+                    }
+                  >
                     {(u.role as string).replace("_", " ")}
                   </Badge>
                 </TableCell>
@@ -147,7 +167,11 @@ export default function UserManagementView() {
       </Card>
 
       {/* Modal Dialog */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New User Account">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Create New User Account"
+      >
         <form onSubmit={handleCreateUser} className="space-y-4">
           <Input
             label="Full Name"
@@ -191,7 +215,11 @@ export default function UserManagementView() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" type="button" onClick={() => setIsModalOpen(false)}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="primary" type="submit" isLoading={isSubmitting}>

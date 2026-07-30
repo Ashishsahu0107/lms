@@ -7,7 +7,9 @@ import Link from "next/link";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 export default function SystemHealthView() {
-  const [healthData, setHealthData] = useState<Record<string, unknown> | null>(null);
+  const [healthData, setHealthData] = useState<Record<string, unknown> | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,40 +41,58 @@ export default function SystemHealthView() {
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">🔌</span>
             <div>
-              <p className="text-xs text-base-content/50 uppercase font-semibold">API Liveness</p>
+              <p className="text-xs text-base-content/50 uppercase font-semibold">
+                API Liveness
+              </p>
               <p className="font-bold text-success text-lg">Healthy (200 OK)</p>
             </div>
           </div>
-          <p className="text-xs text-base-content/60 mt-2">Next.js 15 Route Handlers active.</p>
+          <p className="text-xs text-base-content/60 mt-2">
+            Next.js 15 Route Handlers active.
+          </p>
         </div>
 
         <div className="card bg-base-100 shadow border border-base-200 p-6">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">🗄️</span>
             <div>
-              <p className="text-xs text-base-content/50 uppercase font-semibold">Database Stack</p>
-              <p className="font-bold text-primary text-lg">PostgreSQL (Prisma 6)</p>
+              <p className="text-xs text-base-content/50 uppercase font-semibold">
+                Database Stack
+              </p>
+              <p className="font-bold text-primary text-lg">
+                PostgreSQL (Prisma 6)
+              </p>
             </div>
           </div>
-          <p className="text-xs text-base-content/60 mt-2">Connection pool configured.</p>
+          <p className="text-xs text-base-content/60 mt-2">
+            Connection pool configured.
+          </p>
         </div>
 
         <div className="card bg-base-100 shadow border border-base-200 p-6">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">⚡</span>
             <div>
-              <p className="text-xs text-base-content/50 uppercase font-semibold">Realtime Engine</p>
-              <p className="font-bold text-secondary text-lg">Socket.io (WebSockets)</p>
+              <p className="text-xs text-base-content/50 uppercase font-semibold">
+                Realtime Engine
+              </p>
+              <p className="font-bold text-secondary text-lg">
+                Socket.io (WebSockets)
+              </p>
             </div>
           </div>
-          <p className="text-xs text-base-content/60 mt-2">Custom Node HTTP Server wrapper.</p>
+          <p className="text-xs text-base-content/60 mt-2">
+            Custom Node HTTP Server wrapper.
+          </p>
         </div>
       </div>
 
       {/* Raw Health JSON */}
       <div className="card bg-base-100 shadow border border-base-200">
         <div className="card-body">
-          <h2 className="card-title text-lg mb-2">Liveness Diagnostic Output</h2>
+          <h2 className="card-title text-lg mb-2">
+            Liveness Diagnostic Output
+          </h2>
           {loading ? (
             <div className="py-8 text-center">
               <span className="loading loading-spinner loading-md text-primary" />

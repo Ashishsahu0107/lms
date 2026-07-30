@@ -11,7 +11,8 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,14 +41,22 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-base-100 to-secondary/10 p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold font-display">Forgot Password 🔐</h1>
-          <p className="text-xs text-base-content/60 mt-1">Enter your registered email to receive an OTP</p>
+          <h1 className="text-2xl font-bold font-display">
+            Forgot Password 🔐
+          </h1>
+          <p className="text-xs text-base-content/60 mt-1">
+            Enter your registered email to receive an OTP
+          </p>
         </div>
 
         <div className="card glass shadow-xl p-6 border border-base-200">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="form-control">
-              <label className="label"><span className="label-text font-medium text-xs">Email Address</span></label>
+              <label className="label">
+                <span className="label-text font-medium text-xs">
+                  Email Address
+                </span>
+              </label>
               <input
                 type="email"
                 required
@@ -57,13 +66,23 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-              {loading ? <span className="loading loading-spinner loading-xs" /> : "Send OTP Code"}
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                "Send OTP Code"
+              )}
             </button>
           </form>
 
           <div className="text-center mt-4">
-            <Link href="/login" className="link link-primary text-xs">← Back to Sign In</Link>
+            <Link href="/login" className="link link-primary text-xs">
+              ← Back to Sign In
+            </Link>
           </div>
         </div>
       </div>

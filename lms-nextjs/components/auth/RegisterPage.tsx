@@ -10,43 +10,56 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.password) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-    setIsLoading(true);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!form.name || !form.email || !form.password) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
+      if (form.password !== form.confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+      setIsLoading(true);
 
-    try {
-      const res = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
+      try {
+        const res = await fetch(`${API_URL}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            password: form.password,
+          }),
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
 
-      login(data.data.token, data.data.user);
-      toast.success(`Account created! Welcome, ${data.data.user.name}`);
-      router.push("/student/dashboard");
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Registration failed");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [form, API_URL, login, router]);
+        login(data.data.token, data.data.user);
+        toast.success(`Account created! Welcome, ${data.data.user.name}`);
+        router.push("/student/dashboard");
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Registration failed");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [form, API_URL, login, router],
+  );
 
   return (
     <div className="w-full max-w-md mx-auto space-y-5 animate-fade-in text-base-content">
@@ -86,7 +99,9 @@ export default function RegisterPage() {
           minLength={6}
           placeholder="••••••••"
           value={form.confirmPassword}
-          onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, confirmPassword: e.target.value })
+          }
         />
 
         <Button

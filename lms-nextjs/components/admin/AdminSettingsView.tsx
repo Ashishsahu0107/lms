@@ -25,7 +25,9 @@ export default function AdminSettingsView() {
 
       <div className="card bg-base-100 shadow border border-base-200 p-6 space-y-4 max-w-xl">
         <div className="form-control flex-row items-center justify-between">
-          <span className="label-text font-semibold text-sm">Allow Self Registration</span>
+          <span className="label-text font-semibold text-sm">
+            Allow Self Registration
+          </span>
           <input
             type="checkbox"
             className="toggle toggle-primary"
@@ -36,8 +38,12 @@ export default function AdminSettingsView() {
 
         <div className="form-control flex-row items-center justify-between border-t border-base-200 pt-4">
           <div>
-            <span className="label-text font-semibold text-sm block">System Maintenance Mode</span>
-            <span className="text-xs text-base-content/50">Restricts student access for maintenance</span>
+            <span className="label-text font-semibold text-sm block">
+              System Maintenance Mode
+            </span>
+            <span className="text-xs text-base-content/50">
+              Restricts student access for maintenance
+            </span>
           </div>
           <input
             type="checkbox"

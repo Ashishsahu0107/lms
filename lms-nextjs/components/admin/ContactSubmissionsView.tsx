@@ -66,7 +66,9 @@ export default function ContactSubmissionsView() {
       toast.success("Submission status updated!");
       fetchSubmissions();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to update status");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update status",
+      );
     }
   };
 
@@ -83,7 +85,9 @@ export default function ContactSubmissionsView() {
       toast.success("Submission deleted!");
       fetchSubmissions();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete submission");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete submission",
+      );
     }
   };
 
@@ -122,20 +126,48 @@ export default function ContactSubmissionsView() {
             No contact submissions found.
           </div>
         ) : (
-          <Table headers={["User Contact", "Subject & Message", "Status", "Date", "Actions"]}>
+          <Table
+            headers={[
+              "User Contact",
+              "Subject & Message",
+              "Status",
+              "Date",
+              "Actions",
+            ]}
+          >
             {submissions.map((sub) => (
               <TableRow key={sub.id}>
                 <TableCell>
-                  <div className="font-semibold text-base-content">{sub.name}</div>
-                  <div className="text-base-content/60 text-[11px]">{sub.email}</div>
-                  {sub.phone && <div className="text-base-content/50 text-[10px]">{sub.phone}</div>}
+                  <div className="font-semibold text-base-content">
+                    {sub.name}
+                  </div>
+                  <div className="text-base-content/60 text-[11px]">
+                    {sub.email}
+                  </div>
+                  {sub.phone && (
+                    <div className="text-base-content/50 text-[10px]">
+                      {sub.phone}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>
-                  <div className="font-semibold text-base-content">{sub.subject}</div>
-                  <div className="text-base-content/60 text-[11px] line-clamp-2 max-w-xs">{sub.message}</div>
+                  <div className="font-semibold text-base-content">
+                    {sub.subject}
+                  </div>
+                  <div className="text-base-content/60 text-[11px] line-clamp-2 max-w-xs">
+                    {sub.message}
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={sub.status === "NEW" ? "warning" : sub.status === "IN_PROGRESS" ? "info" : "success"}>
+                  <Badge
+                    variant={
+                      sub.status === "NEW"
+                        ? "warning"
+                        : sub.status === "IN_PROGRESS"
+                          ? "info"
+                          : "success"
+                    }
+                  >
                     {sub.status.replace("_", " ")}
                   </Badge>
                 </TableCell>
@@ -149,14 +181,20 @@ export default function ContactSubmissionsView() {
                     <select
                       className="px-2 py-1 rounded-lg border border-base-300 bg-base-100 text-base-content text-[11px]"
                       value={sub.status}
-                      onChange={(e) => handleStatusChange(sub.id, e.target.value)}
+                      onChange={(e) =>
+                        handleStatusChange(sub.id, e.target.value)
+                      }
                     >
                       <option value="NEW">New</option>
                       <option value="IN_PROGRESS">In Progress</option>
                       <option value="RESOLVED">Resolved</option>
                     </select>
 
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(sub.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(sub.id)}
+                    >
                       🗑️
                     </Button>
                   </div>

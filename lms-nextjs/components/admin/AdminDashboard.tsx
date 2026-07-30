@@ -22,7 +22,9 @@ export default function AdminDashboard() {
     if (!token) return;
     try {
       const [usersRes, healthRes] = await Promise.all([
-        fetch(`${API_URL}/admin/users?limit=5`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+        fetch(`${API_URL}/admin/users?limit=5`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }).then((r) => r.json()),
         fetch(`${API_URL}/health`).then((r) => r.json()),
       ]);
 
@@ -60,15 +62,20 @@ export default function AdminDashboard() {
             System Administration ⚡
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Platform control center, system health diagnostics, and user management.
+            Platform control center, system health diagnostics, and user
+            management.
           </p>
         </div>
         <div className="flex gap-2">
           <Link href="/admin/users">
-            <Button variant="primary" size="sm">👥 User Roster</Button>
+            <Button variant="primary" size="sm">
+              👥 User Roster
+            </Button>
           </Link>
           <Link href="/api-docs" target="_blank">
-            <Button variant="outline" size="sm">⚡ Swagger Docs</Button>
+            <Button variant="outline" size="sm">
+              ⚡ Swagger Docs
+            </Button>
           </Link>
         </div>
       </div>
@@ -76,18 +83,46 @@ export default function AdminDashboard() {
       {/* Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Users", value: users.length, icon: "👤", badge: "active", variant: "primary" as const },
-          { label: "Database Status", value: health?.database as string || "ONLINE", icon: "🗄️", badge: "connected", variant: "success" as const },
-          { label: "API Liveness", value: health?.status as string || "UP", icon: "🛡️", badge: "healthy", variant: "success" as const },
-          { label: "Active Mode", value: "Development", icon: "⚙️", badge: "Next 15", variant: "warning" as const },
+          {
+            label: "Total Users",
+            value: users.length,
+            icon: "👤",
+            badge: "active",
+            variant: "primary" as const,
+          },
+          {
+            label: "Database Status",
+            value: (health?.database as string) || "ONLINE",
+            icon: "🗄️",
+            badge: "connected",
+            variant: "success" as const,
+          },
+          {
+            label: "API Liveness",
+            value: (health?.status as string) || "UP",
+            icon: "🛡️",
+            badge: "healthy",
+            variant: "success" as const,
+          },
+          {
+            label: "Active Mode",
+            value: "Development",
+            icon: "⚙️",
+            badge: "Next 15",
+            variant: "warning" as const,
+          },
         ].map((m) => (
           <Card key={m.label}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xl">{m.icon}</span>
               <Badge variant={m.variant}>{m.badge}</Badge>
             </div>
-            <div className="text-xl font-bold text-base-content mt-1">{m.value}</div>
-            <p className="text-[11px] font-semibold text-base-content/60 mt-1 uppercase tracking-wider">{m.label}</p>
+            <div className="text-xl font-bold text-base-content mt-1">
+              {m.value}
+            </div>
+            <p className="text-[11px] font-semibold text-base-content/60 mt-1 uppercase tracking-wider">
+              {m.label}
+            </p>
           </Card>
         ))}
       </div>
@@ -99,7 +134,9 @@ export default function AdminDashboard() {
           subtitle="System user accounts overview"
           action={
             <Link href="/admin/users">
-              <Button variant="ghost" size="sm">View All →</Button>
+              <Button variant="ghost" size="sm">
+                View All →
+              </Button>
             </Link>
           }
         />
@@ -115,13 +152,28 @@ export default function AdminDashboard() {
             </thead>
             <tbody className="divide-y divide-base-200">
               {users.map((u) => (
-                <tr key={u.id as string} className="hover:bg-base-200/50 transition-colors">
+                <tr
+                  key={u.id as string}
+                  className="hover:bg-base-200/50 transition-colors"
+                >
                   <td className="py-3 px-4">
-                    <div className="font-semibold text-base-content">{u.name as string}</div>
-                    <div className="text-base-content/60 text-[11px]">{u.email as string}</div>
+                    <div className="font-semibold text-base-content">
+                      {u.name as string}
+                    </div>
+                    <div className="text-base-content/60 text-[11px]">
+                      {u.email as string}
+                    </div>
                   </td>
                   <td className="py-3 px-4">
-                    <Badge variant={u.role === "super_admin" ? "error" : u.role === "teacher" ? "primary" : "neutral"}>
+                    <Badge
+                      variant={
+                        u.role === "super_admin"
+                          ? "error"
+                          : u.role === "teacher"
+                            ? "primary"
+                            : "neutral"
+                      }
+                    >
                       {(u.role as string).replace("_", " ")}
                     </Badge>
                   </td>
@@ -130,7 +182,9 @@ export default function AdminDashboard() {
                   </td>
                   <td className="py-3 px-4 text-right">
                     <Link href={`/admin/users?edit=${u.id as string}`}>
-                      <Button variant="outline" size="sm">Manage</Button>
+                      <Button variant="outline" size="sm">
+                        Manage
+                      </Button>
                     </Link>
                   </td>
                 </tr>
