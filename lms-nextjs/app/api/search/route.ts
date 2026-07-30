@@ -33,7 +33,13 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get("type") || "all";
 
     if (!q || q.trim().length < 2) {
-      return NextResponse.json({ success: false, message: "Search query must be at least 2 characters" }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Search query must be at least 2 characters",
+        },
+        { status: 400 },
+      );
     }
 
     const query = q.trim();
@@ -83,6 +89,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { results, query } });
   } catch {
-    return NextResponse.json({ success: false, message: "Search failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Search failed" },
+      { status: 500 },
+    );
   }
 }

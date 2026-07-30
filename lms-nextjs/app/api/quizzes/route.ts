@@ -58,7 +58,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { quizzes } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch quizzes" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch quizzes" },
+      { status: 500 },
+    );
   }
 }
 
@@ -71,22 +74,45 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
-      title, description, instructions, courseId, moduleId, topicId,
-      duration, totalMarks, passingMarks, quizType, attemptLimit,
-      shuffleQuestions, shuffleOptions, startDate, endDate, negativeMarking, status,
+      title,
+      description,
+      instructions,
+      courseId,
+      moduleId,
+      topicId,
+      duration,
+      totalMarks,
+      passingMarks,
+      quizType,
+      attemptLimit,
+      shuffleQuestions,
+      shuffleOptions,
+      startDate,
+      endDate,
+      negativeMarking,
+      status,
     } = body;
 
     if (!title || !courseId) {
-      return NextResponse.json({ success: false, message: "title and courseId are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "title and courseId are required" },
+        { status: 400 },
+      );
     }
 
     const quiz = await prisma.quiz.create({
       data: {
-        title, description: description || "", instructions: instructions || "",
-        courseId, moduleId: moduleId || null, topicId: topicId || null,
+        title,
+        description: description || "",
+        instructions: instructions || "",
+        courseId,
+        moduleId: moduleId || null,
+        topicId: topicId || null,
         createdById: user!.id,
-        duration: duration || 30, totalMarks: totalMarks || 100,
-        passingMarks: passingMarks || 40, quizType: quizType || "exam",
+        duration: duration || 30,
+        totalMarks: totalMarks || 100,
+        passingMarks: passingMarks || 40,
+        quizType: quizType || "exam",
         attemptLimit: attemptLimit ?? 1,
         shuffleQuestions: shuffleQuestions ?? false,
         shuffleOptions: shuffleOptions ?? false,
@@ -100,10 +126,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { success: true, message: "Quiz created", data: { quiz } },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to create quiz";
+    const message =
+      err instanceof Error ? err.message : "Failed to create quiz";
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     return NextResponse.json({ success: false, message }, { status });
   }

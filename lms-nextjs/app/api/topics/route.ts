@@ -44,7 +44,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const moduleId = searchParams.get("moduleId");
     if (!moduleId) {
-      return NextResponse.json({ success: false, message: "moduleId is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "moduleId is required" },
+        { status: 400 },
+      );
     }
 
     const topics = await prisma.topic.findMany({
@@ -55,7 +58,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { topics } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch topics" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch topics" },
+      { status: 500 },
+    );
   }
 }
 
@@ -67,10 +73,21 @@ export async function POST(req: NextRequest) {
     if (roleError) return roleError;
 
     const body = await req.json();
-    const { title, moduleId, content, videoUrl, duration, attachments, resources } = body;
+    const {
+      title,
+      moduleId,
+      content,
+      videoUrl,
+      duration,
+      attachments,
+      resources,
+    } = body;
 
     if (!title || !moduleId) {
-      return NextResponse.json({ success: false, message: "title and moduleId are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "title and moduleId are required" },
+        { status: 400 },
+      );
     }
 
     const topic = await prisma.topic.create({
@@ -86,7 +103,10 @@ export async function POST(req: NextRequest) {
       include: { resources: true },
     });
 
-    return NextResponse.json({ success: true, message: "Topic created", data: { topic } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: "Topic created", data: { topic } },
+      { status: 201 },
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to create topic";
     const status = (err as { statusCode?: number }).statusCode ?? 500;

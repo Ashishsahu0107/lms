@@ -55,7 +55,14 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         student: { select: { id: true, name: true, email: true } },
-        quiz: { select: { id: true, title: true, totalMarks: true, passingMarks: true } },
+        quiz: {
+          select: {
+            id: true,
+            title: true,
+            totalMarks: true,
+            passingMarks: true,
+          },
+        },
         answers: { include: { question: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -63,7 +70,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: { attempts } });
   } catch {
-    return NextResponse.json({ success: false, message: "Failed to fetch quiz attempts" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch quiz attempts" },
+      { status: 500 },
+    );
   }
 }
 
@@ -74,7 +84,10 @@ export async function POST(req: NextRequest) {
 
     const { quizId, answers, timeSpent } = await req.json();
     if (!quizId) {
-      return NextResponse.json({ success: false, message: "quizId is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "quizId is required" },
+        { status: 400 },
+      );
     }
 
     const quiz = await prisma.quiz.findUnique({
@@ -82,12 +95,19 @@ export async function POST(req: NextRequest) {
       include: { questions: true },
     });
     if (!quiz) {
-      return NextResponse.json({ success: false, message: "Quiz not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Quiz not found" },
+        { status: 404 },
+      );
     }
 
     // Auto-grade attempt
     let totalScore = 0;
-    const answerData: Array<{ questionId: string; selectedAnswers: string[]; isFlagged?: boolean }> = [];
+    const answerData: Array<{
+      questionId: string;
+      selectedAnswers: string[];
+      isFlagged?: boolean;
+    }> = [];
 
     if (answers && Array.isArray(answers)) {
       for (const ans of answers) {
@@ -106,7 +126,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const accuracy = quiz.totalMarks > 0 ? (totalScore / quiz.totalMarks) * 100 : 0;
+    const accuracy =
+      quiz.totalMarks > 0 ? (totalScore / quiz.totalMarks) * 100 : 0;
 
     const attempt = await prisma.quizAttempt.create({
       data: {
@@ -130,7 +151,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({ success: true, message: "Quiz submitted and graded", data: { attempt } }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Quiz submitted and graded",
+        data: { attempt },
+      },
+      { status: 201 },
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Submission failed";
     const status = (err as { statusCode?: number }).statusCode ?? 500;

@@ -9,9 +9,12 @@ export default function ApiDocsPage() {
     const loadSwagger = async () => {
       // Dynamically import swagger-ui-dist to avoid SSR issues
       // @ts-expect-error swagger-ui-dist has no default type declaration
-      const SwaggerUI = (await import("swagger-ui-dist/swagger-ui-bundle")).default;
+      const SwaggerUI = (await import("swagger-ui-dist/swagger-ui-bundle"))
+        .default;
       // @ts-expect-error swagger-ui-dist standalone preset
-      const SwaggerUIStandalonePreset = (await import("swagger-ui-dist/swagger-ui-standalone-preset")).default;
+      const SwaggerUIStandalonePreset = (
+        await import("swagger-ui-dist/swagger-ui-standalone-preset")
+      ).default;
       // @ts-expect-error swagger-ui-dist css import
       const SwaggerUICSS = await import("swagger-ui-dist/swagger-ui.css");
       void SwaggerUICSS;
@@ -21,10 +24,7 @@ export default function ApiDocsPage() {
           domNode: containerRef.current,
           url: "/api/docs",
           deepLinking: true,
-          presets: [
-            SwaggerUI.presets.apis,
-            SwaggerUIStandalonePreset,
-          ],
+          presets: [SwaggerUI.presets.apis, SwaggerUIStandalonePreset],
           plugins: [SwaggerUI.plugins.DownloadUrl],
           layout: "StandaloneLayout",
           tryItOutEnabled: true,

@@ -50,6 +50,9 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching students list:", error);
-    return NextResponse.json({ success: false, message: "Unable to retrieve student roster." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Unable to retrieve student roster." },
+      { status: 500 },
+    );
   }
 }
