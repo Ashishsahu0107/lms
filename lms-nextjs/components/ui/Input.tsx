@@ -8,7 +8,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
 }
 
-export function Input({ label, error, icon, className = "", ...props }: InputProps) {
+export function Input({
+  label,
+  error,
+  icon,
+  className = "",
+  ...props
+}: InputProps) {
   return (
     <div className="w-full">
       {label && (

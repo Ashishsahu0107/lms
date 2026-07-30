@@ -19,7 +19,7 @@ function getTransporter() {
 export async function sendOtpEmail(
   to: string,
   otp: string,
-  subject: string
+  subject: string,
 ): Promise<void> {
   const transporter = getTransporter();
 

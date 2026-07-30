@@ -1,7 +1,13 @@
 // context/SocketContext.tsx — Socket.io client context
 "use client";
 
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "@/context/AuthContext";
 
@@ -30,7 +36,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000";
+    const SOCKET_URL =
+      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000";
 
     const socket = io(SOCKET_URL, {
       auth: { token },
@@ -53,7 +60,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on("user-online", ({ userId }: { userId: string }) => {
-      setOnlineUsers((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
+      setOnlineUsers((prev) =>
+        prev.includes(userId) ? prev : [...prev, userId],
+      );
     });
 
     socket.on("user-offline", ({ userId }: { userId: string }) => {

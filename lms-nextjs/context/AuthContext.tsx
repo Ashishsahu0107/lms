@@ -1,10 +1,14 @@
-// context/AuthContext.tsx — Auth state management (ported from frontend)
+// context/AuthContext.tsx — Auth state management
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "@/store/store";
 
 // ── Types
 interface User {
@@ -13,12 +17,10 @@ interface User {
   email: string;
   role: "student" | "teacher" | "super_admin";
   avatar?: string;
-  isActive: boolean;
-  xp: number;
-  streak: number;
-  badges: string[];
-  preferences?: Record<string, unknown>;
-  [key: string]: unknown;
+  bio?: string;
+  xp?: number;
+  streak?: number;
+  level?: number;
 }
 
 interface AuthState {
@@ -29,16 +31,22 @@ interface AuthState {
 }
 
 type AuthAction =
-  | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_AUTH"; payload: { user: User; token: string } }
+  | { type: "LOGOUT" }
   | { type: "UPDATE_USER"; payload: Partial<User> }
-  | { type: "LOGOUT" };
+  | { type: "SET_LOADING"; payload: boolean };
 
-// ── Reducer
+interface AuthContextType extends AuthState {
+  login: (token: string, user: User) => void;
+  logout: () => void;
+  updateUser: (data: Partial<User>) => void;
+  refreshUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
-    case "SET_LOADING":
-      return { ...state, isLoading: action.payload };
     case "SET_AUTH":
       return {
         ...state,
@@ -47,26 +55,26 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         isAuthenticated: true,
         isLoading: false,
       };
-    case "UPDATE_USER":
-      return { ...state, user: state.user ? { ...state.user, ...action.payload } : null };
     case "LOGOUT":
-      return { user: null, token: null, isAuthenticated: false, isLoading: false };
+      return {
+        ...state,
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+      };
+    case "UPDATE_USER":
+      return {
+        ...state,
+        user: state.user ? { ...state.user, ...action.payload } : null,
+      };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
     default:
       return state;
   }
 }
 
-// ── Context
-interface AuthContextType extends AuthState {
-  login: (token: string, user: User) => void;
-  logout: () => void;
-  updateUser: (data: Partial<User>) => void;
-  refreshUser: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | null>(null);
-
-// ── Provider
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [state, dispatch] = useReducer(authReducer, {
@@ -76,7 +84,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
   });
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+
+  const refreshUser = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const { data } = await res.json();
+        dispatch({ type: "SET_AUTH", payload: { user: data.user, token } });
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    } catch {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, [API_URL]);
 
   // ── Restore session from localStorage on mount
   useEffect(() => {
@@ -95,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       dispatch({ type: "SET_LOADING", payload: false });
     }
-  }, []);
+  }, [refreshUser]);
 
   const login = useCallback((token: string, user: User) => {
     localStorage.setItem("token", token);
@@ -122,35 +151,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const refreshUser = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      const res = await fetch(`${API_URL}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const { data } = await res.json();
-        dispatch({ type: "SET_AUTH", payload: { user: data.user, token } });
-        localStorage.setItem("user", JSON.stringify(data.user));
-      } else {
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
-    } catch {
-      dispatch({ type: "SET_LOADING", payload: false });
-    }
-  }, [API_URL]);
-
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, updateUser, refreshUser }}>
+    <AuthContext.Provider
+      value={{ ...state, login, logout, updateUser, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-  return ctx;
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }

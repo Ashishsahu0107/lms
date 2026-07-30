@@ -18,12 +18,24 @@ export function Card({ children, className = "", ...props }: CardProps) {
   );
 }
 
-export function CardHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
+export function CardHeader({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle?: string;
+  action?: React.ReactNode;
+}) {
   return (
     <div className="flex items-center justify-between mb-4 pb-3 border-b border-base-200">
       <div>
-        <h3 className="font-bold text-base text-base-content tracking-tight font-display">{title}</h3>
-        {subtitle && <p className="text-xs text-base-content/60 mt-0.5">{subtitle}</p>}
+        <h3 className="font-bold text-base text-base-content tracking-tight font-display">
+          {title}
+        </h3>
+        {subtitle && (
+          <p className="text-xs text-base-content/60 mt-0.5">{subtitle}</p>
+        )}
       </div>
       {action && <div>{action}</div>}
     </div>

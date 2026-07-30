@@ -22,7 +22,11 @@ export default function GlobalThreeBackground() {
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
     camera.position.z = 15;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: "low-power" });
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: false,
+      powerPreference: "low-power",
+    });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
 
@@ -73,7 +77,10 @@ export default function GlobalThreeBackground() {
       posArray[i] = (Math.random() - 0.5) * 35;
     }
 
-    particleGeo.setAttribute("position", new THREE.BufferAttribute(posArray, 3));
+    particleGeo.setAttribute(
+      "position",
+      new THREE.BufferAttribute(posArray, 3),
+    );
     const particleMat = new THREE.PointsMaterial({
       size: 0.06,
       color: particleColor,

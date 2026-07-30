@@ -3,12 +3,24 @@
 import React from "react";
 
 interface BadgeProps {
-  variant?: "primary" | "secondary" | "accent" | "success" | "warning" | "error" | "info" | "neutral";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "success"
+    | "warning"
+    | "error"
+    | "info"
+    | "neutral";
   children: React.ReactNode;
   className?: string;
 }
 
-export function Badge({ variant = "primary", children, className = "" }: BadgeProps) {
+export function Badge({
+  variant = "primary",
+  children,
+  className = "",
+}: BadgeProps) {
   const variants = {
     primary: "bg-primary/10 text-primary border-primary/30",
     secondary: "bg-secondary/10 text-secondary border-secondary/30",

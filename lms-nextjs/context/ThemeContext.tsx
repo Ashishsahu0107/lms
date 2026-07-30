@@ -32,9 +32,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const applyTheme = (t: Theme) => {
       const isDark =
         t === "dark" ||
-        (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        (t === "system" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-      document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+      document.documentElement.setAttribute(
+        "data-theme",
+        isDark ? "dark" : "light",
+      );
       setResolvedTheme(isDark ? "dark" : "light");
     };
 
@@ -56,7 +60,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{ theme, resolvedTheme, setTheme, toggleTheme }}
+    >
       {children}
     </ThemeContext.Provider>
   );

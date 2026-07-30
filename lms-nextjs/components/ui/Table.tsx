@@ -29,7 +29,13 @@ export function Table({ headers, children, className = "" }: TableProps) {
   );
 }
 
-export function TableRow({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function TableRow({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <tr className={`hover:bg-base-200/60 transition-colors ${className}`}>
       {children}
@@ -37,6 +43,14 @@ export function TableRow({ children, className = "" }: { children: React.ReactNo
   );
 }
 
-export function TableCell({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <td className={`py-3.5 px-4 text-base-content ${className}`}>{children}</td>;
+export function TableCell({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <td className={`py-3.5 px-4 text-base-content ${className}`}>{children}</td>
+  );
 }
