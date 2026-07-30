@@ -10,7 +10,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 export default function StudentCertificates() {
   const { token } = useAuth();
   const [certs, setCerts] = useState<Array<Record<string, unknown>>>([]);
-  const [selectedCert, setSelectedCert] = useState<Record<string, unknown> | null>(null);
+  const [selectedCert, setSelectedCert] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchCertificates = useCallback(async () => {
@@ -41,7 +44,8 @@ export default function StudentCertificates() {
           Earned Certificates 📜
         </h1>
         <p className="text-sm text-base-content/60 mt-1">
-          Download, share, and verify your official course completion credentials.
+          Download, share, and verify your official course completion
+          credentials.
         </p>
       </div>
 
@@ -65,14 +69,20 @@ export default function StudentCertificates() {
                 </div>
 
                 <h3 className="font-bold text-base line-clamp-1">
-                  {(c.course as Record<string, unknown>)?.title as string || "Course Completion"}
+                  {((c.course as Record<string, unknown>)?.title as string) ||
+                    "Course Completion"}
                 </h3>
                 <p className="text-xs text-base-content/50 mt-1">
-                  Issued on: {new Date(c.issueDate as string || Date.now()).toLocaleDateString()}
+                  Issued on:{" "}
+                  {new Date(
+                    (c.issueDate as string) || Date.now(),
+                  ).toLocaleDateString()}
                 </p>
 
                 <div className="card-actions justify-between items-center mt-6 pt-3 border-t border-base-200">
-                  <span className="badge badge-success badge-sm">Verified Official</span>
+                  <span className="badge badge-success badge-sm">
+                    Verified Official
+                  </span>
                   <button
                     onClick={() => setSelectedCert(c)}
                     className="btn btn-primary btn-xs gap-1"
@@ -87,8 +97,13 @@ export default function StudentCertificates() {
       ) : (
         <div className="text-center py-16 text-base-content/40 bg-base-100 rounded-2xl border border-base-200 p-8">
           <p className="text-5xl mb-3">📜</p>
-          <h3 className="font-bold text-lg text-base-content">No Certificates Earned Yet</h3>
-          <p className="text-sm mt-1 mb-6">Complete 100% of any course module requirements to receive your official certificate.</p>
+          <h3 className="font-bold text-lg text-base-content">
+            No Certificates Earned Yet
+          </h3>
+          <p className="text-sm mt-1 mb-6">
+            Complete 100% of any course module requirements to receive your
+            official certificate.
+          </p>
           <Link href="/student/my-courses" className="btn btn-primary btn-md">
             Go to My Courses
           </Link>
@@ -112,18 +127,28 @@ export default function StudentCertificates() {
               <h2 className="text-2xl font-bold font-serif uppercase tracking-widest text-amber-800 mt-2">
                 Certificate of Completion
               </h2>
-              <p className="text-xs text-slate-400 font-mono mt-1">LMS PRO OFFICIAL CREDENTIAL</p>
+              <p className="text-xs text-slate-400 font-mono mt-1">
+                LMS PRO OFFICIAL CREDENTIAL
+              </p>
             </div>
 
             {/* Content */}
             <div className="text-center my-6 space-y-3">
-              <p className="text-xs text-slate-500 uppercase tracking-wider">This is to certify that</p>
-              <p className="text-2xl font-bold text-slate-900 border-b border-amber-500/30 pb-2 inline-block px-8">
-                {(selectedCert.student as Record<string, unknown>)?.name as string || "Student"}
+              <p className="text-xs text-slate-500 uppercase tracking-wider">
+                This is to certify that
               </p>
-              <p className="text-xs text-slate-500 uppercase tracking-wider pt-2">has successfully completed the course</p>
+              <p className="text-2xl font-bold text-slate-900 border-b border-amber-500/30 pb-2 inline-block px-8">
+                {((selectedCert.student as Record<string, unknown>)
+                  ?.name as string) || "Student"}
+              </p>
+              <p className="text-xs text-slate-500 uppercase tracking-wider pt-2">
+                has successfully completed the course
+              </p>
               <p className="text-lg font-bold text-amber-900">
-                {(selectedCert.course as Record<string, unknown>)?.title as string}
+                {
+                  (selectedCert.course as Record<string, unknown>)
+                    ?.title as string
+                }
               </p>
             </div>
 
@@ -131,9 +156,12 @@ export default function StudentCertificates() {
             <div className="flex justify-between items-end mt-8 pt-6 border-t border-slate-200 text-xs text-slate-500">
               <div>
                 <p className="font-semibold text-slate-800">
-                  {(selectedCert.issuedBy as Record<string, unknown>)?.name as string || "Course Director"}
+                  {((selectedCert.issuedBy as Record<string, unknown>)
+                    ?.name as string) || "Course Director"}
                 </p>
-                <p className="text-[10px] text-slate-400">Authorized Signatory</p>
+                <p className="text-[10px] text-slate-400">
+                  Authorized Signatory
+                </p>
               </div>
 
               <div className="text-center">
@@ -145,7 +173,9 @@ export default function StudentCertificates() {
 
               <div className="text-right">
                 <p className="font-semibold text-slate-800">
-                  {new Date(selectedCert.issueDate as string || Date.now()).toLocaleDateString()}
+                  {new Date(
+                    (selectedCert.issueDate as string) || Date.now(),
+                  ).toLocaleDateString()}
                 </p>
                 <p className="text-[10px] text-slate-400">Issue Date</p>
               </div>

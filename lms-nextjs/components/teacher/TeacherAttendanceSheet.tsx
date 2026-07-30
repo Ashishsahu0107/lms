@@ -12,18 +12,23 @@ export default function TeacherAttendanceSheet() {
   const [courses, setCourses] = useState<Array<Record<string, unknown>>>([]);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [enrollments, setEnrollments] = useState<Array<Record<string, unknown>>>([]);
+  const [enrollments, setEnrollments] = useState<
+    Array<Record<string, unknown>>
+  >([]);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchCourses = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_URL}/courses`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_URL}/courses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
       if (data.success) {
         setCourses(data.data.courses || []);
-        if (data.data.courses?.[0]?.id) setSelectedCourse(data.data.courses[0].id);
+        if (data.data.courses?.[0]?.id)
+          setSelectedCourse(data.data.courses[0].id);
       }
     } catch (e) {
       console.error(e);
@@ -32,18 +37,21 @@ export default function TeacherAttendanceSheet() {
     }
   }, [token]);
 
-  const fetchStudents = useCallback(async (courseId: string) => {
-    if (!token || !courseId) return;
-    try {
-      const res = await fetch(`${API_URL}/enrollments?courseId=${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success) setEnrollments(data.data.enrollments || []);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [token]);
+  const fetchStudents = useCallback(
+    async (courseId: string) => {
+      if (!token || !courseId) return;
+      try {
+        const res = await fetch(`${API_URL}/enrollments?courseId=${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success) setEnrollments(data.data.enrollments || []);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [token],
+  );
 
   useEffect(() => {
     fetchCourses();
@@ -76,7 +84,9 @@ export default function TeacherAttendanceSheet() {
 
       toast.success("Attendance marked!");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to mark attendance");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to mark attendance",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -96,7 +106,11 @@ export default function TeacherAttendanceSheet() {
       <div className="card bg-base-100 shadow border border-base-200 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="form-control">
-            <label className="label"><span className="label-text font-medium text-xs">Select Course</span></label>
+            <label className="label">
+              <span className="label-text font-medium text-xs">
+                Select Course
+              </span>
+            </label>
             <select
               className="select select-bordered focus:select-primary text-sm"
               value={selectedCourse}
@@ -111,7 +125,11 @@ export default function TeacherAttendanceSheet() {
           </div>
 
           <div className="form-control">
-            <label className="label"><span className="label-text font-medium text-xs">Attendance Date</span></label>
+            <label className="label">
+              <span className="label-text font-medium text-xs">
+                Attendance Date
+              </span>
+            </label>
             <input
               type="date"
               className="input input-bordered focus:input-primary text-sm"
@@ -141,24 +159,35 @@ export default function TeacherAttendanceSheet() {
                 </thead>
                 <tbody>
                   {enrollments.map((item) => {
-                    const student = (item.student || {}) as Record<string, unknown>;
+                    const student = (item.student || {}) as Record<
+                      string,
+                      unknown
+                    >;
                     const sId = student.id as string;
 
                     return (
                       <tr key={item.id as string}>
-                        <td className="font-semibold">{student.name as string || "Student"}</td>
-                        <td className="text-base-content/70">{student.email as string || "—"}</td>
+                        <td className="font-semibold">
+                          {(student.name as string) || "Student"}
+                        </td>
+                        <td className="text-base-content/70">
+                          {(student.email as string) || "—"}
+                        </td>
                         <td>
                           <div className="join">
                             <button
-                              onClick={() => handleMarkAttendance(sId, "present")}
+                              onClick={() =>
+                                handleMarkAttendance(sId, "present")
+                              }
                               disabled={submitting}
                               className="btn btn-xs btn-success join-item"
                             >
                               Present
                             </button>
                             <button
-                              onClick={() => handleMarkAttendance(sId, "absent")}
+                              onClick={() =>
+                                handleMarkAttendance(sId, "absent")
+                              }
                               disabled={submitting}
                               className="btn btn-xs btn-error join-item"
                             >

@@ -8,7 +8,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 export default function StudentRoster() {
   const { token } = useAuth();
-  const [enrollments, setEnrollments] = useState<Array<Record<string, unknown>>>([]);
+  const [enrollments, setEnrollments] = useState<
+    Array<Record<string, unknown>>
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const fetchEnrollments = useCallback(async () => {
@@ -62,23 +64,41 @@ export default function StudentRoster() {
                 </thead>
                 <tbody>
                   {enrollments.map((item) => {
-                    const student = (item.student || {}) as Record<string, unknown>;
-                    const course = (item.course || {}) as Record<string, unknown>;
+                    const student = (item.student || {}) as Record<
+                      string,
+                      unknown
+                    >;
+                    const course = (item.course || {}) as Record<
+                      string,
+                      unknown
+                    >;
                     const progress = Number(item.progress || 0);
 
                     return (
                       <tr key={item.id as string}>
-                        <td className="font-semibold">{student.name as string || "Student"}</td>
-                        <td className="text-base-content/70">{student.email as string || "—"}</td>
-                        <td>{course.title as string || "Course"}</td>
+                        <td className="font-semibold">
+                          {(student.name as string) || "Student"}
+                        </td>
+                        <td className="text-base-content/70">
+                          {(student.email as string) || "—"}
+                        </td>
+                        <td>{(course.title as string) || "Course"}</td>
                         <td>
                           <div className="flex items-center gap-2">
-                            <progress className="progress progress-primary w-24 h-1.5" value={progress} max="100" />
-                            <span className="text-xs font-bold">{Math.round(progress)}%</span>
+                            <progress
+                              className="progress progress-primary w-24 h-1.5"
+                              value={progress}
+                              max="100"
+                            />
+                            <span className="text-xs font-bold">
+                              {Math.round(progress)}%
+                            </span>
                           </div>
                         </td>
                         <td className="text-xs text-base-content/50">
-                          {new Date(item.createdAt as string || Date.now()).toLocaleDateString()}
+                          {new Date(
+                            (item.createdAt as string) || Date.now(),
+                          ).toLocaleDateString()}
                         </td>
                       </tr>
                     );

@@ -11,7 +11,9 @@ export default function StudentQuizzes() {
   const { token } = useAuth();
   const [quizzes, setQuizzes] = useState<Array<Record<string, unknown>>>([]);
   const [attempts, setAttempts] = useState<Array<Record<string, unknown>>>([]);
-  const [activeQuiz, setActiveQuiz] = useState<Record<string, unknown> | null>(null);
+  const [activeQuiz, setActiveQuiz] = useState<Record<string, unknown> | null>(
+    null,
+  );
   const [userAnswers, setUserAnswers] = useState<Record<string, string[]>>({});
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -20,8 +22,12 @@ export default function StudentQuizzes() {
     if (!token) return;
     try {
       const [qRes, aRes] = await Promise.all([
-        fetch(`${API_URL}/quizzes`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_URL}/quiz-attempts`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/quizzes`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_URL}/quiz-attempts`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
       const qData = await qRes.json();
       const aData = await aRes.json();
@@ -46,7 +52,9 @@ export default function StudentQuizzes() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      const found = (data.data.quizzes || []).find((q: Record<string, unknown>) => q.id === quiz.id);
+      const found = (data.data.quizzes || []).find(
+        (q: Record<string, unknown>) => q.id === quiz.id,
+      );
       setActiveQuiz(found || quiz);
       setUserAnswers({});
     } catch {
@@ -65,10 +73,12 @@ export default function StudentQuizzes() {
     if (!activeQuiz || !token) return;
     setSubmitting(true);
 
-    const answersPayload = Object.entries(userAnswers).map(([questionId, selectedAnswers]) => ({
-      questionId,
-      selectedAnswers,
-    }));
+    const answersPayload = Object.entries(userAnswers).map(
+      ([questionId, selectedAnswers]) => ({
+        questionId,
+        selectedAnswers,
+      }),
+    );
 
     try {
       const res = await fetch(`${API_URL}/quiz-attempts`, {
@@ -87,11 +97,15 @@ export default function StudentQuizzes() {
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
 
-      toast.success(`Quiz Completed! Score: ${data.data.attempt.score}/${activeQuiz.totalMarks || 100}`);
+      toast.success(
+        `Quiz Completed! Score: ${data.data.attempt.score}/${activeQuiz.totalMarks || 100}`,
+      );
       setActiveQuiz(null);
       fetchData();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Quiz submission failed");
+      toast.error(
+        err instanceof Error ? err.message : "Quiz submission failed",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -128,25 +142,30 @@ export default function StudentQuizzes() {
               >
                 <div className="card-body p-5">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-base line-clamp-1">{q.title as string}</h3>
+                    <h3 className="font-bold text-base line-clamp-1">
+                      {q.title as string}
+                    </h3>
                     <span className="badge badge-primary badge-sm">
-                      {q.quizType as string || "Exam"}
+                      {(q.quizType as string) || "Exam"}
                     </span>
                   </div>
 
                   <p className="text-xs text-base-content/60 line-clamp-2 mb-4">
-                    {q.description as string || "Test your subject understanding."}
+                    {(q.description as string) ||
+                      "Test your subject understanding."}
                   </p>
 
                   <div className="flex items-center justify-between text-xs py-2 border-y border-base-200 text-base-content/70">
-                    <span>⏱️ {q.duration as number || 30} mins</span>
-                    <span>🎯 {q.passingMarks as number || 40}% to pass</span>
-                    <span>⭐ {q.totalMarks as number || 100} pts</span>
+                    <span>⏱️ {(q.duration as number) || 30} mins</span>
+                    <span>🎯 {(q.passingMarks as number) || 40}% to pass</span>
+                    <span>⭐ {(q.totalMarks as number) || 100} pts</span>
                   </div>
 
                   {attempt && (
                     <div className="mt-3 p-2 bg-success/10 text-success rounded-lg text-xs font-semibold text-center">
-                      Score: {attempt.score as number}/{q.totalMarks as number || 100} ({Math.round(attempt.accuracy as number || 0)}% accuracy)
+                      Score: {attempt.score as number}/
+                      {(q.totalMarks as number) || 100} (
+                      {Math.round((attempt.accuracy as number) || 0)}% accuracy)
                     </div>
                   )}
 
@@ -175,7 +194,9 @@ export default function StudentQuizzes() {
       ) : (
         <div className="text-center py-16 text-base-content/40 bg-base-100 rounded-2xl border border-base-200">
           <p className="text-5xl mb-3">🧠</p>
-          <p className="font-bold text-lg text-base-content">No quizzes published yet</p>
+          <p className="font-bold text-lg text-base-content">
+            No quizzes published yet
+          </p>
         </div>
       )}
 
@@ -186,10 +207,19 @@ export default function StudentQuizzes() {
             <div className="card-body p-6">
               <div className="flex items-center justify-between border-b border-base-200 pb-3 mb-4">
                 <div>
-                  <h3 className="font-bold text-lg">{activeQuiz.title as string}</h3>
-                  <p className="text-xs text-base-content/50">Duration: {activeQuiz.duration as number} mins</p>
+                  <h3 className="font-bold text-lg">
+                    {activeQuiz.title as string}
+                  </h3>
+                  <p className="text-xs text-base-content/50">
+                    Duration: {activeQuiz.duration as number} mins
+                  </p>
                 </div>
-                <button onClick={() => setActiveQuiz(null)} className="btn btn-ghost btn-xs btn-circle">✕</button>
+                <button
+                  onClick={() => setActiveQuiz(null)}
+                  className="btn btn-ghost btn-xs btn-circle"
+                >
+                  ✕
+                </button>
               </div>
 
               {/* Sample Questions View */}
@@ -197,7 +227,8 @@ export default function StudentQuizzes() {
                 {[
                   {
                     id: "q1",
-                    question: "What is the primary function of Next.js App Router?",
+                    question:
+                      "What is the primary function of Next.js App Router?",
                     options: [
                       "Server-side rendering and simplified routing",
                       "Database query engine",
@@ -207,7 +238,8 @@ export default function StudentQuizzes() {
                   },
                   {
                     id: "q2",
-                    question: "Which Prisma command generates the type-safe client?",
+                    question:
+                      "Which Prisma command generates the type-safe client?",
                     options: [
                       "npx prisma generate",
                       "npx prisma push",
@@ -216,7 +248,10 @@ export default function StudentQuizzes() {
                     ],
                   },
                 ].map((q, idx) => (
-                  <div key={q.id} className="p-4 bg-base-200/50 rounded-xl border border-base-300">
+                  <div
+                    key={q.id}
+                    className="p-4 bg-base-200/50 rounded-xl border border-base-300"
+                  >
                     <p className="font-semibold text-sm mb-3">
                       Q{idx + 1}. {q.question}
                     </p>
@@ -244,11 +279,20 @@ export default function StudentQuizzes() {
               </div>
 
               <div className="card-actions justify-end gap-2 mt-6 pt-4 border-t border-base-200">
-                <button onClick={() => setActiveQuiz(null)} className="btn btn-ghost btn-sm">
+                <button
+                  onClick={() => setActiveQuiz(null)}
+                  className="btn btn-ghost btn-sm"
+                >
                   Cancel
                 </button>
-                <button onClick={handleSubmitQuiz} disabled={submitting} className="btn btn-primary btn-sm">
-                  {submitting ? <span className="loading loading-spinner loading-xs" /> : null}
+                <button
+                  onClick={handleSubmitQuiz}
+                  disabled={submitting}
+                  className="btn btn-primary btn-sm"
+                >
+                  {submitting ? (
+                    <span className="loading loading-spinner loading-xs" />
+                  ) : null}
                   Submit Answers
                 </button>
               </div>

@@ -32,7 +32,12 @@ export default function TeacherDashboard() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) router.push("/login");
-    if (!isLoading && isAuthenticated && user?.role !== "teacher" && user?.role !== "super_admin") {
+    if (
+      !isLoading &&
+      isAuthenticated &&
+      user?.role !== "teacher" &&
+      user?.role !== "super_admin"
+    ) {
       router.push("/student/dashboard");
     }
     if (isAuthenticated && token) loadData();
@@ -57,7 +62,10 @@ export default function TeacherDashboard() {
             Manage your courses, assignments, quizzes, and student roster.
           </p>
         </div>
-        <Link href="/teacher/courses/new" className="btn btn-primary btn-sm gap-2">
+        <Link
+          href="/teacher/courses/new"
+          className="btn btn-primary btn-sm gap-2"
+        >
           ➕ Create Course
         </Link>
       </div>
@@ -65,23 +73,38 @@ export default function TeacherDashboard() {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">My Courses</p>
-          <p className="text-2xl font-bold text-primary mt-1">{courses.length}</p>
-        </div>
-        <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">Total Students</p>
-          <p className="text-2xl font-bold text-secondary mt-1">
-            {courses.reduce((sum, c) => sum + Number((c._count as Record<string, number>)?.enrollments || 0), 0)}
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            My Courses
+          </p>
+          <p className="text-2xl font-bold text-primary mt-1">
+            {courses.length}
           </p>
         </div>
         <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">Published</p>
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            Total Students
+          </p>
+          <p className="text-2xl font-bold text-secondary mt-1">
+            {courses.reduce(
+              (sum, c) =>
+                sum +
+                Number((c._count as Record<string, number>)?.enrollments || 0),
+              0,
+            )}
+          </p>
+        </div>
+        <div className="card bg-base-100 shadow border border-base-200 p-4">
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            Published
+          </p>
           <p className="text-2xl font-bold text-success mt-1">
             {courses.filter((c) => c.status === "published").length}
           </p>
         </div>
         <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">Drafts</p>
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            Drafts
+          </p>
           <p className="text-2xl font-bold text-warning mt-1">
             {courses.filter((c) => c.status === "draft").length}
           </p>
@@ -108,17 +131,21 @@ export default function TeacherDashboard() {
                   {courses.map((c) => (
                     <tr key={c.id as string}>
                       <td className="font-semibold">{c.title as string}</td>
-                      <td>{c.category as string || "General"}</td>
+                      <td>{(c.category as string) || "General"}</td>
                       <td>
                         <span
                           className={`badge badge-sm ${
-                            c.status === "published" ? "badge-success" : "badge-warning"
+                            c.status === "published"
+                              ? "badge-success"
+                              : "badge-warning"
                           }`}
                         >
                           {c.status as string}
                         </span>
                       </td>
-                      <td>{(c._count as Record<string, number>)?.enrollments || 0}</td>
+                      <td>
+                        {(c._count as Record<string, number>)?.enrollments || 0}
+                      </td>
                       <td>
                         <Link
                           href={`/teacher/courses/${c.id as string}`}
@@ -135,7 +162,10 @@ export default function TeacherDashboard() {
           ) : (
             <div className="text-center py-12 text-base-content/40">
               <p className="text-4xl mb-2">📖</p>
-              <p>No courses authored yet. Click &quot;Create Course&quot; to begin.</p>
+              <p>
+                No courses authored yet. Click &quot;Create Course&quot; to
+                begin.
+              </p>
             </div>
           )}
         </div>
