@@ -5,9 +5,25 @@ import { parse } from "url";
 import next from "next";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import os from "os";
+
+function getLocalIpAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === "IPv4" && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return null;
+}
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = process.env.HOSTNAME || "0.0.0.0";
+const hostArgIndex = process.argv.findIndex(arg => arg === "--host" || arg === "-H");
+const hostname = (hostArgIndex !== -1 && process.argv[hostArgIndex + 1] && !process.argv[hostArgIndex + 1].startsWith("-"))
+  ? process.argv[hostArgIndex + 1]
+  : (process.env.HOSTNAME || "0.0.0.0");
 const port = parseInt(process.env.PORT || "3000", 10);
 
 const app = next({ dev, hostname, port });
@@ -198,9 +214,18 @@ app.prepare().then(() => {
   global.io = ioInstance;
 
   httpServer.listen(port, hostname, () => {
-    console.log(`\n🚀 LMS Pro running at http://localhost:${port}`);
-    console.log(`📚 Swagger UI: http://localhost:${port}/api-docs`);
-    console.log(`🔌 Socket.io: ready`);
+    const localIp = getLocalIpAddress();
+    console.log(`\n🚀 LMS Pro running at:`);
+    console.log(`   - Local:   http://localhost:${port}`);
+    if (localIp) {
+      console.log(`   - Network: http://${localIp}:${port}`);
+    }
+    console.log(`\n📚 Swagger UI:`);
+    console.log(`   - Local:   http://localhost:${port}/api-docs`);
+    if (localIp) {
+      console.log(`   - Network: http://${localIp}:${port}/api-docs`);
+    }
+    console.log(`\n🔌 Socket.io: ready`);
     console.log(`🗄️  Database: PostgreSQL (Prisma)`);
     console.log(`Mode: ${dev ? "development" : "production"}\n`);
   });
