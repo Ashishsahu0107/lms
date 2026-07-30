@@ -25,7 +25,8 @@ export default function TeacherSchedulesView() {
           Live Class Schedules 🗓️
         </h1>
         <p className="text-sm text-base-content/60 mt-1">
-          Schedule live interactive Zoom or Google Meet classes for enrolled students.
+          Schedule live interactive Zoom or Google Meet classes for enrolled
+          students.
         </p>
       </div>
 
@@ -33,7 +34,11 @@ export default function TeacherSchedulesView() {
         <h2 className="card-title text-lg mb-4">Schedule Live Session</h2>
         <form onSubmit={handleSchedule} className="space-y-4 max-w-lg">
           <div className="form-control">
-            <label className="label"><span className="label-text font-medium text-xs">Class Topic</span></label>
+            <label className="label">
+              <span className="label-text font-medium text-xs">
+                Class Topic
+              </span>
+            </label>
             <input
               type="text"
               required
@@ -45,7 +50,11 @@ export default function TeacherSchedulesView() {
           </div>
 
           <div className="form-control">
-            <label className="label"><span className="label-text font-medium text-xs">Session Date & Time</span></label>
+            <label className="label">
+              <span className="label-text font-medium text-xs">
+                Session Date & Time
+              </span>
+            </label>
             <input
               type="datetime-local"
               required
@@ -56,7 +65,11 @@ export default function TeacherSchedulesView() {
           </div>
 
           <div className="form-control">
-            <label className="label"><span className="label-text font-medium text-xs">Zoom / Google Meet Link</span></label>
+            <label className="label">
+              <span className="label-text font-medium text-xs">
+                Zoom / Google Meet Link
+              </span>
+            </label>
             <input
               type="url"
               className="input input-bordered focus:input-primary text-sm"

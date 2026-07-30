@@ -57,7 +57,9 @@ export default function TeacherCourseManager() {
   const [submittingModule, setSubmittingModule] = useState(false);
 
   // ── Searchable Assign Course to Student State
-  const [assignCourseItem, setAssignCourseItem] = useState<CourseItem | null>(null);
+  const [assignCourseItem, setAssignCourseItem] = useState<CourseItem | null>(
+    null,
+  );
   const [students, setStudents] = useState<StudentUser[]>([]);
   const [studentSearch, setStudentSearch] = useState("");
   const [loadingStudents, setLoadingStudents] = useState(false);
@@ -91,49 +93,55 @@ export default function TeacherCourseManager() {
     }
   }, [token, user]);
 
-  const fetchStudents = useCallback(async (query = "") => {
-    if (!token) return;
-    setLoadingStudents(true);
-    try {
-      let url = `${API_URL}/students?limit=100`;
-      if (query) url += `&search=${encodeURIComponent(query)}`;
+  const fetchStudents = useCallback(
+    async (query = "") => {
+      if (!token) return;
+      setLoadingStudents(true);
+      try {
+        let url = `${API_URL}/students?limit=100`;
+        if (query) url += `&search=${encodeURIComponent(query)}`;
 
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setStudents(data.data.students || []);
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success) {
+          setStudents(data.data.students || []);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoadingStudents(false);
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingStudents(false);
-    }
-  }, [token]);
+    },
+    [token],
+  );
 
   useEffect(() => {
     fetchCourses();
     fetchStudents();
   }, [fetchCourses, fetchStudents]);
 
-  const fetchModules = useCallback(async (courseId: string) => {
-    if (!token) return;
-    setLoadingModules(true);
-    try {
-      const res = await fetch(`${API_URL}/modules?courseId=${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setModules(data.data.modules || []);
+  const fetchModules = useCallback(
+    async (courseId: string) => {
+      if (!token) return;
+      setLoadingModules(true);
+      try {
+        const res = await fetch(`${API_URL}/modules?courseId=${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success) {
+          setModules(data.data.modules || []);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoadingModules(false);
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingModules(false);
-    }
-  }, [token]);
+    },
+    [token],
+  );
 
   const handleOpenEditor = (course: CourseItem) => {
     setEditorCourse(course);
@@ -143,7 +151,9 @@ export default function TeacherCourseManager() {
       difficulty: course.difficulty || "beginner",
       status: course.status || "published",
       description: course.description || "",
-      notes: course.notes || `=== ${course.title} Notepad Notes ===\n- Key Learning Objective 1\n- Key Learning Objective 2\n\n\`\`\`java\npublic class Solution {\n    // Code notes & algorithm logic\n}\n\`\`\``,
+      notes:
+        course.notes ||
+        `=== ${course.title} Notepad Notes ===\n- Key Learning Objective 1\n- Key Learning Objective 2\n\n\`\`\`java\npublic class Solution {\n    // Code notes & algorithm logic\n}\n\`\`\``,
     });
     fetchModules(course.id);
   };
@@ -205,7 +215,9 @@ export default function TeacherCourseManager() {
       setDescription("");
       fetchCourses();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Course creation failed");
+      toast.error(
+        err instanceof Error ? err.message : "Course creation failed",
+      );
     } finally {
       setSubmittingCourse(false);
     }
@@ -273,7 +285,9 @@ export default function TeacherCourseManager() {
       setSelectedStudentId("");
       fetchCourses();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to assign course");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to assign course",
+      );
     } finally {
       setAssigning(false);
     }
@@ -291,14 +305,20 @@ export default function TeacherCourseManager() {
         {/* Top Sticky Editor Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 shadow-sm sticky top-20 z-20 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => setEditorCourse(null)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditorCourse(null)}
+            >
               ← Back to All Courses
             </Button>
             <div>
               <h2 className="font-bold text-base text-base-content font-display line-clamp-1">
                 Editing Page: {editForm.title}
               </h2>
-              <span className="text-xs text-base-content/60">Full Page Professional Content Editor</span>
+              <span className="text-xs text-base-content/60">
+                Full Page Professional Content Editor
+              </span>
             </div>
           </div>
 
@@ -319,14 +339,19 @@ export default function TeacherCourseManager() {
           {/* Left Column: Metadata & Course Details Form */}
           <div className="lg:col-span-5 space-y-6">
             <Card>
-              <CardHeader title="Course Settings & Metadata" subtitle="Update course configuration" />
+              <CardHeader
+                title="Course Settings & Metadata"
+                subtitle="Update course configuration"
+              />
 
               <form onSubmit={handleSaveEditor} className="space-y-4">
                 <Input
                   label="Course Title *"
                   required
                   value={editForm.title}
-                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, title: e.target.value })
+                  }
                 />
 
                 <div className="grid grid-cols-2 gap-3">
@@ -337,7 +362,9 @@ export default function TeacherCourseManager() {
                     <select
                       className="w-full px-3 py-2 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                       value={editForm.category}
-                      onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, category: e.target.value })
+                      }
                     >
                       <option value="Programming">Programming</option>
                       <option value="Design">Design</option>
@@ -353,7 +380,9 @@ export default function TeacherCourseManager() {
                     <select
                       className="w-full px-3 py-2 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                       value={editForm.difficulty}
-                      onChange={(e) => setEditForm({ ...editForm, difficulty: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, difficulty: e.target.value })
+                      }
                     >
                       <option value="beginner">Beginner</option>
                       <option value="intermediate">Intermediate</option>
@@ -369,9 +398,13 @@ export default function TeacherCourseManager() {
                   <select
                     className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                     value={editForm.status}
-                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, status: e.target.value })
+                    }
                   >
-                    <option value="published">Published (Visible to Students)</option>
+                    <option value="published">
+                      Published (Visible to Students)
+                    </option>
                     <option value="draft">Draft (Hidden)</option>
                   </select>
                 </div>
@@ -384,7 +417,9 @@ export default function TeacherCourseManager() {
                     rows={3}
                     className="w-full p-3 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                     value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
                   />
                 </div>
               </form>
@@ -392,7 +427,10 @@ export default function TeacherCourseManager() {
 
             {/* Course Modules Section */}
             <Card>
-              <CardHeader title={`Course Modules (${modules.length})`} subtitle="Structure your curriculum" />
+              <CardHeader
+                title={`Course Modules (${modules.length})`}
+                subtitle="Structure your curriculum"
+              />
 
               <form onSubmit={handleAddModule} className="flex gap-2 mb-4">
                 <Input
@@ -402,16 +440,24 @@ export default function TeacherCourseManager() {
                   onChange={(e) => setNewModuleTitle(e.target.value)}
                   className="flex-1"
                 />
-                <Button variant="primary" size="sm" type="submit" isLoading={submittingModule}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  isLoading={submittingModule}
+                >
                   + Add
                 </Button>
               </form>
 
               {loadingModules ? (
-                <div className="py-6 text-center text-xs text-base-content/60">Loading modules...</div>
+                <div className="py-6 text-center text-xs text-base-content/60">
+                  Loading modules...
+                </div>
               ) : modules.length === 0 ? (
                 <div className="p-4 rounded-xl bg-base-200/50 text-center text-xs text-base-content/60">
-                  No modules added yet. Enter a title above to create the first module.
+                  No modules added yet. Enter a title above to create the first
+                  module.
                 </div>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -426,7 +472,9 @@ export default function TeacherCourseManager() {
                         </span>
                         <span>{m.title}</span>
                       </div>
-                      <Badge variant="neutral">{m.topics?.length || 0} Lessons</Badge>
+                      <Badge variant="neutral">
+                        {m.topics?.length || 0} Lessons
+                      </Badge>
                     </div>
                   ))}
                 </div>
@@ -444,7 +492,8 @@ export default function TeacherCourseManager() {
                       📝 Professional Notepad & Code Editor Canvas
                     </h3>
                     <p className="text-xs text-base-content/60 mt-0.5">
-                      Write lesson notes, Java DSA code snippets, and structured course documentation.
+                      Write lesson notes, Java DSA code snippets, and structured
+                      course documentation.
                     </p>
                   </div>
 
@@ -458,14 +507,20 @@ export default function TeacherCourseManager() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => appendToNotepad("```java\npublic class Main {\n    public static void main(String[] args) {\n        // Code snippet\n    }\n}\n```")}
+                      onClick={() =>
+                        appendToNotepad(
+                          "```java\npublic class Main {\n    public static void main(String[] args) {\n        // Code snippet\n    }\n}\n```",
+                        )
+                      }
                       className="px-2.5 py-1 rounded-lg bg-base-200 hover:bg-base-300 text-xs font-mono font-bold transition-all"
                     >
                       + Java Code
                     </button>
                     <button
                       type="button"
-                      onClick={() => appendToNotepad("- Key lesson takeaway point")}
+                      onClick={() =>
+                        appendToNotepad("- Key lesson takeaway point")
+                      }
                       className="px-2.5 py-1 rounded-lg bg-base-200 hover:bg-base-300 text-xs font-bold transition-all"
                     >
                       + Bullet Note
@@ -477,13 +532,20 @@ export default function TeacherCourseManager() {
                   rows={20}
                   className="w-full p-4 rounded-xl border-2 border-primary/30 bg-base-200/50 font-mono text-xs text-base-content focus:outline-none focus:ring-2 focus:ring-primary/30 leading-relaxed shadow-inner"
                   value={editForm.notes}
-                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, notes: e.target.value })
+                  }
                 />
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-base-200 text-xs text-base-content/60">
                 <span>Total Characters: {editForm.notes.length}</span>
-                <Button variant="primary" size="sm" onClick={handleSaveEditor} isLoading={savingEditor}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSaveEditor}
+                  isLoading={savingEditor}
+                >
                   💾 Save Notepad Content
                 </Button>
               </div>
@@ -504,10 +566,14 @@ export default function TeacherCourseManager() {
             Course Management & Assignment Tool 📖
           </h1>
           <p className="text-sm text-base-content/60 mt-1">
-            Author courses, manage curriculum pages, and assign courses directly to registered students.
+            Author courses, manage curriculum pages, and assign courses directly
+            to registered students.
           </p>
         </div>
-        <Button variant="primary" onClick={() => setShowCreateCourseModal(true)}>
+        <Button
+          variant="primary"
+          onClick={() => setShowCreateCourseModal(true)}
+        >
           ➕ Author New Course
         </Button>
       </div>
@@ -519,11 +585,16 @@ export default function TeacherCourseManager() {
       ) : courses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((c) => (
-            <Card key={c.id} className="hover:border-primary hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group">
+            <Card
+              key={c.id}
+              className="hover:border-primary hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group"
+            >
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <Badge variant="primary">{c.category || "General"}</Badge>
-                  <Badge variant={c.status === "published" ? "success" : "warning"}>
+                  <Badge
+                    variant={c.status === "published" ? "success" : "warning"}
+                  >
                     {c.status}
                   </Badge>
                 </div>
@@ -570,11 +641,16 @@ export default function TeacherCourseManager() {
       ) : (
         <Card className="text-center py-16 p-8 space-y-4">
           <div className="text-5xl">📖</div>
-          <h3 className="font-bold text-lg text-base-content font-display">No Courses Created Yet</h3>
+          <h3 className="font-bold text-lg text-base-content font-display">
+            No Courses Created Yet
+          </h3>
           <p className="text-xs text-base-content/60 max-w-sm mx-auto">
             Create your first course to start assigning courses to students.
           </p>
-          <Button variant="primary" onClick={() => setShowCreateCourseModal(true)}>
+          <Button
+            variant="primary"
+            onClick={() => setShowCreateCourseModal(true)}
+          >
             Create First Course
           </Button>
         </Card>
@@ -584,9 +660,16 @@ export default function TeacherCourseManager() {
       <Modal
         isOpen={Boolean(assignCourseItem)}
         onClose={() => setAssignCourseItem(null)}
-        title={assignCourseItem ? `Assign Course: ${assignCourseItem.title}` : "Assign Course"}
+        title={
+          assignCourseItem
+            ? `Assign Course: ${assignCourseItem.title}`
+            : "Assign Course"
+        }
       >
-        <form onSubmit={handleAssignCourse} className="space-y-4 text-base-content">
+        <form
+          onSubmit={handleAssignCourse}
+          className="space-y-4 text-base-content"
+        >
           {/* Search Box */}
           <Input
             label="Search Student Roster"
@@ -611,7 +694,8 @@ export default function TeacherCourseManager() {
               </div>
             ) : students.length === 0 ? (
               <div className="p-4 rounded-xl bg-base-200/50 text-center text-xs text-base-content/60 border border-base-300">
-                No active student accounts found matching &quot;{studentSearch}&quot;.
+                No active student accounts found matching &quot;{studentSearch}
+                &quot;.
               </div>
             ) : (
               <select
@@ -623,7 +707,8 @@ export default function TeacherCourseManager() {
                 <option value="">-- Choose Student Account --</option>
                 {students.map((st) => (
                   <option key={st.id} value={st.id}>
-                    👤 {st.name} ({st.email}) — Enrolled in {st._count?.enrollments || 0} courses
+                    👤 {st.name} ({st.email}) — Enrolled in{" "}
+                    {st._count?.enrollments || 0} courses
                   </option>
                 ))}
               </select>
@@ -631,10 +716,19 @@ export default function TeacherCourseManager() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" type="button" onClick={() => setAssignCourseItem(null)}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setAssignCourseItem(null)}
+            >
               Cancel
             </Button>
-            <Button variant="primary" type="submit" isLoading={assigning} disabled={!selectedStudentId}>
+            <Button
+              variant="primary"
+              type="submit"
+              isLoading={assigning}
+              disabled={!selectedStudentId}
+            >
               🎓 Assign & Enroll Student
             </Button>
           </div>
@@ -701,10 +795,18 @@ export default function TeacherCourseManager() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" type="button" onClick={() => setShowCreateCourseModal(false)}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setShowCreateCourseModal(false)}
+            >
               Cancel
             </Button>
-            <Button variant="primary" type="submit" isLoading={submittingCourse}>
+            <Button
+              variant="primary"
+              type="submit"
+              isLoading={submittingCourse}
+            >
               Create & Publish
             </Button>
           </div>

@@ -24,8 +24,12 @@ export default function TeacherQuizBuilderView() {
     if (!token) return;
     try {
       const [cRes, qRes] = await Promise.all([
-        fetch(`${API_URL}/courses`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_URL}/quizzes`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/courses`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_URL}/quizzes`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
       const cData = await cRes.json();
       const qData = await qRes.json();
@@ -86,17 +90,23 @@ export default function TeacherQuizBuilderView() {
             Quiz Builder ❓
           </h1>
           <p className="text-sm text-base-content/60 mt-1">
-            Build interactive quizzes, set duration, passing score, and manage question pools.
+            Build interactive quizzes, set duration, passing score, and manage
+            question pools.
           </p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn btn-primary btn-sm gap-2">
+        <button
+          onClick={() => setShowModal(true)}
+          className="btn btn-primary btn-sm gap-2"
+        >
           ➕ Build New Quiz
         </button>
       </div>
 
       <div className="card bg-base-100 shadow border border-base-200">
         <div className="card-body">
-          <h2 className="card-title text-lg mb-4 font-display">Active Quizzes</h2>
+          <h2 className="card-title text-lg mb-4 font-display">
+            Active Quizzes
+          </h2>
           {loading ? (
             <div className="py-12 text-center">
               <span className="loading loading-spinner loading-lg text-primary" />
@@ -118,9 +128,15 @@ export default function TeacherQuizBuilderView() {
                     <tr key={q.id as string}>
                       <td className="font-semibold">{q.title as string}</td>
                       <td>{q.duration as number} mins</td>
-                      <td className="font-bold text-primary">{q.totalMarks as number} pts</td>
+                      <td className="font-bold text-primary">
+                        {q.totalMarks as number} pts
+                      </td>
                       <td>{q.passingMarks as number}%</td>
-                      <td><span className="badge badge-success badge-sm">{q.status as string}</span></td>
+                      <td>
+                        <span className="badge badge-success badge-sm">
+                          {q.status as string}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -141,12 +157,21 @@ export default function TeacherQuizBuilderView() {
             <div className="card-body p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-bold text-lg">Build Quiz</h3>
-                <button onClick={() => setShowModal(false)} className="btn btn-ghost btn-xs btn-circle">✕</button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="btn btn-ghost btn-xs btn-circle"
+                >
+                  ✕
+                </button>
               </div>
 
               <form onSubmit={handleCreateQuiz} className="space-y-4">
                 <div className="form-control">
-                  <label className="label"><span className="label-text font-medium text-xs">Quiz Title</span></label>
+                  <label className="label">
+                    <span className="label-text font-medium text-xs">
+                      Quiz Title
+                    </span>
+                  </label>
                   <input
                     type="text"
                     required
@@ -158,7 +183,11 @@ export default function TeacherQuizBuilderView() {
                 </div>
 
                 <div className="form-control">
-                  <label className="label"><span className="label-text font-medium text-xs">Course</span></label>
+                  <label className="label">
+                    <span className="label-text font-medium text-xs">
+                      Course
+                    </span>
+                  </label>
                   <select
                     required
                     className="select select-bordered focus:select-primary text-sm"
@@ -176,7 +205,11 @@ export default function TeacherQuizBuilderView() {
 
                 <div className="grid grid-cols-3 gap-2">
                   <div className="form-control">
-                    <label className="label"><span className="label-text font-medium text-xs">Duration (m)</span></label>
+                    <label className="label">
+                      <span className="label-text font-medium text-xs">
+                        Duration (m)
+                      </span>
+                    </label>
                     <input
                       type="number"
                       required
@@ -186,7 +219,11 @@ export default function TeacherQuizBuilderView() {
                     />
                   </div>
                   <div className="form-control">
-                    <label className="label"><span className="label-text font-medium text-xs">Total Marks</span></label>
+                    <label className="label">
+                      <span className="label-text font-medium text-xs">
+                        Total Marks
+                      </span>
+                    </label>
                     <input
                       type="number"
                       required
@@ -196,7 +233,11 @@ export default function TeacherQuizBuilderView() {
                     />
                   </div>
                   <div className="form-control">
-                    <label className="label"><span className="label-text font-medium text-xs">Pass (%)</span></label>
+                    <label className="label">
+                      <span className="label-text font-medium text-xs">
+                        Pass (%)
+                      </span>
+                    </label>
                     <input
                       type="number"
                       required
@@ -208,9 +249,21 @@ export default function TeacherQuizBuilderView() {
                 </div>
 
                 <div className="card-actions justify-end gap-2 mt-6">
-                  <button type="button" onClick={() => setShowModal(false)} className="btn btn-ghost btn-sm">Cancel</button>
-                  <button type="submit" disabled={submitting} className="btn btn-primary btn-sm">
-                    {submitting ? <span className="loading loading-spinner loading-xs" /> : null}
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="btn btn-ghost btn-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn btn-primary btn-sm"
+                  >
+                    {submitting ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : null}
                     Save Quiz
                   </button>
                 </div>
