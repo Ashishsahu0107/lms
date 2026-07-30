@@ -5,7 +5,14 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
@@ -36,7 +43,9 @@ export default function StudentDashboard() {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) router.push("/login");
     if (!isLoading && isAuthenticated && user?.role !== "student") {
-      router.push(`/${user?.role === "super_admin" ? "admin" : user?.role}/dashboard`);
+      router.push(
+        `/${user?.role === "super_admin" ? "admin" : user?.role}/dashboard`,
+      );
     }
     if (isAuthenticated && token) load();
   }, [isAuthenticated, isLoading, token, user, router, load]);
@@ -50,14 +59,32 @@ export default function StudentDashboard() {
   }
 
   const stats = (data as { stats?: Record<string, unknown> })?.stats ?? {};
-  const enrollments = ((data as { enrollments?: unknown[] })?.enrollments ?? []) as Array<Record<string, unknown>>;
-  const pendingAssignments = ((data as { pendingAssignments?: unknown[] })?.pendingAssignments ?? []) as Array<Record<string, unknown>>;
-  const progressRecords = ((data as { progressRecords?: Array<{ courseId: string; progress: number; totalWatchTime: number }> })?.progressRecords ?? []) as Array<{ courseId: string; progress: number; totalWatchTime: number }>;
+  const enrollments = ((data as { enrollments?: unknown[] })?.enrollments ??
+    []) as Array<Record<string, unknown>>;
+  const pendingAssignments = ((data as { pendingAssignments?: unknown[] })
+    ?.pendingAssignments ?? []) as Array<Record<string, unknown>>;
+  const progressRecords = ((
+    data as {
+      progressRecords?: Array<{
+        courseId: string;
+        progress: number;
+        totalWatchTime: number;
+      }>;
+    }
+  )?.progressRecords ?? []) as Array<{
+    courseId: string;
+    progress: number;
+    totalWatchTime: number;
+  }>;
 
   const chartData = enrollments.slice(0, 6).map((e) => ({
-    name: (e.course as Record<string, unknown>)?.title ? String((e.course as Record<string, unknown>).title).slice(0, 14) + "…" : "Course",
+    name: (e.course as Record<string, unknown>)?.title
+      ? String((e.course as Record<string, unknown>).title).slice(0, 14) + "…"
+      : "Course",
     progress:
-      progressRecords.find((p) => p.courseId === (e.course as Record<string, unknown>)?.id)?.progress || 0,
+      progressRecords.find(
+        (p) => p.courseId === (e.course as Record<string, unknown>)?.id,
+      )?.progress || 0,
   }));
 
   return (
@@ -68,17 +95,42 @@ export default function StudentDashboard() {
           Welcome back, {user?.name?.split(" ")[0]} 👋
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Here is an overview of your course progress and upcoming deadlines today.
+          Here is an overview of your course progress and upcoming deadlines
+          today.
         </p>
       </div>
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Enrolled Courses", value: stats.totalCourses as number ?? 0, icon: "📚", color: "border-indigo-200 text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40" },
-          { label: "Completed", value: stats.completedCourses as number ?? 0, icon: "✅", color: "border-emerald-200 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40" },
-          { label: "XP Earned", value: `${stats.xp as number ?? 0} XP`, icon: "⭐", color: "border-amber-200 text-amber-600 bg-amber-50 dark:bg-amber-950/40" },
-          { label: "Day Streak", value: `${stats.streak as number ?? 0} 🔥`, icon: "🎯", color: "border-rose-200 text-rose-600 bg-rose-50 dark:bg-rose-950/40" },
+          {
+            label: "Enrolled Courses",
+            value: (stats.totalCourses as number) ?? 0,
+            icon: "📚",
+            color:
+              "border-indigo-200 text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40",
+          },
+          {
+            label: "Completed",
+            value: (stats.completedCourses as number) ?? 0,
+            icon: "✅",
+            color:
+              "border-emerald-200 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40",
+          },
+          {
+            label: "XP Earned",
+            value: `${(stats.xp as number) ?? 0} XP`,
+            icon: "⭐",
+            color:
+              "border-amber-200 text-amber-600 bg-amber-50 dark:bg-amber-950/40",
+          },
+          {
+            label: "Day Streak",
+            value: `${(stats.streak as number) ?? 0} 🔥`,
+            icon: "🎯",
+            color:
+              "border-rose-200 text-rose-600 bg-rose-50 dark:bg-rose-950/40",
+          },
         ].map(({ label, value, icon, color }) => (
           <div
             key={label}
@@ -86,11 +138,15 @@ export default function StudentDashboard() {
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xl">{icon}</span>
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${color}`}>
+              <span
+                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${color}`}
+              >
                 {label}
               </span>
             </div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{value}</div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+              {value}
+            </div>
           </div>
         ))}
       </div>
@@ -99,12 +155,20 @@ export default function StudentDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Progress Bar Chart */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-          <h2 className="font-bold text-base text-slate-900 dark:text-white mb-4">Course Progress Summary</h2>
+          <h2 className="font-bold text-base text-slate-900 dark:text-white mb-4">
+            Course Progress Summary
+          </h2>
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={210}>
               <BarChart data={chartData}>
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94A3B8" }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "#94A3B8" }} />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: "#94A3B8" }}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fontSize: 11, fill: "#94A3B8" }}
+                />
                 <Tooltip formatter={(v) => [`${v}%`, "Progress"]} />
                 <Bar dataKey="progress" fill="#4F46E5" radius={[6, 6, 0, 0]} />
               </BarChart>
@@ -112,21 +176,30 @@ export default function StudentDashboard() {
           ) : (
             <div className="text-center py-12 text-slate-400">
               <p className="text-4xl mb-2">📊</p>
-              <p className="text-sm">Enroll in courses to see your progress metrics</p>
+              <p className="text-sm">
+                Enroll in courses to see your progress metrics
+              </p>
             </div>
           )}
         </div>
 
         {/* Pending Assignments List */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-          <h2 className="font-bold text-base text-slate-900 dark:text-white mb-4">Pending Assignments</h2>
+          <h2 className="font-bold text-base text-slate-900 dark:text-white mb-4">
+            Pending Assignments
+          </h2>
           {pendingAssignments.length > 0 ? (
             <div className="space-y-3">
               {pendingAssignments.map((a) => (
-                <div key={a.id as string} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+                <div
+                  key={a.id as string}
+                  className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800"
+                >
                   <span className="text-lg">📝</span>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-xs text-slate-900 dark:text-white truncate">{a.title as string}</p>
+                    <p className="font-semibold text-xs text-slate-900 dark:text-white truncate">
+                      {a.title as string}
+                    </p>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       Due: {new Date(a.dueDate as string).toLocaleDateString()}
                     </p>
@@ -146,8 +219,13 @@ export default function StudentDashboard() {
       {/* Enrolled Courses Grid */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-base text-slate-900 dark:text-white">My Active Courses</h2>
-          <Link href="/student/my-courses" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">
+          <h2 className="font-bold text-base text-slate-900 dark:text-white">
+            My Active Courses
+          </h2>
+          <Link
+            href="/student/my-courses"
+            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+          >
             View All →
           </Link>
         </div>
@@ -156,7 +234,9 @@ export default function StudentDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {enrollments.slice(0, 6).map((e) => {
               const course = e.course as Record<string, unknown>;
-              const progress = progressRecords.find((p) => p.courseId === course?.id)?.progress || 0;
+              const progress =
+                progressRecords.find((p) => p.courseId === course?.id)
+                  ?.progress || 0;
 
               return (
                 <Link
@@ -171,7 +251,10 @@ export default function StudentDashboard() {
                     {course?.title as string}
                   </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    {(course?.teacher as Record<string, unknown>)?.name as string}
+                    {
+                      (course?.teacher as Record<string, unknown>)
+                        ?.name as string
+                    }
                   </p>
 
                   <div className="mt-3">

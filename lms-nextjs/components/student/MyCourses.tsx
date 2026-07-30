@@ -11,7 +11,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 export default function MyCourses() {
   const { token, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-  const [enrollments, setEnrollments] = useState<Array<Record<string, unknown>>>([]);
+  const [enrollments, setEnrollments] = useState<
+    Array<Record<string, unknown>>
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const fetchEnrollments = useCallback(async () => {
@@ -76,23 +78,36 @@ export default function MyCourses() {
                   <div className="w-full h-36 bg-gradient-to-br from-primary/15 via-secondary/15 to-accent/15 rounded-xl mb-4 flex items-center justify-center text-5xl relative overflow-hidden">
                     📚
                     <div className="absolute top-2 right-2">
-                      <span className={`badge badge-sm ${progress === 100 ? "badge-success" : "badge-primary"}`}>
+                      <span
+                        className={`badge badge-sm ${progress === 100 ? "badge-success" : "badge-primary"}`}
+                      >
                         {progress === 100 ? "Completed" : "In Progress"}
                       </span>
                     </div>
                   </div>
 
-                  <h3 className="font-bold text-base line-clamp-1">{course.title as string || "Untitled Course"}</h3>
+                  <h3 className="font-bold text-base line-clamp-1">
+                    {(course.title as string) || "Untitled Course"}
+                  </h3>
                   <p className="text-xs text-base-content/60 line-clamp-2 mt-1">
-                    {course.description as string || "No course description available."}
+                    {(course.description as string) ||
+                      "No course description available."}
                   </p>
 
                   <div className="mt-4 pt-3 border-t border-base-200">
                     <div className="flex justify-between items-center text-xs mb-1.5 font-medium">
-                      <span className="text-base-content/70">Course Completion</span>
-                      <span className="text-primary font-bold">{Math.round(progress)}%</span>
+                      <span className="text-base-content/70">
+                        Course Completion
+                      </span>
+                      <span className="text-primary font-bold">
+                        {Math.round(progress)}%
+                      </span>
                     </div>
-                    <progress className="progress progress-primary h-2 w-full" value={progress} max="100" />
+                    <progress
+                      className="progress progress-primary h-2 w-full"
+                      value={progress}
+                      max="100"
+                    />
                   </div>
 
                   <div className="flex items-center justify-between mt-4">
@@ -103,7 +118,7 @@ export default function MyCourses() {
                         </div>
                       </div>
                       <span className="text-xs text-base-content/70 font-medium truncate max-w-[100px]">
-                        {teacher.name as string || "Instructor"}
+                        {(teacher.name as string) || "Instructor"}
                       </span>
                     </div>
 
@@ -122,8 +137,12 @@ export default function MyCourses() {
       ) : (
         <div className="text-center py-16 text-base-content/40 bg-base-100 rounded-2xl border border-base-200 p-8">
           <p className="text-5xl mb-3">🎓</p>
-          <h3 className="font-bold text-lg text-base-content">No Enrolled Courses Yet</h3>
-          <p className="text-sm mt-1 mb-6">Browse our course catalog to get enrolled and start learning today.</p>
+          <h3 className="font-bold text-lg text-base-content">
+            No Enrolled Courses Yet
+          </h3>
+          <p className="text-sm mt-1 mb-6">
+            Browse our course catalog to get enrolled and start learning today.
+          </p>
           <Link href="/student/courses" className="btn btn-primary btn-md">
             Explore Courses Catalog
           </Link>

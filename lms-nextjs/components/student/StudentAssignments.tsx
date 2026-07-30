@@ -9,21 +9,34 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 export default function StudentAssignments() {
   const { token } = useAuth();
-  const [assignments, setAssignments] = useState<Array<Record<string, unknown>>>([]);
-  const [submissions, setSubmissions] = useState<Array<Record<string, unknown>>>([]);
-  const [selectedAssignment, setSelectedAssignment] = useState<Record<string, unknown> | null>(null);
+  const [assignments, setAssignments] = useState<
+    Array<Record<string, unknown>>
+  >([]);
+  const [submissions, setSubmissions] = useState<
+    Array<Record<string, unknown>>
+  >([]);
+  const [selectedAssignment, setSelectedAssignment] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [textAnswer, setTextAnswer] = useState("");
   const [fileUrl, setFileUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [filterTab, setFilterTab] = useState<"all" | "pending" | "submitted">("all");
+  const [filterTab, setFilterTab] = useState<"all" | "pending" | "submitted">(
+    "all",
+  );
 
   const fetchData = useCallback(async () => {
     if (!token) return;
     try {
       const [assRes, subRes] = await Promise.all([
-        fetch(`${API_URL}/assignments`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_URL}/submissions`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/assignments`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_URL}/submissions`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
       const assData = await assRes.json();
       const subData = await subRes.json();
@@ -134,7 +147,8 @@ export default function StudentAssignments() {
           {filteredAssignments.map((a) => {
             const submitted = isSubmitted(a.id as string);
             const sub = getSubmission(a.id as string);
-            const isOverdue = new Date(a.dueDate as string) < new Date() && !submitted;
+            const isOverdue =
+              new Date(a.dueDate as string) < new Date() && !submitted;
 
             return (
               <div
@@ -143,22 +157,28 @@ export default function StudentAssignments() {
               >
                 <div className="card-body p-6">
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="font-bold text-base line-clamp-1">{a.title as string}</h3>
+                    <h3 className="font-bold text-base line-clamp-1">
+                      {a.title as string}
+                    </h3>
                     <span
                       className={`badge badge-sm ${
                         submitted
                           ? "badge-success"
                           : isOverdue
-                          ? "badge-error"
-                          : "badge-warning"
+                            ? "badge-error"
+                            : "badge-warning"
                       }`}
                     >
-                      {submitted ? "Submitted" : isOverdue ? "Overdue" : "Pending"}
+                      {submitted
+                        ? "Submitted"
+                        : isOverdue
+                          ? "Overdue"
+                          : "Pending"}
                     </span>
                   </div>
 
                   <p className="text-xs text-base-content/60 line-clamp-2">
-                    {a.description as string || "No instructions provided."}
+                    {(a.description as string) || "No instructions provided."}
                   </p>
 
                   <div className="flex items-center justify-between text-xs mt-4 pt-3 border-t border-base-200">
@@ -166,13 +186,19 @@ export default function StudentAssignments() {
                       Due: {new Date(a.dueDate as string).toLocaleDateString()}
                     </span>
                     <span className="font-bold text-primary">
-                      Marks: {sub?.marks !== undefined && sub?.marks !== null ? `${sub.marks}/${a.totalMarks}` : `${a.totalMarks} pts`}
+                      Marks:{" "}
+                      {sub?.marks !== undefined && sub?.marks !== null
+                        ? `${sub.marks}/${a.totalMarks}`
+                        : `${a.totalMarks} pts`}
                     </span>
                   </div>
 
                   {Boolean(sub?.feedback) && (
                     <div className="mt-3 p-2.5 bg-base-200/60 rounded-lg text-xs border border-base-300">
-                      <span className="font-semibold text-primary">Teacher Feedback:</span> {sub?.feedback as string}
+                      <span className="font-semibold text-primary">
+                        Teacher Feedback:
+                      </span>{" "}
+                      {sub?.feedback as string}
                     </div>
                   )}
 
@@ -185,8 +211,14 @@ export default function StudentAssignments() {
                         ✍️ Submit Assignment
                       </button>
                     ) : (
-                      <button disabled className="btn btn-outline btn-xs w-full">
-                        ✓ Submitted on {new Date(sub?.submittedAt as string || Date.now()).toLocaleDateString()}
+                      <button
+                        disabled
+                        className="btn btn-outline btn-xs w-full"
+                      >
+                        ✓ Submitted on{" "}
+                        {new Date(
+                          (sub?.submittedAt as string) || Date.now(),
+                        ).toLocaleDateString()}
                       </button>
                     )}
                   </div>
@@ -198,7 +230,9 @@ export default function StudentAssignments() {
       ) : (
         <div className="text-center py-16 text-base-content/40 bg-base-100 rounded-2xl border border-base-200">
           <p className="text-5xl mb-3">🎉</p>
-          <p className="font-bold text-lg text-base-content">No assignments found</p>
+          <p className="font-bold text-lg text-base-content">
+            No assignments found
+          </p>
           <p className="text-xs mt-1">You are all caught up for now!</p>
         </div>
       )}
@@ -209,15 +243,26 @@ export default function StudentAssignments() {
           <div className="card bg-base-100 max-w-lg w-full shadow-2xl animate-fade-in border border-base-200">
             <div className="card-body p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="card-title text-lg">Submit: {selectedAssignment.title as string}</h3>
-                <button onClick={() => setSelectedAssignment(null)} className="btn btn-ghost btn-xs btn-circle">✕</button>
+                <h3 className="card-title text-lg">
+                  Submit: {selectedAssignment.title as string}
+                </h3>
+                <button
+                  onClick={() => setSelectedAssignment(null)}
+                  className="btn btn-ghost btn-xs btn-circle"
+                >
+                  ✕
+                </button>
               </div>
-              <p className="text-xs text-base-content/60 mb-4">{selectedAssignment.description as string}</p>
+              <p className="text-xs text-base-content/60 mb-4">
+                {selectedAssignment.description as string}
+              </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium text-xs">Text Answer / Notes</span>
+                    <span className="label-text font-medium text-xs">
+                      Text Answer / Notes
+                    </span>
                   </label>
                   <textarea
                     className="textarea textarea-bordered h-28 focus:textarea-primary text-sm"
@@ -229,7 +274,9 @@ export default function StudentAssignments() {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-medium text-xs">Attachment / File URL</span>
+                    <span className="label-text font-medium text-xs">
+                      Attachment / File URL
+                    </span>
                   </label>
                   <input
                     type="url"
@@ -248,8 +295,14 @@ export default function StudentAssignments() {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary btn-sm" disabled={submitting}>
-                    {submitting ? <span className="loading loading-spinner loading-xs" /> : null}
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-sm"
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : null}
                     Submit Response
                   </button>
                 </div>

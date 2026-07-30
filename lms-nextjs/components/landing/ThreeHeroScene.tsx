@@ -10,8 +10,8 @@ export default function ThreeHeroScene() {
     const container = mountRef.current;
     if (!container) return;
 
-    let width = container.clientWidth || 400;
-    let height = container.clientHeight || 400;
+    const width = container.clientWidth || 400;
+    const height = container.clientHeight || 400;
 
     // ── Scene, Camera, Renderer
     const scene = new THREE.Scene();
@@ -65,7 +65,10 @@ export default function ThreeHeroScene() {
       posArray[i] = (Math.random() - 0.5) * 10;
     }
 
-    particlesGeo.setAttribute("position", new THREE.BufferAttribute(posArray, 3));
+    particlesGeo.setAttribute(
+      "position",
+      new THREE.BufferAttribute(posArray, 3),
+    );
     const particlesMat = new THREE.PointsMaterial({
       size: 0.04,
       color: 0x8b5cf6,
@@ -150,7 +153,10 @@ export default function ThreeHeroScene() {
   return (
     <div className="relative w-full h-[360px] sm:h-[420px] lg:h-[480px] flex items-center justify-center overflow-hidden">
       {/* Three.js Canvas Container */}
-      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing flex items-center justify-center" />
+      <div
+        ref={mountRef}
+        className="w-full h-full cursor-grab active:cursor-grabbing flex items-center justify-center"
+      />
 
       {/* Overlay Glass Badge */}
       <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 p-3 rounded-2xl bg-base-100/85 backdrop-blur border border-base-300 shadow-xl flex items-center gap-3 animate-fade-in max-w-xs z-10">
@@ -158,8 +164,12 @@ export default function ThreeHeroScene() {
           💡
         </div>
         <div>
-          <p className="text-xs font-bold text-base-content font-display">Interactive 3D Scene</p>
-          <p className="text-[11px] text-base-content/60">Move your mouse to rotate the model</p>
+          <p className="text-xs font-bold text-base-content font-display">
+            Interactive 3D Scene
+          </p>
+          <p className="text-[11px] text-base-content/60">
+            Move your mouse to rotate the model
+          </p>
         </div>
       </div>
     </div>

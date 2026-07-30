@@ -56,7 +56,9 @@ export default function BrowseCourses() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+            🔍
+          </span>
         </div>
       </div>
 
@@ -77,21 +79,26 @@ export default function BrowseCourses() {
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-                    {c.category as string || "General"}
+                    {(c.category as string) || "General"}
                   </span>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 capitalize">
-                    {c.difficulty as string || "Beginner"}
+                    {(c.difficulty as string) || "Beginner"}
                   </span>
                 </div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1">{c.title as string}</h3>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1">
+                  {c.title as string}
+                </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
-                  {c.description as string || "No course description available."}
+                  {(c.description as string) ||
+                    "No course description available."}
                 </p>
               </div>
 
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                  By {(c.teacher as Record<string, unknown>)?.name as string || "Instructor"}
+                  By{" "}
+                  {((c.teacher as Record<string, unknown>)?.name as string) ||
+                    "Instructor"}
                 </span>
                 <Link
                   href={`/student/courses/${c.id as string}`}
@@ -106,7 +113,9 @@ export default function BrowseCourses() {
       ) : (
         <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-8">
           <p className="text-4xl mb-2">🔍</p>
-          <p className="font-bold text-sm text-slate-900 dark:text-white">No courses match your query</p>
+          <p className="font-bold text-sm text-slate-900 dark:text-white">
+            No courses match your query
+          </p>
         </div>
       )}
     </div>

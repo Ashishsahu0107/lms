@@ -44,7 +44,11 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
     try {
       const [cRes, eRes] = await Promise.all([
         fetch(`${API_URL}/courses/${courseId}`),
-        token ? fetch(`${API_URL}/enrollments?courseId=${courseId}`, { headers: { Authorization: `Bearer ${token}` } }) : Promise.resolve(null),
+        token
+          ? fetch(`${API_URL}/enrollments?courseId=${courseId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+          : Promise.resolve(null),
       ]);
 
       const cData = await cRes.json();
@@ -105,10 +109,14 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
     }
   };
 
-  const toggleTopicCompletion = (topicId: string) => {
+  const toggleTopicCompletion = (_topicId: string) => {
     if (!activeTopic) return;
     setActiveTopic({ ...activeTopic, completed: !activeTopic.completed });
-    toast.success(activeTopic.completed ? "Marked as incomplete" : "Lesson marked as complete! 🎉");
+    toast.success(
+      activeTopic.completed
+        ? "Marked as incomplete"
+        : "Lesson marked as complete! 🎉",
+    );
   };
 
   if (loading) {
@@ -142,7 +150,9 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
             title={sidebarOpen ? "Hide Module Sidebar" : "Show Module Sidebar"}
           >
             <span>{sidebarOpen ? "◀" : "▶"}</span>
-            <span>{sidebarOpen ? "Collapse Modules" : "Show Modules Sidebar"}</span>
+            <span>
+              {sidebarOpen ? "Collapse Modules" : "Show Modules Sidebar"}
+            </span>
           </button>
 
           <div>
@@ -150,14 +160,21 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
               {course.title as string}
             </h1>
             <p className="text-xs text-base-content/60">
-              Instructor: <strong>{teacher.name as string || "Instructor"}</strong> • {modules.length} Modules
+              Instructor:{" "}
+              <strong>{(teacher.name as string) || "Instructor"}</strong> •{" "}
+              {modules.length} Modules
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {!isEnrolled ? (
-            <Button variant="primary" size="sm" onClick={handleEnroll} isLoading={enrolling}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleEnroll}
+              isLoading={enrolling}
+            >
               Enroll Course Free
             </Button>
           ) : (
@@ -173,7 +190,9 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
         {/* ── Left Collapsible Module Sidebar */}
         <aside
           className={`bg-base-100 border border-base-300 rounded-2xl shadow-sm flex flex-col overflow-hidden transition-all duration-300 ease-in-out shrink-0 ${
-            sidebarOpen ? "w-80 opacity-100" : "w-0 opacity-0 pointer-events-none border-0 p-0"
+            sidebarOpen
+              ? "w-80 opacity-100"
+              : "w-0 opacity-0 pointer-events-none border-0 p-0"
           }`}
         >
           {/* Sidebar Header */}
@@ -207,7 +226,9 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
                 >
                   {/* Module Header */}
                   <button
-                    onClick={() => setActiveModuleId(isModuleActive ? null : mod.id)}
+                    onClick={() =>
+                      setActiveModuleId(isModuleActive ? null : mod.id)
+                    }
                     className="w-full p-3 text-left flex items-center justify-between font-bold text-xs text-base-content hover:text-primary transition-colors"
                   >
                     <div className="flex items-center gap-2 truncate">
@@ -216,7 +237,9 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
                       </span>
                       <span className="truncate">{mod.title}</span>
                     </div>
-                    <span className="text-[10px] opacity-60">{isModuleActive ? "▼" : "▶"}</span>
+                    <span className="text-[10px] opacity-60">
+                      {isModuleActive ? "▼" : "▶"}
+                    </span>
                   </button>
 
                   {/* Module Topics List */}
@@ -271,7 +294,9 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
                     {activeTopic?.title || (course.title as string)}
                   </p>
                   <p className="text-xs text-white/60">
-                    {activeTopic ? "Interactive Lesson Player" : "Select a topic from the left sidebar to start learning"}
+                    {activeTopic
+                      ? "Interactive Lesson Player"
+                      : "Select a topic from the left sidebar to start learning"}
                   </p>
                 </div>
               )}
@@ -294,7 +319,9 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
                 </h2>
 
                 <p className="text-xs text-base-content/70 leading-relaxed whitespace-pre-line">
-                  {activeTopic?.content || (course.description as string) || "No detailed notes provided for this lesson."}
+                  {activeTopic?.content ||
+                    (course.description as string) ||
+                    "No detailed notes provided for this lesson."}
                 </p>
               </div>
 
@@ -303,14 +330,22 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
                 <Button
                   variant={activeTopic?.completed ? "success" : "outline"}
                   size="sm"
-                  onClick={() => activeTopic && toggleTopicCompletion(activeTopic.id)}
+                  onClick={() =>
+                    activeTopic && toggleTopicCompletion(activeTopic.id)
+                  }
                   disabled={!activeTopic}
                 >
-                  {activeTopic?.completed ? "✓ Lesson Completed" : "Mark as Complete ✓"}
+                  {activeTopic?.completed
+                    ? "✓ Lesson Completed"
+                    : "Mark as Complete ✓"}
                 </Button>
 
                 {!sidebarOpen && (
-                  <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(true)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSidebarOpen(true)}
+                  >
                     ▶ Open Module Sidebar
                   </Button>
                 )}

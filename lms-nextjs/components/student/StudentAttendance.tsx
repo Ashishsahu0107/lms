@@ -34,7 +34,8 @@ export default function StudentAttendance() {
 
   const presentCount = records.filter((r) => r.status === "present").length;
   const totalCount = records.length;
-  const percentage = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 100;
+  const percentage =
+    totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 100;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -50,23 +51,34 @@ export default function StudentAttendance() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">Overall Rate</p>
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            Overall Rate
+          </p>
           <p className="text-2xl font-bold text-primary mt-1">{percentage}%</p>
         </div>
         <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">Present</p>
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            Present
+          </p>
           <p className="text-2xl font-bold text-success mt-1">{presentCount}</p>
         </div>
         <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">Absent</p>
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            Absent
+          </p>
           <p className="text-2xl font-bold text-error mt-1">
             {records.filter((r) => r.status === "absent").length}
           </p>
         </div>
         <div className="card bg-base-100 shadow border border-base-200 p-4">
-          <p className="text-xs font-medium text-base-content/50 uppercase">Late / Leave</p>
+          <p className="text-xs font-medium text-base-content/50 uppercase">
+            Late / Leave
+          </p>
           <p className="text-2xl font-bold text-warning mt-1">
-            {records.filter((r) => r.status === "late" || r.status === "leave").length}
+            {
+              records.filter((r) => r.status === "late" || r.status === "leave")
+                .length
+            }
           </p>
         </div>
       </div>
@@ -94,21 +106,26 @@ export default function StudentAttendance() {
                   {records.map((r) => (
                     <tr key={r.id as string}>
                       <td>{new Date(r.date as string).toLocaleDateString()}</td>
-                      <td className="font-semibold">{(r.course as Record<string, unknown>)?.title as string || "Course"}</td>
+                      <td className="font-semibold">
+                        {((r.course as Record<string, unknown>)
+                          ?.title as string) || "Course"}
+                      </td>
                       <td>
                         <span
                           className={`badge badge-sm ${
                             r.status === "present"
                               ? "badge-success"
                               : r.status === "absent"
-                              ? "badge-error"
-                              : "badge-warning"
+                                ? "badge-error"
+                                : "badge-warning"
                           }`}
                         >
                           {r.status as string}
                         </span>
                       </td>
-                      <td className="text-xs text-base-content/60">{r.remarks as string || "—"}</td>
+                      <td className="text-xs text-base-content/60">
+                        {(r.remarks as string) || "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
