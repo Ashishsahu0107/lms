@@ -30,7 +30,8 @@ const COURSES: CourseItem[] = [
     rating: 4.9,
     students: 1420,
     instructor: "Prof. Ashish Sahu",
-    description: "Master modern web development with Next.js App Router, Prisma ORM, and PostgreSQL.",
+    description:
+      "Master modern web development with Next.js App Router, Prisma ORM, and PostgreSQL.",
     threeType: "nextjs",
     gradient: "from-indigo-500/10 via-purple-500/10 to-pink-500/10",
     badgeVariant: "primary",
@@ -43,7 +44,8 @@ const COURSES: CourseItem[] = [
     rating: 4.8,
     students: 980,
     instructor: "Dr. Sarah Jenkins",
-    description: "Build bi-directional chat applications, streaming feeds, and live presence systems.",
+    description:
+      "Build bi-directional chat applications, streaming feeds, and live presence systems.",
     threeType: "socket",
     gradient: "from-purple-500/10 via-indigo-500/10 to-violet-500/10",
     badgeVariant: "secondary",
@@ -56,7 +58,8 @@ const COURSES: CourseItem[] = [
     rating: 4.95,
     students: 2310,
     instructor: "Alex Rivera",
-    description: "Integrate LLM streaming models, vector stores, and AI tutors into web applications.",
+    description:
+      "Integrate LLM streaming models, vector stores, and AI tutors into web applications.",
     threeType: "ai",
     gradient: "from-pink-500/10 via-rose-500/10 to-purple-500/10",
     badgeVariant: "accent",
@@ -69,7 +72,8 @@ const COURSES: CourseItem[] = [
     rating: 4.85,
     students: 1150,
     instructor: "Emma Watson",
-    description: "Design clean, high-end responsive user interfaces using FlyonUI semantic color tokens.",
+    description:
+      "Design clean, high-end responsive user interfaces using FlyonUI semantic color tokens.",
     threeType: "design",
     gradient: "from-cyan-500/10 via-teal-500/10 to-emerald-500/10",
     badgeVariant: "info",
@@ -82,7 +86,8 @@ const COURSES: CourseItem[] = [
     rating: 4.9,
     students: 840,
     instructor: "Marcus Vance",
-    description: "Indexing strategies, query optimization, connection pooling, and Prisma ORM migrations.",
+    description:
+      "Indexing strategies, query optimization, connection pooling, and Prisma ORM migrations.",
     threeType: "database",
     gradient: "from-emerald-500/10 via-teal-500/10 to-indigo-500/10",
     badgeVariant: "primary",
@@ -95,21 +100,33 @@ const COURSES: CourseItem[] = [
     rating: 4.75,
     students: 620,
     instructor: "David Miller",
-    description: "Learn agile development, user story mapping, metrics analytics, and product launches.",
+    description:
+      "Learn agile development, user story mapping, metrics analytics, and product launches.",
     threeType: "business",
     gradient: "from-amber-500/10 via-orange-500/10 to-red-500/10",
     badgeVariant: "secondary",
   },
 ];
 
-export default function ModernCourseShowcase({ onSelectCourse }: { onSelectCourse?: (courseId: string) => void }) {
+export default function ModernCourseShowcase({
+  onSelectCourse,
+}: {
+  onSelectCourse?: (courseId: string) => void;
+}) {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", "Programming", "Data Science", "Design", "Business"];
+  const categories = [
+    "All",
+    "Programming",
+    "Data Science",
+    "Design",
+    "Business",
+  ];
 
-  const filteredCourses = selectedCategory === "All"
-    ? COURSES
-    : COURSES.filter((c) => c.category === selectedCategory);
+  const filteredCourses =
+    selectedCategory === "All"
+      ? COURSES
+      : COURSES.filter((c) => c.category === selectedCategory);
 
   return (
     <section className="space-y-8">
@@ -139,7 +156,9 @@ export default function ModernCourseShowcase({ onSelectCourse }: { onSelectCours
           >
             <div>
               {/* ── Interactive 3D Three.js WebGL Thumbnail Container */}
-              <div className={`relative w-full h-44 rounded-xl mb-4 bg-gradient-to-tr ${c.gradient} border border-base-300 overflow-hidden shadow-inner flex items-center justify-center`}>
+              <div
+                className={`relative w-full h-44 rounded-xl mb-4 bg-gradient-to-tr ${c.gradient} border border-base-300 overflow-hidden shadow-inner flex items-center justify-center`}
+              >
                 {/* 3D WebGL Model */}
                 <ThreeCourseThumbnail type={c.threeType} />
 
@@ -178,10 +197,16 @@ export default function ModernCourseShowcase({ onSelectCourse }: { onSelectCours
                 <span className="text-[11px] font-semibold text-base-content/70">
                   {c.students} enrolled
                 </span>
-                <p className="text-[11px] text-base-content/50">By {c.instructor}</p>
+                <p className="text-[11px] text-base-content/50">
+                  By {c.instructor}
+                </p>
               </div>
 
-              <Button variant="primary" size="sm" onClick={() => onSelectCourse?.(c.id)}>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => onSelectCourse?.(c.id)}
+              >
                 Enroll Now
               </Button>
             </div>

@@ -16,7 +16,8 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   const fillDemoAccount = (role: "student" | "teacher" | "admin") => {
     if (role === "student") {
@@ -31,36 +32,39 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.email || !form.password) {
-      toast.error("Please enter your email and password");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!form.email || !form.password) {
+        toast.error("Please enter your email and password");
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        const data = await res.json();
 
-      if (!data.success) throw new Error(data.message);
+        if (!data.success) throw new Error(data.message);
 
-      login(data.data.token, data.data.user);
-      toast.success(`Welcome back, ${data.data.user.name}!`);
+        login(data.data.token, data.data.user);
+        toast.success(`Welcome back, ${data.data.user.name}!`);
 
-      const role = data.data.user.role;
-      if (role === "super_admin") router.push("/admin/dashboard");
-      else if (role === "teacher") router.push("/teacher/dashboard");
-      else router.push("/student/dashboard");
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Login failed");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [form, API_URL, login, router]);
+        const role = data.data.user.role;
+        if (role === "super_admin") router.push("/admin/dashboard");
+        else if (role === "teacher") router.push("/teacher/dashboard");
+        else router.push("/student/dashboard");
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Login failed");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [form, API_URL, login, router],
+  );
 
   return (
     <div className="w-full space-y-6 animate-fade-in text-base-content">

@@ -10,8 +10,13 @@ export default function MessagesView() {
   const { user, token } = useAuth();
   const { socket, isConnected } = useSocket();
 
-  const [conversations, setConversations] = useState<Array<Record<string, unknown>>>([]);
-  const [activeRecipient, setActiveRecipient] = useState<Record<string, unknown> | null>(null);
+  const [conversations, setConversations] = useState<
+    Array<Record<string, unknown>>
+  >([]);
+  const [activeRecipient, setActiveRecipient] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [messages, setMessages] = useState<Array<Record<string, unknown>>>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -36,20 +41,26 @@ export default function MessagesView() {
   }, [token]);
 
   // Load active thread messages
-  const loadThread = useCallback(async (recipientId: string) => {
-    if (!token) return;
-    try {
-      const res = await fetch(`${API_URL}/messages?recipientId=${recipientId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMessages(data.data.messages || []);
+  const loadThread = useCallback(
+    async (recipientId: string) => {
+      if (!token) return;
+      try {
+        const res = await fetch(
+          `${API_URL}/messages?recipientId=${recipientId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        const data = await res.json();
+        if (data.success) {
+          setMessages(data.data.messages || []);
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [token]);
+    },
+    [token],
+  );
 
   useEffect(() => {
     loadConversations();
@@ -68,7 +79,8 @@ export default function MessagesView() {
     const handleNewMessage = (msg: Record<string, unknown>) => {
       if (
         activeRecipient &&
-        (msg.senderId === activeRecipient.id || msg.recipientId === activeRecipient.id)
+        (msg.senderId === activeRecipient.id ||
+          msg.recipientId === activeRecipient.id)
       ) {
         setMessages((prev) => [...prev, msg]);
       }
@@ -121,7 +133,9 @@ export default function MessagesView() {
       <div className="w-80 border-r border-base-200 flex flex-col bg-base-100">
         <div className="p-4 border-b border-base-200">
           <h2 className="font-bold text-lg font-display">Messages 💬</h2>
-          <p className="text-xs text-base-content/50">Realtime chat & discussions</p>
+          <p className="text-xs text-base-content/50">
+            Realtime chat & discussions
+          </p>
         </div>
         <div className="flex-1 overflow-y-auto divide-y divide-base-200">
           {loading ? (
@@ -141,7 +155,9 @@ export default function MessagesView() {
                   key={m.id as string}
                   onClick={() => setActiveRecipient(other || null)}
                   className={`w-full p-4 text-left flex items-center gap-3 transition-colors ${
-                    isSelected ? "bg-primary/10 border-l-4 border-primary" : "hover:bg-base-200"
+                    isSelected
+                      ? "bg-primary/10 border-l-4 border-primary"
+                      : "hover:bg-base-200"
                   }`}
                 >
                   <div className="avatar placeholder">
@@ -150,8 +166,12 @@ export default function MessagesView() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{other?.name as string || "User"}</p>
-                    <p className="text-xs text-base-content/60 truncate">{m.content as string}</p>
+                    <p className="font-semibold text-sm truncate">
+                      {(other?.name as string) || "User"}
+                    </p>
+                    <p className="text-xs text-base-content/60 truncate">
+                      {m.content as string}
+                    </p>
                   </div>
                 </button>
               );
@@ -176,7 +196,9 @@ export default function MessagesView() {
                 </div>
               </div>
               <div>
-                <h3 className="font-bold text-sm">{activeRecipient.name as string}</h3>
+                <h3 className="font-bold text-sm">
+                  {activeRecipient.name as string}
+                </h3>
                 <span className="text-[11px] text-success">Online</span>
               </div>
             </div>
@@ -187,7 +209,7 @@ export default function MessagesView() {
                 const isMe = msg.senderId === user?.id;
                 return (
                   <div
-                    key={msg.id as string || i}
+                    key={(msg.id as string) || i}
                     className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
                   >
                     <div
@@ -200,7 +222,9 @@ export default function MessagesView() {
                       {msg.content as string}
                     </div>
                     <span className="text-[10px] text-base-content/40 mt-1 px-1">
-                      {new Date(msg.createdAt as string || Date.now()).toLocaleTimeString([], {
+                      {new Date(
+                        (msg.createdAt as string) || Date.now(),
+                      ).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
@@ -212,7 +236,10 @@ export default function MessagesView() {
             </div>
 
             {/* Input bar */}
-            <form onSubmit={handleSendMessage} className="p-4 bg-base-100 border-t border-base-200 flex gap-2">
+            <form
+              onSubmit={handleSendMessage}
+              className="p-4 bg-base-100 border-t border-base-200 flex gap-2"
+            >
               <input
                 type="text"
                 className="input input-bordered flex-1 focus:input-primary text-sm"
@@ -229,7 +256,9 @@ export default function MessagesView() {
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-base-content/40">
             <p className="text-5xl mb-3">💬</p>
             <p className="font-bold text-lg">Select a conversation</p>
-            <p className="text-xs mt-1">Choose a chat from the left sidebar to start messaging.</p>
+            <p className="text-xs mt-1">
+              Choose a chat from the left sidebar to start messaging.
+            </p>
           </div>
         )}
       </div>

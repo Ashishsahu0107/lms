@@ -9,7 +9,8 @@ import { Card } from "@/components/ui/Card";
 interface Slide {
   id: number;
   tag: string;
-  badgeVariant: "primary" | "secondary" | "accent" | "info" | "success" | "warning";
+  badgeVariant:
+    "primary" | "secondary" | "accent" | "info" | "success" | "warning";
   title: string;
   subtitle: string;
   bullets: string[];
@@ -24,7 +25,8 @@ const SLIDES: Slide[] = [
     tag: "Slide 01 / 04 — Java DSA Search",
     badgeVariant: "primary",
     title: "Array Search & Binary Search Algorithm 🔍",
-    subtitle: "Visualize how O(log N) Binary Search divides sorted arrays in Java with animated search pointers.",
+    subtitle:
+      "Visualize how O(log N) Binary Search divides sorted arrays in Java with animated search pointers.",
     bullets: [
       "Java Array indexing: arr[mid] comparison",
       "O(1) Constant & O(log N) Logarithmic time",
@@ -39,7 +41,8 @@ const SLIDES: Slide[] = [
     tag: "Slide 02 / 04 — Stack Data Structure",
     badgeVariant: "secondary",
     title: "Stack Push & Pop (LIFO Algorithm) 🥞",
-    subtitle: "Interactive Last-In-First-Out (LIFO) stack operations with live push/pop item animations.",
+    subtitle:
+      "Interactive Last-In-First-Out (LIFO) stack operations with live push/pop item animations.",
     bullets: [
       "Java Stack class: stack.push() & stack.pop()",
       "Function call stack & recursion tracking",
@@ -54,7 +57,8 @@ const SLIDES: Slide[] = [
     tag: "Slide 03 / 04 — Linked List",
     badgeVariant: "accent",
     title: "Singly Linked List Traversal & Pointers 🔗",
-    subtitle: "Visualize head-to-tail node references and pointer manipulation in memory.",
+    subtitle:
+      "Visualize head-to-tail node references and pointer manipulation in memory.",
     bullets: [
       "Java Node struct: int data, Node next",
       "Head and Tail pointer tracking",
@@ -69,7 +73,8 @@ const SLIDES: Slide[] = [
     tag: "Slide 04 / 04 — Array Reversal",
     badgeVariant: "success",
     title: "Two-Pointer In-Place Array Reversal 🔄",
-    subtitle: "Watch dual pointers (Left & Right) converge to swap elements in-place with O(1) space.",
+    subtitle:
+      "Watch dual pointers (Left & Right) converge to swap elements in-place with O(1) space.",
     bullets: [
       "In-place element swapping in Java",
       "Two-pointer technique: left++, right--",
@@ -114,8 +119,8 @@ function BinarySearchVisualizer() {
                 isMatch
                   ? "bg-success text-success-content scale-110 shadow-lg shadow-success/40 ring-2 ring-success"
                   : isActive
-                  ? "bg-primary text-primary-content scale-105 shadow-md shadow-primary/30"
-                  : "bg-base-200 text-base-content border border-base-300 opacity-70"
+                    ? "bg-primary text-primary-content scale-105 shadow-md shadow-primary/30"
+                    : "bg-base-200 text-base-content border border-base-300 opacity-70"
               }`}
             >
               <span>{val}</span>
@@ -126,7 +131,9 @@ function BinarySearchVisualizer() {
       </div>
 
       <div className="text-[10px] text-center font-mono text-base-content/70 bg-base-200/60 py-1 rounded-lg">
-        {arr[activeIdx] === target ? "✅ Match Found at arr[4]!" : `Comparing arr[${activeIdx}] = ${arr[activeIdx]}...`}
+        {arr[activeIdx] === target
+          ? "✅ Match Found at arr[4]!"
+          : `Comparing arr[${activeIdx}] = ${arr[activeIdx]}...`}
       </div>
     </div>
   );
@@ -199,13 +206,17 @@ function LinkedListVisualizer() {
               {val}
             </div>
             {idx < nodes.length - 1 && (
-              <span className={`text-xs font-bold transition-all ${activeNode === idx ? "text-accent scale-125" : "text-base-content/40"}`}>
+              <span
+                className={`text-xs font-bold transition-all ${activeNode === idx ? "text-accent scale-125" : "text-base-content/40"}`}
+              >
                 →
               </span>
             )}
           </React.Fragment>
         ))}
-        <span className="text-[10px] text-base-content/40 font-mono">→ null</span>
+        <span className="text-[10px] text-base-content/40 font-mono">
+          → null
+        </span>
       </div>
 
       <div className="text-[10px] text-center font-mono text-base-content/70 bg-base-200/60 py-1 rounded-lg">
@@ -244,7 +255,8 @@ function ReverseArrayVisualizer() {
           <div
             key={idx}
             className={`w-10 h-12 rounded-xl flex flex-col items-center justify-center font-mono text-xs font-bold bg-success/20 border border-success/40 text-success transition-all duration-500 ${
-              (step === 1 && (idx === 0 || idx === 3)) || (step === 2 && (idx === 1 || idx === 2))
+              (step === 1 && (idx === 0 || idx === 3)) ||
+              (step === 2 && (idx === 1 || idx === 2))
                 ? "bg-success text-success-content scale-110 shadow-md shadow-success/30"
                 : ""
             }`}
@@ -256,7 +268,11 @@ function ReverseArrayVisualizer() {
       </div>
 
       <div className="text-[10px] text-center font-mono text-base-content/70 bg-base-200/60 py-1 rounded-lg">
-        {step === 0 ? "Left: 0, Right: 3" : step === 1 ? "Swapped arr[0] & arr[3]!" : "✅ Array Reversed!"}
+        {step === 0
+          ? "Left: 0, Right: 3"
+          : step === 1
+            ? "Swapped arr[0] & arr[3]!"
+            : "✅ Array Reversed!"}
       </div>
     </div>
   );
@@ -285,7 +301,9 @@ export default function InteractivePresentation() {
   return (
     <Card className="relative overflow-hidden border-2 border-primary/20 bg-base-100/90 backdrop-blur-xl shadow-xl p-6 lg:p-10 space-y-6">
       {/* Background Accent Gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${slide.accentGradient} pointer-events-none transition-all duration-500`} />
+      <div
+        className={`absolute inset-0 bg-gradient-to-br ${slide.accentGradient} pointer-events-none transition-all duration-500`}
+      />
 
       {/* Header Deck Controls */}
       <div className="relative flex items-center justify-between border-b border-base-200 pb-4">
@@ -329,7 +347,10 @@ export default function InteractivePresentation() {
           {/* Bullet Checklist */}
           <div className="space-y-2 pt-2">
             {slide.bullets.map((b, i) => (
-              <div key={i} className="flex items-center gap-2.5 text-xs font-medium text-base-content">
+              <div
+                key={i}
+                className="flex items-center gap-2.5 text-xs font-medium text-base-content"
+              >
                 <span className="w-5 h-5 rounded-full bg-success/20 text-success text-[10px] flex items-center justify-center font-bold">
                   ✓
                 </span>
@@ -372,7 +393,9 @@ export default function InteractivePresentation() {
             key={s.id}
             onClick={() => setCurrentSlide(idx)}
             className={`h-2.5 rounded-full transition-all ${
-              currentSlide === idx ? "w-8 bg-primary" : "w-2.5 bg-base-300 hover:bg-base-content/40"
+              currentSlide === idx
+                ? "w-8 bg-primary"
+                : "w-2.5 bg-base-300 hover:bg-base-content/40"
             }`}
             title={`Go to slide ${idx + 1}`}
           />

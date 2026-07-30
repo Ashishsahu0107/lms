@@ -16,7 +16,8 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,13 +50,19 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold font-display">Reset Password 🔑</h1>
-          <p className="text-xs text-base-content/60 mt-1">Set a new secure password for your account</p>
+          <p className="text-xs text-base-content/60 mt-1">
+            Set a new secure password for your account
+          </p>
         </div>
 
         <div className="card glass shadow-xl p-6 border border-base-200">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="form-control">
-              <label className="label"><span className="label-text font-medium text-xs">New Password</span></label>
+              <label className="label">
+                <span className="label-text font-medium text-xs">
+                  New Password
+                </span>
+              </label>
               <input
                 type="password"
                 required
@@ -67,8 +74,16 @@ export default function ResetPasswordPage() {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-              {loading ? <span className="loading loading-spinner loading-xs" /> : "Save New Password"}
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                "Save New Password"
+              )}
             </button>
           </form>
         </div>
