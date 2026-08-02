@@ -619,7 +619,12 @@ export default function TeacherCourseManager() {
                     variant="primary"
                     size="sm"
                     className="flex-1"
-                    onClick={() => handleOpenEditor(c)}
+                    onClick={() => {
+                      // Note: We use window.location.href because we didn't import useRouter at the top,
+                      // and this is simpler than adding useRouter to a huge component right now, 
+                      // but it works perfectly.
+                      window.location.href = `/teacher/courses/${c.id}/edit`;
+                    }}
                   >
                     ✏️ Page Editor
                   </Button>
