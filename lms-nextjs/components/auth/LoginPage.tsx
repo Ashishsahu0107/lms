@@ -21,13 +21,13 @@ export default function LoginPage() {
 
   const fillDemoAccount = (role: "student" | "teacher" | "admin") => {
     if (role === "student") {
-      setForm({ email: "student@lmspro.edu", password: "admin" });
+      setForm({ email: "student@lmspro.edu", password: "admin123" });
       toast.success("Student demo account filled");
     } else if (role === "teacher") {
-      setForm({ email: "teacher@lmspro.edu", password: "admin" });
+      setForm({ email: "teacher@lmspro.edu", password: "admin123" });
       toast.success("Teacher demo account filled");
     } else {
-      setForm({ email: "admin@gmail.com", password: "admin" });
+      setForm({ email: "admin@gmail.com", password: "admin123" });
       toast.success("Super Admin demo account filled");
     }
   };

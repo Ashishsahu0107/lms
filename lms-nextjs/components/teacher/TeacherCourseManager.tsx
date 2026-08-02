@@ -303,7 +303,7 @@ export default function TeacherCourseManager() {
     return (
       <div className="space-y-6 animate-fade-in text-base-content">
         {/* Top Sticky Editor Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 shadow-sm sticky top-20 z-20 backdrop-blur-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 shadow-sm backdrop-blur-md">
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
