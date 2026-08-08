@@ -143,20 +143,6 @@ export default function TeacherCourseManager() {
     [token],
   );
 
-  const handleOpenEditor = (course: CourseItem) => {
-    setEditorCourse(course);
-    setEditForm({
-      title: course.title,
-      category: course.category || "Programming",
-      difficulty: course.difficulty || "beginner",
-      status: course.status || "published",
-      description: course.description || "",
-      notes:
-        course.notes ||
-        `=== ${course.title} Notepad Notes ===\n- Key Learning Objective 1\n- Key Learning Objective 2\n\n\`\`\`java\npublic class Solution {\n    // Code notes & algorithm logic\n}\n\`\`\``,
-    });
-    fetchModules(course.id);
-  };
 
   const handleSaveEditor = async (e: React.FormEvent) => {
     e.preventDefault();

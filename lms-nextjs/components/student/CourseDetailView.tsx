@@ -27,11 +27,6 @@ interface ModuleItem {
 
 type ActiveTab = "content" | "notes" | "resources" | "discussions";
 
-function getModuleCompletionLabel(mod: ModuleItem) {
-  const topics = mod.topics || [];
-  const completed = topics.filter((t) => t.completed).length;
-  return `${completed} / ${topics.length} completed`;
-}
 
 function getTopicStatus(
   tp: TopicItem,
@@ -107,7 +102,7 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
   const [enrolling, setEnrolling] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>("content");
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
-  const [copiedCode, setCopiedCode] = useState(false);
+
   const [lessonProgress] = useState(60); // simulate lesson progress
 
   const flatTopicsRef = useRef<TopicItem[]>([]);
@@ -208,12 +203,6 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
     if (idx < flat.length - 1) setActiveTopic(flat[idx + 1]);
   };
 
-  const handleCopyCode = () => {
-    const code = activeTopic?.content || "";
-    navigator.clipboard.writeText(code).catch(() => {});
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
 
   if (loading) {
     return (
@@ -244,9 +233,7 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
       : 0;
 
   // Current module number / title for header
-  const currentModule = modules.find((m) =>
-    (m.topics || []).some((t) => t.id === activeTopic?.id)
-  );
+
   const topicNumber = activeTopic
     ? (() => {
         const modIdx = modules.findIndex((m) =>

@@ -94,16 +94,13 @@ export default function CourseEditorView({
       if (data.success) {
         toast.success(publish ? "Lesson published!" : "Draft saved!");
         // Update the activeTopic with the new data to avoid losing state on re-render
-        setActiveTopic({
-          ...editedTopic,
-          isPublished: publish ? true : editedTopic.isPublished,
-        });
+        setActiveTopic(editedTopic);
         // Refresh the server component data
         router.refresh();
       } else {
         toast.error(data.message || "Failed to save lesson");
       }
-    } catch (e) {
+    } catch {
       toast.error("An error occurred while saving.");
     } finally {
       setIsSaving(false);
@@ -137,7 +134,7 @@ export default function CourseEditorView({
       } else {
         toast.error("Failed to add section.");
       }
-    } catch (e) {
+    } catch {
       toast.error("Error adding section.");
     }
   };
@@ -175,7 +172,7 @@ export default function CourseEditorView({
       } else {
         toast.error("Failed to add lesson.");
       }
-    } catch (e) {
+    } catch {
       toast.error("Error adding lesson.");
     }
   };

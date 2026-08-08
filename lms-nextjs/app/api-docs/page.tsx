@@ -11,8 +11,9 @@ export default function ApiDocsPage() {
       // @ts-expect-error swagger-ui-dist has no default type declaration
       const SwaggerUI = (await import("swagger-ui-dist/swagger-ui-bundle"))
         .default;
-      // @ts-expect-error swagger-ui-dist standalone preset
+
       const SwaggerUIStandalonePreset = (
+        // @ts-expect-error swagger-ui-dist standalone preset
         await import("swagger-ui-dist/swagger-ui-standalone-preset")
       ).default;
       // @ts-expect-error swagger-ui-dist css import
