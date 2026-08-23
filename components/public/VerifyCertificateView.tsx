@@ -3,8 +3,7 @@
 // components/public/VerifyCertificateView.tsx — Public Certificate Verification View
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL } from "@/lib/api-config";
 
 export default function VerifyCertificateView({
   certificateId,

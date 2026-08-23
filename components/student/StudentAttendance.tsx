@@ -3,8 +3,7 @@
 // components/student/StudentAttendance.tsx — Student attendance log and percentage gauge
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL } from "@/lib/api-config";
 
 export default function StudentAttendance() {
   const { token } = useAuth();
