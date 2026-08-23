@@ -13,8 +13,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL } from "@/lib/api-config";
 
 function api(path: string, token: string) {
   return fetch(`${API_URL}${path}`, {

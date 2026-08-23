@@ -3,8 +3,7 @@
 // components/teacher/StudentRoster.tsx — Teacher student roster & performance viewer
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL } from "@/lib/api-config";
 
 export default function StudentRoster() {
   const { token } = useAuth();
