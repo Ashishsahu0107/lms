@@ -6,6 +6,9 @@
   "description": "LMS Pro — Unified Next.js 15 Application (PostgreSQL + Swagger)",
   "scripts": {
     "dev": "node server.js",
+    "dev:next": "next dev",
+    "dev:socket": "node socket-server.js",
+    "socket:start": "NODE_ENV=production node socket-server.js",
     "clean": "npx rimraf .next",
     "build": "npx rimraf .next && next build",
     "start": "NODE_ENV=production node server.js",

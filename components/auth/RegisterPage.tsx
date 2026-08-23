@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { API_URL } from "@/lib/api-config";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -19,9 +20,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
-
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

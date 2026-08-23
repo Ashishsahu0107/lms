@@ -8,8 +8,7 @@ import Link from "next/link";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL } from "@/lib/api-config";
 
 export default function AdminDashboard() {
   const { user, token, isAuthenticated, isLoading } = useAuth();

@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import CourseEditorView from "@/components/teacher/CourseEditorView";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL } from "@/lib/api-config";
 
 export default function EditCoursePage() {
   const { token, user } = useAuth();

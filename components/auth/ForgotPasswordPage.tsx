@@ -5,14 +5,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { API_URL } from "@/lib/api-config";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

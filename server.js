@@ -1,5 +1,5 @@
-// server.js — Custom Node.js HTTP server wrapping Next.js
-// Required for Socket.io (which needs a persistent HTTP server, not serverless)
+// server.js — Custom Node.js HTTP server wrapping Next.js with integrated Socket.io
+// Used for unified local development, Docker containers, and VPS deployments.
 import { createServer } from "http";
 import { parse } from "url";
 import next from "next";
@@ -25,12 +25,13 @@ const hostname = (hostArgIndex !== -1 && process.argv[hostArgIndex + 1] && !proc
   ? process.argv[hostArgIndex + 1]
   : (process.env.HOSTNAME || "0.0.0.0");
 const port = parseInt(process.env.PORT || "3000", 10);
+const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
-// ── Online user tracking
-const onlineUsers = new Map(); // userId -> socketId
+// ── Online user tracking (userId -> connectionCount)
+const onlineUsers = new Map();
 
 // ── EVENTS
 const EVENTS = {
@@ -50,6 +51,7 @@ const EVENTS = {
   ANALYTICS_UPDATED: "analyticsUpdated",
   USER_ONLINE: "user-online",
   USER_OFFLINE: "user-offline",
+  ONLINE_USERS_LIST: "online-users-list",
   NEW_MESSAGE: "new-message",
   MESSAGE_SENT: "message-sent",
   TYPING: "typing",
@@ -60,6 +62,48 @@ const EVENTS = {
   AI_MESSAGE_COMPLETE: "ai-message-complete",
   AI_CHAT_ERROR: "ai-chat-error",
 };
+
+// Parse configured allowed origins
+const configuredOrigins = [
+  process.env.CORS_ORIGIN,
+  process.env.FRONTEND_URL,
+  process.env.NEXT_PUBLIC_APP_URL,
+  process.env.NEXT_PUBLIC_SOCKET_URL,
+]
+  .filter(Boolean)
+  .flatMap((url) => url.split(",").map((s) => s.trim().replace(/\/$/, "")));
+
+function isOriginAllowed(origin) {
+  if (!origin) return true;
+
+  const isLocal =
+    origin.startsWith("http://localhost:") ||
+    origin.startsWith("https://localhost:") ||
+    origin.startsWith("http://127.0.0.1:") ||
+    origin.startsWith("https://127.0.0.1:");
+  if (isLocal) return true;
+
+  const isLan =
+    origin.startsWith("http://192.168.") ||
+    origin.startsWith("http://10.") ||
+    origin.startsWith("http://172.");
+  if (isLan) return true;
+
+  try {
+    const url = new URL(origin);
+    if (url.hostname.endsWith(".vercel.app")) {
+      return true;
+    }
+  } catch {
+    // ignore URL parsing error
+  }
+
+  if (configuredOrigins.includes(origin) || process.env.ALLOW_ALL_ORIGINS === "true") {
+    return true;
+  }
+
+  return false;
+}
 
 let ioInstance = null;
 
@@ -73,15 +117,7 @@ app.prepare().then(() => {
   ioInstance = new Server(httpServer, {
     cors: {
       origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        const isLocal =
-          origin.startsWith("http://localhost:") ||
-          origin.startsWith("http://127.0.0.1:");
-        const isLan =
-          origin.startsWith("http://192.168.") ||
-          origin.startsWith("http://172.") ||
-          origin.startsWith("http://10.");
-        if (isLocal || isLan || origin === process.env.NEXT_PUBLIC_SOCKET_URL) {
+        if (isOriginAllowed(origin)) {
           callback(null, true);
         } else {
           callback(new Error("Not allowed by CORS"));
@@ -99,7 +135,7 @@ app.prepare().then(() => {
     try {
       const token = socket.handshake.auth?.token;
       if (!token) return next(new Error("Authentication required"));
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET);
       socket.userId = decoded.userId;
       socket.userRole = decoded.role;
       next();
@@ -110,22 +146,31 @@ app.prepare().then(() => {
 
   ioInstance.on("connection", (socket) => {
     const userId = socket.userId;
-    console.log(`[Socket] User connected: ${userId}`);
+    const userRole = socket.userRole || "student";
+    console.log(`[Socket] User connected: ${userId} (${userRole})`);
 
-    // Track online status
-    onlineUsers.set(userId, socket.id);
-    ioInstance.emit(EVENTS.USER_ONLINE, { userId });
+    // Track online status with multi-tab support
+    const count = onlineUsers.get(userId) || 0;
+    onlineUsers.set(userId, count + 1);
+
+    if (count === 0) {
+      ioInstance.emit(EVENTS.USER_ONLINE, { userId });
+    }
+
+    // Send initial list of online user IDs
+    socket.emit(EVENTS.ONLINE_USERS_LIST, Array.from(onlineUsers.keys()));
 
     // Join role-based rooms
-    socket.join(`room:${socket.userRole}`);
+    socket.join(`room:${userRole}`);
     socket.join(`room:user:${userId}`);
 
-    // ── Messaging
+    // ── Messaging (Multi-device room delivery)
     socket.on("send-message", async ({ recipientId, content, messageType }) => {
       try {
-        // Emit to recipient if online
-        const recipientSocketId = onlineUsers.get(recipientId);
+        if (!recipientId || !content) return;
+
         const messagePayload = {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           senderId: userId,
           recipientId,
           content,
@@ -133,12 +178,13 @@ app.prepare().then(() => {
           createdAt: new Date().toISOString(),
         };
 
-        if (recipientSocketId) {
-          ioInstance
-            .to(recipientSocketId)
-            .emit(EVENTS.NEW_MESSAGE, messagePayload);
-        }
-        socket.emit(EVENTS.MESSAGE_SENT, messagePayload);
+        ioInstance
+          .to(`room:user:${recipientId}`)
+          .emit(EVENTS.NEW_MESSAGE, messagePayload);
+
+        ioInstance
+          .to(`room:user:${userId}`)
+          .emit(EVENTS.MESSAGE_SENT, messagePayload);
       } catch (err) {
         console.error("[Socket] send-message error:", err);
       }
@@ -146,19 +192,17 @@ app.prepare().then(() => {
 
     // ── Typing indicators
     socket.on("typing", ({ recipientId }) => {
-      const recipientSocketId = onlineUsers.get(recipientId);
-      if (recipientSocketId) {
+      if (recipientId) {
         ioInstance
-          .to(recipientSocketId)
+          .to(`room:user:${recipientId}`)
           .emit(EVENTS.TYPING, { senderId: userId });
       }
     });
 
     socket.on("stop-typing", ({ recipientId }) => {
-      const recipientSocketId = onlineUsers.get(recipientId);
-      if (recipientSocketId) {
+      if (recipientId) {
         ioInstance
-          .to(recipientSocketId)
+          .to(`room:user:${recipientId}`)
           .emit(EVENTS.STOP_TYPING, { senderId: userId });
       }
     });
@@ -166,17 +210,8 @@ app.prepare().then(() => {
     // ── AI Chat Streaming
     socket.on("send-ai-message", async ({ chatId, prompt }) => {
       try {
-        const openaiApiKey = process.env.OPENAI_API_KEY;
-        if (!openaiApiKey) {
-          socket.emit(EVENTS.AI_CHAT_ERROR, {
-            message: "AI service is not configured",
-          });
-          return;
-        }
-
         socket.emit(EVENTS.AI_TYPING);
 
-        // Simulate streaming (replace with real OpenAI streaming)
         const mockWords =
           `I understand your question about "${prompt}". Let me explain this concept step by step...`.split(
             " ",
@@ -186,7 +221,7 @@ app.prepare().then(() => {
           setTimeout(() => {
             socket.emit(EVENTS.AI_WORD, { word: word + " " });
           }, delay);
-          delay += 80;
+          delay += 70;
         }
 
         setTimeout(() => {
@@ -195,18 +230,24 @@ app.prepare().then(() => {
             chatId,
             message: `AI response to: "${prompt}"`,
           });
-        }, delay);
+        }, delay + 50);
       } catch (err) {
         console.error("[Socket] AI chat error:", err);
+        socket.emit(EVENTS.AI_STOP_TYPING);
         socket.emit(EVENTS.AI_CHAT_ERROR, { message: "AI processing failed" });
       }
     });
 
     // ── Disconnect
     socket.on("disconnect", () => {
-      console.log(`[Socket] User disconnected: ${userId}`);
-      onlineUsers.delete(userId);
-      ioInstance.emit(EVENTS.USER_OFFLINE, { userId });
+      const remaining = (onlineUsers.get(userId) || 1) - 1;
+      if (remaining <= 0) {
+        onlineUsers.delete(userId);
+        ioInstance.emit(EVENTS.USER_OFFLINE, { userId });
+        console.log(`[Socket] User disconnected: ${userId}`);
+      } else {
+        onlineUsers.set(userId, remaining);
+      }
     });
   });
 
@@ -229,6 +270,16 @@ app.prepare().then(() => {
     console.log(`🗄️  Database: PostgreSQL (Prisma)`);
     console.log(`Mode: ${dev ? "development" : "production"}\n`);
   });
+
+  // Graceful shutdown
+  const shutdown = () => {
+    console.log("\nShutting down unified server...");
+    httpServer.close(() => {
+      process.exit(0);
+    });
+  };
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 });
 
 export { ioInstance };
