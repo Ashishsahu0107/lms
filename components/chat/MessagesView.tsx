@@ -3,8 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useSocket } from "@/context/SocketContext";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+import { API_URL } from "@/lib/api-config";
 
 export default function MessagesView() {
   const { user, token } = useAuth();

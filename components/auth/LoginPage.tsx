@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { API_URL } from "@/lib/api-config";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -15,9 +16,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
-
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   const fillDemoAccount = (role: "student" | "teacher" | "admin") => {
     if (role === "student") {
