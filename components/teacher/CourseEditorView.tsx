@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 import type { Course, Module, Topic, TopicResource } from "@prisma/client";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
+import { API_URL } from "@/lib/api-config";
 
 // Extended types to include relations
 type TopicWithResources = Topic & { resources: TopicResource[] };
 type ModuleWithTopics = Module & { topics: TopicWithResources[] };
 type CourseWithModules = Course & { modules: ModuleWithTopics[] };
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 export default function CourseEditorView({
   course,
