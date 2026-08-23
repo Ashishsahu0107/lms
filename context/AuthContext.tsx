@@ -9,6 +9,7 @@ import React, {
   useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/api-config";
 
 // ── Types
 interface User {
@@ -83,9 +84,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: false,
     isLoading: true,
   });
-
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
   const refreshUser = useCallback(async () => {
     const token = localStorage.getItem("token");
