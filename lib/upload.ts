@@ -109,9 +109,9 @@ export function buildFileUrl(
   subdir: keyof typeof DIRS = "thumbnails",
 ): string {
   if (!filename) return "";
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-    "http://localhost:3000";
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "")
+    .replace(/\/api\/?$/, "")
+    .replace(/\/$/, "");
   return `${baseUrl}/api/uploads/${subdir}/${filename}`;
 }
 

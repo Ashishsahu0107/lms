@@ -1,4 +1,4 @@
-// context/SocketContext.tsx — Socket.io client context
+// context/SocketContext.tsx — Socket.io client context with production resilience
 "use client";
 
 import React, {
@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "@/context/AuthContext";
+import { SOCKET_URL } from "@/lib/api-config";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -32,13 +33,19 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated || !token) {
       socketRef.current?.disconnect();
+      socketRef.current = null;
       setIsConnected(false);
       return;
     }
 
-    const SOCKET_URL =
-      process.env.NEXT_PUBLIC_SOCKET_URL ||
-      (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
+    // In production without a configured Socket URL, skip connection gracefully
+    if (!SOCKET_URL) {
+      console.info(
+        "[Socket] NEXT_PUBLIC_SOCKET_URL not configured. Realtime socket features disabled (HTTP fallback active)."
+      );
+      setIsConnected(false);
+      return;
+    }
 
     const socket = io(SOCKET_URL, {
       auth: { token },
@@ -46,23 +53,30 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      timeout: 10000,
     });
 
     socketRef.current = socket;
 
     socket.on("connect", () => {
       setIsConnected(true);
-      console.log("[Socket] Connected:", socket.id);
+      console.log("[Socket] Connected to server:", socket.id);
     });
 
     socket.on("disconnect", () => {
       setIsConnected(false);
-      console.log("[Socket] Disconnected");
+      console.log("[Socket] Disconnected from server");
+    });
+
+    socket.on("online-users-list", (users: string[]) => {
+      if (Array.isArray(users)) {
+        setOnlineUsers(users);
+      }
     });
 
     socket.on("user-online", ({ userId }: { userId: string }) => {
       setOnlineUsers((prev) =>
-        prev.includes(userId) ? prev : [...prev, userId],
+        prev.includes(userId) ? prev : [...prev, userId]
       );
     });
 
@@ -71,11 +85,13 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("[Socket] Connection error:", err.message);
+      console.warn("[Socket] Connection error:", err.message);
+      setIsConnected(false);
     });
 
     return () => {
       socket.disconnect();
+      socketRef.current = null;
     };
   }, [isAuthenticated, token]);
 
