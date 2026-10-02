@@ -19,7 +19,7 @@
  *         $ref: '#/components/responses/NotFound'
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 
 export async function GET(
   _req: NextRequest,
@@ -28,7 +28,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const cert = await prisma.certificate.findUnique({
+    const cert = await mongo.certificate.findUnique({
       where: { certificateId: id },
       include: {
         student: { select: { id: true, name: true } },

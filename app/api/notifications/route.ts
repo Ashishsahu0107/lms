@@ -26,7 +26,7 @@
  *         description: Notification created
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     const { user, error } = await authenticate(req);
     if (error) return error;
 
-    const notifications = await prisma.notification.findMany({
+    const notifications = await mongo.notification.findMany({
       where: {
         OR: [
           { recipientId: user!.id },
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const notification = await prisma.notification.create({
+    const notification = await mongo.notification.create({
       data: {
         senderId: user!.id,
         recipientId: recipientId || null,

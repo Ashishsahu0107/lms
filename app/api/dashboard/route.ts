@@ -12,7 +12,7 @@
  *         description: Dashboard statistics and recent activity
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       fullUser,
     ] = await Promise.all([
       // Enrolled courses with progress
-      prisma.enrollment.findMany({
+      mongo.enrollment.findMany({
         where: { studentId },
         include: {
           course: {
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       }),
 
       // Pending assignments
-      prisma.assignment.findMany({
+      mongo.assignment.findMany({
         where: {
           status: "published",
           course: { enrollments: { some: { studentId } } },
@@ -59,16 +59,16 @@ export async function GET(req: NextRequest) {
       }),
 
       // Certificates
-      prisma.certificate.count({ where: { studentId } }),
+      mongo.certificate.count({ where: { studentId } }),
 
       // Progress data
-      prisma.studentProgress.findMany({
+      mongo.studentProgress.findMany({
         where: { studentId },
         select: { courseId: true, progress: true, totalWatchTime: true },
       }),
 
       // Full user with achievements
-      prisma.user.findUnique({
+      mongo.user.findUnique({
         where: { id: studentId },
         include: { achievements: true },
       }),
@@ -84,10 +84,10 @@ export async function GET(req: NextRequest) {
         user: fullUser,
         stats: {
           totalCourses: enrollments.length,
-          completedCourses: progressRecords.filter((p) => p.progress >= 100)
+          completedCourses: progressRecords.filter((p: { progress: number }) => p.progress >= 100)
             .length,
           totalWatchTime: progressRecords.reduce(
-            (sum, p) => sum + p.totalWatchTime,
+            (sum: number, p: { totalWatchTime: number }) => sum + p.totalWatchTime,
             0,
           ),
           xp: fullUser?.xp || 0,

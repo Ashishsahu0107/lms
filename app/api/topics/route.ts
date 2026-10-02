@@ -36,7 +36,7 @@
  *         description: Topic created
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const topics = await prisma.topic.findMany({
+    const topics = await mongo.topic.findMany({
       where: { moduleId },
       orderBy: { createdAt: "asc" },
       include: { resources: true },
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const topic = await prisma.topic.create({
+    const topic = await mongo.topic.create({
       data: {
         title: title.trim(),
         moduleId,

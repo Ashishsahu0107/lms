@@ -34,7 +34,7 @@
  *         description: Module created
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const modules = await prisma.module.findMany({
+    const modules = await mongo.module.findMany({
       where: { courseId },
       orderBy: { order: "asc" },
       include: {
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const createdModule = await prisma.module.create({
+    const createdModule = await mongo.module.create({
       data: { title: title.trim(), courseId, order: order || 0 },
       include: { topics: true },
     });

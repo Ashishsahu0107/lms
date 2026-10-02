@@ -1,6 +1,6 @@
 // app/api/admin/contact/[id]/route.ts — Admin Endpoint for Updating Status & Deleting Submissions
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function PATCH(
@@ -28,7 +28,7 @@ export async function PATCH(
       );
     }
 
-    const updated = await prisma.contactRequest.update({
+    const updated = await mongo.contactRequest.update({
       where: { id },
       data: { status },
     });
@@ -59,7 +59,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await prisma.contactRequest.delete({
+    await mongo.contactRequest.delete({
       where: { id },
     });
 

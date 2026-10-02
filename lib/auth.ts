@@ -1,7 +1,7 @@
 // lib/auth.ts — JWT helpers for Next.js API Route Handlers
 import jwt from "jsonwebtoken";
 import type { NextRequest } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -45,7 +45,7 @@ export async function getAuthUser(req: NextRequest) {
 
   try {
     const decoded = verifyToken(token);
-    const user = await prisma.user.findUnique({
+    const user = await mongo.user.findUnique({
       where: { id: decoded.userId },
       select: {
         id: true,

@@ -1,6 +1,6 @@
 // app/api/enrollments/route.ts — Enrollments & Course Assignment API
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     if (courseId) where.courseId = courseId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const enrollments = await prisma.enrollment.findMany({
+    const enrollments = await mongo.enrollment.findMany({
       where,
       include: {
         course: {
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if already enrolled
-    const existing = await prisma.enrollment.findUnique({
+    const existing = await mongo.enrollment.findUnique({
       where: { studentId_courseId: { studentId, courseId } },
     });
     if (existing) {
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const enrollment = await prisma.enrollment.create({
+    const enrollment = await mongo.enrollment.create({
       data: { studentId, courseId, assignedById: user!.id },
       include: {
         course: true,
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Initialize student progress record
-    await prisma.studentProgress.upsert({
+    await mongo.studentProgress.upsert({
       where: { studentId_courseId: { studentId, courseId } },
       update: {},
       create: { studentId, courseId },

@@ -52,7 +52,7 @@
  *         $ref: '#/components/responses/Forbidden'
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     }
 
     const [courses, total] = await Promise.all([
-      prisma.course.findMany({
+      mongo.course.findMany({
         where,
         skip,
         take: limit,
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
           _count: { select: { enrollments: true, modules: true } },
         },
       }),
-      prisma.course.count({ where }),
+      mongo.course.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const course = await prisma.course.create({
+    const course = await mongo.course.create({
       data: {
         title: title.trim(),
         description: description?.trim() || "",

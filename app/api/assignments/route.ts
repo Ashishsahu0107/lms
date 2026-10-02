@@ -30,7 +30,7 @@
  *         description: Assignment created
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     if (courseId) where.courseId = courseId;
     if (user!.role === "student") where.status = "published";
 
-    const assignments = await prisma.assignment.findMany({
+    const assignments = await mongo.assignment.findMany({
       where,
       include: {
         createdBy: { select: { id: true, name: true } },
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const assignment = await prisma.assignment.create({
+    const assignment = await mongo.assignment.create({
       data: {
         title,
         description: description || "",

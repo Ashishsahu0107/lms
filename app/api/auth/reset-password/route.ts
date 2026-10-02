@@ -25,7 +25,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { BadRequestError } from "@/lib/errors";
 
 export async function POST(req: NextRequest) {
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       throw new BadRequestError("Password must be at least 6 characters");
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await mongo.user.findUnique({
       where: { email: email.toLowerCase() },
     });
     if (!user) throw new BadRequestError("User not found");
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     const hashed = await bcrypt.hash(newPassword, 12);
 
-    await prisma.user.update({
+    await mongo.user.update({
       where: { id: user.id },
       data: {
         password: hashed,
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    prisma.securityLog
+    mongo.securityLog
       .create({
         data: {
           userId: user.id,

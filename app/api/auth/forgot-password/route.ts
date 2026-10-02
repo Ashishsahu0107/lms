@@ -24,7 +24,7 @@
  *         $ref: '#/components/responses/BadRequest'
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { sendOtpEmail } from "@/lib/mailer";
 import { BadRequestError } from "@/lib/errors";
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
     if (!email) throw new BadRequestError("Email is required");
 
-    const user = await prisma.user.findUnique({
+    const user = await mongo.user.findUnique({
       where: { email: email.toLowerCase() },
     });
     if (!user) throw new BadRequestError("User account not found");
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
-    await prisma.user.update({
+    await mongo.user.update({
       where: { id: user.id },
       data: {
         resetPasswordOTP: otp,

@@ -5,21 +5,21 @@
  * Resolves the base API URL.
  * - If NEXT_PUBLIC_API_URL is set (e.g. "https://api.example.com/api" or "/api"), uses it.
  * - In browser / Vercel deployment: defaults to "/api" (relative same-origin request).
- * - On server-side without env: defaults to "http://localhost:3000/api".
+ * - Uses same-origin requests by default.
  */
 export const API_URL: string = (
   process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== "undefined" ? "/api" : "http://localhost:3000/api")
+  "/api"
 ).replace(/\/$/, "");
 
 /**
  * Resolves the Socket.IO server URL.
  * - In production: Must be set via NEXT_PUBLIC_SOCKET_URL (e.g. "https://socket.lmspro.edu" or Render/Railway URL).
- * - In development / local: Defaults to window.location.origin in browser or "http://localhost:3000".
+ * - In development: Defaults to the current origin.
  */
 export const SOCKET_URL: string =
   process.env.NEXT_PUBLIC_SOCKET_URL ||
-  (typeof window !== "undefined" && window.location.hostname === "localhost"
+  (process.env.NODE_ENV !== "production" && typeof window !== "undefined"
     ? window.location.origin
     : "");
 

@@ -33,7 +33,7 @@
  *         description: Certificate issued
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 import { v4 as uuidv4 } from "uuid";
 
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     if (courseId) where.courseId = courseId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const certificates = await prisma.certificate.findMany({
+    const certificates = await mongo.certificate.findMany({
       where,
       include: {
         student: { select: { id: true, name: true, email: true } },
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cert = await prisma.certificate.create({
+    const cert = await mongo.certificate.create({
       data: {
         studentId,
         courseId,

@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
   compress: true,
   reactStrictMode: true,
 
@@ -11,8 +10,7 @@ const nextConfig = {
   turbopack: {},
 
   serverExternalPackages: [
-    "@prisma/client",
-    "prisma",
+    "mongoose",
     "multer",
     "socket.io",
     "nodemailer",
@@ -23,20 +21,7 @@ const nextConfig = {
     "swagger-ui-dist",
   ],
 
-  images: {
-    remotePatterns: [
-      { protocol: "http", hostname: "localhost" },
-      { protocol: "https", hostname: "**" },
-    ],
-  },
-
-  webpack: (config, { isServer }) => {
-    config.externals = config.externals || [];
-    if (isServer) {
-      config.externals.push("_http_common");
-    }
-    return config;
-  },
+  images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
 
   async headers() {
     return [

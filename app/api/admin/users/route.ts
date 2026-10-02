@@ -40,7 +40,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      mongo.user.findMany({
         where,
         skip,
         take: limit,
@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
           _count: { select: { enrollments: true, teachingCourses: true } },
         },
       }),
-      prisma.user.count({ where }),
+      mongo.user.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const existing = await prisma.user.findUnique({
+    const existing = await mongo.user.findUnique({
       where: { email: email.toLowerCase() },
     });
     if (existing) {
@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
     }
 
     const hashed = await bcrypt.hash(password, 12);
-    const newUser = await prisma.user.create({
+    const newUser = await mongo.user.create({
       data: {
         name: name.trim(),
         email: email.toLowerCase().trim(),

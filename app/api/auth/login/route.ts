@@ -24,7 +24,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { signToken } from "@/lib/auth";
 import { BadRequestError, UnauthorizedError } from "@/lib/errors";
 
@@ -38,13 +38,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Find user with password
-    const user = await prisma.user.findUnique({
+    const user = await mongo.user.findUnique({
       where: { email: email.toLowerCase() },
     });
 
     if (!user) {
       // Log security event (non-blocking)
-      prisma.securityLog
+      mongo.securityLog
         .create({
           data: {
             action: "FAILED_LOGIN",
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     // Verify password
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      prisma.securityLog
+      mongo.securityLog
         .create({
           data: {
             userId: user.id,
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
         yesterday.setDate(yesterday.getDate() - 1);
         const wasYesterday = lastActive === yesterday.toDateString();
 
-        prisma.user
+        mongo.user
           .update({
             where: { id: user.id },
             data: {
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Log successful login
-    prisma.securityLog
+    mongo.securityLog
       .create({
         data: {
           userId: user.id,

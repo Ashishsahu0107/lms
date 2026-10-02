@@ -1,6 +1,6 @@
 // app/api/admin/contact/route.ts — Admin Endpoint for Listing Contact Submissions
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -19,13 +19,13 @@ export async function GET(req: NextRequest) {
     const where = status ? { status } : {};
 
     const [requests, total] = await Promise.all([
-      prisma.contactRequest.findMany({
+      mongo.contactRequest.findMany({
         where,
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.contactRequest.count({ where }),
+      mongo.contactRequest.count({ where }),
     ]);
 
     return NextResponse.json({

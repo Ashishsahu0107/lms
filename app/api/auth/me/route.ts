@@ -15,14 +15,14 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { authenticate } from "@/lib/middleware";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   const { user, error } = await authenticate(req);
   if (error) return error;
 
   // Return full user with achievements
-  const fullUser = await prisma.user.findUnique({
+  const fullUser = await mongo.user.findUnique({
     where: { id: user!.id },
     include: { achievements: true },
   });

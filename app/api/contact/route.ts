@@ -1,6 +1,6 @@
 // app/api/contact/route.ts — Public Contact Support Form Submission Endpoint
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Save to Database
-    const contactRequest = await prisma.contactRequest.create({
+    const contactRequest = await mongo.contactRequest.create({
       data: {
         name: name.trim(),
         email: email.trim().toLowerCase(),

@@ -48,7 +48,7 @@
  *         description: Course deleted
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate } from "@/lib/middleware";
 import { checkCourseOwnership } from "@/lib/middleware";
 
@@ -59,7 +59,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const course = await prisma.course.findUnique({
+    const course = await mongo.course.findUnique({
       where: { id },
       include: {
         teacher: { select: { id: true, name: true, avatar: true, bio: true } },
@@ -127,7 +127,7 @@ export async function PUT(
       duration,
     } = body;
 
-    const course = await prisma.course.update({
+    const course = await mongo.course.update({
       where: { id },
       data: {
         ...(title && { title: title.trim() }),
@@ -166,7 +166,7 @@ export async function DELETE(
     const ownerErr = await checkCourseOwnership(user!, id);
     if (ownerErr) return ownerErr;
 
-    await prisma.course.delete({ where: { id } });
+    await mongo.course.delete({ where: { id } });
 
     return NextResponse.json({
       success: true,

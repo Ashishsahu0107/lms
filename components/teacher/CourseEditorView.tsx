@@ -3,15 +3,29 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Course, Module, Topic, TopicResource } from "@prisma/client";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { API_URL } from "@/lib/api-config";
 
-// Extended types to include relations
-type TopicWithResources = Topic & { resources: TopicResource[] };
-type ModuleWithTopics = Module & { topics: TopicWithResources[] };
-type CourseWithModules = Course & { modules: ModuleWithTopics[] };
+type TopicResource = { id: string; title: string; fileUrl: string };
+type TopicWithResources = {
+  id: string;
+  title: string;
+  content: string;
+  duration: number;
+  resources: TopicResource[];
+};
+type ModuleWithTopics = {
+  id: string;
+  title: string;
+  order: number;
+  topics: TopicWithResources[];
+};
+type CourseWithModules = {
+  id: string;
+  title: string;
+  modules: ModuleWithTopics[];
+};
 
 export default function CourseEditorView({
   course,

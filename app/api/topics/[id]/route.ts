@@ -1,6 +1,6 @@
 // app/api/topics/[id]/route.ts — Get, Update, Delete single topic
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function PUT(
@@ -17,7 +17,7 @@ export async function PUT(
     const body = await req.json();
     const { title, content, videoUrl, duration } = body;
 
-    const topic = await prisma.topic.update({
+    const topic = await mongo.topic.update({
       where: { id },
       data: {
         ...(title && { title: title.trim() }),
@@ -51,7 +51,7 @@ export async function DELETE(
     if (roleError) return roleError;
 
     const { id } = await params;
-    await prisma.topic.delete({ where: { id } });
+    await mongo.topic.delete({ where: { id } });
 
     return NextResponse.json({
       success: true,

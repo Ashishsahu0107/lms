@@ -34,7 +34,7 @@
  *         description: Attempt processed
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     if (studentId) where.studentId = studentId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const attempts = await prisma.quizAttempt.findMany({
+    const attempts = await mongo.quizAttempt.findMany({
       where,
       include: {
         student: { select: { id: true, name: true, email: true } },
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const quiz = await prisma.quiz.findUnique({
+    const quiz = await mongo.quiz.findUnique({
       where: { id: quizId },
       include: { questions: true },
     });
@@ -111,7 +111,9 @@ export async function POST(req: NextRequest) {
 
     if (answers && Array.isArray(answers)) {
       for (const ans of answers) {
-        const question = quiz.questions.find((q) => q.id === ans.questionId);
+        const question = quiz.questions.find(
+          (q: { id: string; correctAnswer: string[]; marks: number }) => q.id === ans.questionId,
+        );
         if (question) {
           const isCorrect =
             JSON.stringify(question.correctAnswer.sort()) ===
@@ -129,7 +131,7 @@ export async function POST(req: NextRequest) {
     const accuracy =
       quiz.totalMarks > 0 ? (totalScore / quiz.totalMarks) * 100 : 0;
 
-    const attempt = await prisma.quizAttempt.create({
+    const attempt = await mongo.quizAttempt.create({
       data: {
         studentId: user!.id,
         quizId,
@@ -145,7 +147,7 @@ export async function POST(req: NextRequest) {
 
     // Award XP to student
     if (totalScore > 0) {
-      await prisma.user.update({
+      await mongo.user.update({
         where: { id: user!.id },
         data: { xp: { increment: totalScore } },
       });

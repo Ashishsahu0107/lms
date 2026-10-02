@@ -20,7 +20,7 @@
  *         description: Search results
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     const results: Record<string, unknown[]> = {};
 
     if (type === "all" || type === "courses") {
-      results.courses = await prisma.course.findMany({
+      results.courses = await mongo.course.findMany({
         where: {
           status: "published",
           OR: [
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
     }
 
     if ((type === "all" || type === "users") && user!.role !== "student") {
-      results.users = await prisma.user.findMany({
+      results.users = await mongo.user.findMany({
         where: {
           OR: [
             { name: { contains: query, mode: "insensitive" } },
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (type === "all" || type === "assignments") {
-      results.assignments = await prisma.assignment.findMany({
+      results.assignments = await mongo.assignment.findMany({
         where: {
           status: "published",
           OR: [

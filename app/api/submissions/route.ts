@@ -35,7 +35,7 @@
  *         description: Submitted
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     if (studentId) where.studentId = studentId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const submissions = await prisma.submission.findMany({
+    const submissions = await mongo.submission.findMany({
       where,
       include: {
         student: {
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const assignment = await prisma.assignment.findUnique({
+    const assignment = await mongo.assignment.findUnique({
       where: { id: assignmentId },
     });
     if (!assignment) {
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     const isLate = new Date() > assignment.dueDate;
 
-    const submission = await prisma.submission.upsert({
+    const submission = await mongo.submission.upsert({
       where: { studentId_assignmentId: { studentId: user!.id, assignmentId } },
       update: {
         textAnswer: textAnswer || "",

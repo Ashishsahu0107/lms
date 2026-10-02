@@ -1,6 +1,6 @@
 // app/api/modules/[id]/route.ts — Get, Update, Delete module
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, checkModuleOwnership } from "@/lib/middleware";
 
 export async function GET(
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const moduleItem = await prisma.module.findUnique({
+    const moduleItem = await mongo.module.findUnique({
       where: { id },
       include: {
         topics: { orderBy: { createdAt: "asc" }, include: { resources: true } },
@@ -41,7 +41,7 @@ export async function PUT(
     if (ownerErr) return ownerErr;
 
     const { title, order } = await req.json();
-    const updatedModule = await prisma.module.update({
+    const updatedModule = await mongo.module.update({
       where: { id },
       data: { ...(title && { title }), ...(order !== undefined && { order }) },
     });
@@ -69,7 +69,7 @@ export async function DELETE(
     const ownerErr = await checkModuleOwnership(user!, id);
     if (ownerErr) return ownerErr;
 
-    await prisma.module.delete({ where: { id } });
+    await mongo.module.delete({ where: { id } });
     return NextResponse.json({ success: true, message: "Module deleted" });
   } catch (err: unknown) {
     const message =

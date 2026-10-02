@@ -20,7 +20,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { signToken } from "@/lib/auth";
 import { BadRequestError, ConflictError } from "@/lib/errors";
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check duplicate
-    const existing = await prisma.user.findUnique({
+    const existing = await mongo.user.findUnique({
       where: { email: email.toLowerCase() },
     });
     if (existing) {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
+    const user = await mongo.user.create({
       data: {
         name: name.trim(),
         email: email.toLowerCase().trim(),
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Log security event
-    prisma.securityLog
+    mongo.securityLog
       .create({
         data: {
           userId: user.id,

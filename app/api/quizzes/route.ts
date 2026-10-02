@@ -30,7 +30,7 @@
  *         description: Quiz created
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     if (moduleId) where.moduleId = moduleId;
     if (user!.role === "student") where.status = "published";
 
-    const quizzes = await prisma.quiz.findMany({
+    const quizzes = await mongo.quiz.findMany({
       where,
       include: {
         _count: { select: { questions: true, attempts: true } },
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const quiz = await prisma.quiz.create({
+    const quiz = await mongo.quiz.create({
       data: {
         title,
         description: description || "",

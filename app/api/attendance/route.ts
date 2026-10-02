@@ -39,7 +39,7 @@
  *         description: Attendance marked
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
     if (user!.role === "student") where.studentId = user!.id;
     if (user!.role === "teacher") where.teacherId = user!.id;
 
-    const attendance = await prisma.attendance.findMany({
+    const attendance = await mongo.attendance.findMany({
       where,
       include: {
         student: {
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const attendance = await prisma.attendance.upsert({
+    const attendance = await mongo.attendance.upsert({
       where: {
         studentId_courseId_date: { studentId, courseId, date: new Date(date) },
       },

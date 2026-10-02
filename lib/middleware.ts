@@ -1,7 +1,7 @@
 // lib/middleware.ts — RBAC middleware helpers for Next.js Route Handlers
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser, type AuthUser } from "@/lib/auth";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 
 type Role = "student" | "teacher" | "super_admin";
 
@@ -66,7 +66,7 @@ export async function checkCourseOwnership(
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
-  const course = await prisma.course.findUnique({
+  const course = await mongo.course.findUnique({
     where: { id: courseId },
     select: { teacherId: true },
   });
@@ -97,7 +97,7 @@ export async function checkModuleOwnership(
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
-  const mod = await prisma.module.findUnique({
+  const mod = await mongo.module.findUnique({
     where: { id: moduleId },
     include: { course: { select: { teacherId: true } } },
   });
@@ -131,7 +131,7 @@ export async function checkTopicOwnership(
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
-  const topic = await prisma.topic.findUnique({
+  const topic = await mongo.topic.findUnique({
     where: { id: topicId },
     include: {
       module: {

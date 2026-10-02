@@ -33,7 +33,7 @@
  *         description: Message sent
  */
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 
     if (!recipientId) {
       // Get conversation list — last message per user
-      const messages = await prisma.message.findMany({
+      const messages = await mongo.message.findMany({
         where: {
           OR: [{ senderId: user!.id }, { recipientId: user!.id }],
           deleted: false,
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get conversation between two users
-    const messages = await prisma.message.findMany({
+    const messages = await mongo.message.findMany({
       where: {
         OR: [
           { senderId: user!.id, recipientId },
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Mark received messages as read
-    await prisma.message.updateMany({
+    await mongo.message.updateMany({
       where: { senderId: recipientId, recipientId: user!.id, read: false },
       data: { read: true, readAt: new Date() },
     });
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const message = await prisma.message.create({
+    const message = await mongo.message.create({
       data: {
         senderId: user!.id,
         recipientId,

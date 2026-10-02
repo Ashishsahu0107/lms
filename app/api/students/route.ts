@@ -1,6 +1,6 @@
 // app/api/students/route.ts — Dedicated Student Roster API for Course & Assignment Assignment
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import mongo from "@/lib/db";
 import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const students = await prisma.user.findMany({
+    const students = await mongo.user.findMany({
       where,
       take: limit,
       orderBy: { name: "asc" },
