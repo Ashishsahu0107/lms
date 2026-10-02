@@ -1,6 +1,8 @@
-import "dotenv/config";
+import nextEnv from "@next/env";
 import mongoose, { Schema, Types } from "mongoose";
 import bcrypt from "bcryptjs";
+
+nextEnv.loadEnvConfig(process.cwd());
 
 const uri = process.env.MONGODB_URI;
 if (!uri) throw new Error("MONGODB_URI environment variable is required");
