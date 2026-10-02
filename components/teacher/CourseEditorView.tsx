@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { ChevronDown, ChevronUp, Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText, Paperclip, Pencil, Plus, Save, Trash2, Video, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { API_URL } from "@/lib/api-config";
 
@@ -16,6 +16,7 @@ type TopicWithResources = {
   title: string;
   content: string;
   duration: number;
+  videoUrl: string;
   order: number;
   resources: TopicResource[];
 };
@@ -41,7 +42,7 @@ export default function CourseEditorView({
   course: CourseWithModules;
 }) {
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [classes, setClasses] = useState(course.modules);
   const [newClassTitle, setNewClassTitle] = useState("");
   const [creatingClass, setCreatingClass] = useState(false);
@@ -57,6 +58,8 @@ export default function CourseEditorView({
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [managerError, setManagerError] = useState("");
+  const [showClassForm, setShowClassForm] = useState(false);
+  const [isTopicEditorOpen, setIsTopicEditorOpen] = useState(false);
 
   useEffect(() => {
     setClasses(course.modules);
@@ -135,6 +138,9 @@ export default function CourseEditorView({
         toast.success(publish ? "Lesson published!" : "Draft saved!");
         // Update the activeTopic with the new data to avoid losing state on re-render
         setActiveTopic(editedTopic);
+        setClasses((current) => current.map((classItem) => classItem.id === activeModuleId
+          ? { ...classItem, topics: classItem.topics.map((topic) => topic.id === editedTopic.id ? { ...topic, ...editedTopic } : topic) }
+          : classItem));
         // Refresh the server component data
         router.refresh();
       } else {
@@ -175,6 +181,7 @@ export default function CourseEditorView({
       setExpandedModules((current) => ({ ...current, [createdClass.id]: true }));
       setActiveModuleId(createdClass.id);
       setNewClassTitle("");
+      setShowClassForm(false);
       toast.success("Class created");
       router.refresh();
     } catch (error) {
@@ -362,6 +369,168 @@ export default function CourseEditorView({
     }
   };
 
+  if (!isTopicEditorOpen) {
+    return (
+      <div className="space-y-5 text-base-content">
+        <header className="flex flex-col gap-4 border-b border-base-300 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <Link href={user?.role === "super_admin" ? "/admin/dashboard" : "/teacher/courses"} className="rounded-full bg-base-200 p-2 text-base-content hover:bg-base-300" aria-label="Back to courses">
+              ←
+            </Link>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-xs text-base-content/50">
+                <span>LMS</span><span>›</span><span className="truncate">{course.title}</span>
+              </div>
+              <h1 className="mt-1 truncate text-xl font-bold text-base-content">Classes & Topics</h1>
+            </div>
+          </div>
+          <Button type="button" onClick={() => setShowClassForm((shown) => !shown)}>
+            <Plus size={16} /> Add Class
+          </Button>
+        </header>
+
+        {managerError && (
+          <div role="alert" className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
+            {managerError}
+          </div>
+        )}
+
+        {showClassForm && (
+          <form onSubmit={handleAddClass} className="flex flex-col gap-3 rounded-xl border border-base-300 bg-base-100 p-4 sm:flex-row sm:items-end">
+            <div className="min-w-0 flex-1">
+              <label htmlFor="new-class-title" className="mb-1.5 block text-xs font-semibold text-base-content/70">Class title</label>
+              <input
+                id="new-class-title"
+                autoFocus
+                required
+                maxLength={120}
+                value={newClassTitle}
+                onChange={(event) => setNewClassTitle(event.target.value)}
+                placeholder="e.g. Class 1"
+                className="w-full rounded-lg border border-base-300 bg-base-100 px-3 py-2.5 text-sm text-base-content focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" isLoading={creatingClass} disabled={!newClassTitle.trim()}><Save size={15} /> Save Class</Button>
+              <Button type="button" variant="outline" onClick={() => { setShowClassForm(false); setNewClassTitle(""); }}>Cancel</Button>
+            </div>
+          </form>
+        )}
+
+        {classes.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-base-300 bg-base-100 px-5 py-14 text-center">
+            <h2 className="text-base font-semibold text-base-content">No Classes yet</h2>
+            <p className="mt-1 text-sm text-base-content/60">Add a Class to begin structuring this course.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {classes.map((classItem, classIndex) => {
+              const expanded = Boolean(expandedModules[classItem.id]);
+              return (
+                <section key={classItem.id} className="overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm">
+                  <div className="flex items-center gap-2 border-b border-base-200 px-3 py-3 sm:px-5">
+                    <span className="hidden text-base-content/40 sm:block" aria-hidden="true">⠿</span>
+                    <button type="button" aria-expanded={expanded} onClick={() => toggleModule(classItem.id)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                      <ChevronDown size={17} className={`shrink-0 text-base-content/50 transition-transform ${expanded ? "" : "-rotate-90"}`} />
+                      <span className="shrink-0 text-xs font-semibold text-primary">Class {classIndex + 1}</span>
+                      <span className="truncate text-sm font-semibold text-base-content">{classItem.title}</span>
+                      <span className="ml-auto shrink-0 rounded-full bg-base-200 px-2 py-0.5 text-[11px] text-base-content/60">{classItem.topics.length} Topics</span>
+                    </button>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button type="button" title="Rename Class" aria-label={`Rename ${classItem.title}`} onClick={() => { setEditingClassId(classItem.id); setEditingClassTitle(classItem.title); }} className="rounded-md p-2 text-base-content/50 hover:bg-base-200 hover:text-primary"><Pencil size={15} /></button>
+                      <button type="button" title="Delete Class" aria-label={`Delete ${classItem.title}`} onClick={() => setPendingDelete({ kind: "class", classId: classItem.id, title: classItem.title })} className="rounded-md p-2 text-base-content/50 hover:bg-error/10 hover:text-error"><Trash2 size={15} /></button>
+                    </div>
+                  </div>
+
+                  {editingClassId === classItem.id && (
+                    <form onSubmit={(event) => handleSaveClass(event, classItem.id)} className="flex flex-col gap-2 border-b border-base-200 bg-base-200/30 p-4 sm:flex-row">
+                      <label className="sr-only" htmlFor={`class-title-${classItem.id}`}>Class title</label>
+                      <input id={`class-title-${classItem.id}`} autoFocus required maxLength={120} value={editingClassTitle} onChange={(event) => setEditingClassTitle(event.target.value)} className="min-w-0 flex-1 rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm text-base-content" />
+                      <Button type="submit" size="sm" isLoading={savingClassId === classItem.id} disabled={!editingClassTitle.trim()}><Save size={14} /> Save</Button>
+                      <Button type="button" size="sm" variant="outline" onClick={() => setEditingClassId(null)}><X size={14} /> Cancel</Button>
+                    </form>
+                  )}
+
+                  {expanded && (
+                    <div className="p-3 sm:p-5">
+                      {classItem.topics.length === 0 ? (
+                        <div className="rounded-lg bg-base-200/40 px-4 py-8 text-center text-sm text-base-content/60">No Topics in this Class yet.</div>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+                            <thead>
+                              <tr className="border-b border-base-200 text-[10px] font-semibold uppercase text-base-content/45">
+                                <th className="px-3 py-3">Topic</th>
+                                <th className="px-3 py-3 text-center">Doc</th>
+                                <th className="px-3 py-3 text-center">Video</th>
+                                <th className="px-3 py-3 text-center">Resources</th>
+                                <th className="px-3 py-3 text-right">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-base-200">
+                              {classItem.topics.map((topic, topicIndex) => (
+                                <tr key={topic.id} className="group">
+                                  <td className="px-3 py-3">
+                                    <button type="button" onClick={() => { setActiveModuleId(classItem.id); setActiveTopic(topic); setEditedTopic(topic); setIsTopicEditorOpen(true); }} className="flex min-w-0 items-center gap-3 text-left hover:text-primary">
+                                      <span className="shrink-0 font-mono text-xs text-base-content/40">{topicIndex + 1}.</span>
+                                      <span className="truncate font-medium">{topic.title}</span>
+                                    </button>
+                                  </td>
+                                  <td className="px-3 py-3 text-center">{topic.content ? <FileText size={16} className="mx-auto text-info" aria-label="Content added" /> : <span className="text-base-content/25">–</span>}</td>
+                                  <td className="px-3 py-3 text-center">{topic.videoUrl ? <Video size={16} className="mx-auto text-secondary" aria-label="Video added" /> : <span className="text-base-content/25">–</span>}</td>
+                                  <td className="px-3 py-3 text-center">{topic.resources?.length ? <span className="inline-flex items-center gap-1 text-xs text-base-content/60"><Paperclip size={14} />{topic.resources.length}</span> : <span className="text-base-content/25">–</span>}</td>
+                                  <td className="px-3 py-2">
+                                    {editingTopicId === topic.id ? (
+                                      <form onSubmit={(event) => handleSaveTopicTitle(event, classItem.id, topic)} className="flex justify-end gap-2">
+                                        <label className="sr-only" htmlFor={`topic-title-${topic.id}`}>Topic title</label>
+                                        <input id={`topic-title-${topic.id}`} autoFocus required maxLength={160} value={editingTopicTitle} onChange={(event) => setEditingTopicTitle(event.target.value)} className="min-w-0 rounded-lg border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs text-base-content" />
+                                        <Button type="submit" size="sm" isLoading={savingTopicId === topic.id} disabled={!editingTopicTitle.trim()}><Save size={13} /></Button>
+                                        <Button type="button" size="sm" variant="outline" onClick={() => setEditingTopicId(null)}><X size={13} /></Button>
+                                      </form>
+                                    ) : (
+                                      <div className="flex justify-end gap-1">
+                                        <button type="button" title="Move up" aria-label={`Move ${topic.title} up`} disabled={topicIndex === 0 || reorderingClassId === classItem.id} onClick={() => handleReorderTopics(classItem, topicIndex, -1)} className="rounded-md p-2 text-base-content/45 hover:bg-base-200 disabled:opacity-30"><ChevronUp size={15} /></button>
+                                        <button type="button" title="Move down" aria-label={`Move ${topic.title} down`} disabled={topicIndex === classItem.topics.length - 1 || reorderingClassId === classItem.id} onClick={() => handleReorderTopics(classItem, topicIndex, 1)} className="rounded-md p-2 text-base-content/45 hover:bg-base-200 disabled:opacity-30"><ChevronDown size={15} /></button>
+                                        <button type="button" title="Edit Topic" aria-label={`Edit ${topic.title}`} onClick={() => { setEditingTopicId(topic.id); setEditingTopicTitle(topic.title); }} className="rounded-md p-2 text-base-content/45 hover:bg-base-200 hover:text-primary"><Pencil size={15} /></button>
+                                        <button type="button" title="Delete Topic" aria-label={`Delete ${topic.title}`} onClick={() => setPendingDelete({ kind: "topic", classId: classItem.id, topicId: topic.id, title: topic.title })} className="rounded-md p-2 text-base-content/45 hover:bg-error/10 hover:text-error"><Trash2 size={15} /></button>
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+
+                      <form onSubmit={(event) => handleAddTopic(event, classItem.id)} className="mt-4 flex flex-col gap-2 rounded-lg border border-dashed border-base-300 p-3 sm:flex-row">
+                        <label className="sr-only" htmlFor={`new-topic-${classItem.id}`}>New Topic title</label>
+                        <input id={`new-topic-${classItem.id}`} required maxLength={160} value={newTopicTitles[classItem.id] || ""} onChange={(event) => setNewTopicTitles((current) => ({ ...current, [classItem.id]: event.target.value }))} placeholder="Topic title" className="min-w-0 flex-1 rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40" />
+                        <Button type="submit" size="sm" isLoading={creatingTopicClassId === classItem.id} disabled={!newTopicTitles[classItem.id]?.trim()}><Plus size={14} /> Add Topic</Button>
+                      </form>
+                    </div>
+                  )}
+                </section>
+              );
+            })}
+          </div>
+        )}
+
+        <Modal
+          isOpen={Boolean(pendingDelete)}
+          onClose={() => { if (!deleting) setPendingDelete(null); }}
+          title={pendingDelete?.kind === "class" ? "Delete Class" : "Delete Topic"}
+        >
+          <p className="text-sm text-base-content/70">Delete <strong className="text-base-content">{pendingDelete?.title}</strong>{pendingDelete?.kind === "class" ? " and all its Topics?" : "?"} This cannot be undone.</p>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button type="button" variant="outline" disabled={deleting} onClick={() => setPendingDelete(null)}>Cancel</Button>
+            <Button type="button" variant="error" isLoading={deleting} onClick={handleConfirmDelete}><Trash2 size={14} /> Delete</Button>
+          </div>
+        </Modal>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-12rem)] w-full flex-col overflow-hidden bg-[#FAFBFF]">
       {/* 1. GLOBAL SIDEBAR (From layout, but we simulate the nav area shown in image for full fidelity) */}
@@ -376,8 +545,15 @@ export default function CourseEditorView({
         {/* ══ TOP HEADER ══ */}
         <header className="h-[72px] px-8 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
+            <button
+              type="button"
+              onClick={() => setIsTopicEditorOpen(false)}
+              className="rounded-full bg-indigo-50 px-3 py-2 font-semibold text-indigo-700 hover:bg-indigo-100"
+            >
+              ← Classes
+            </button>
             <Link
-              href="/teacher/dashboard"
+              href={user?.role === "super_admin" ? "/admin/dashboard" : "/teacher/dashboard"}
               className="hover:text-indigo-600 transition-colors"
             >
               Dashboard
@@ -387,7 +563,7 @@ export default function CourseEditorView({
               href="/teacher/courses"
               className="hover:text-indigo-600 transition-colors"
             >
-              My Courses
+              Courses
             </Link>
             <span className="text-slate-300">›</span>
             <span className="text-slate-800">{course.title}</span>
@@ -400,7 +576,7 @@ export default function CourseEditorView({
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors flex items-center gap-2">
+            <button type="button" className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors flex items-center gap-2">
               <svg
                 width="16"
                 height="16"
@@ -413,6 +589,7 @@ export default function CourseEditorView({
                 <circle cx="12" cy="12" r="3" />
               </svg>
               Preview
+            </button>
               <button
                 onClick={() => handleSaveTopic(false)}
                 disabled={isSaving || isPublishing}
@@ -462,15 +639,14 @@ export default function CourseEditorView({
                     <path d="M6 9l6 6 6-6" />
                   </svg>
                 </span>
-              </button>{" "}
-            </button>
+              </button>
           </div>
         </header>
 
         {/* ══ PAGE CONTENT ══ */}
         <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
           {/* 2. INNER LEFT SIDEBAR (Modules & Lessons) */}
-          <aside className="flex w-full shrink-0 flex-col border-b border-slate-200 bg-white lg:h-full lg:w-[320px] lg:border-b-0 lg:border-r">
+          <aside className="hidden">
             <div className="max-h-[45vh] flex-1 overflow-y-auto border-b border-slate-100 p-4 sm:p-6 lg:max-h-none lg:pb-2">
               {/* Modules List */}
               <div className="space-y-4">

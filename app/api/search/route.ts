@@ -44,11 +44,14 @@ export async function GET(req: NextRequest) {
 
     const query = q.trim();
     const results: Record<string, unknown[]> = {};
+    const teacherCourseIds = user!.role === "teacher"
+      ? (await mongo.course.find({ filter: { teacherId: user!.id }, select: { id: true } })).map((course: { id: string }) => course.id)
+      : undefined;
 
     if (type === "all" || type === "courses") {
       results.courses = await mongo.course.find({
         filter: {
-          status: "published",
+          ...(teacherCourseIds ? { teacherId: user!.id } : { status: "published" }),
           OR: [
             { title: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },
@@ -76,7 +79,7 @@ export async function GET(req: NextRequest) {
     if (type === "all" || type === "assignments") {
       results.assignments = await mongo.assignment.find({
         filter: {
-          status: "published",
+          ...(teacherCourseIds ? { courseId: { in: teacherCourseIds } } : { status: "published" }),
           OR: [
             { title: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },

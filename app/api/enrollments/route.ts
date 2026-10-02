@@ -1,7 +1,11 @@
 // app/api/enrollments/route.ts — Enrollments & Course Assignment API
 import { NextRequest, NextResponse } from "next/server";
 import mongo from "@/lib/db";
-import { authenticate } from "@/lib/middleware";
+import {
+  authenticate,
+  authorize,
+  checkCourseOwnership,
+} from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,10 +16,24 @@ export async function GET(req: NextRequest) {
     const studentId = searchParams.get("studentId");
     const courseId = searchParams.get("courseId");
 
-    const where: Record<string, string> = {};
+    const where: Record<string, unknown> = {};
     if (studentId) where.studentId = studentId;
     if (courseId) where.courseId = courseId;
     if (user!.role === "student") where.studentId = user!.id;
+    if (user!.role === "teacher") {
+      const assignedCourses = await mongo.course.find({
+        filter: { teacherId: user!.id },
+        select: { id: true },
+      });
+      const assignedCourseIds = assignedCourses.map((course: { id: string }) => course.id);
+      if (courseId && !assignedCourseIds.includes(courseId)) {
+        return NextResponse.json(
+          { success: false, message: "Access denied: this course is not assigned to you" },
+          { status: 403 },
+        );
+      }
+      where.courseId = courseId || { in: assignedCourseIds };
+    }
 
     const enrollments = await mongo.enrollment.find({
       filter: where,
@@ -60,6 +78,15 @@ export async function POST(req: NextRequest) {
         { success: false, message: "studentId and courseId are required" },
         { status: 400 },
       );
+    }
+
+    if (user!.role !== "student") {
+      const roleError = authorize(user!, "teacher", "super_admin");
+      if (roleError) return roleError;
+    }
+    if (user!.role === "teacher") {
+      const ownerError = await checkCourseOwnership(user!, courseId);
+      if (ownerError) return ownerError;
     }
 
     // Check if already enrolled

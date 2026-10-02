@@ -47,6 +47,8 @@ export async function GET(req: NextRequest) {
   try {
     const { user, error } = await authenticate(req);
     if (error) return error;
+    const roleError = authorize(user!, "teacher", "super_admin");
+    if (roleError) return roleError;
 
     const { searchParams } = new URL(req.url);
     const moduleId = searchParams.get("moduleId");

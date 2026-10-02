@@ -7,7 +7,7 @@ import CourseEditorView from "@/components/teacher/CourseEditorView";
 import { API_URL } from "@/lib/api-config";
 
 export default function EditCoursePage() {
-  const { token, user } = useAuth();
+  const { token, user, isLoading: authLoading } = useAuth();
   const params = useParams();
   const router = useRouter();
   const courseId = params.courseId as string;
@@ -16,10 +16,15 @@ export default function EditCoursePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!token || !user) return;
+    if (authLoading) return;
+    if (!token || !user) {
+      setLoading(false);
+      router.replace("/login");
+      return;
+    }
 
-    if (user.role !== "teacher") {
-      router.replace("/auth/login");
+    if (user.role !== "teacher" && user.role !== "super_admin") {
+      router.replace("/login");
       return;
     }
 
@@ -33,7 +38,7 @@ export default function EditCoursePage() {
         if (data.success && data.data) {
           const fetchedCourse = data.data.course;
           // If teacher doesn't own this course
-          if (fetchedCourse.teacherId !== user.id) {
+          if (user.role === "teacher" && fetchedCourse.teacherId !== user.id) {
             router.replace("/teacher/courses");
             return;
           }
@@ -49,7 +54,7 @@ export default function EditCoursePage() {
     };
 
     fetchCourse();
-  }, [token, user, courseId, router]);
+  }, [token, user, authLoading, courseId, router]);
 
   if (loading) {
     return <div className="flex min-h-[50vh] items-center justify-center bg-base-100"><span className="loading loading-spinner text-primary"></span></div>;

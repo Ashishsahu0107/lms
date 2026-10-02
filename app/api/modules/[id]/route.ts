@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import mongo from "@/lib/db";
 import {
   authenticate,
+  authorize,
   checkModuleOwnership,
 } from "@/lib/middleware";
 
@@ -13,6 +14,8 @@ export async function GET(
   try {
     const { user, error } = await authenticate(req);
     if (error) return error;
+    const roleError = authorize(user!, "teacher", "super_admin");
+    if (roleError) return roleError;
 
     const { id } = await params;
     const ownerError = await checkModuleOwnership(user!, id);
@@ -43,6 +46,8 @@ export async function PUT(
   try {
     const { user, error } = await authenticate(req);
     if (error) return error;
+    const roleError = authorize(user!, "teacher", "super_admin");
+    if (roleError) return roleError;
     const { id } = await params;
     const ownerErr = await checkModuleOwnership(user!, id);
     if (ownerErr) return ownerErr;
@@ -72,6 +77,8 @@ export async function DELETE(
   try {
     const { user, error } = await authenticate(req);
     if (error) return error;
+    const roleError = authorize(user!, "teacher", "super_admin");
+    if (roleError) return roleError;
     const { id } = await params;
     const ownerErr = await checkModuleOwnership(user!, id);
     if (ownerErr) return ownerErr;

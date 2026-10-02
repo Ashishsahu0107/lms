@@ -27,7 +27,7 @@
  *         description: List of courses
  *   post:
  *     tags: [Courses]
- *     summary: Create a new course (Teacher/Admin only)
+ *     summary: Create a new course (Super Admin only)
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -64,18 +64,17 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get("category");
     const difficulty = searchParams.get("difficulty");
     const search = searchParams.get("search");
-    const teacherId = searchParams.get("teacherId");
+    const requestedTeacherId = searchParams.get("teacherId");
     const status = searchParams.get("status");
 
     // Build filter
     const where: Record<string, unknown> = {};
 
-    // Non-admins only see published courses
-    const { user } = (await authenticate(req).catch(() => ({
-      user: null,
-    }))) as { user: { role: string } | null };
+    const { user } = await authenticate(req);
     const role = user?.role;
-    if (!role || role === "student") {
+    if (role === "teacher") {
+      where.teacherId = user!.id;
+    } else if (role !== "super_admin") {
       where.status = "published";
     } else if (status) {
       where.status = status;
@@ -83,7 +82,9 @@ export async function GET(req: NextRequest) {
 
     if (category) where.category = { contains: category, mode: "insensitive" };
     if (difficulty) where.difficulty = difficulty;
-    if (teacherId) where.teacherId = teacherId;
+    if (role === "super_admin" && requestedTeacherId) {
+      where.teacherId = requestedTeacherId;
+    }
     if (search) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
@@ -128,16 +129,26 @@ export async function POST(req: NextRequest) {
     const { user, error } = await authenticate(req);
     if (error) return error;
 
-    const roleError = authorize(user!, "teacher", "super_admin");
+    const roleError = authorize(user!, "super_admin");
     if (roleError) return roleError;
 
     const body = await req.json();
-    const { title, description, category, difficulty, price, tags, status } =
-      body;
+    const { title, description, category, difficulty, price, tags, status, teacherId } = body;
 
-    if (!title) {
+    if (!title || !teacherId) {
       return NextResponse.json(
-        { success: false, message: "Course title is required" },
+        { success: false, message: "Course title and assigned teacher are required" },
+        { status: 400 },
+      );
+    }
+
+    const assignedTeacher = await mongo.user.findOne({
+      filter: { id: teacherId, role: "teacher", isActive: true, status: "active" },
+      select: { id: true },
+    });
+    if (!assignedTeacher) {
+      return NextResponse.json(
+        { success: false, message: "Choose an active teacher to assign this course" },
         { status: 400 },
       );
     }
@@ -151,7 +162,7 @@ export async function POST(req: NextRequest) {
         price: Number(price) || 0,
         tags: tags || [],
         status: status || "draft",
-        teacherId: user!.id,
+        teacherId: assignedTeacher.id,
       },
       populate: {
         teacher: { select: { id: true, name: true, avatar: true } },

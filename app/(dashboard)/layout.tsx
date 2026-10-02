@@ -124,6 +124,12 @@ const NAV_ITEMS: NavItem[] = [
     roles: ["super_admin"],
   },
   {
+    label: "Courses",
+    href: "/teacher/courses",
+    icon: "📚",
+    roles: ["super_admin"],
+  },
+  {
     label: "User Management",
     href: "/admin/users",
     icon: "👤",
@@ -140,14 +146,6 @@ const NAV_ITEMS: NavItem[] = [
     href: "/admin/settings",
     icon: "⚙️",
     roles: ["super_admin"],
-  },
-
-  // Shared Links
-  {
-    label: "API Docs (Swagger)",
-    href: "/api-docs",
-    icon: "⚡",
-    roles: ["student", "teacher", "super_admin"],
   },
 ];
 

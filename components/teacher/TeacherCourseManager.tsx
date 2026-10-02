@@ -2,6 +2,7 @@
 
 // components/teacher/TeacherCourseManager.tsx — Full Page Professional Course Editor & Searchable Student Assignment Tool
 import React, { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +14,8 @@ import { API_URL } from "@/lib/api-config";
 
 interface CourseItem {
   id: string;
+  teacherId: string;
+  teacher?: { id: string; name: string };
   title: string;
   description?: string;
   category: string;
@@ -36,10 +39,21 @@ interface StudentUser {
   _count?: { enrollments: number };
 }
 
+interface TeacherUser {
+  id: string;
+  name: string;
+  email: string;
+  isActive: boolean;
+  status: string;
+}
+
 export default function TeacherCourseManager() {
-  const { token, user } = useAuth();
+  const { token, user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const router = useRouter();
+  const isAdmin = user?.role === "super_admin";
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pageError, setPageError] = useState("");
 
   // Create Course Modal State
   const [showCreateCourseModal, setShowCreateCourseModal] = useState(false);
@@ -47,7 +61,11 @@ export default function TeacherCourseManager() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Programming");
   const [difficulty, setDifficulty] = useState("beginner");
+  const [teachers, setTeachers] = useState<TeacherUser[]>([]);
+  const [selectedTeacherId, setSelectedTeacherId] = useState("");
   const [submittingCourse, setSubmittingCourse] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState<CourseItem | null>(null);
+  const [deletingCourse, setDeletingCourse] = useState(false);
 
   // Manage Modules State
   const [modules, setModules] = useState<ModuleItem[]>([]);
@@ -74,23 +92,42 @@ export default function TeacherCourseManager() {
     status: "published",
     description: "",
     notes: "",
+    teacherId: "",
   });
   const [savingEditor, setSavingEditor] = useState(false);
 
   const fetchCourses = useCallback(async () => {
-    if (!token || !user) return;
+    if (!token || !user || (user.role !== "teacher" && user.role !== "super_admin")) return;
+    setPageError("");
     try {
-      const res = await fetch(`${API_URL}/courses?teacherId=${user.id}`, {
+      const res = await fetch(`${API_URL}/courses`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) setCourses(data.data.courses || []);
-    } catch (e) {
-      console.error(e);
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not load courses");
+      setCourses(data.data.courses || []);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not load courses";
+      setPageError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   }, [token, user]);
+
+  const fetchTeachers = useCallback(async () => {
+    if (!token || !isAdmin) return;
+    try {
+      const res = await fetch(`${API_URL}/admin/users?role=teacher&limit=100`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not load teachers");
+      setTeachers((data.data.users || []).filter((teacher: TeacherUser) => teacher.isActive && teacher.status === "active"));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not load teachers");
+    }
+  }, [token, isAdmin]);
 
   const fetchStudents = useCallback(
     async (query = "") => {
@@ -117,9 +154,21 @@ export default function TeacherCourseManager() {
   );
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthenticated || !user) {
+      router.replace("/login");
+      setLoading(false);
+      return;
+    }
+    if (user.role !== "teacher" && user.role !== "super_admin") {
+      router.replace(`/${user.role}/dashboard`);
+      setLoading(false);
+      return;
+    }
     fetchCourses();
     fetchStudents();
-  }, [fetchCourses, fetchStudents]);
+    fetchTeachers();
+  }, [authLoading, isAuthenticated, user, router, fetchCourses, fetchStudents, fetchTeachers]);
 
   const fetchModules = useCallback(
     async (courseId: string) => {
@@ -145,7 +194,7 @@ export default function TeacherCourseManager() {
 
   const handleSaveEditor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editorCourse || !token) return;
+    if (!isAdmin || !editorCourse || !token) return;
     setSavingEditor(true);
 
     try {
@@ -172,7 +221,7 @@ export default function TeacherCourseManager() {
 
   const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !token) return;
+    if (!isAdmin || !title.trim() || !selectedTeacherId || !token) return;
     setSubmittingCourse(true);
 
     try {
@@ -188,6 +237,7 @@ export default function TeacherCourseManager() {
           category,
           difficulty,
           status: "published",
+          teacherId: selectedTeacherId,
         }),
       });
 
@@ -198,6 +248,7 @@ export default function TeacherCourseManager() {
       setShowCreateCourseModal(false);
       setTitle("");
       setDescription("");
+      setSelectedTeacherId("");
       fetchCourses();
     } catch (err: unknown) {
       toast.error(
@@ -205,6 +256,41 @@ export default function TeacherCourseManager() {
       );
     } finally {
       setSubmittingCourse(false);
+    }
+  };
+
+  const handleEditCourse = (course: CourseItem) => {
+    if (!isAdmin) return;
+    setEditorCourse(course);
+    setEditForm({
+      title: course.title,
+      category: course.category || "Programming",
+      difficulty: course.difficulty || "beginner",
+      status: course.status || "draft",
+      description: course.description || "",
+      notes: course.notes || "",
+      teacherId: course.teacherId,
+    });
+    fetchModules(course.id);
+  };
+
+  const handleDeleteCourse = async () => {
+    if (!isAdmin || !courseToDelete || !token) return;
+    setDeletingCourse(true);
+    try {
+      const res = await fetch(`${API_URL}/courses/${courseToDelete.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not delete course");
+      setCourses((current) => current.filter((course) => course.id !== courseToDelete.id));
+      setCourseToDelete(null);
+      toast.success("Course deleted");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not delete course");
+    } finally {
+      setDeletingCourse(false);
     }
   };
 
@@ -339,6 +425,26 @@ export default function TeacherCourseManager() {
                   }
                 />
 
+                {isAdmin && (
+                  <div>
+                    <label htmlFor="editor-assigned-teacher" className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+                      Assigned Teacher
+                    </label>
+                    <select
+                      id="editor-assigned-teacher"
+                      required
+                      value={editForm.teacherId}
+                      onChange={(event) => setEditForm({ ...editForm, teacherId: event.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Select a teacher</option>
+                      {teachers.map((teacher) => (
+                        <option key={teacher.id} value={teacher.id}>{teacher.name} ({teacher.email})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
@@ -393,6 +499,26 @@ export default function TeacherCourseManager() {
                     <option value="draft">Draft (Hidden)</option>
                   </select>
                 </div>
+
+                {isAdmin && (
+                  <div>
+                    <label htmlFor="edit-course-teacher" className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+                      Assigned Teacher
+                    </label>
+                    <select
+                      id="edit-course-teacher"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      value={editForm.teacherId}
+                      onChange={(event) => setEditForm({ ...editForm, teacherId: event.target.value })}
+                    >
+                      <option value="">Select a teacher</option>
+                      {teachers.map((teacher) => (
+                        <option key={teacher.id} value={teacher.id}>{teacher.name} ({teacher.email})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
@@ -548,20 +674,27 @@ export default function TeacherCourseManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-base-content font-display tracking-tight">
-            Course Management & Assignment Tool 📖
+            {isAdmin ? "Course Management" : "My Assigned Courses"}
           </h1>
           <p className="text-sm text-base-content/60 mt-1">
-            Author courses, manage curriculum pages, and assign courses directly
-            to registered students.
+            {isAdmin
+              ? "Create courses, assign teachers, and manage the course catalog."
+              : "Open an assigned course to manage its Classes and Topics."}
           </p>
         </div>
-        <Button
-          variant="primary"
-          onClick={() => setShowCreateCourseModal(true)}
-        >
-          ➕ Author New Course
-        </Button>
+        {isAdmin && (
+          <Button variant="primary" onClick={() => setShowCreateCourseModal(true)}>
+            ➕ Create Course
+          </Button>
+        )}
       </div>
+
+      {pageError && (
+        <div role="alert" className="flex flex-col gap-3 rounded-xl border border-error/30 bg-error/5 p-4 text-sm text-error sm:flex-row sm:items-center sm:justify-between">
+          <span>{pageError}</span>
+          <Button type="button" size="sm" variant="outline" onClick={fetchCourses}>Retry</Button>
+        </div>
+      )}
 
       {loading ? (
         <div className="py-20 text-center">
@@ -599,27 +732,32 @@ export default function TeacherCourseManager() {
                   <span className="capitalize">📊 {c.difficulty}</span>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="primary"
                     size="sm"
-                    className="flex-1"
+                    className="col-span-2"
                     onClick={() => {
-                      // Note: We use window.location.href because we didn't import useRouter at the top,
-                      // and this is simpler than adding useRouter to a huge component right now, 
-                      // but it works perfectly.
                       window.location.href = `/teacher/courses/${c.id}/edit`;
                     }}
                   >
-                    ✏️ Page Editor
+                    ✏️ Manage Classes
                   </Button>
+                  {isAdmin && (
+                    <>
+                      <Button variant="outline" size="sm" onClick={() => handleEditCourse(c)}>
+                        Edit
+                      </Button>
+                      <Button variant="error" size="sm" onClick={() => setCourseToDelete(c)}>
+                        Delete
+                      </Button>
+                    </>
+                  )}
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      setAssignCourseItem(c);
-                      fetchStudents();
-                    }}
+                    className={isAdmin ? "col-span-2" : ""}
+                    onClick={() => { setAssignCourseItem(c); fetchStudents(); }}
                   >
                     🎓 Assign Student
                   </Button>
@@ -632,17 +770,16 @@ export default function TeacherCourseManager() {
         <Card className="text-center py-16 p-8 space-y-4">
           <div className="text-5xl">📖</div>
           <h3 className="font-bold text-lg text-base-content font-display">
-            No Courses Created Yet
+            {isAdmin ? "No Courses Yet" : "No Courses Assigned Yet"}
           </h3>
           <p className="text-xs text-base-content/60 max-w-sm mx-auto">
-            Create your first course to start assigning courses to students.
+            {isAdmin ? "Create a course and assign it to a teacher." : "Courses assigned to you will appear here."}
           </p>
-          <Button
-            variant="primary"
-            onClick={() => setShowCreateCourseModal(true)}
-          >
-            Create First Course
-          </Button>
+          {isAdmin && (
+            <Button variant="primary" onClick={() => setShowCreateCourseModal(true)}>
+              Create First Course
+            </Button>
+          )}
         </Card>
       )}
 
@@ -727,9 +864,9 @@ export default function TeacherCourseManager() {
 
       {/* ── Create Course Modal */}
       <Modal
-        isOpen={showCreateCourseModal}
+        isOpen={isAdmin && showCreateCourseModal}
         onClose={() => setShowCreateCourseModal(false)}
-        title="Author New Course"
+        title="Create Course"
       >
         <form onSubmit={handleCreateCourse} className="space-y-4">
           <Input
@@ -739,6 +876,27 @@ export default function TeacherCourseManager() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+
+          <div>
+            <label htmlFor="course-teacher" className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+              Assign Teacher
+            </label>
+            <select
+              id="course-teacher"
+              required
+              value={selectedTeacherId}
+              onChange={(event) => setSelectedTeacherId(event.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">Select a teacher</option>
+              {teachers.map((teacher) => (
+                <option key={teacher.id} value={teacher.id}>{teacher.name} ({teacher.email})</option>
+              ))}
+            </select>
+            {teachers.length === 0 && (
+              <p className="mt-1 text-xs text-warning">Create an active teacher account before creating a course.</p>
+            )}
+          </div>
 
           <div>
             <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
@@ -796,11 +954,30 @@ export default function TeacherCourseManager() {
               variant="primary"
               type="submit"
               isLoading={submittingCourse}
+              disabled={!title.trim() || !selectedTeacherId}
             >
               Create & Publish
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={isAdmin && Boolean(courseToDelete)}
+        onClose={() => { if (!deletingCourse) setCourseToDelete(null); }}
+        title="Delete Course"
+      >
+        <p className="text-sm text-base-content/70">
+          Delete <strong className="text-base-content">{courseToDelete?.title}</strong>? This action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" type="button" disabled={deletingCourse} onClick={() => setCourseToDelete(null)}>
+            Cancel
+          </Button>
+          <Button variant="error" type="button" isLoading={deletingCourse} onClick={handleDeleteCourse}>
+            Delete Course
+          </Button>
+        </div>
       </Modal>
     </div>
   );

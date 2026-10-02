@@ -49,14 +49,14 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import mongo from "@/lib/db";
-import { authenticate } from "@/lib/middleware";
-import { checkCourseOwnership } from "@/lib/middleware";
+import { authenticate, authorize } from "@/lib/middleware";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { user } = await authenticate(_req);
     const { id } = await params;
 
     const course = await mongo.course.findOne({
@@ -67,7 +67,7 @@ export async function GET(
           orderBy: { order: "asc" },
           populate: {
             topics: {
-              orderBy: { createdAt: "asc" },
+              orderBy: { order: "asc", createdAt: "asc" },
               populate: { resources: true },
             },
           },
@@ -84,6 +84,19 @@ export async function GET(
     });
 
     if (!course) {
+      return NextResponse.json(
+        { success: false, message: "Course not found" },
+        { status: 404 },
+      );
+    }
+
+    if (user?.role === "teacher" && course.teacherId !== user.id) {
+      return NextResponse.json(
+        { success: false, message: "Access denied: this course is not assigned to you" },
+        { status: 403 },
+      );
+    }
+    if (user?.role !== "super_admin" && user?.role !== "teacher" && course.status !== "published") {
       return NextResponse.json(
         { success: false, message: "Course not found" },
         { status: 404 },
@@ -110,10 +123,10 @@ export async function PUT(
   try {
     const { user, error } = await authenticate(req);
     if (error) return error;
+    const roleError = authorize(user!, "super_admin");
+    if (roleError) return roleError;
 
     const { id } = await params;
-    const ownerErr = await checkCourseOwnership(user!, id);
-    if (ownerErr) return ownerErr;
 
     const body = await req.json();
     const {
@@ -125,7 +138,21 @@ export async function PUT(
       tags,
       status,
       duration,
+      teacherId,
     } = body;
+
+    if (teacherId) {
+      const assignedTeacher = await mongo.user.findOne({
+        filter: { id: teacherId, role: "teacher", isActive: true, status: "active" },
+        select: { id: true },
+      });
+      if (!assignedTeacher) {
+        return NextResponse.json(
+          { success: false, message: "Choose an active teacher to assign this course" },
+          { status: 400 },
+        );
+      }
+    }
 
     const course = await mongo.course.findOneAndUpdate({
       filter: { id },
@@ -138,6 +165,7 @@ export async function PUT(
         ...(tags && { tags }),
         ...(status && { status }),
         ...(duration !== undefined && { duration: Number(duration) }),
+        ...(teacherId && { teacherId }),
       },
     });
 
@@ -161,11 +189,10 @@ export async function DELETE(
   try {
     const { user, error } = await authenticate(req);
     if (error) return error;
+    const roleError = authorize(user!, "super_admin");
+    if (roleError) return roleError;
 
     const { id } = await params;
-    const ownerErr = await checkCourseOwnership(user!, id);
-    if (ownerErr) return ownerErr;
-
     await mongo.course.findOneAndDelete({ filter: { id } });
 
     return NextResponse.json({
