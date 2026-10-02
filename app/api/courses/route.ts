@@ -114,7 +114,8 @@ export async function GET(req: NextRequest) {
         meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch courses:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch courses" },
       { status: 500 },

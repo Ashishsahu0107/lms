@@ -120,6 +120,39 @@ const virtualRelations: Record<string, Record<string, [string, string, boolean]>
     AIChat: { messages: ["AIMessage", "chatId", false] },
 };
 
+const referenceRelations: Record<string, Record<string, [string, string]>> = {
+    Course: { teacher: ["User", "teacherId"] },
+    CourseRating: { course: ["Course", "courseId"], student: ["User", "studentId"] },
+    Module: { course: ["Course", "courseId"] },
+    Topic: { module: ["Module", "moduleId"] },
+    TopicResource: { topic: ["Topic", "topicId"] },
+    Enrollment: { student: ["User", "studentId"], course: ["Course", "courseId"], assignedBy: ["User", "assignedById"] },
+    StudentProgress: { student: ["User", "studentId"], course: ["Course", "courseId"], lastAccessedTopic: ["Topic", "lastAccessedTopicId"] },
+    LectureProgress: { student: ["User", "studentId"], topic: ["Topic", "topicId"], studentProgress: ["StudentProgress", "progressId"] },
+    Quiz: { course: ["Course", "courseId"], module: ["Module", "moduleId"], topic: ["Topic", "topicId"], createdBy: ["User", "createdById"] },
+    Question: { quiz: ["Quiz", "quizId"] },
+    QuizAttempt: { student: ["User", "studentId"], quiz: ["Quiz", "quizId"] },
+    AttemptAnswer: { attempt: ["QuizAttempt", "attemptId"], question: ["Question", "questionId"] },
+    Assignment: { course: ["Course", "courseId"], module: ["Module", "moduleId"], topic: ["Topic", "topicId"], createdBy: ["User", "createdById"] },
+    Rubric: { assignment: ["Assignment", "assignmentId"] },
+    Submission: { assignment: ["Assignment", "assignmentId"], student: ["User", "studentId"] },
+    RubricEvaluation: { submission: ["Submission", "submissionId"] },
+    AttendanceSession: { course: ["Course", "courseId"], teacher: ["User", "teacherId"] },
+    Attendance: { student: ["User", "studentId"], course: ["Course", "courseId"], teacher: ["User", "teacherId"], markedBy: ["User", "markedById"], session: ["AttendanceSession", "sessionId"] },
+    Certificate: { student: ["User", "studentId"], course: ["Course", "courseId"], issuedBy: ["User", "issuedById"] },
+    Message: { sender: ["User", "senderId"], recipient: ["User", "recipientId"] },
+    MessageAttachment: { message: ["Message", "messageId"] },
+    Notification: { sender: ["User", "senderId"], recipient: ["User", "recipientId"] },
+    NotificationRead: { notification: ["Notification", "notificationId"], user: ["User", "userId"] },
+    Notes: { course: ["Course", "courseId"], teacher: ["User", "teacherId"] },
+    StudentNote: { student: ["User", "studentId"], topic: ["Topic", "topicId"] },
+    Schedule: { course: ["Course", "courseId"], user: ["User", "userId"] },
+    Settings: { user: ["User", "userId"] },
+    SecurityLog: { user: ["User", "userId"] },
+    AIChat: { user: ["User", "userId"] },
+    AIMessage: { chat: ["AIChat", "chatId"] },
+};
+
 const uniqueIndexes: Record<string, string[][]> = {
     CourseRating: [["courseId", "studentId"]],
     Enrollment: [["studentId", "courseId"]],
@@ -136,6 +169,9 @@ export const models = Object.fromEntries(
         const schema = new Schema({ _id: id, ...fields }, options);
         for (const [path, [ref, foreignField, justOne]] of Object.entries(virtualRelations[name] ?? {})) {
             schema.virtual(path, { ref, localField: "_id", foreignField, justOne });
+        }
+        for (const [path, [ref, localField]] of Object.entries(referenceRelations[name] ?? {})) {
+            schema.virtual(path, { ref, localField, foreignField: "_id", justOne: true });
         }
         for (const indexFields of uniqueIndexes[name] ?? []) {
             schema.index(Object.fromEntries(indexFields.map((field) => [field, 1])), { unique: true });
