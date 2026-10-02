@@ -19,13 +19,13 @@ export async function GET(req: NextRequest) {
     const where = status ? { status } : {};
 
     const [requests, total] = await Promise.all([
-      mongo.contactRequest.findMany({
-        where,
+      mongo.contactRequest.find({
+        filter: where,
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      mongo.contactRequest.count({ where }),
+      mongo.contactRequest.countDocuments({ filter: where }),
     ]);
 
     return NextResponse.json({

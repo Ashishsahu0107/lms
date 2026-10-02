@@ -69,8 +69,8 @@ export async function GET(req: NextRequest) {
     }
 
     const [users, total] = await Promise.all([
-      mongo.user.findMany({
-        where,
+      mongo.user.find({
+        filter: where,
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
           _count: { select: { enrollments: true, teachingCourses: true } },
         },
       }),
-      mongo.user.count({ where }),
+      mongo.user.countDocuments({ filter: where }),
     ]);
 
     return NextResponse.json({
@@ -125,8 +125,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const existing = await mongo.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const existing = await mongo.user.findOne({
+      filter: { email: email.toLowerCase() },
     });
     if (existing) {
       return NextResponse.json(

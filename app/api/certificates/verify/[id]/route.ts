@@ -28,9 +28,9 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const cert = await mongo.certificate.findUnique({
-      where: { certificateId: id },
-      include: {
+    const cert = await mongo.certificate.findOne({
+      filter: { certificateId: id },
+      populate: {
         student: { select: { id: true, name: true } },
         course: { select: { id: true, title: true } },
         issuedBy: { select: { id: true, name: true } },

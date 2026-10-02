@@ -31,8 +31,8 @@ export async function POST(req: NextRequest) {
     const { email, otp } = await req.json();
     if (!email || !otp) throw new BadRequestError("Email and OTP are required");
 
-    const user = await mongo.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const user = await mongo.user.findOne({
+      filter: { email: email.toLowerCase() },
     });
     if (!user) throw new BadRequestError("User account not found");
 

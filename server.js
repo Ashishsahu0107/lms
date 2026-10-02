@@ -25,7 +25,8 @@ const hostname = (hostArgIndex !== -1 && process.argv[hostArgIndex + 1] && !proc
   ? process.argv[hostArgIndex + 1]
   : (process.env.HOSTNAME || "0.0.0.0");
 const port = parseInt(process.env.PORT || "3000", 10);
-const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is required");
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -68,7 +69,6 @@ const configuredOrigins = [
   process.env.CORS_ORIGIN,
   process.env.FRONTEND_URL,
   process.env.NEXT_PUBLIC_APP_URL,
-  process.env.NEXT_PUBLIC_SOCKET_URL,
 ]
   .filter(Boolean)
   .flatMap((url) => url.split(",").map((s) => s.trim().replace(/\/$/, "")));
@@ -76,17 +76,19 @@ const configuredOrigins = [
 function isOriginAllowed(origin) {
   if (!origin) return true;
 
-  const isLocal =
+  const isLocal = dev && (
     origin.startsWith("http://localhost:") ||
     origin.startsWith("https://localhost:") ||
     origin.startsWith("http://127.0.0.1:") ||
-    origin.startsWith("https://127.0.0.1:");
+    origin.startsWith("https://127.0.0.1:")
+  );
   if (isLocal) return true;
 
-  const isLan =
+  const isLan = dev && (
     origin.startsWith("http://192.168.") ||
     origin.startsWith("http://10.") ||
-    origin.startsWith("http://172.");
+    origin.startsWith("http://172.")
+  );
   if (isLan) return true;
 
   try {
@@ -267,7 +269,7 @@ app.prepare().then(() => {
       console.log(`   - Network: http://${localIp}:${port}/api-docs`);
     }
     console.log(`\n🔌 Socket.io: ready`);
-    console.log(`🗄️  Database: PostgreSQL (Prisma)`);
+    console.log(`🗄️  Database: MongoDB Atlas (Mongoose)`);
     console.log(`Mode: ${dev ? "development" : "production"}\n`);
   });
 

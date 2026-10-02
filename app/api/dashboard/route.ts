@@ -24,6 +24,27 @@ export async function GET(req: NextRequest) {
 
     const studentId = user!.id;
 
+    const pendingAssignmentsPromise = (async () => {
+      const [studentEnrollments, studentSubmissions] = await Promise.all([
+        mongo.enrollment.find({ filter: { studentId }, select: { courseId: true } }),
+        mongo.submission.find({ filter: { studentId }, select: { assignmentId: true } }),
+      ]);
+      const courseIds = studentEnrollments.map((enrollment: { courseId: string }) => enrollment.courseId);
+      const submittedAssignmentIds = studentSubmissions.map((submission: { assignmentId: string }) => submission.assignmentId);
+
+      return mongo.assignment.find({
+        filter: {
+          status: "published",
+          courseId: { in: courseIds },
+          dueDate: { gte: new Date() },
+          id: { notIn: submittedAssignmentIds },
+        },
+        orderBy: { dueDate: "asc" },
+        take: 5,
+        populate: { course: { select: { id: true, title: true } } },
+      });
+    })();
+
     const [
       enrollments,
       pendingAssignments,
@@ -32,11 +53,11 @@ export async function GET(req: NextRequest) {
       fullUser,
     ] = await Promise.all([
       // Enrolled courses with progress
-      mongo.enrollment.findMany({
-        where: { studentId },
-        include: {
+      mongo.enrollment.find({
+        filter: { studentId },
+        populate: {
           course: {
-            include: {
+            populate: {
               teacher: { select: { id: true, name: true, avatar: true } },
               _count: { select: { modules: true } },
             },
@@ -45,32 +66,21 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: "desc" },
       }),
 
-      // Pending assignments
-      mongo.assignment.findMany({
-        where: {
-          status: "published",
-          course: { enrollments: { some: { studentId } } },
-          dueDate: { gte: new Date() },
-          submissions: { none: { studentId } },
-        },
-        orderBy: { dueDate: "asc" },
-        take: 5,
-        include: { course: { select: { id: true, title: true } } },
-      }),
+      pendingAssignmentsPromise,
 
       // Certificates
-      mongo.certificate.count({ where: { studentId } }),
+      mongo.certificate.countDocuments({ filter: { studentId } }),
 
       // Progress data
-      mongo.studentProgress.findMany({
-        where: { studentId },
+      mongo.studentProgress.find({
+        filter: { studentId },
         select: { courseId: true, progress: true, totalWatchTime: true },
       }),
 
       // Full user with achievements
-      mongo.user.findUnique({
-        where: { id: studentId },
-        include: { achievements: true },
+      mongo.user.findOne({
+        filter: { id: studentId },
+        populate: { achievements: true },
       }),
     ]);
 

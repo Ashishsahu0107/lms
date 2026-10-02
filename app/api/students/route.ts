@@ -28,8 +28,8 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const students = await mongo.user.findMany({
-      where,
+    const students = await mongo.user.find({
+      filter: where,
       take: limit,
       orderBy: { name: "asc" },
       select: {

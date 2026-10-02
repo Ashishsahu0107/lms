@@ -24,14 +24,14 @@ interface CourseItem {
 const COURSES: CourseItem[] = [
   {
     id: "c-1",
-    title: "Fullstack Next.js 15 & PostgreSQL",
+    title: "Fullstack Next.js 15 & MongoDB",
     category: "Programming",
     difficulty: "beginner",
     rating: 4.9,
     students: 1420,
     instructor: "Prof. Ashish Sahu",
     description:
-      "Master modern web development with Next.js App Router, Prisma ORM, and PostgreSQL.",
+      "Master modern web development with Next.js App Router, Mongoose, and MongoDB Atlas.",
     threeType: "nextjs",
     gradient: "from-indigo-500/10 via-purple-500/10 to-pink-500/10",
     badgeVariant: "primary",
@@ -80,14 +80,14 @@ const COURSES: CourseItem[] = [
   },
   {
     id: "c-5",
-    title: "PostgreSQL Database Architecture & Optimization",
+    title: "MongoDB Database Architecture & Optimization",
     category: "Data Science",
     difficulty: "advanced",
     rating: 4.9,
     students: 840,
     instructor: "Marcus Vance",
     description:
-      "Indexing strategies, query optimization, connection pooling, and Prisma ORM migrations.",
+      "Document modeling, indexing strategies, query optimization, and connection pooling with Mongoose.",
     threeType: "database",
     gradient: "from-emerald-500/10 via-teal-500/10 to-indigo-500/10",
     badgeVariant: "primary",

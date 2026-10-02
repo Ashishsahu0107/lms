@@ -735,7 +735,7 @@ export default function TeacherCourseManager() {
           <Input
             label="Course Title *"
             required
-            placeholder="e.g. Master Next.js 15 & PostgreSQL"
+            placeholder="e.g. Master Next.js 15 & MongoDB"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />

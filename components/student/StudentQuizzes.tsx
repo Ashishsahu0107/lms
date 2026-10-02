@@ -238,12 +238,12 @@ export default function StudentQuizzes() {
                   {
                     id: "q2",
                     question:
-                      "Which Prisma command generates the type-safe client?",
+                      "Which Mongoose method retrieves matching documents?",
                     options: [
-                      "npx prisma generate",
-                      "npx prisma push",
-                      "npx prisma seed",
-                      "npx prisma migrate",
+                      "find()",
+                      "select()",
+                      "validate()",
+                      "save()",
                     ],
                   },
                 ].map((q, idx) => (

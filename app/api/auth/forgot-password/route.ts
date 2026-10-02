@@ -33,16 +33,16 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
     if (!email) throw new BadRequestError("Email is required");
 
-    const user = await mongo.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const user = await mongo.user.findOne({
+      filter: { email: email.toLowerCase() },
     });
     if (!user) throw new BadRequestError("User account not found");
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
-    await mongo.user.update({
-      where: { id: user.id },
+    await mongo.user.findOneAndUpdate({
+      filter: { id: user.id },
       data: {
         resetPasswordOTP: otp,
         resetPasswordOTPExpires: expires,

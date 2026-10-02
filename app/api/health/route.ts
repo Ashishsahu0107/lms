@@ -17,7 +17,7 @@ export async function GET() {
     success: true,
     message: "LMS Pro API Running Successfully",
     version: "3.0.0",
-    stack: "Next.js 15 + PostgreSQL (Prisma) + Socket.io",
+    stack: "Next.js 15 + MongoDB (Mongoose) + Socket.io",
     timestamp: new Date().toISOString(),
   });
 }

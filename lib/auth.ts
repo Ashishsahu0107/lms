@@ -3,10 +3,10 @@ import jwt from "jsonwebtoken";
 import type { NextRequest } from "next/server";
 import mongo from "@/lib/db";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is required");
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET environment variable is required");
+  return secret;
 }
 
 export interface JWTPayload {
@@ -23,12 +23,12 @@ export function signToken(payload: {
   email: string;
   role: string;
 }): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: "7d" });
 }
 
 // Verify a JWT token
 export function verifyToken(token: string): JWTPayload {
-  return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  return jwt.verify(token, getJwtSecret()) as JWTPayload;
 }
 
 // Extract token from request Authorization header
@@ -45,8 +45,8 @@ export async function getAuthUser(req: NextRequest) {
 
   try {
     const decoded = verifyToken(token);
-    const user = await mongo.user.findUnique({
-      where: { id: decoded.userId },
+    const user = await mongo.user.findOne({
+      filter: { id: decoded.userId },
       select: {
         id: true,
         name: true,

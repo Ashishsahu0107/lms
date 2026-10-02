@@ -66,8 +66,8 @@ export async function checkCourseOwnership(
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
-  const course = await mongo.course.findUnique({
-    where: { id: courseId },
+  const course = await mongo.course.findOne({
+    filter: { id: courseId },
     select: { teacherId: true },
   });
 
@@ -97,9 +97,9 @@ export async function checkModuleOwnership(
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
-  const mod = await mongo.module.findUnique({
-    where: { id: moduleId },
-    include: { course: { select: { teacherId: true } } },
+  const mod = await mongo.module.findOne({
+    filter: { id: moduleId },
+    populate: { course: { select: { teacherId: true } } },
   });
 
   if (!mod) {
@@ -131,11 +131,11 @@ export async function checkTopicOwnership(
 ): Promise<NextResponse | null> {
   if (user.role === "super_admin") return null;
 
-  const topic = await mongo.topic.findUnique({
-    where: { id: topicId },
-    include: {
+  const topic = await mongo.topic.findOne({
+    filter: { id: topicId },
+    populate: {
       module: {
-        include: { course: { select: { teacherId: true } } },
+        populate: { course: { select: { teacherId: true } } },
       },
     },
   });

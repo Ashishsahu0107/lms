@@ -46,8 +46,8 @@ export async function GET(req: NextRequest) {
     const results: Record<string, unknown[]> = {};
 
     if (type === "all" || type === "courses") {
-      results.courses = await mongo.course.findMany({
-        where: {
+      results.courses = await mongo.course.find({
+        filter: {
           status: "published",
           OR: [
             { title: { contains: query, mode: "insensitive" } },
@@ -56,13 +56,13 @@ export async function GET(req: NextRequest) {
           ],
         },
         take: 10,
-        include: { teacher: { select: { id: true, name: true } } },
+        populate: { teacher: { select: { id: true, name: true } } },
       });
     }
 
     if ((type === "all" || type === "users") && user!.role !== "student") {
-      results.users = await mongo.user.findMany({
-        where: {
+      results.users = await mongo.user.find({
+        filter: {
           OR: [
             { name: { contains: query, mode: "insensitive" } },
             { email: { contains: query, mode: "insensitive" } },
@@ -74,8 +74,8 @@ export async function GET(req: NextRequest) {
     }
 
     if (type === "all" || type === "assignments") {
-      results.assignments = await mongo.assignment.findMany({
-        where: {
+      results.assignments = await mongo.assignment.find({
+        filter: {
           status: "published",
           OR: [
             { title: { contains: query, mode: "insensitive" } },
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
           ],
         },
         take: 10,
-        include: { course: { select: { id: true, title: true } } },
+        populate: { course: { select: { id: true, title: true } } },
       });
     }
 

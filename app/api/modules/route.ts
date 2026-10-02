@@ -48,13 +48,13 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const modules = await mongo.module.findMany({
-      where: { courseId },
+    const modules = await mongo.module.find({
+      filter: { courseId },
       orderBy: { order: "asc" },
-      include: {
+      populate: {
         topics: {
           orderBy: { createdAt: "asc" },
-          include: { resources: true },
+          populate: { resources: true },
         },
       },
     });
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     const createdModule = await mongo.module.create({
       data: { title: title.trim(), courseId, order: order || 0 },
-      include: { topics: true },
+      populate: { topics: true },
     });
 
     return NextResponse.json(

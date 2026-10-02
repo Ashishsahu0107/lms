@@ -50,10 +50,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const topics = await mongo.topic.findMany({
-      where: { moduleId },
+    const topics = await mongo.topic.find({
+      filter: { moduleId },
       orderBy: { createdAt: "asc" },
-      include: { resources: true },
+      populate: { resources: true },
     });
 
     return NextResponse.json({ success: true, data: { topics } });
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
         attachments: attachments || [],
         resources: resources ? { create: resources } : undefined,
       },
-      include: { resources: true },
+      populate: { resources: true },
     });
 
     return NextResponse.json(

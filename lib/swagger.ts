@@ -8,7 +8,7 @@ const options: swaggerJsdoc.Options = {
       title: "LMS Pro API",
       version: "3.0.0",
       description:
-        "Full-stack Learning Management System API built with Next.js 15, PostgreSQL (Prisma), and Socket.io. Supports Student, Teacher, and Super Admin roles.",
+        "Full-stack Learning Management System API built with Next.js 15, MongoDB Atlas, Mongoose, and Socket.io. Supports Student, Teacher, and Super Admin roles.",
       contact: {
         name: "LMS Pro Team",
         email: "admin@lmspro.edu",

@@ -17,11 +17,11 @@ export async function GET(req: NextRequest) {
     if (courseId) where.courseId = courseId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const enrollments = await mongo.enrollment.findMany({
-      where,
-      include: {
+    const enrollments = await mongo.enrollment.find({
+      filter: where,
+      populate: {
         course: {
-          include: {
+          populate: {
             teacher: { select: { id: true, name: true, avatar: true } },
           },
         },
@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if already enrolled
-    const existing = await mongo.enrollment.findUnique({
-      where: { studentId_courseId: { studentId, courseId } },
+    const existing = await mongo.enrollment.findOne({
+      filter: { studentId_courseId: { studentId, courseId } },
     });
     if (existing) {
       return NextResponse.json(
@@ -78,15 +78,15 @@ export async function POST(req: NextRequest) {
 
     const enrollment = await mongo.enrollment.create({
       data: { studentId, courseId, assignedById: user!.id },
-      include: {
+      populate: {
         course: true,
         student: { select: { id: true, name: true, email: true } },
       },
     });
 
     // Initialize student progress record
-    await mongo.studentProgress.upsert({
-      where: { studentId_courseId: { studentId, courseId } },
+    await mongo.studentProgress.upsertOne({
+      filter: { studentId_courseId: { studentId, courseId } },
       update: {},
       create: { studentId, courseId },
     });

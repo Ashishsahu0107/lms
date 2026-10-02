@@ -59,7 +59,7 @@ export default function SystemHealthView() {
                 Database Stack
               </p>
               <p className="font-bold text-primary text-lg">
-                PostgreSQL (Prisma 6)
+                MongoDB Atlas (Mongoose)
               </p>
             </div>
           </div>

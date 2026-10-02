@@ -52,9 +52,9 @@ export async function GET(req: NextRequest) {
     if (studentId) where.studentId = studentId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const submissions = await mongo.submission.findMany({
-      where,
-      include: {
+    const submissions = await mongo.submission.find({
+      filter: where,
+      populate: {
         student: {
           select: { id: true, name: true, email: true, avatar: true },
         },
@@ -86,8 +86,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const assignment = await mongo.assignment.findUnique({
-      where: { id: assignmentId },
+    const assignment = await mongo.assignment.findOne({
+      filter: { id: assignmentId },
     });
     if (!assignment) {
       return NextResponse.json(
@@ -98,8 +98,8 @@ export async function POST(req: NextRequest) {
 
     const isLate = new Date() > assignment.dueDate;
 
-    const submission = await mongo.submission.upsert({
-      where: { studentId_assignmentId: { studentId: user!.id, assignmentId } },
+    const submission = await mongo.submission.upsertOne({
+      filter: { studentId_assignmentId: { studentId: user!.id, assignmentId } },
       update: {
         textAnswer: textAnswer || "",
         files: files || [],
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
         files: files || [],
         status: isLate ? "late" : "pending",
       },
-      include: { assignment: true },
+      populate: { assignment: true },
     });
 
     return NextResponse.json(

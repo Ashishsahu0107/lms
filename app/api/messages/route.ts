@@ -49,13 +49,13 @@ export async function GET(req: NextRequest) {
 
     if (!recipientId) {
       // Get conversation list — last message per user
-      const messages = await mongo.message.findMany({
-        where: {
+      const messages = await mongo.message.find({
+        filter: {
           OR: [{ senderId: user!.id }, { recipientId: user!.id }],
           deleted: false,
         },
         orderBy: { createdAt: "desc" },
-        include: {
+        populate: {
           sender: {
             select: { id: true, name: true, avatar: true, isOnline: true },
           },
@@ -70,8 +70,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Get conversation between two users
-    const messages = await mongo.message.findMany({
-      where: {
+    const messages = await mongo.message.find({
+      filter: {
         OR: [
           { senderId: user!.id, recipientId },
           { senderId: recipientId, recipientId: user!.id },
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "asc" },
       skip,
       take: limit,
-      include: {
+      populate: {
         sender: { select: { id: true, name: true, avatar: true } },
         attachments: true,
       },
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
 
     // Mark received messages as read
     await mongo.message.updateMany({
-      where: { senderId: recipientId, recipientId: user!.id, read: false },
+      filter: { senderId: recipientId, recipientId: user!.id, read: false },
       data: { read: true, readAt: new Date() },
     });
 
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
         messageType: messageType || "text",
         attachments: attachments ? { create: attachments } : undefined,
       },
-      include: {
+      populate: {
         sender: { select: { id: true, name: true, avatar: true } },
         attachments: true,
       },

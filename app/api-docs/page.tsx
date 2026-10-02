@@ -54,7 +54,7 @@ export default function ApiDocsPage() {
             🎓 LMS Pro API Documentation
           </h1>
           <p className="opacity-80">
-            Interactive REST API explorer — Next.js 15 + PostgreSQL + Socket.io
+            Interactive REST API explorer — Next.js 15 + MongoDB Atlas + Socket.io
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
             <span className="badge badge-outline badge-lg text-primary-content border-primary-content/30">
@@ -67,7 +67,7 @@ export default function ApiDocsPage() {
               30+ Endpoints
             </span>
             <span className="badge badge-outline badge-lg text-primary-content border-primary-content/30">
-              PostgreSQL
+              MongoDB Atlas
             </span>
           </div>
         </div>

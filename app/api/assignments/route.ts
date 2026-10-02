@@ -45,9 +45,9 @@ export async function GET(req: NextRequest) {
     if (courseId) where.courseId = courseId;
     if (user!.role === "student") where.status = "published";
 
-    const assignments = await mongo.assignment.findMany({
-      where,
-      include: {
+    const assignments = await mongo.assignment.find({
+      filter: where,
+      populate: {
         createdBy: { select: { id: true, name: true } },
         rubrics: true,
         _count: { select: { submissions: true } },
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
         status: status || "published",
         rubrics: rubrics ? { create: rubrics } : undefined,
       },
-      include: { rubrics: true },
+      populate: { rubrics: true },
     });
 
     return NextResponse.json(

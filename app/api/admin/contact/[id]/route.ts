@@ -28,8 +28,8 @@ export async function PATCH(
       );
     }
 
-    const updated = await mongo.contactRequest.update({
-      where: { id },
+    const updated = await mongo.contactRequest.findOneAndUpdate({
+      filter: { id },
       data: { status },
     });
 
@@ -59,8 +59,8 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await mongo.contactRequest.delete({
-      where: { id },
+    await mongo.contactRequest.findOneAndDelete({
+      filter: { id },
     });
 
     return NextResponse.json({

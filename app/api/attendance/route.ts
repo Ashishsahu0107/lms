@@ -59,9 +59,9 @@ export async function GET(req: NextRequest) {
     if (user!.role === "student") where.studentId = user!.id;
     if (user!.role === "teacher") where.teacherId = user!.id;
 
-    const attendance = await mongo.attendance.findMany({
-      where,
-      include: {
+    const attendance = await mongo.attendance.find({
+      filter: where,
+      populate: {
         student: {
           select: { id: true, name: true, email: true, avatar: true },
         },
@@ -99,8 +99,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const attendance = await mongo.attendance.upsert({
-      where: {
+    const attendance = await mongo.attendance.upsertOne({
+      filter: {
         studentId_courseId_date: { studentId, courseId, date: new Date(date) },
       },
       update: { status, remarks: remarks || "", markedById: user!.id },
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
         markedById: user!.id,
         sessionId: sessionId || null,
       },
-      include: {
+      populate: {
         student: { select: { id: true, name: true } },
       },
     });

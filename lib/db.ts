@@ -1,19 +1,17 @@
 import mongoose from "mongoose";
 import { models } from "@/lib/models";
 
-const uri = (() => {
-  const value = process.env.MONGODB_URI;
-  if (!value) throw new Error("MONGODB_URI environment variable is required");
-  return value;
-})();
-
 type Cache = { connection: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
 const root = globalThis as typeof globalThis & { mongooseCache?: Cache };
 const cache = (root.mongooseCache ??= { connection: null, promise: null });
 
 export async function connectDB() {
   if (cache.connection) return cache.connection;
-  if (!cache.promise) cache.promise = mongoose.connect(uri, { bufferCommands: false });
+  if (!cache.promise) {
+    const uri = process.env.MONGODB_URI;
+    if (!uri) throw new Error("MONGODB_URI environment variable is required");
+    cache.promise = mongoose.connect(uri, { bufferCommands: false });
+  }
   try {
     cache.connection = await cache.promise;
     return cache.connection;
@@ -107,8 +105,8 @@ function projection(selection: Record<string, boolean> = {}) {
   return Object.entries(selection).map(([field, included]) => `${included ? "" : "-"}${field === "id" ? "_id" : field}`).join(" ");
 }
 
-function populateOptions(modelName: string, include: Record<string, any> = {}): any[] {
-  return Object.entries(include).flatMap(([path, config]) => {
+function populateOptions(modelName: string, populate: Record<string, any> = {}): any[] {
+  return Object.entries(populate).flatMap(([path, config]) => {
     if (path === "_count" || !config) return [];
     const relation = relationPaths[modelName]?.[path];
     const nested = config === true ? {} : config;
@@ -117,21 +115,42 @@ function populateOptions(modelName: string, include: Record<string, any> = {}): 
     if (nested.select) item.select = projection(nested.select);
     if (nested.orderBy) item.options = { sort: Object.fromEntries(Object.entries(nested.orderBy).map(([key, dir]) => [key, dir === "asc" ? 1 : -1])) };
     if (nested.take) item.options = { ...item.options, perDocumentLimit: nested.take };
-    if (nested.include) item.populate = populateOptions(relation?.[0] ?? "", nested.include);
+    if (nested.populate) item.populate = populateOptions(relation?.[0] ?? "", nested.populate);
     return [item];
   });
 }
 
-async function addCounts(modelName: string, doc: any, include: Record<string, any> = {}) {
-  if (!include?._count || !doc) return doc;
+function relationModelName(modelName: string, path: string) {
+  const virtualModel = relationPaths[modelName]?.[path]?.[0];
+  if (virtualModel) return virtualModel;
+  const model = modelByName[modelName];
+  const relation = model.schema.path(path)?.options?.ref ?? model.schema.virtualpath(path)?.options?.ref;
+  return typeof relation === "string" ? relation : undefined;
+}
+
+async function addCounts(modelName: string, doc: any, populate: Record<string, any> = {}) {
+  if (!doc) return doc;
   const plain = doc.toJSON ? doc.toJSON() : doc;
-  const counts: Record<string, number> = {};
-  for (const [path, enabled] of Object.entries(include._count.select ?? {})) {
-    if (!enabled) continue;
-    const relation = relationPaths[modelName]?.[path];
-    counts[path] = relation ? await modelByName[relation[0]].countDocuments({ [relation[2]]: plain.id }) : 0;
+  if (populate._count) {
+    const counts: Record<string, number> = {};
+    for (const [path, enabled] of Object.entries(populate._count.select ?? {})) {
+      if (!enabled) continue;
+      const relation = relationPaths[modelName]?.[path];
+      counts[path] = relation ? await modelByName[relation[0]].countDocuments({ [relation[2]]: plain.id }) : 0;
+    }
+    plain._count = counts;
   }
-  plain._count = counts;
+
+  for (const [path, config] of Object.entries(populate)) {
+    if (path === "_count" || !config || config === true) continue;
+    const childModel = relationModelName(modelName, path);
+    if (!childModel || !config.populate) continue;
+    if (Array.isArray(plain[path])) {
+      plain[path] = await Promise.all(plain[path].map((child: any) => addCounts(childModel, child, config.populate)));
+    } else if (plain[path]) {
+      plain[path] = await addCounts(childModel, plain[path], config.populate);
+    }
+  }
   return plain;
 }
 
@@ -150,65 +169,65 @@ function updateDocument(data: Record<string, any> = {}) {
 function repository(modelName: string) {
   const Model = modelByName[modelName];
   return {
-    findMany: async ({ where, skip, take, orderBy, select, include }: any = {}) => {
+    find: async ({ filter, skip, take, orderBy, select, populate }: any = {}) => {
       await connectDB();
-      let query = Model.find(toMongoFilter(where));
+      let query = Model.find(toMongoFilter(filter));
       if (skip) query = query.skip(skip);
       if (take !== undefined) query = query.limit(take);
       if (orderBy) query = query.sort(Object.fromEntries(Object.entries(orderBy).map(([key, dir]) => [key, dir === "asc" ? 1 : -1])));
       if (select) query = query.select(projection(select));
-      for (const item of populateOptions(modelName, include)) query = query.populate(item);
+      for (const item of populateOptions(modelName, populate)) query = query.populate(item);
       const docs = await query.exec();
-      return Promise.all(docs.map((doc: any) => addCounts(modelName, doc, include)));
+      return Promise.all(docs.map((doc: any) => addCounts(modelName, doc, populate)));
     },
-    findUnique: async ({ where, select, include }: any) => {
+    findOne: async ({ filter, select, populate }: any) => {
       await connectDB();
-      let query = Model.findOne(toMongoFilter(where));
+      let query = Model.findOne(toMongoFilter(filter));
       if (select) query = query.select(projection(select));
-      for (const item of populateOptions(modelName, include)) query = query.populate(item);
-      return addCounts(modelName, await query.exec(), include);
+      for (const item of populateOptions(modelName, populate)) query = query.populate(item);
+      return addCounts(modelName, await query.exec(), populate);
     },
-    findFirst: async (args: any = {}) => repository(modelName).findMany({ ...args, take: 1 }).then((rows: any[]) => rows[0] ?? null),
-    create: async ({ data, include, select }: any) => {
+    findFirst: async (args: any = {}) => repository(modelName).find({ ...args, take: 1 }).then((rows: any[]) => rows[0] ?? null),
+    create: async ({ data, populate, select }: any) => {
       await connectDB();
       let doc = await Model.create(data);
-      for (const item of populateOptions(modelName, include)) await doc.populate(item);
+      for (const item of populateOptions(modelName, populate)) await doc.populate(item);
       if (select) doc = await Model.findById(doc._id).select(projection(select));
-      return addCounts(modelName, doc, include);
+      return addCounts(modelName, doc, populate);
     },
-    update: async ({ where, data, include, select }: any) => {
+    findOneAndUpdate: async ({ filter, data, populate, select }: any) => {
       await connectDB();
-      let doc = await Model.findOneAndUpdate(toMongoFilter(where), updateDocument(data), { new: true, runValidators: true });
+      let doc = await Model.findOneAndUpdate(toMongoFilter(filter), updateDocument(data), { new: true, runValidators: true });
       if (!doc) throw new Error(`${modelName} not found`);
-      for (const item of populateOptions(modelName, include)) await doc.populate(item);
+      for (const item of populateOptions(modelName, populate)) await doc.populate(item);
       if (select) doc = await Model.findById(doc._id).select(projection(select));
-      return addCounts(modelName, doc, include);
+      return addCounts(modelName, doc, populate);
     },
-    updateMany: async ({ where, data }: any) => {
+    updateMany: async ({ filter, data }: any) => {
       await connectDB();
-      const result = await Model.updateMany(toMongoFilter(where), updateDocument(data));
+      const result = await Model.updateMany(toMongoFilter(filter), updateDocument(data));
       return { count: result.modifiedCount };
     },
-    upsert: async ({ where, create, update, include, select }: any) => {
+    upsertOne: async ({ filter, create, update, populate, select }: any) => {
       await connectDB();
-      let doc = await Model.findOneAndUpdate(toMongoFilter(where), { ...updateDocument(update), $setOnInsert: create }, { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true });
-      for (const item of populateOptions(modelName, include)) await doc.populate(item);
+      let doc = await Model.findOneAndUpdate(toMongoFilter(filter), { ...updateDocument(update), $setOnInsert: create }, { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true });
+      for (const item of populateOptions(modelName, populate)) await doc.populate(item);
       if (select) doc = await Model.findById(doc._id).select(projection(select));
-      return addCounts(modelName, doc, include);
+      return addCounts(modelName, doc, populate);
     },
-    delete: async ({ where }: any) => {
+    findOneAndDelete: async ({ filter }: any) => {
       await connectDB();
-      const doc = await Model.findOneAndDelete(toMongoFilter(where));
+      const doc = await Model.findOneAndDelete(toMongoFilter(filter));
       if (!doc) throw new Error(`${modelName} not found`);
       return doc;
     },
-    deleteMany: async ({ where }: any = {}) => {
+    deleteMany: async ({ filter }: any = {}) => {
       await connectDB();
-      return Model.deleteMany(toMongoFilter(where));
+      return Model.deleteMany(toMongoFilter(filter));
     },
-    count: async ({ where }: any = {}) => {
+    countDocuments: async ({ filter }: any = {}) => {
       await connectDB();
-      return Model.countDocuments(toMongoFilter(where));
+      return Model.countDocuments(toMongoFilter(filter));
     },
   };
 }

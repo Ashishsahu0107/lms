@@ -20,7 +20,8 @@ function getLocalIpAddress() {
 }
 
 const PORT = parseInt(process.env.PORT || process.env.SOCKET_PORT || "3001", 10);
-const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is required");
 
 // Parse configured allowed origins
 const configuredOrigins = [
@@ -35,11 +36,12 @@ function isOriginAllowed(origin) {
   if (!origin) return true; // Allow non-browser clients / health checks
 
   // Check localhost / local IP
-  const isLocal =
+  const isLocal = process.env.NODE_ENV !== "production" && (
     origin.startsWith("http://localhost:") ||
     origin.startsWith("https://localhost:") ||
     origin.startsWith("http://127.0.0.1:") ||
-    origin.startsWith("https://127.0.0.1:");
+    origin.startsWith("https://127.0.0.1:")
+  );
   if (isLocal) return true;
 
   // Check LAN networks

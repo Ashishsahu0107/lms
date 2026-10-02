@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
       throw new BadRequestError("Password must be at least 6 characters");
     }
 
-    const user = await mongo.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const user = await mongo.user.findOne({
+      filter: { email: email.toLowerCase() },
     });
     if (!user) throw new BadRequestError("User not found");
 
@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
 
     const hashed = await bcrypt.hash(newPassword, 12);
 
-    await mongo.user.update({
-      where: { id: user.id },
+    await mongo.user.findOneAndUpdate({
+      filter: { id: user.id },
       data: {
         password: hashed,
         resetPasswordOTP: null,

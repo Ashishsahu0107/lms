@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Check duplicate
-    const existing = await mongo.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const existing = await mongo.user.findOne({
+      filter: { email: email.toLowerCase() },
     });
     if (existing) {
       throw new ConflictError("An account with this email already exists");

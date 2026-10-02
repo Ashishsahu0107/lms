@@ -51,9 +51,9 @@ export async function GET(req: NextRequest) {
     if (studentId) where.studentId = studentId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const attempts = await mongo.quizAttempt.findMany({
-      where,
-      include: {
+    const attempts = await mongo.quizAttempt.find({
+      filter: where,
+      populate: {
         student: { select: { id: true, name: true, email: true } },
         quiz: {
           select: {
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
             passingMarks: true,
           },
         },
-        answers: { include: { question: true } },
+        answers: { populate: { question: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -90,9 +90,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const quiz = await mongo.quiz.findUnique({
-      where: { id: quizId },
-      include: { questions: true },
+    const quiz = await mongo.quiz.findOne({
+      filter: { id: quizId },
+      populate: { questions: true },
     });
     if (!quiz) {
       return NextResponse.json(
@@ -142,13 +142,13 @@ export async function POST(req: NextRequest) {
         submittedAt: new Date(),
         answers: { create: answerData },
       },
-      include: { quiz: true, answers: true },
+      populate: { quiz: true, answers: true },
     });
 
     // Award XP to student
     if (totalScore > 0) {
-      await mongo.user.update({
-        where: { id: user!.id },
+      await mongo.user.findOneAndUpdate({
+        filter: { id: user!.id },
         data: { xp: { increment: totalScore } },
       });
     }

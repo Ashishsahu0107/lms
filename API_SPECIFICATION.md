@@ -126,7 +126,7 @@ This document provides the complete, production-ready REST API specification for
   - **401 Unauthorized**: `{ "success": false, "message": "Invalid email or password" }`
   - **403 Forbidden**: `{ "success": false, "message": "Account is suspended" }`
 - **Business Logic**: Finds user by lowercased email, checks bcrypt password match, updates `lastSeen` timestamp, records security audit log, and issues a 7-day signed JWT.
-- **Database Operations**: `prisma.user.findUnique`, `prisma.user.update`, `prisma.securityLog.create`.
+- **Database Operations**: Mongoose user lookups and updates, plus security-log inserts.
 - **Notes**: Returns authorization token for subsequent API calls.
 
 ---
@@ -174,7 +174,7 @@ This document provides the complete, production-ready REST API specification for
   - **400 Bad Request**: `{ "success": false, "message": "Name, email, and password are required" }`
   - **409 Conflict**: `{ "success": false, "message": "Email address already registered" }`
 - **Business Logic**: Verifies uniqueness of email, hashes password with 12 bcrypt rounds, creates user record with `student` role, and issues token.
-- **Database Operations**: `prisma.user.findUnique`, `prisma.user.create`.
+- **Database Operations**: Mongoose user lookup and creation.
 
 ---
 
@@ -209,8 +209,8 @@ This document provides the complete, production-ready REST API specification for
 - **Error Responses**:
   - **401 Unauthorized**: `{ "success": false, "message": "Authentication required" }`
   - **404 Not Found**: `{ "success": false, "message": "User profile not found" }`
-- **Business Logic**: Decodes token, looks up active user in PostgreSQL, omits password field, returns user profile.
-- **Database Operations**: `prisma.user.findUnique`.
+- **Business Logic**: Decodes token, looks up the active user in MongoDB Atlas, omits the password field, and returns the user profile.
+- **Database Operations**: Mongoose user lookup.
 
 ---
 
@@ -238,7 +238,7 @@ This document provides the complete, production-ready REST API specification for
       "courses": [
         {
           "id": "c-201",
-          "title": "Master Next.js 15 & PostgreSQL",
+          "title": "Master Next.js 15 & MongoDB",
           "description": "Comprehensive course on App Router",
           "category": "Programming",
           "difficulty": "beginner",
@@ -266,7 +266,7 @@ This document provides the complete, production-ready REST API specification for
   ```json
   {
     "title": "Fullstack Web Development",
-    "description": "Learn HTML, CSS, JS, Next.js, and PostgreSQL",
+    "description": "Learn HTML, CSS, JavaScript, Next.js, and MongoDB",
     "category": "Programming",
     "difficulty": "beginner",
     "status": "published"
@@ -425,7 +425,7 @@ This document provides the complete, production-ready REST API specification for
       "certificate": {
         "certificateId": "CERT-A1B2C3D4",
         "student": { "name": "Jane Student" },
-        "course": { "title": "Next.js 15 & PostgreSQL" },
+        "course": { "title": "Next.js 15 & MongoDB" },
         "issuedBy": { "name": "Super Admin" },
         "issueDate": "2026-07-28T00:00:00.000Z"
       }
@@ -651,4 +651,4 @@ This document provides the complete, production-ready REST API specification for
 
 ## 9. Interactive Swagger UI
 
-Visit **`http://localhost:3000/api-docs`** to test all endpoints live!
+Visit **`/api-docs`** on the running application to test all endpoints live.

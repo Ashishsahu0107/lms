@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Find user with password
-    const user = await mongo.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const user = await mongo.user.findOne({
+      filter: { email: email.toLowerCase() },
     });
 
     if (!user) {
@@ -95,8 +95,8 @@ export async function POST(req: NextRequest) {
         const wasYesterday = lastActive === yesterday.toDateString();
 
         mongo.user
-          .update({
-            where: { id: user.id },
+          .findOneAndUpdate({
+            filter: { id: user.id },
             data: {
               streak: wasYesterday ? user.streak + 1 : 1,
               lastActiveDate: new Date(),

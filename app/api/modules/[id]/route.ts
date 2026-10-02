@@ -9,10 +9,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const moduleItem = await mongo.module.findUnique({
-      where: { id },
-      include: {
-        topics: { orderBy: { createdAt: "asc" }, include: { resources: true } },
+    const moduleItem = await mongo.module.findOne({
+      filter: { id },
+      populate: {
+        topics: { orderBy: { createdAt: "asc" }, populate: { resources: true } },
       },
     });
     if (!moduleItem)
@@ -41,8 +41,8 @@ export async function PUT(
     if (ownerErr) return ownerErr;
 
     const { title, order } = await req.json();
-    const updatedModule = await mongo.module.update({
-      where: { id },
+    const updatedModule = await mongo.module.findOneAndUpdate({
+      filter: { id },
       data: { ...(title && { title }), ...(order !== undefined && { order }) },
     });
     return NextResponse.json({
@@ -69,7 +69,7 @@ export async function DELETE(
     const ownerErr = await checkModuleOwnership(user!, id);
     if (ownerErr) return ownerErr;
 
-    await mongo.module.delete({ where: { id } });
+    await mongo.module.findOneAndDelete({ filter: { id } });
     return NextResponse.json({ success: true, message: "Module deleted" });
   } catch (err: unknown) {
     const message =

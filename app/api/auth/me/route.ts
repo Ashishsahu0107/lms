@@ -22,9 +22,9 @@ export async function GET(req: NextRequest) {
   if (error) return error;
 
   // Return full user with achievements
-  const fullUser = await mongo.user.findUnique({
-    where: { id: user!.id },
-    include: { achievements: true },
+  const fullUser = await mongo.user.findOne({
+    filter: { id: user!.id },
+    populate: { achievements: true },
   });
 
   const {

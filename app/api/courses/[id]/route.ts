@@ -59,21 +59,21 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const course = await mongo.course.findUnique({
-      where: { id },
-      include: {
+    const course = await mongo.course.findOne({
+      filter: { id },
+      populate: {
         teacher: { select: { id: true, name: true, avatar: true, bio: true } },
         modules: {
           orderBy: { order: "asc" },
-          include: {
+          populate: {
             topics: {
               orderBy: { createdAt: "asc" },
-              include: { resources: true },
+              populate: { resources: true },
             },
           },
         },
         ratings: {
-          include: {
+          populate: {
             student: { select: { id: true, name: true, avatar: true } },
           },
           orderBy: { createdAt: "desc" },
@@ -127,8 +127,8 @@ export async function PUT(
       duration,
     } = body;
 
-    const course = await mongo.course.update({
-      where: { id },
+    const course = await mongo.course.findOneAndUpdate({
+      filter: { id },
       data: {
         ...(title && { title: title.trim() }),
         ...(description !== undefined && { description: description.trim() }),
@@ -166,7 +166,7 @@ export async function DELETE(
     const ownerErr = await checkCourseOwnership(user!, id);
     if (ownerErr) return ownerErr;
 
-    await mongo.course.delete({ where: { id } });
+    await mongo.course.findOneAndDelete({ filter: { id } });
 
     return NextResponse.json({
       success: true,

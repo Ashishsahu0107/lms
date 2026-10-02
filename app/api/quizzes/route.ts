@@ -47,9 +47,9 @@ export async function GET(req: NextRequest) {
     if (moduleId) where.moduleId = moduleId;
     if (user!.role === "student") where.status = "published";
 
-    const quizzes = await mongo.quiz.findMany({
-      where,
-      include: {
+    const quizzes = await mongo.quiz.find({
+      filter: where,
+      populate: {
         _count: { select: { questions: true, attempts: true } },
         createdBy: { select: { id: true, name: true } },
       },
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
         negativeMarking: negativeMarking ?? false,
         status: status || "published",
       },
-      include: { _count: { select: { questions: true } } },
+      populate: { _count: { select: { questions: true } } },
     });
 
     return NextResponse.json(

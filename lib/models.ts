@@ -20,7 +20,7 @@ const definitions: Record<string, FieldDefinition> = {
         resetOTP: String, resetOTPExpire: Date, xp: number, streak: number, lastActiveDate: Date, badges: strings,
         preferences: { type: Schema.Types.Mixed, default: () => ({ theme: "light", notifications: { email: true, quizAlerts: true, assignmentAlerts: true, courseNotifications: true }, privacy: { accountVisibility: "public", activityVisibility: "public" }, twoFactorEnabled: false }) },
     },
-    Achievement: { title: string, description: string, unlockedAt: Date, userId: { type: String, ref: "User" } },
+    Achievement: { title: string, description: string, unlockedAt: { type: Date, default: Date.now }, userId: { type: String, ref: "User" } },
     Course: {
         title: { type: String, required: true }, description: string, category: string, tags: strings,
         difficulty: { type: String, default: "beginner" }, price: number, thumbnail: string, thumbnailKey: string,
@@ -32,7 +32,7 @@ const definitions: Record<string, FieldDefinition> = {
     Topic: { title: string, content: string, videoUrl: string, attachments: strings, duration: number, moduleId: { type: String, ref: "Module" } },
     TopicResource: { title: string, fileUrl: string, topicId: { type: String, ref: "Topic" } },
     Enrollment: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, assignedById: { type: String, ref: "User" }, progress: number, completedTopics: strings },
-    StudentProgress: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, progress: number, totalWatchTime: number, enrolledAt: Date, completedAt: Date, lastAccessedAt: Date, lastAccessedTopicId: { type: String, ref: "Topic" } },
+    StudentProgress: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, progress: number, totalWatchTime: number, enrolledAt: { type: Date, default: Date.now }, completedAt: Date, lastAccessedAt: { type: Date, default: Date.now }, lastAccessedTopicId: { type: String, ref: "Topic" } },
     LectureProgress: { studentId: { type: String, ref: "User" }, topicId: { type: String, ref: "Topic" }, progressId: { type: String, ref: "StudentProgress" }, completed: boolean, completedAt: Date, watchPosition: number, duration: number, watchTime: number },
     Quiz: { title: string, description: string, instructions: string, courseId: { type: String, ref: "Course" }, moduleId: { type: String, ref: "Module" }, topicId: { type: String, ref: "Topic" }, createdById: { type: String, ref: "User" }, duration: number, totalMarks: number, passingMarks: number, quizType: { type: String, default: "exam" }, attemptLimit: number, shuffleQuestions: boolean, shuffleOptions: boolean, startDate: Date, endDate: Date, negativeMarking: boolean, status: { type: String, default: "published" } },
     Question: { quizId: { type: String, ref: "Quiz" }, type: String, question: string, options: strings, correctAnswer: strings, explanation: string, marks: { type: Number, default: 5 }, difficulty: { type: String, default: "medium" } },
@@ -40,14 +40,14 @@ const definitions: Record<string, FieldDefinition> = {
     AttemptAnswer: { attemptId: { type: String, ref: "QuizAttempt" }, questionId: { type: String, ref: "Question" }, selectedAnswers: strings, isFlagged: boolean },
     Assignment: { title: string, description: string, instructions: string, courseId: { type: String, ref: "Course" }, moduleId: { type: String, ref: "Module" }, topicId: { type: String, ref: "Topic" }, createdById: { type: String, ref: "User" }, attachments: strings, dueDate: Date, totalMarks: { type: Number, default: 100 }, assignmentType: { type: String, default: "written" }, generatedFromDocument: boolean, status: { type: String, default: "published" } },
     Rubric: { assignmentId: { type: String, ref: "Assignment" }, criterion: string, maxPoints: number, description: string },
-    Submission: { assignmentId: { type: String, ref: "Assignment" }, studentId: { type: String, ref: "User" }, files: strings, textAnswer: string, submittedAt: Date, marks: Number, feedback: string, status: { type: String, default: "pending" } },
+    Submission: { assignmentId: { type: String, ref: "Assignment" }, studentId: { type: String, ref: "User" }, files: strings, textAnswer: string, submittedAt: { type: Date, default: Date.now }, marks: Number, feedback: string, status: { type: String, default: "pending" } },
     RubricEvaluation: { submissionId: { type: String, ref: "Submission" }, criterionTitle: string, score: number, feedback: string },
     AttendanceSession: { courseId: { type: String, ref: "Course" }, teacherId: { type: String, ref: "User" }, title: string, date: Date, startTime: string, endTime: string, description: string, marked: boolean },
     Attendance: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, teacherId: { type: String, ref: "User" }, date: Date, status: { type: String, default: "present" }, remarks: string, markedById: { type: String, ref: "User" }, sessionId: { type: String, ref: "AttendanceSession" } },
-    Certificate: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, issuedById: { type: String, ref: "User" }, certificateId: { type: String, unique: true }, issueDate: Date, completionPercentage: number, certificateUrl: string, status: { type: String, default: "Issued" } },
+    Certificate: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, issuedById: { type: String, ref: "User" }, certificateId: { type: String, unique: true }, issueDate: { type: Date, default: Date.now }, completionPercentage: number, certificateUrl: string, status: { type: String, default: "Issued" } },
     Message: { senderId: { type: String, ref: "User" }, recipientId: { type: String, ref: "User" }, groupId: String, content: string, messageType: { type: String, default: "text" }, read: boolean, delivered: boolean, deleted: boolean, readAt: Date, deliveredAt: Date, edited: boolean, editedAt: Date },
     MessageAttachment: { messageId: { type: String, ref: "Message" }, url: string, type: { type: String, default: "file" }, fileName: string, fileSize: number },
-    Notification: { senderId: { type: String, ref: "User" }, recipientId: { type: String, ref: "User" }, targetRole: { type: String, default: "all" }, title: string, message: string, type: { type: String, default: "announcement" }, scheduledAt: Date, read: boolean },
+    Notification: { senderId: { type: String, ref: "User" }, recipientId: { type: String, ref: "User" }, targetRole: { type: String, default: "all" }, title: string, message: string, type: { type: String, default: "announcement" }, scheduledAt: { type: Date, default: Date.now }, read: boolean },
     NotificationRead: { notificationId: { type: String, ref: "Notification" }, userId: { type: String, ref: "User" }, readAt: Date },
     Notes: { title: string, content: string, fileUrl: string, courseId: { type: String, ref: "Course" }, teacherId: { type: String, ref: "User" } },
     StudentNote: { studentId: { type: String, ref: "User" }, topicId: { type: String, ref: "Topic" }, content: string, timestamp: number },
@@ -63,8 +63,24 @@ const options: mongoose.SchemaOptions = {
     strict: false,
     timestamps: true,
     versionKey: false,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: {
+        virtuals: true,
+        transform: (_document, rawValue) => {
+            const value = rawValue as { _id?: unknown; id?: string; [key: string]: any };
+            value.id = String(value._id);
+            delete value._id;
+            return value;
+        },
+    },
+    toObject: {
+        virtuals: true,
+        transform: (_document, rawValue) => {
+            const value = rawValue as { _id?: unknown; id?: string; [key: string]: any };
+            value.id = String(value._id);
+            delete value._id;
+            return value;
+        },
+    },
 };
 
 const virtualRelations: Record<string, Record<string, [string, string, boolean]>> = {
@@ -104,11 +120,25 @@ const virtualRelations: Record<string, Record<string, [string, string, boolean]>
     AIChat: { messages: ["AIMessage", "chatId", false] },
 };
 
+const uniqueIndexes: Record<string, string[][]> = {
+    CourseRating: [["courseId", "studentId"]],
+    Enrollment: [["studentId", "courseId"]],
+    StudentProgress: [["studentId", "courseId"]],
+    LectureProgress: [["studentId", "topicId"]],
+    Submission: [["studentId", "assignmentId"]],
+    Attendance: [["studentId", "courseId", "date"]],
+    Certificate: [["studentId", "courseId"]],
+    NotificationRead: [["notificationId", "userId"]],
+};
+
 export const models = Object.fromEntries(
     Object.entries(definitions).map(([name, fields]) => {
         const schema = new Schema({ _id: id, ...fields }, options);
         for (const [path, [ref, foreignField, justOne]] of Object.entries(virtualRelations[name] ?? {})) {
             schema.virtual(path, { ref, localField: "_id", foreignField, justOne });
+        }
+        for (const indexFields of uniqueIndexes[name] ?? []) {
+            schema.index(Object.fromEntries(indexFields.map((field) => [field, 1])), { unique: true });
         }
         return [name, mongoose.models[name] ?? mongoose.model(name, schema)];
     }),

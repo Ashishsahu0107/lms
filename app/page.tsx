@@ -85,7 +85,7 @@ export default function MasterLandingPage() {
   const FAQS = [
     {
       q: "What is LMS Pro and how does it work?",
-      a: "LMS Pro is an enterprise-grade Learning Management System powered by Next.js 15, PostgreSQL, and Three.js 3D. It provides role-based portals for Students, Teachers, and Super Admins.",
+      a: "LMS Pro is an enterprise-grade Learning Management System powered by Next.js 15, MongoDB Atlas, and Three.js 3D. It provides role-based portals for Students, Teachers, and Super Admins.",
     },
     {
       q: "Is LMS Pro free to get started for students?",
@@ -177,7 +177,7 @@ export default function MasterLandingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider animate-fade-in">
-              <span>⚡ Next.js 15 + PostgreSQL + Three.js 3D</span>
+              <span>⚡ Next.js 15 + MongoDB Atlas + Three.js 3D</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-base-content tracking-tight font-display leading-tight">
@@ -301,7 +301,7 @@ export default function MasterLandingPage() {
               },
               {
                 icon: "⚡",
-                title: "PostgreSQL & Swagger",
+                title: "MongoDB Atlas & Swagger",
                 desc: "OpenAPI 3.0 documented REST endpoints with sub-50ms query response times.",
               },
             ].map((f) => (
@@ -523,7 +523,7 @@ export default function MasterLandingPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
           {[
             { name: "Next.js 15", desc: "React App Router" },
-            { name: "PostgreSQL", desc: "Prisma ORM" },
+            { name: "MongoDB Atlas", desc: "Mongoose Models" },
             { name: "Three.js", desc: "3D WebGL Engine" },
             { name: "FlyonUI", desc: "Tailwind CSS System" },
             { name: "Socket.io", desc: "Real-time WebSockets" },

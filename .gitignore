@@ -1,4 +1,4 @@
-# LMS Pro — PostgreSQL + Swagger + Next.js
+# LMS Pro — MongoDB Atlas + Next.js
 
 node_modules
 .next
@@ -7,5 +7,4 @@ node_modules
 dist
 uploads
 *.log
-prisma/migrations/
 tsconfig.tsbuildinfo

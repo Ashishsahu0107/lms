@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
     const { user, error } = await authenticate(req);
     if (error) return error;
 
-    const notifications = await mongo.notification.findMany({
-      where: {
+    const notifications = await mongo.notification.find({
+      filter: {
         OR: [
           { recipientId: user!.id },
           { targetRole: user!.role as "student" | "teacher" | "all" },

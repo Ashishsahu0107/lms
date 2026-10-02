@@ -51,9 +51,9 @@ export async function GET(req: NextRequest) {
     if (courseId) where.courseId = courseId;
     if (user!.role === "student") where.studentId = user!.id;
 
-    const certificates = await mongo.certificate.findMany({
-      where,
-      include: {
+    const certificates = await mongo.certificate.find({
+      filter: where,
+      populate: {
         student: { select: { id: true, name: true, email: true } },
         course: { select: { id: true, title: true } },
         issuedBy: { select: { id: true, name: true } },
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
         completionPercentage: Number(completionPercentage),
         status: "Issued",
       },
-      include: {
+      populate: {
         student: { select: { id: true, name: true, email: true } },
         course: { select: { id: true, title: true } },
       },

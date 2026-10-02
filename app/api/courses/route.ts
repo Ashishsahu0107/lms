@@ -93,17 +93,17 @@ export async function GET(req: NextRequest) {
     }
 
     const [courses, total] = await Promise.all([
-      mongo.course.findMany({
-        where,
+      mongo.course.find({
+        filter: where,
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
-        include: {
+        populate: {
           teacher: { select: { id: true, name: true, avatar: true } },
           _count: { select: { enrollments: true, modules: true } },
         },
       }),
-      mongo.course.count({ where }),
+      mongo.course.countDocuments({ filter: where }),
     ]);
 
     return NextResponse.json({
@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
         status: status || "draft",
         teacherId: user!.id,
       },
-      include: {
+      populate: {
         teacher: { select: { id: true, name: true, avatar: true } },
       },
     });
