@@ -1,5 +1,8 @@
 import flyonui from "flyonui";
 
+const flyonColor = (token) =>
+  `oklch(from var(--color-${token}) l c h / <alpha-value>)`;
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -13,40 +16,40 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#4F46E5",
-          content: "#FFFFFF",
+          DEFAULT: flyonColor("primary"),
+          content: flyonColor("primary-content"),
         },
         secondary: {
-          DEFAULT: "#8B5CF6",
-          content: "#FFFFFF",
+          DEFAULT: flyonColor("secondary"),
+          content: flyonColor("secondary-content"),
         },
         accent: {
-          DEFAULT: "#EC4899",
-          content: "#FFFFFF",
+          DEFAULT: flyonColor("accent"),
+          content: flyonColor("accent-content"),
         },
         neutral: {
-          DEFAULT: "#1E293B",
-          content: "#F8FAFC",
+          DEFAULT: flyonColor("neutral"),
+          content: flyonColor("neutral-content"),
         },
-        "base-100": "#FFFFFF",
-        "base-200": "#F8FAFC",
-        "base-300": "#E2E8F0",
-        "base-content": "#0F172A",
+        "base-100": flyonColor("base-100"),
+        "base-200": flyonColor("base-200"),
+        "base-300": flyonColor("base-300"),
+        "base-content": flyonColor("base-content"),
         info: {
-          DEFAULT: "#0284C7",
-          content: "#FFFFFF",
+          DEFAULT: flyonColor("info"),
+          content: flyonColor("info-content"),
         },
         success: {
-          DEFAULT: "#10B981",
-          content: "#FFFFFF",
+          DEFAULT: flyonColor("success"),
+          content: flyonColor("success-content"),
         },
         warning: {
-          DEFAULT: "#F59E0B",
-          content: "#FFFFFF",
+          DEFAULT: flyonColor("warning"),
+          content: flyonColor("warning-content"),
         },
         error: {
-          DEFAULT: "#EF4444",
-          content: "#FFFFFF",
+          DEFAULT: flyonColor("error"),
+          content: flyonColor("error-content"),
         },
       },
       fontFamily: {

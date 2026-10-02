@@ -19,7 +19,7 @@ import toast from "react-hot-toast";
 
 export default function MasterLandingPage() {
   const { isAuthenticated, user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { resolvedTheme, toggleTheme } = useTheme();
   const [authModal, setAuthModal] = useState<"login" | "register" | null>(null);
   const [activeRoleTab, setActiveRoleTab] = useState<
     "student" | "teacher" | "admin"
@@ -147,7 +147,7 @@ export default function MasterLandingPage() {
             className="w-9 h-9 rounded-xl bg-base-200 hover:bg-base-300 flex items-center justify-center text-sm transition-all text-base-content"
             title="Toggle theme"
           >
-            {theme === "dark" ? "☀️" : "🌙"}
+            {resolvedTheme === "dark" ? "☀️" : "🌙"}
           </button>
 
           {isAuthenticated && user ? (

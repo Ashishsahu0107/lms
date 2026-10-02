@@ -7,7 +7,7 @@ import { useTheme } from "@/context/ThemeContext";
 
 export default function GlobalThreeBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const container = mountRef.current;
@@ -39,7 +39,7 @@ export default function GlobalThreeBackground() {
     const group = new THREE.Group();
     scene.add(group);
 
-    const isDark = theme === "dark";
+    const isDark = resolvedTheme === "dark";
     const particleColor = isDark ? 0x8b5cf6 : 0x6366f1;
     const meshColor1 = isDark ? 0x4f46e5 : 0xa855f7;
     const meshColor2 = isDark ? 0xec4899 : 0x06b6d4;
@@ -136,7 +136,7 @@ export default function GlobalThreeBackground() {
       }
       renderer.dispose();
     };
-  }, [theme]);
+  }, [resolvedTheme]);
 
   return (
     <div

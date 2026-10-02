@@ -12,19 +12,6 @@
     "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
 
-  /* Light Theme FlyonUI Tokens */
-  --b1: 0 0% 100%; /* base-100 */
-  --b2: 210 40% 98%; /* base-200 */
-  --b3: 214 32% 91%; /* base-300 */
-  --bc: 222 47% 11%; /* base-content */
-}
-
-[data-theme="dark"] {
-  /* Dark Theme FlyonUI Tokens */
-  --b1: 222 47% 7%; /* base-100 */
-  --b2: 222 47% 4%; /* base-200 */
-  --b3: 217 33% 17%; /* base-300 */
-  --bc: 210 40% 98%; /* base-content */
 }
 
 * {
@@ -41,8 +28,8 @@ html {
 body {
   min-height: 100vh;
   line-height: 1.5;
-  background-color: var(--b2);
-  color: var(--bc);
+  background-color: var(--color-base-200);
+  color: var(--color-base-content);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
