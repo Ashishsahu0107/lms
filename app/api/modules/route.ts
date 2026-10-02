@@ -35,10 +35,17 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import mongo from "@/lib/db";
-import { authenticate, authorize } from "@/lib/middleware";
+import {
+  authenticate,
+  authorize,
+  checkCourseOwnership,
+} from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
   try {
+    const { user, error } = await authenticate(req);
+    if (error) return error;
+
     const { searchParams } = new URL(req.url);
     const courseId = searchParams.get("courseId");
     if (!courseId) {
@@ -48,12 +55,15 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const ownerError = await checkCourseOwnership(user!, courseId);
+    if (ownerError) return ownerError;
+
     const modules = await mongo.module.find({
       filter: { courseId },
-      orderBy: { order: "asc" },
+      orderBy: { order: "asc", createdAt: "asc" },
       populate: {
         topics: {
-          orderBy: { createdAt: "asc" },
+          orderBy: { order: "asc", createdAt: "asc" },
           populate: { resources: true },
         },
       },
@@ -83,6 +93,9 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+
+    const ownerError = await checkCourseOwnership(user!, courseId);
+    if (ownerError) return ownerError;
 
     const createdModule = await mongo.module.create({
       data: { title: title.trim(), courseId, order: order || 0 },

@@ -1,19 +1,26 @@
 // app/api/modules/[id]/route.ts — Get, Update, Delete module
 import { NextRequest, NextResponse } from "next/server";
 import mongo from "@/lib/db";
-import { authenticate, checkModuleOwnership } from "@/lib/middleware";
+import {
+  authenticate,
+  checkModuleOwnership,
+} from "@/lib/middleware";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { user, error } = await authenticate(req);
+    if (error) return error;
+
     const { id } = await params;
+    const ownerError = await checkModuleOwnership(user!, id);
+    if (ownerError) return ownerError;
+
     const moduleItem = await mongo.module.findOne({
       filter: { id },
-      populate: {
-        topics: { orderBy: { createdAt: "asc" }, populate: { resources: true } },
-      },
+      populate: { topics: { orderBy: { order: "asc", createdAt: "asc" }, populate: { resources: true } } },
     });
     if (!moduleItem)
       return NextResponse.json(
@@ -69,6 +76,15 @@ export async function DELETE(
     const ownerErr = await checkModuleOwnership(user!, id);
     if (ownerErr) return ownerErr;
 
+    const topics = await mongo.topic.find({
+      filter: { moduleId: id },
+      select: { id: true },
+    });
+    const topicIds = topics.map((topic: { id: string }) => topic.id);
+    if (topicIds.length) {
+      await mongo.topicResource.deleteMany({ filter: { topicId: { in: topicIds } } });
+    }
+    await mongo.topic.deleteMany({ filter: { moduleId: id } });
     await mongo.module.findOneAndDelete({ filter: { id } });
     return NextResponse.json({ success: true, message: "Module deleted" });
   } catch (err: unknown) {

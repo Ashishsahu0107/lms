@@ -1,7 +1,11 @@
 // app/api/topics/[id]/route.ts — Get, Update, Delete single topic
 import { NextRequest, NextResponse } from "next/server";
 import mongo from "@/lib/db";
-import { authenticate, authorize } from "@/lib/middleware";
+import {
+  authenticate,
+  authorize,
+  checkTopicOwnership,
+} from "@/lib/middleware";
 
 export async function PUT(
   req: NextRequest,
@@ -14,8 +18,11 @@ export async function PUT(
     if (roleError) return roleError;
 
     const { id } = await params;
+    const ownerError = await checkTopicOwnership(user!, id);
+    if (ownerError) return ownerError;
+
     const body = await req.json();
-    const { title, content, videoUrl, duration } = body;
+    const { title, content, videoUrl, duration, order } = body;
 
     const topic = await mongo.topic.findOneAndUpdate({
       filter: { id },
@@ -24,6 +31,7 @@ export async function PUT(
         ...(content !== undefined && { content }),
         ...(videoUrl !== undefined && { videoUrl }),
         ...(duration !== undefined && { duration: Number(duration) }),
+        ...(order !== undefined && { order: Number(order) }),
       },
     });
 
@@ -51,6 +59,10 @@ export async function DELETE(
     if (roleError) return roleError;
 
     const { id } = await params;
+    const ownerError = await checkTopicOwnership(user!, id);
+    if (ownerError) return ownerError;
+
+    await mongo.topicResource.deleteMany({ filter: { topicId: id } });
     await mongo.topic.findOneAndDelete({ filter: { id } });
 
     return NextResponse.json({

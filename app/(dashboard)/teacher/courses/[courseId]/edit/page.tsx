@@ -52,13 +52,13 @@ export default function EditCoursePage() {
   }, [token, user, courseId, router]);
 
   if (loading) {
-    return <div className="flex h-screen items-center justify-center bg-white"><span className="loading loading-spinner text-indigo-600"></span></div>;
+    return <div className="flex min-h-[50vh] items-center justify-center bg-base-100"><span className="loading loading-spinner text-primary"></span></div>;
   }
 
   if (!course) return null;
 
   return (
-    <div className="absolute inset-0 z-50 bg-white">
+    <div className="min-h-full">
       <CourseEditorView course={course} />
     </div>
   );

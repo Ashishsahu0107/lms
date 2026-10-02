@@ -29,7 +29,7 @@ const definitions: Record<string, FieldDefinition> = {
     },
     CourseRating: { courseId: { type: String, ref: "Course" }, studentId: { type: String, ref: "User" }, score: number, comment: string },
     Module: { title: string, order: number, courseId: { type: String, ref: "Course" } },
-    Topic: { title: string, content: string, videoUrl: string, attachments: strings, duration: number, moduleId: { type: String, ref: "Module" } },
+    Topic: { title: string, content: string, videoUrl: string, attachments: strings, duration: number, order: number, moduleId: { type: String, ref: "Module" } },
     TopicResource: { title: string, fileUrl: string, topicId: { type: String, ref: "Topic" } },
     Enrollment: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, assignedById: { type: String, ref: "User" }, progress: number, completedTopics: strings },
     StudentProgress: { studentId: { type: String, ref: "User" }, courseId: { type: String, ref: "Course" }, progress: number, totalWatchTime: number, enrolledAt: { type: Date, default: Date.now }, completedAt: Date, lastAccessedAt: { type: Date, default: Date.now }, lastAccessedTopicId: { type: String, ref: "Topic" } },

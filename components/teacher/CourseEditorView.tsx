@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
+import { ChevronDown, ChevronUp, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { API_URL } from "@/lib/api-config";
 
@@ -13,6 +16,7 @@ type TopicWithResources = {
   title: string;
   content: string;
   duration: number;
+  order: number;
   resources: TopicResource[];
 };
 type ModuleWithTopics = {
@@ -27,6 +31,10 @@ type CourseWithModules = {
   modules: ModuleWithTopics[];
 };
 
+type PendingDelete =
+  | { kind: "class"; classId: string; title: string }
+  | { kind: "topic"; classId: string; topicId: string; title: string };
+
 export default function CourseEditorView({
   course,
 }: {
@@ -34,6 +42,25 @@ export default function CourseEditorView({
 }) {
   const router = useRouter();
   const { token } = useAuth();
+  const [classes, setClasses] = useState(course.modules);
+  const [newClassTitle, setNewClassTitle] = useState("");
+  const [creatingClass, setCreatingClass] = useState(false);
+  const [newTopicTitles, setNewTopicTitles] = useState<Record<string, string>>({});
+  const [creatingTopicClassId, setCreatingTopicClassId] = useState<string | null>(null);
+  const [editingClassId, setEditingClassId] = useState<string | null>(null);
+  const [editingClassTitle, setEditingClassTitle] = useState("");
+  const [savingClassId, setSavingClassId] = useState<string | null>(null);
+  const [editingTopicId, setEditingTopicId] = useState<string | null>(null);
+  const [editingTopicTitle, setEditingTopicTitle] = useState("");
+  const [savingTopicId, setSavingTopicId] = useState<string | null>(null);
+  const [reorderingClassId, setReorderingClassId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [managerError, setManagerError] = useState("");
+
+  useEffect(() => {
+    setClasses(course.modules);
+  }, [course.modules]);
 
   const [activeModuleId, setActiveModuleId] = useState<string | null>(
     course.modules[0]?.id || null,
@@ -121,11 +148,12 @@ export default function CourseEditorView({
     }
   };
 
-  const handleAddModule = async () => {
-    if (!token) return;
-    const title = prompt("Enter new section (module) title:");
-    if (!title) return;
-
+  const handleAddClass = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const title = newClassTitle.trim();
+    if (!token || !title) return;
+    setCreatingClass(true);
+    setManagerError("");
     try {
       const res = await fetch(`${API_URL}/modules`, {
         method: "POST",
@@ -136,62 +164,206 @@ export default function CourseEditorView({
         body: JSON.stringify({
           title,
           courseId: course.id,
-          order: course.modules.length + 1,
+          order: classes.length + 1,
         }),
       });
 
       const data = await res.json();
-      if (data.success) {
-        toast.success("Section added!");
-        router.refresh();
-      } else {
-        toast.error("Failed to add section.");
-      }
-    } catch {
-      toast.error("Error adding section.");
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not create Class");
+      const createdClass = data.data.module as ModuleWithTopics;
+      setClasses((current) => [...current, createdClass]);
+      setExpandedModules((current) => ({ ...current, [createdClass.id]: true }));
+      setActiveModuleId(createdClass.id);
+      setNewClassTitle("");
+      toast.success("Class created");
+      router.refresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not create Class";
+      setManagerError(message);
+      toast.error(message);
+    } finally {
+      setCreatingClass(false);
     }
   };
 
-  const handleAddLesson = async () => {
-    if (!token || !activeModuleId) {
-      toast.error("Please select a module first.");
-      return;
-    }
-    const title = prompt("Enter new lesson title:");
-    if (!title) return;
-
+  const handleSaveClass = async (event: React.FormEvent, classId: string) => {
+    event.preventDefault();
+    const title = editingClassTitle.trim();
+    if (!token || !title) return;
+    setSavingClassId(classId);
+    setManagerError("");
     try {
-      const res = await fetch(`${API_URL}/topics`, {
-        method: "POST",
+      const res = await fetch(`${API_URL}/modules/${classId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          title,
-          moduleId: activeModuleId,
-          content: "",
-          duration: 10,
-        }),
+        body: JSON.stringify({ title }),
       });
-
       const data = await res.json();
-      if (data.success) {
-        toast.success("Lesson added!");
-        router.refresh();
-        // Automatically switch to the new lesson
-        setActiveTopic(data.data.topic);
-        setEditedTopic(data.data.topic);
-      } else {
-        toast.error("Failed to add lesson.");
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not update Class");
+      setClasses((current) => current.map((item) => item.id === classId ? { ...item, title } : item));
+      setEditingClassId(null);
+      toast.success("Class updated");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update Class";
+      setManagerError(message);
+      toast.error(message);
+    } finally {
+      setSavingClassId(null);
+    }
+  };
+
+  const handleAddTopic = async (event: React.FormEvent, classId: string) => {
+    event.preventDefault();
+    const title = newTopicTitles[classId]?.trim();
+    if (!token || !title) return;
+    setCreatingTopicClassId(classId);
+    setManagerError("");
+    try {
+      const res = await fetch(`${API_URL}/topics`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title, moduleId: classId }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not create Topic");
+      const topic = data.data.topic as TopicWithResources;
+      setClasses((current) => current.map((item) => item.id === classId
+        ? { ...item, topics: [...item.topics, topic].sort((a, b) => a.order - b.order) }
+        : item));
+      setExpandedModules((current) => ({ ...current, [classId]: true }));
+      setActiveModuleId(classId);
+      setActiveTopic(topic);
+      setEditedTopic(topic);
+      setNewTopicTitles((current) => ({ ...current, [classId]: "" }));
+      toast.success("Topic created");
+      router.refresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not create Topic";
+      setManagerError(message);
+      toast.error(message);
+    } finally {
+      setCreatingTopicClassId(null);
+    }
+  };
+
+  const handleSaveTopicTitle = async (event: React.FormEvent, classId: string, topic: TopicWithResources) => {
+    event.preventDefault();
+    const title = editingTopicTitle.trim();
+    if (!token || !title) return;
+    setSavingTopicId(topic.id);
+    setManagerError("");
+    try {
+      const res = await fetch(`${API_URL}/topics/${topic.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not update Topic");
+      const updatedTopic = { ...topic, ...data.data.topic, title } as TopicWithResources;
+      setClasses((current) => current.map((item) => item.id === classId
+        ? { ...item, topics: item.topics.map((entry) => entry.id === topic.id ? updatedTopic : entry) }
+        : item));
+      if (activeTopic?.id === topic.id) {
+        setActiveTopic(updatedTopic);
+        setEditedTopic((current) => current ? { ...current, title } : updatedTopic);
       }
-    } catch {
-      toast.error("Error adding lesson.");
+      setEditingTopicId(null);
+      toast.success("Topic updated");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not update Topic";
+      setManagerError(message);
+      toast.error(message);
+    } finally {
+      setSavingTopicId(null);
+    }
+  };
+
+  const handleReorderTopics = async (classItem: ModuleWithTopics, topicIndex: number, direction: -1 | 1) => {
+    const targetIndex = topicIndex + direction;
+    if (!token || targetIndex < 0 || targetIndex >= classItem.topics.length) return;
+    const reorderedTopics = [...classItem.topics];
+    [reorderedTopics[topicIndex], reorderedTopics[targetIndex]] = [reorderedTopics[targetIndex], reorderedTopics[topicIndex]];
+    setReorderingClassId(classItem.id);
+    setManagerError("");
+    try {
+      const res = await fetch(`${API_URL}/topics/reorder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ moduleId: classItem.id, topicIds: reorderedTopics.map((topic) => topic.id) }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not reorder Topics");
+      const orderedTopics = reorderedTopics.map((topic, order) => ({ ...topic, order }));
+      setClasses((current) => current.map((item) => item.id === classItem.id ? { ...item, topics: orderedTopics } : item));
+      if (activeTopic) {
+        const updatedActiveTopic = orderedTopics.find((topic) => topic.id === activeTopic.id);
+        if (updatedActiveTopic) setActiveTopic(updatedActiveTopic);
+      }
+      toast.success("Topic order saved");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not reorder Topics";
+      setManagerError(message);
+      toast.error(message);
+    } finally {
+      setReorderingClassId(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!token || !pendingDelete) return;
+    setDeleting(true);
+    setManagerError("");
+    try {
+      const url = pendingDelete.kind === "class"
+        ? `${API_URL}/modules/${pendingDelete.classId}`
+        : `${API_URL}/topics/${pendingDelete.topicId}`;
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not delete item");
+
+      if (pendingDelete.kind === "class") {
+        setClasses((current) => current.filter((item) => item.id !== pendingDelete.classId));
+        setExpandedModules((current) => {
+          const next = { ...current };
+          delete next[pendingDelete.classId];
+          return next;
+        });
+        if (activeModuleId === pendingDelete.classId) {
+          setActiveModuleId(null);
+          setActiveTopic(null);
+          setEditedTopic(null);
+        }
+        toast.success("Class and its Topics deleted");
+      } else {
+        setClasses((current) => current.map((item) => item.id === pendingDelete.classId
+          ? { ...item, topics: item.topics.filter((topic) => topic.id !== pendingDelete.topicId) }
+          : item));
+        if (activeTopic?.id === pendingDelete.topicId) {
+          setActiveTopic(null);
+          setEditedTopic(null);
+        }
+        toast.success("Topic deleted");
+      }
+      setPendingDelete(null);
+      router.refresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not delete item";
+      setManagerError(message);
+      toast.error(message);
+    } finally {
+      setDeleting(false);
     }
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#FAFBFF] overflow-hidden">
+    <div className="flex min-h-[calc(100vh-12rem)] w-full flex-col overflow-hidden bg-[#FAFBFF]">
       {/* 1. GLOBAL SIDEBAR (From layout, but we simulate the nav area shown in image for full fidelity) */}
       {/* Wait, the existing dashboard layout provides the global sidebar. 
           But the image shows a specific layout. If we use the existing layout, it wraps this page.
@@ -221,8 +393,7 @@ export default function CourseEditorView({
             <span className="text-slate-800">{course.title}</span>
             <span className="text-slate-300">›</span>
             <span className="text-slate-800">
-              {course.modules.find((m) => m.id === activeModuleId)?.title ||
-                "Module"}
+              {classes.find((item) => item.id === activeModuleId)?.title || "Classes"}
             </span>
             <span className="text-slate-300">›</span>
             <span className="text-slate-800 font-semibold">Edit Content</span>
@@ -297,45 +468,90 @@ export default function CourseEditorView({
         </header>
 
         {/* ══ PAGE CONTENT ══ */}
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
           {/* 2. INNER LEFT SIDEBAR (Modules & Lessons) */}
-          <aside className="w-[320px] bg-white border-r border-slate-200 flex flex-col h-full shrink-0">
-            <div className="p-6 pb-2 border-b border-slate-100 flex-1 overflow-y-auto">
+          <aside className="flex w-full shrink-0 flex-col border-b border-slate-200 bg-white lg:h-full lg:w-[320px] lg:border-b-0 lg:border-r">
+            <div className="max-h-[45vh] flex-1 overflow-y-auto border-b border-slate-100 p-4 sm:p-6 lg:max-h-none lg:pb-2">
               {/* Modules List */}
               <div className="space-y-4">
-                {course.modules.map((mod, modIdx) => {
+                {managerError && (
+                  <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                    {managerError}
+                  </div>
+                )}
+                {classes.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center">
+                    <p className="text-sm font-semibold text-slate-700">No Classes yet</p>
+                    <p className="mt-1 text-xs text-slate-500">Create a Class to start organizing Topics.</p>
+                  </div>
+                ) : classes.map((mod, modIdx) => {
                   const isOpen = expandedModules[mod.id];
                   return (
                     <div
                       key={mod.id}
                       className="border border-slate-200 rounded-xl overflow-hidden bg-white"
                     >
-                      {/* Module Header */}
-                      <button
-                        onClick={() => toggleModule(mod.id)}
-                        className="w-full flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors text-left"
-                      >
-                        <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                          {modIdx + 1}
-                        </div>
+                      <div className="flex items-start gap-2 p-4">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-slate-800 pr-4">
-                            {mod.title}
-                          </h3>
-                          <p className="text-xs text-slate-500 mt-1">
-                            {mod.topics.length} Lessons • 2h 15m
-                          </p>
+                          {editingClassId === mod.id ? (
+                            <form onSubmit={(event) => handleSaveClass(event, mod.id)} className="space-y-2">
+                              <label className="sr-only" htmlFor={`class-title-${mod.id}`}>Class title</label>
+                              <input
+                                id={`class-title-${mod.id}`}
+                                autoFocus
+                                maxLength={120}
+                                value={editingClassTitle}
+                                onChange={(event) => setEditingClassTitle(event.target.value)}
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                              />
+                              <div className="flex gap-2">
+                                <Button type="submit" size="sm" isLoading={savingClassId === mod.id} disabled={!editingClassTitle.trim()}>
+                                  <Save size={14} /> Save
+                                </Button>
+                                <Button type="button" size="sm" variant="outline" onClick={() => setEditingClassId(null)}>
+                                  <X size={14} /> Cancel
+                                </Button>
+                              </div>
+                            </form>
+                          ) : (
+                            <button
+                              type="button"
+                              aria-expanded={Boolean(isOpen)}
+                              onClick={() => toggleModule(mod.id)}
+                              className="w-full flex items-start gap-3 text-left"
+                            >
+                              <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                                {modIdx + 1}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-sm font-bold text-slate-800 truncate">{mod.title}</h3>
+                                <p className="text-xs text-slate-500 mt-1">
+                                  {mod.topics.length} {mod.topics.length === 1 ? "Topic" : "Topics"}
+                                </p>
+                              </div>
+                              {isOpen ? <ChevronDown size={17} className="text-slate-400 mt-1 shrink-0" /> : <ChevronDown size={17} className="-rotate-90 text-slate-400 mt-1 shrink-0" />}
+                            </button>
+                          )}
                         </div>
-                        <svg
-                          className="w-4 h-4 text-slate-400 mt-1"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                      </button>
+                        {editingClassId !== mod.id && (
+                          <div className="flex shrink-0 items-center gap-1">
+                            <button
+                              type="button"
+                              title="Rename Class"
+                              aria-label={`Rename ${mod.title}`}
+                              onClick={() => { setEditingClassId(mod.id); setEditingClassTitle(mod.title); }}
+                              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+                            ><Pencil size={15} /></button>
+                            <button
+                              type="button"
+                              title="Delete Class"
+                              aria-label={`Delete ${mod.title}`}
+                              onClick={() => setPendingDelete({ kind: "class", classId: mod.id, title: mod.title })}
+                              className="rounded-md p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"
+                            ><Trash2 size={15} /></button>
+                          </div>
+                        )}
+                      </div>
 
                       {/* Topics List */}
                       {isOpen && (
@@ -439,6 +655,60 @@ export default function CourseEditorView({
                                   )}
                                 </button>
 
+                                {editingTopicId === topic.id ? (
+                                  <form onSubmit={(event) => handleSaveTopicTitle(event, mod.id, topic)} className="ml-2 mt-2 flex flex-wrap gap-2">
+                                    <label className="sr-only" htmlFor={`topic-title-${topic.id}`}>Topic title</label>
+                                    <input
+                                      id={`topic-title-${topic.id}`}
+                                      autoFocus
+                                      required
+                                      maxLength={160}
+                                      value={editingTopicTitle}
+                                      onChange={(event) => setEditingTopicTitle(event.target.value)}
+                                      className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                    />
+                                    <Button type="submit" size="sm" isLoading={savingTopicId === topic.id} disabled={!editingTopicTitle.trim()}>
+                                      <Save size={13} /> Save
+                                    </Button>
+                                    <Button type="button" size="sm" variant="outline" onClick={() => setEditingTopicId(null)}>
+                                      <X size={13} />
+                                    </Button>
+                                  </form>
+                                ) : (
+                                  <div className="ml-9 mt-1 flex items-center justify-end gap-1">
+                                    <button
+                                      type="button"
+                                      title="Move Topic up"
+                                      aria-label={`Move ${topic.title} up`}
+                                      disabled={topicIdx === 0 || reorderingClassId === mod.id}
+                                      onClick={() => handleReorderTopics(mod, topicIdx, -1)}
+                                      className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-35"
+                                    ><ChevronUp size={15} /></button>
+                                    <button
+                                      type="button"
+                                      title="Move Topic down"
+                                      aria-label={`Move ${topic.title} down`}
+                                      disabled={topicIdx === mod.topics.length - 1 || reorderingClassId === mod.id}
+                                      onClick={() => handleReorderTopics(mod, topicIdx, 1)}
+                                      className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-35"
+                                    ><ChevronDown size={15} /></button>
+                                    <button
+                                      type="button"
+                                      title="Rename Topic"
+                                      aria-label={`Rename ${topic.title}`}
+                                      onClick={() => { setEditingTopicId(topic.id); setEditingTopicTitle(topic.title); }}
+                                      className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+                                    ><Pencil size={14} /></button>
+                                    <button
+                                      type="button"
+                                      title="Delete Topic"
+                                      aria-label={`Delete ${topic.title}`}
+                                      onClick={() => setPendingDelete({ kind: "topic", classId: mod.id, topicId: topic.id, title: topic.title })}
+                                      className="rounded-md p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600"
+                                    ><Trash2 size={14} /></button>
+                                  </div>
+                                )}
+
                                 {/* Expanded active topic sub-menu */}
                                 {isActive && (
                                   <div className="ml-9 mr-3 mt-1 mb-3 space-y-1">
@@ -459,6 +729,26 @@ export default function CourseEditorView({
                               </div>
                             );
                           })}
+                          {mod.topics.length === 0 && (
+                            <p className="rounded-lg bg-slate-50 px-3 py-4 text-center text-xs text-slate-500">
+                              No Topics in this Class yet. Add the first Topic below.
+                            </p>
+                          )}
+                          <form onSubmit={(event) => handleAddTopic(event, mod.id)} className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row">
+                            <label className="sr-only" htmlFor={`new-topic-${mod.id}`}>New Topic title</label>
+                            <input
+                              id={`new-topic-${mod.id}`}
+                              required
+                              maxLength={160}
+                              value={newTopicTitles[mod.id] || ""}
+                              onChange={(event) => setNewTopicTitles((current) => ({ ...current, [mod.id]: event.target.value }))}
+                              placeholder="Topic title"
+                              className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            />
+                            <Button type="submit" size="sm" isLoading={creatingTopicClassId === mod.id} disabled={!newTopicTitles[mod.id]?.trim()}>
+                              <Plus size={14} /> Add Topic
+                            </Button>
+                          </form>
                         </div>
                       )}
                     </div>
@@ -467,43 +757,21 @@ export default function CourseEditorView({
               </div>
             </div>
 
-            {/* Bottom Actions */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-2">
-              <button
-                onClick={handleAddLesson}
-                className="w-full py-2.5 rounded-lg border border-indigo-200 text-indigo-600 text-sm font-semibold hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 bg-white shadow-sm"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add Lesson
-              </button>
-              <button
-                onClick={handleAddModule}
-                className="w-full py-2.5 rounded-lg border border-slate-200 border-dashed text-slate-500 text-sm font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 bg-white"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add Section
-              </button>
-            </div>
+            <form onSubmit={handleAddClass} className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3">
+              <label htmlFor="new-class-title" className="block text-xs font-bold uppercase text-slate-500">Create Class</label>
+              <input
+                id="new-class-title"
+                required
+                maxLength={120}
+                value={newClassTitle}
+                onChange={(event) => setNewClassTitle(event.target.value)}
+                placeholder="Class title"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+              <Button type="submit" size="sm" className="w-full" isLoading={creatingClass} disabled={!newClassTitle.trim()}>
+                <Plus size={15} /> Add Class
+              </Button>
+            </form>
           </aside>
 
           {/* 3. MAIN CONTENT EDITOR */}
@@ -1142,6 +1410,24 @@ export default function CourseEditorView({
           </aside>
         </div>
       </div>
+      <Modal
+        isOpen={Boolean(pendingDelete)}
+        onClose={() => { if (!deleting) setPendingDelete(null); }}
+        title={pendingDelete?.kind === "class" ? "Delete Class" : "Delete Topic"}
+      >
+        <p className="text-sm text-base-content/70">
+          Delete <span className="font-semibold text-base-content">{pendingDelete?.title}</span>
+          {pendingDelete?.kind === "class" ? " and all of its Topics? This cannot be undone." : "? This cannot be undone."}
+        </p>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button type="button" variant="outline" disabled={deleting} onClick={() => setPendingDelete(null)}>
+            Cancel
+          </Button>
+          <Button type="button" variant="error" isLoading={deleting} onClick={handleConfirmDelete}>
+            <Trash2 size={14} /> Delete
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

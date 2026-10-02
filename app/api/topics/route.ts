@@ -37,10 +37,17 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import mongo from "@/lib/db";
-import { authenticate, authorize } from "@/lib/middleware";
+import {
+  authenticate,
+  authorize,
+  checkModuleOwnership,
+} from "@/lib/middleware";
 
 export async function GET(req: NextRequest) {
   try {
+    const { user, error } = await authenticate(req);
+    if (error) return error;
+
     const { searchParams } = new URL(req.url);
     const moduleId = searchParams.get("moduleId");
     if (!moduleId) {
@@ -50,9 +57,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const ownerError = await checkModuleOwnership(user!, moduleId);
+    if (ownerError) return ownerError;
+
     const topics = await mongo.topic.find({
       filter: { moduleId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { order: "asc", createdAt: "asc" },
       populate: { resources: true },
     });
 
@@ -90,10 +100,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const ownerError = await checkModuleOwnership(user!, moduleId);
+    if (ownerError) return ownerError;
+
+    const lastTopic = await mongo.topic.find({
+      filter: { moduleId },
+      orderBy: { order: "desc", createdAt: "desc" },
+      take: 1,
+      select: { order: true },
+    });
+    const order = lastTopic.length ? (lastTopic[0].order ?? 0) + 1 : 0;
+
     const topic = await mongo.topic.create({
       data: {
         title: title.trim(),
         moduleId,
+        order,
         content: content || "",
         videoUrl: videoUrl || "",
         duration: duration || 0,
