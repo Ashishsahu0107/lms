@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { API_URL } from "@/lib/api-config";
-import TopicContentDrawer, { DrawerTab } from "@/components/teacher/TopicContentDrawer";
 
 type TopicResource = {
   id: string;
@@ -90,61 +89,18 @@ export default function CourseEditorView({
   const [showClassForm, setShowClassForm] = useState(false);
   const [isTopicEditorOpen, setIsTopicEditorOpen] = useState(false);
 
-  // Manage Topic Content Drawer state
-  const [drawerTopic, setDrawerTopic] = useState<TopicWithResources | null>(null);
-  const [drawerTab, setDrawerTab] = useState<DrawerTab>("overview");
-  const [drawerModuleId, setDrawerModuleId] = useState<string>("");
-  const [drawerClassName, setDrawerClassName] = useState<string>("");
-
-  const openDrawer = (
-    classItem: ModuleWithTopics,
-    topic: TopicWithResources,
-    tab: DrawerTab = "overview"
-  ) => {
-    setDrawerModuleId(classItem.id);
-    setDrawerClassName(classItem.title);
-    setDrawerTopic(topic);
-    setDrawerTab(tab);
-  };
-
-  const handleTopicDrawerUpdated = (updatedTopic: any) => {
-    setClasses((current) =>
-      current.map((classItem) =>
-        classItem.id === drawerModuleId
-          ? {
-              ...classItem,
-              topics: classItem.topics.map((t) =>
-                t.id === updatedTopic.id ? { ...t, ...updatedTopic } : t
-              ),
-            }
-          : classItem
-      )
-    );
-    if (drawerTopic && drawerTopic.id === updatedTopic.id) {
-      setDrawerTopic((prev) => (prev ? { ...prev, ...updatedTopic } : updatedTopic));
-    }
-  };
-
-  const handleRefreshCourse = () => {
-    router.refresh();
-  };
-
   useBreadcrumbs([
-    {
-      label: "LMS",
-      href: user?.role === "super_admin" ? "/admin/dashboard" : "/teacher/dashboard",
-    },
     {
       label: "Courses",
       href: user?.role === "super_admin" ? "/admin/courses" : "/teacher/courses",
     },
     {
-      label: course.title,
-      href: user?.role === "super_admin" ? "/admin/courses" : "/teacher/courses",
+      label: course.title || "Course",
+      href: isTopicEditorOpen ? `/teacher/courses/${course.id}/edit` : undefined,
     },
-    {
-      label: isTopicEditorOpen ? "Edit Content" : "Classes & Topics",
-    },
+    ...(isTopicEditorOpen
+      ? [{ label: "Edit Content" }]
+      : []),
   ]);
 
   useEffect(() => {
@@ -722,11 +678,10 @@ export default function CourseEditorView({
                                           </button>
                                         </form>
                                       ) : (
-                                        <button
-                                          type="button"
-                                          onClick={() => openDrawer(classItem, topic, "overview")}
+                                        <Link
+                                          href={`/topics/${topic.id}/docs`}
                                           className="flex min-w-0 items-center gap-2.5 text-left hover:text-primary group/item cursor-pointer"
-                                          title="Click to Manage Topic Content"
+                                          title="Open Topic Content"
                                         >
                                           <span className="shrink-0 font-mono text-xs text-base-content/40">
                                             {topicIndex + 1}.
@@ -734,16 +689,15 @@ export default function CourseEditorView({
                                           <span className="truncate font-medium text-base-content group-hover/item:text-primary transition-colors">
                                             {topic.title}
                                           </span>
-                                        </button>
+                                        </Link>
                                       )}
                                     </td>
 
                                     {/* DOC Column */}
                                     <td className="px-2 py-3 text-center">
-                                      <button
-                                        type="button"
-                                        title={docCount > 0 ? `${docCount} Document(s) - Click to Manage` : "Manage Docs"}
-                                        onClick={() => openDrawer(classItem, topic, "docs")}
+                                      <Link
+                                        href={`/topics/${topic.id}/docs`}
+                                        title={docCount > 0 ? `${docCount} Note(s) - Click to View & Edit` : "Manage Docs"}
                                         className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
                                           docCount > 0
                                             ? "bg-info/20 text-info font-bold"
@@ -754,15 +708,14 @@ export default function CourseEditorView({
                                         {docCount > 0 && (
                                           <span className="text-[11px] font-bold">{docCount}</span>
                                         )}
-                                      </button>
+                                      </Link>
                                     </td>
 
                                     {/* QUIZ Column */}
                                     <td className="px-2 py-3 text-center">
-                                      <button
-                                        type="button"
-                                        title={quizCount > 0 ? `${quizCount} Quiz(zes) - Click to Manage` : "Manage Quizzes"}
-                                        onClick={() => openDrawer(classItem, topic, "quiz")}
+                                      <Link
+                                        href={`/topics/${topic.id}/quiz`}
+                                        title={quizCount > 0 ? `${quizCount} Quiz(zes) - Click to View & Edit` : "Manage Quizzes"}
                                         className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
                                           quizCount > 0
                                             ? "bg-warning/20 text-warning font-bold"
@@ -773,15 +726,14 @@ export default function CourseEditorView({
                                         {quizCount > 0 && (
                                           <span className="text-[11px] font-bold">{quizCount}</span>
                                         )}
-                                      </button>
+                                      </Link>
                                     </td>
 
                                     {/* ASSIGN Column */}
                                     <td className="px-2 py-3 text-center">
-                                      <button
-                                        type="button"
-                                        title={assignCount > 0 ? `${assignCount} Assignment(s) - Click to Manage` : "Manage Assignments"}
-                                        onClick={() => openDrawer(classItem, topic, "assignments")}
+                                      <Link
+                                        href={`/topics/${topic.id}/assignments`}
+                                        title={assignCount > 0 ? `${assignCount} Assignment(s) - Click to View & Edit` : "Manage Assignments"}
                                         className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
                                           assignCount > 0
                                             ? "bg-secondary/20 text-secondary font-bold"
@@ -792,15 +744,14 @@ export default function CourseEditorView({
                                         {assignCount > 0 && (
                                           <span className="text-[11px] font-bold">{assignCount}</span>
                                         )}
-                                      </button>
+                                      </Link>
                                     </td>
 
                                     {/* VIDEO Column */}
                                     <td className="px-2 py-3 text-center">
-                                      <button
-                                        type="button"
-                                        title={hasVideo ? "Video Configured - Click to Manage" : "Add/Manage Video"}
-                                        onClick={() => openDrawer(classItem, topic, "videos")}
+                                      <Link
+                                        href={`/topics/${topic.id}/videos`}
+                                        title={hasVideo ? "Video Configured - Click to View & Edit" : "Add/Manage Video"}
                                         className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
                                           hasVideo
                                             ? "bg-primary/20 text-primary font-bold"
@@ -811,15 +762,14 @@ export default function CourseEditorView({
                                         {hasVideo && (
                                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ring-2 ring-base-100" />
                                         )}
-                                      </button>
+                                      </Link>
                                     </td>
 
                                     {/* RESOURCES Column */}
                                     <td className="px-2 py-3 text-center">
-                                      <button
-                                        type="button"
-                                        title={resCount > 0 ? `${resCount} Resource(s) - Click to Manage` : "Manage Resources"}
-                                        onClick={() => openDrawer(classItem, topic, "resources")}
+                                      <Link
+                                        href={`/topics/${topic.id}/resources`}
+                                        title={resCount > 0 ? `${resCount} Resource(s) - Click to View & Edit` : "Manage Resources"}
                                         className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
                                           resCount > 0
                                             ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold"
@@ -830,21 +780,20 @@ export default function CourseEditorView({
                                         {resCount > 0 && (
                                           <span className="text-[11px] font-bold">{resCount}</span>
                                         )}
-                                      </button>
+                                      </Link>
                                     </td>
 
                                     {/* ACTIONS Column */}
                                     <td className="px-3 py-2">
                                       <div className="flex justify-end items-center gap-1">
-                                        <button
-                                          type="button"
-                                          title="Manage Topic Content (Drawer)"
-                                          aria-label={`Manage content for ${topic.title}`}
-                                          onClick={() => openDrawer(classItem, topic, "overview")}
+                                        <Link
+                                          href={`/topics/${topic.id}/docs`}
+                                          title="Open Topic Content Page"
+                                          aria-label={`Open topic content for ${topic.title}`}
                                           className="rounded-lg p-1.5 text-primary hover:bg-primary/10 transition-colors cursor-pointer"
                                         >
                                           <Layers size={15} />
-                                        </button>
+                                        </Link>
                                         <button
                                           type="button"
                                           title="Move up"
@@ -973,20 +922,7 @@ export default function CourseEditorView({
           </div>
         </Modal>
 
-        {/* Manage Topic Content Drawer */}
-        {drawerTopic && (
-          <TopicContentDrawer
-            isOpen={Boolean(drawerTopic)}
-            onClose={() => setDrawerTopic(null)}
-            topic={drawerTopic}
-            classNameTitle={drawerClassName}
-            courseId={course.id}
-            moduleId={drawerModuleId}
-            initialTab={drawerTab}
-            onTopicUpdated={handleTopicDrawerUpdated}
-            onRefreshCourse={handleRefreshCourse}
-          />
-        )}
+
       </div>
     );
   }
