@@ -40,9 +40,13 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const courseId = searchParams.get("courseId");
+    const moduleId = searchParams.get("moduleId");
+    const topicId = searchParams.get("topicId");
 
     const where: Record<string, unknown> = {};
     if (courseId) where.courseId = courseId;
+    if (moduleId) where.moduleId = moduleId;
+    if (topicId) where.topicId = topicId;
     if (user!.role === "student") where.status = "published";
 
     const assignments = await mongo.assignment.find({

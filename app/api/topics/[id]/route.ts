@@ -7,6 +7,58 @@ import {
   checkTopicOwnership,
 } from "@/lib/middleware";
 
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { user, error } = await authenticate(req);
+    if (error) return error;
+
+    const { id } = await params;
+    const topic = await mongo.topic.findOne({
+      filter: { id },
+      populate: {
+        resources: true,
+        quizzes: { populate: { questions: true } },
+        assignments: true,
+      },
+    });
+
+    if (!topic) {
+      return NextResponse.json(
+        { success: false, message: "Topic not found" },
+        { status: 404 },
+      );
+    }
+
+    // Fetch module and course info for breadcrumbs & navigation
+    let moduleData = null;
+    let courseData = null;
+    if (topic.moduleId) {
+      moduleData = await mongo.module.findOne({ filter: { id: topic.moduleId } });
+      if (moduleData?.courseId) {
+        courseData = await mongo.course.findOne({ filter: { id: moduleData.courseId } });
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        topic: {
+          ...topic,
+          module: moduleData,
+          course: courseData,
+        },
+      },
+    });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch topic";
+    return NextResponse.json({ success: false, message }, { status: 500 });
+  }
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -22,7 +74,7 @@ export async function PUT(
     if (ownerError) return ownerError;
 
     const body = await req.json();
-    const { title, content, videoUrl, duration, order } = body;
+    const { title, content, videoUrl, duration, order, attachments, topicType } = body;
 
     const topic = await mongo.topic.findOneAndUpdate({
       filter: { id },
@@ -32,6 +84,8 @@ export async function PUT(
         ...(videoUrl !== undefined && { videoUrl }),
         ...(duration !== undefined && { duration: Number(duration) }),
         ...(order !== undefined && { order: Number(order) }),
+        ...(attachments !== undefined && { attachments }),
+        ...(topicType !== undefined && { topicType }),
       },
     });
 

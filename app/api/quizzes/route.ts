@@ -41,15 +41,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const courseId = searchParams.get("courseId");
     const moduleId = searchParams.get("moduleId");
+    const topicId = searchParams.get("topicId");
 
     const where: Record<string, unknown> = {};
     if (courseId) where.courseId = courseId;
     if (moduleId) where.moduleId = moduleId;
+    if (topicId) where.topicId = topicId;
     if (user!.role === "student") where.status = "published";
 
     const quizzes = await mongo.quiz.find({
       filter: where,
       populate: {
+        questions: true,
         _count: { select: { questions: true, attempts: true } },
         createdBy: { select: { id: true, name: true } },
       },
@@ -121,11 +124,34 @@ export async function POST(req: NextRequest) {
         negativeMarking: negativeMarking ?? false,
         status: status || "published",
       },
-      populate: { _count: { select: { questions: true } } },
+    });
+
+    if (Array.isArray(body.questions) && body.questions.length > 0) {
+      for (const q of body.questions) {
+        if (q.question?.trim()) {
+          await mongo.question.create({
+            data: {
+              quizId: quiz.id,
+              type: q.type || "mcq",
+              question: q.question.trim(),
+              options: Array.isArray(q.options) ? q.options : [],
+              correctAnswer: Array.isArray(q.correctAnswer) ? q.correctAnswer : [String(q.correctAnswer || "")],
+              explanation: q.explanation || "",
+              marks: Number(q.marks) || 5,
+              difficulty: q.difficulty || "medium",
+            },
+          });
+        }
+      }
+    }
+
+    const createdQuiz = await mongo.quiz.findOne({
+      filter: { id: quiz.id },
+      populate: { questions: true },
     });
 
     return NextResponse.json(
-      { success: true, message: "Quiz created", data: { quiz } },
+      { success: true, message: "Quiz created", data: { quiz: createdQuiz || quiz } },
       { status: 201 },
     );
   } catch (err: unknown) {

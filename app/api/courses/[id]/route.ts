@@ -68,7 +68,13 @@ export async function GET(
           populate: {
             topics: {
               orderBy: { order: "asc", createdAt: "asc" },
-              populate: { resources: true },
+              populate: {
+                resources: true,
+                quizzes: {
+                  populate: { questions: true },
+                },
+                assignments: true,
+              },
             },
           },
         },

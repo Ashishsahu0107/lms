@@ -7,10 +7,29 @@
  * - In browser / Vercel deployment: defaults to "/api" (relative same-origin request).
  * - Uses same-origin requests by default.
  */
-export const API_URL: string = (
-  process.env.NEXT_PUBLIC_API_URL ||
-  "/api"
-).replace(/\/$/, "");
+export const API_URL: string = (() => {
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const isLocal =
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("172.") ||
+      hostname.startsWith("10.") ||
+      hostname.endsWith(".local");
+
+    if (isLocal) {
+      return "/api";
+    }
+  }
+
+  const configured = process.env.NEXT_PUBLIC_API_URL;
+  if (!configured || configured.trim() === "") {
+    return "/api";
+  }
+
+  return configured.replace(/\/$/, "");
+})();
 
 /**
  * Resolves the Socket.IO server URL.

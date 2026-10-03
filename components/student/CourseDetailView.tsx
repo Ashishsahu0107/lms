@@ -4,6 +4,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import toast from "react-hot-toast";
 import { API_URL } from "@/lib/api-config";
 
@@ -103,6 +104,18 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
 
   const [lessonProgress] = useState(60); // simulate lesson progress
+
+  const courseTitle = (course?.title as string) || "";
+
+  useBreadcrumbs(
+    courseTitle
+      ? [
+          { label: "LMS", href: "/student/dashboard" },
+          { label: "My Courses", href: "/student/my-courses" },
+          { label: courseTitle },
+        ]
+      : undefined
+  );
 
   const flatTopicsRef = useRef<TopicItem[]>([]);
 
@@ -221,7 +234,6 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
 
   const modules = (course.modules || []) as ModuleItem[];
   const teacher = (course.teacher || {}) as Record<string, unknown>;
-  const courseTitle = course.title as string;
 
   // Compute overall progress
   const allTopics = modules.flatMap((m) => m.topics || []);
@@ -263,21 +275,6 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
 
   return (
     <div className="flex flex-col gap-0 animate-fade-in min-h-[calc(100vh-4rem)]">
-      {/* ── Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-xs text-base-content/50 mb-4 flex-wrap">
-        <Link href="/student/dashboard" className="hover:text-indigo-600 transition-colors">
-          Dashboard
-        </Link>
-        <span className="text-base-content/30">›</span>
-        <Link href="/student/my-courses" className="hover:text-indigo-600 transition-colors">
-          My Courses
-        </Link>
-        <span className="text-base-content/30">›</span>
-        <span className="text-base-content/70 font-medium truncate max-w-[200px]">
-          {courseTitle}
-        </span>
-      </nav>
-
       {/* ── Main Layout: Left Sidebar + Right Content */}
       <div className="flex gap-5 flex-1 min-h-0 items-start">
 

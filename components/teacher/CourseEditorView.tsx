@@ -4,21 +4,49 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { ChevronDown, ChevronUp, FileText, Paperclip, Pencil, Plus, Save, Trash2, Video, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
+  FileText,
+  HelpCircle,
+  Paperclip,
+  Pencil,
+  Plus,
+  Save,
+  Trash2,
+  Video,
+  X,
+  Layers,
+  Sparkles,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { API_URL } from "@/lib/api-config";
+import TopicContentDrawer, { DrawerTab } from "@/components/teacher/TopicContentDrawer";
 
-type TopicResource = { id: string; title: string; fileUrl: string };
+type TopicResource = {
+  id: string;
+  title: string;
+  fileUrl: string;
+  resourceType?: string;
+  description?: string;
+};
 type TopicWithResources = {
   id: string;
   title: string;
+  topicType?: "doc" | "quiz" | "assign" | string;
   content: string;
   duration: number;
   videoUrl: string;
   order: number;
   resources: TopicResource[];
+  quizzes?: Array<{ id: string; title: string }>;
+  assignments?: Array<{ id: string; title: string }>;
 };
 type ModuleWithTopics = {
   id: string;
@@ -48,6 +76,7 @@ export default function CourseEditorView({
   const [creatingClass, setCreatingClass] = useState(false);
   const [newTopicTitles, setNewTopicTitles] = useState<Record<string, string>>({});
   const [creatingTopicClassId, setCreatingTopicClassId] = useState<string | null>(null);
+  const [showAddTopicClassId, setShowAddTopicClassId] = useState<string | null>(null);
   const [editingClassId, setEditingClassId] = useState<string | null>(null);
   const [editingClassTitle, setEditingClassTitle] = useState("");
   const [savingClassId, setSavingClassId] = useState<string | null>(null);
@@ -60,6 +89,63 @@ export default function CourseEditorView({
   const [managerError, setManagerError] = useState("");
   const [showClassForm, setShowClassForm] = useState(false);
   const [isTopicEditorOpen, setIsTopicEditorOpen] = useState(false);
+
+  // Manage Topic Content Drawer state
+  const [drawerTopic, setDrawerTopic] = useState<TopicWithResources | null>(null);
+  const [drawerTab, setDrawerTab] = useState<DrawerTab>("overview");
+  const [drawerModuleId, setDrawerModuleId] = useState<string>("");
+  const [drawerClassName, setDrawerClassName] = useState<string>("");
+
+  const openDrawer = (
+    classItem: ModuleWithTopics,
+    topic: TopicWithResources,
+    tab: DrawerTab = "overview"
+  ) => {
+    setDrawerModuleId(classItem.id);
+    setDrawerClassName(classItem.title);
+    setDrawerTopic(topic);
+    setDrawerTab(tab);
+  };
+
+  const handleTopicDrawerUpdated = (updatedTopic: any) => {
+    setClasses((current) =>
+      current.map((classItem) =>
+        classItem.id === drawerModuleId
+          ? {
+              ...classItem,
+              topics: classItem.topics.map((t) =>
+                t.id === updatedTopic.id ? { ...t, ...updatedTopic } : t
+              ),
+            }
+          : classItem
+      )
+    );
+    if (drawerTopic && drawerTopic.id === updatedTopic.id) {
+      setDrawerTopic((prev) => (prev ? { ...prev, ...updatedTopic } : updatedTopic));
+    }
+  };
+
+  const handleRefreshCourse = () => {
+    router.refresh();
+  };
+
+  useBreadcrumbs([
+    {
+      label: "LMS",
+      href: user?.role === "super_admin" ? "/admin/dashboard" : "/teacher/dashboard",
+    },
+    {
+      label: "Courses",
+      href: user?.role === "super_admin" ? "/admin/courses" : "/teacher/courses",
+    },
+    {
+      label: course.title,
+      href: user?.role === "super_admin" ? "/admin/courses" : "/teacher/courses",
+    },
+    {
+      label: isTopicEditorOpen ? "Edit Content" : "Classes & Topics",
+    },
+  ]);
 
   useEffect(() => {
     setClasses(course.modules);
@@ -232,7 +318,7 @@ export default function CourseEditorView({
       const res = await fetch(`${API_URL}/topics`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ title, moduleId: classId }),
+        body: JSON.stringify({ title, moduleId: classId, topicType: "doc" }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Could not create Topic");
@@ -245,6 +331,7 @@ export default function CourseEditorView({
       setActiveTopic(topic);
       setEditedTopic(topic);
       setNewTopicTitles((current) => ({ ...current, [classId]: "" }));
+      setShowAddTopicClassId(null);
       toast.success("Topic created");
       router.refresh();
     } catch (error) {
@@ -374,14 +461,18 @@ export default function CourseEditorView({
       <div className="space-y-5 text-base-content">
         <header className="flex flex-col gap-4 border-b border-base-300 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <Link href={user?.role === "super_admin" ? "/admin/dashboard" : "/teacher/courses"} className="rounded-full bg-base-200 p-2 text-base-content hover:bg-base-300" aria-label="Back to courses">
-              ←
+            <Link
+              href={user?.role === "super_admin" ? "/admin/dashboard" : "/teacher/courses"}
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-base-200 text-base-content/70 hover:bg-base-300 hover:text-base-content transition-all shadow-2xs"
+              aria-label="Back to courses"
+              title="Back to courses"
+            >
+              <ArrowLeft size={16} />
             </Link>
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-xs text-base-content/50">
-                <span>LMS</span><span>›</span><span className="truncate">{course.title}</span>
-              </div>
-              <h1 className="mt-1 truncate text-xl font-bold text-base-content">Classes & Topics</h1>
+              <h1 className="truncate text-xl font-bold text-base-content">
+                Classes & Topics
+              </h1>
             </div>
           </div>
           <Button type="button" onClick={() => setShowClassForm((shown) => !shown)}>
@@ -427,87 +518,441 @@ export default function CourseEditorView({
             {classes.map((classItem, classIndex) => {
               const expanded = Boolean(expandedModules[classItem.id]);
               return (
-                <section key={classItem.id} className="overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm">
-                  <div className="flex items-center gap-2 border-b border-base-200 px-3 py-3 sm:px-5">
-                    <span className="hidden text-base-content/40 sm:block" aria-hidden="true">⠿</span>
-                    <button type="button" aria-expanded={expanded} onClick={() => toggleModule(classItem.id)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-                      <ChevronDown size={17} className={`shrink-0 text-base-content/50 transition-transform ${expanded ? "" : "-rotate-90"}`} />
-                      <span className="shrink-0 text-xs font-semibold text-primary">Class {classIndex + 1}</span>
-                      <span className="truncate text-sm font-semibold text-base-content">{classItem.title}</span>
-                      <span className="ml-auto shrink-0 rounded-full bg-base-200 px-2 py-0.5 text-[11px] text-base-content/60">{classItem.topics.length} Topics</span>
-                    </button>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <button type="button" title="Rename Class" aria-label={`Rename ${classItem.title}`} onClick={() => { setEditingClassId(classItem.id); setEditingClassTitle(classItem.title); }} className="rounded-md p-2 text-base-content/50 hover:bg-base-200 hover:text-primary"><Pencil size={15} /></button>
-                      <button type="button" title="Delete Class" aria-label={`Delete ${classItem.title}`} onClick={() => setPendingDelete({ kind: "class", classId: classItem.id, title: classItem.title })} className="rounded-md p-2 text-base-content/50 hover:bg-error/10 hover:text-error"><Trash2 size={15} /></button>
-                    </div>
+                <section
+                  key={classItem.id}
+                  className="overflow-hidden rounded-2xl border border-base-200 bg-base-100 shadow-sm transition-all hover:border-base-300"
+                >
+                  {/* Class Header Bar */}
+                  <div className="flex items-center gap-2 border-b border-base-200/80 bg-base-100/60 px-3 py-3 sm:px-5">
+                    {editingClassId === classItem.id ? (
+                      /* Inline In-Place Class Edit */
+                      <form
+                        onSubmit={(event) => handleSaveClass(event, classItem.id)}
+                        className="flex min-w-0 flex-1 items-center gap-2 animate-fade-in"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="shrink-0 rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold text-primary font-mono">
+                          Class {classIndex + 1}
+                        </span>
+                        <input
+                          id={`class-title-${classItem.id}`}
+                          autoFocus
+                          required
+                          maxLength={120}
+                          value={editingClassTitle}
+                          onChange={(event) => setEditingClassTitle(event.target.value)}
+                          className="min-w-0 flex-1 rounded-xl border border-primary bg-base-100 px-3 py-1.5 text-sm font-semibold text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          placeholder="Class title"
+                        />
+                        <button
+                          type="submit"
+                          disabled={!editingClassTitle.trim() || savingClassId === classItem.id}
+                          className="p-1.5 rounded-lg bg-primary text-primary-content hover:bg-primary/90 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                          title="Save Class Title"
+                        >
+                          <Check size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingClassId(null)}
+                          className="p-1.5 rounded-lg bg-base-200 hover:bg-base-300 text-base-content/70 transition-all active:scale-95"
+                          title="Cancel"
+                        >
+                          <X size={15} />
+                        </button>
+                      </form>
+                    ) : (
+                      /* Normal Class Title Header */
+                      <>
+                        <button
+                          type="button"
+                          aria-expanded={expanded}
+                          onClick={() => toggleModule(classItem.id)}
+                          className="flex min-w-0 flex-1 items-center gap-3 text-left group"
+                        >
+                          <ChevronDown
+                            size={17}
+                            className={`shrink-0 text-base-content/50 transition-transform ${
+                              expanded ? "" : "-rotate-90"
+                            }`}
+                          />
+                          <span className="shrink-0 rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold text-primary font-mono">
+                            Class {classIndex + 1}
+                          </span>
+                          <span className="truncate text-sm font-semibold text-base-content group-hover:text-primary transition-colors">
+                            {classItem.title}
+                          </span>
+                          <span className="ml-auto shrink-0 rounded-full bg-base-200 border border-base-300 px-2.5 py-0.5 text-[11px] font-medium text-base-content/60">
+                            {classItem.topics.length} {classItem.topics.length === 1 ? "Topic" : "Topics"}
+                          </span>
+                        </button>
+                        <div className="flex shrink-0 items-center gap-1">
+                          {/* Add Topic Icon Button */}
+                          <button
+                            type="button"
+                            title="Add Topic"
+                            aria-label={`Add Topic to ${classItem.title}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!expanded) {
+                                toggleModule(classItem.id);
+                              }
+                              setShowAddTopicClassId((prev) =>
+                                prev === classItem.id ? null : classItem.id
+                              );
+                            }}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              showAddTopicClassId === classItem.id
+                                ? "bg-primary text-primary-content shadow-xs"
+                                : "text-base-content/60 hover:bg-primary/10 hover:text-primary"
+                            }`}
+                          >
+                            <Plus size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            title="Rename Class"
+                            aria-label={`Rename ${classItem.title}`}
+                            onClick={() => {
+                              setEditingClassId(classItem.id);
+                              setEditingClassTitle(classItem.title);
+                            }}
+                            className="p-1.5 rounded-lg text-base-content/50 hover:bg-base-200 hover:text-primary transition-colors"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete Class"
+                            aria-label={`Delete ${classItem.title}`}
+                            onClick={() =>
+                              setPendingDelete({
+                                kind: "class",
+                                classId: classItem.id,
+                                title: classItem.title,
+                              })
+                            }
+                            className="p-1.5 rounded-lg text-base-content/50 hover:bg-error/10 hover:text-error transition-colors"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
-
-                  {editingClassId === classItem.id && (
-                    <form onSubmit={(event) => handleSaveClass(event, classItem.id)} className="flex flex-col gap-2 border-b border-base-200 bg-base-200/30 p-4 sm:flex-row">
-                      <label className="sr-only" htmlFor={`class-title-${classItem.id}`}>Class title</label>
-                      <input id={`class-title-${classItem.id}`} autoFocus required maxLength={120} value={editingClassTitle} onChange={(event) => setEditingClassTitle(event.target.value)} className="min-w-0 flex-1 rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm text-base-content" />
-                      <Button type="submit" size="sm" isLoading={savingClassId === classItem.id} disabled={!editingClassTitle.trim()}><Save size={14} /> Save</Button>
-                      <Button type="button" size="sm" variant="outline" onClick={() => setEditingClassId(null)}><X size={14} /> Cancel</Button>
-                    </form>
-                  )}
 
                   {expanded && (
                     <div className="p-3 sm:p-5">
                       {classItem.topics.length === 0 ? (
-                        <div className="rounded-lg bg-base-200/40 px-4 py-8 text-center text-sm text-base-content/60">No Topics in this Class yet.</div>
+                        <div className="rounded-xl bg-base-200/40 px-4 py-8 text-center text-sm text-base-content/60 border border-dashed border-base-300">
+                          No Topics in this Class yet.
+                        </div>
                       ) : (
                         <div className="overflow-x-auto">
-                          <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+                          <table className="w-full min-w-[720px] border-collapse text-left text-sm">
                             <thead>
-                              <tr className="border-b border-base-200 text-[10px] font-semibold uppercase text-base-content/45">
+                              <tr className="border-b border-base-200 text-[10px] font-semibold uppercase tracking-wider text-base-content/45">
                                 <th className="px-3 py-3">Topic</th>
-                                <th className="px-3 py-3 text-center">Doc</th>
-                                <th className="px-3 py-3 text-center">Video</th>
-                                <th className="px-3 py-3 text-center">Resources</th>
+                                <th className="px-2 py-3 text-center">Doc</th>
+                                <th className="px-2 py-3 text-center">Quiz</th>
+                                <th className="px-2 py-3 text-center">Assign</th>
+                                <th className="px-2 py-3 text-center">Video</th>
+                                <th className="px-2 py-3 text-center">Resources</th>
                                 <th className="px-3 py-3 text-right">Actions</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-base-200">
-                              {classItem.topics.map((topic, topicIndex) => (
-                                <tr key={topic.id} className="group">
-                                  <td className="px-3 py-3">
-                                    <button type="button" onClick={() => { setActiveModuleId(classItem.id); setActiveTopic(topic); setEditedTopic(topic); setIsTopicEditorOpen(true); }} className="flex min-w-0 items-center gap-3 text-left hover:text-primary">
-                                      <span className="shrink-0 font-mono text-xs text-base-content/40">{topicIndex + 1}.</span>
-                                      <span className="truncate font-medium">{topic.title}</span>
-                                    </button>
-                                  </td>
-                                  <td className="px-3 py-3 text-center">{topic.content ? <FileText size={16} className="mx-auto text-info" aria-label="Content added" /> : <span className="text-base-content/25">–</span>}</td>
-                                  <td className="px-3 py-3 text-center">{topic.videoUrl ? <Video size={16} className="mx-auto text-secondary" aria-label="Video added" /> : <span className="text-base-content/25">–</span>}</td>
-                                  <td className="px-3 py-3 text-center">{topic.resources?.length ? <span className="inline-flex items-center gap-1 text-xs text-base-content/60"><Paperclip size={14} />{topic.resources.length}</span> : <span className="text-base-content/25">–</span>}</td>
-                                  <td className="px-3 py-2">
-                                    {editingTopicId === topic.id ? (
-                                      <form onSubmit={(event) => handleSaveTopicTitle(event, classItem.id, topic)} className="flex justify-end gap-2">
-                                        <label className="sr-only" htmlFor={`topic-title-${topic.id}`}>Topic title</label>
-                                        <input id={`topic-title-${topic.id}`} autoFocus required maxLength={160} value={editingTopicTitle} onChange={(event) => setEditingTopicTitle(event.target.value)} className="min-w-0 rounded-lg border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs text-base-content" />
-                                        <Button type="submit" size="sm" isLoading={savingTopicId === topic.id} disabled={!editingTopicTitle.trim()}><Save size={13} /></Button>
-                                        <Button type="button" size="sm" variant="outline" onClick={() => setEditingTopicId(null)}><X size={13} /></Button>
-                                      </form>
-                                    ) : (
-                                      <div className="flex justify-end gap-1">
-                                        <button type="button" title="Move up" aria-label={`Move ${topic.title} up`} disabled={topicIndex === 0 || reorderingClassId === classItem.id} onClick={() => handleReorderTopics(classItem, topicIndex, -1)} className="rounded-md p-2 text-base-content/45 hover:bg-base-200 disabled:opacity-30"><ChevronUp size={15} /></button>
-                                        <button type="button" title="Move down" aria-label={`Move ${topic.title} down`} disabled={topicIndex === classItem.topics.length - 1 || reorderingClassId === classItem.id} onClick={() => handleReorderTopics(classItem, topicIndex, 1)} className="rounded-md p-2 text-base-content/45 hover:bg-base-200 disabled:opacity-30"><ChevronDown size={15} /></button>
-                                        <button type="button" title="Edit Topic" aria-label={`Edit ${topic.title}`} onClick={() => { setEditingTopicId(topic.id); setEditingTopicTitle(topic.title); }} className="rounded-md p-2 text-base-content/45 hover:bg-base-200 hover:text-primary"><Pencil size={15} /></button>
-                                        <button type="button" title="Delete Topic" aria-label={`Delete ${topic.title}`} onClick={() => setPendingDelete({ kind: "topic", classId: classItem.id, topicId: topic.id, title: topic.title })} className="rounded-md p-2 text-base-content/45 hover:bg-error/10 hover:text-error"><Trash2 size={15} /></button>
+                              {classItem.topics.map((topic, topicIndex) => {
+                                const docCount = (topic.resources || []).filter(
+                                  (r) =>
+                                    (r as any).resourceType === "pdf" ||
+                                    (r as any).resourceType === "doc" ||
+                                    r.fileUrl?.endsWith(".pdf")
+                                ).length;
+                                const quizCount = topic.quizzes?.length || 0;
+                                const assignCount = topic.assignments?.length || 0;
+                                const hasVideo = Boolean(topic.videoUrl);
+                                const resCount = (topic.resources || []).filter(
+                                  (r) =>
+                                    (r as any).resourceType !== "pdf" &&
+                                    (r as any).resourceType !== "doc" &&
+                                    !r.fileUrl?.endsWith(".pdf")
+                                ).length;
+
+                                return (
+                                  <tr key={topic.id} className="group hover:bg-base-200/30 transition-colors">
+                                    {/* Topic Title with In-Place Edit */}
+                                    <td className="px-3 py-2.5">
+                                      {editingTopicId === topic.id ? (
+                                        <form
+                                          onSubmit={(event) =>
+                                            handleSaveTopicTitle(event, classItem.id, topic)
+                                          }
+                                          className="flex min-w-0 items-center gap-2 animate-fade-in"
+                                        >
+                                          <span className="shrink-0 font-mono text-xs text-base-content/40">
+                                            {topicIndex + 1}.
+                                          </span>
+                                          <input
+                                            id={`topic-title-${topic.id}`}
+                                            autoFocus
+                                            required
+                                            maxLength={160}
+                                            value={editingTopicTitle}
+                                            onChange={(event) =>
+                                              setEditingTopicTitle(event.target.value)
+                                            }
+                                            className="min-w-0 flex-1 rounded-lg border border-primary bg-base-100 px-2.5 py-1 text-xs font-medium text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                          />
+                                          <button
+                                            type="submit"
+                                            disabled={!editingTopicTitle.trim() || savingTopicId === topic.id}
+                                            className="p-1 rounded-lg bg-primary text-primary-content hover:bg-primary/90 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                                            title="Save Topic Title"
+                                          >
+                                            <Check size={13} />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setEditingTopicId(null)}
+                                            className="p-1 rounded-lg bg-base-200 hover:bg-base-300 text-base-content/70 transition-all active:scale-95"
+                                            title="Cancel"
+                                          >
+                                            <X size={13} />
+                                          </button>
+                                        </form>
+                                      ) : (
+                                        <button
+                                          type="button"
+                                          onClick={() => openDrawer(classItem, topic, "overview")}
+                                          className="flex min-w-0 items-center gap-2.5 text-left hover:text-primary group/item cursor-pointer"
+                                          title="Click to Manage Topic Content"
+                                        >
+                                          <span className="shrink-0 font-mono text-xs text-base-content/40">
+                                            {topicIndex + 1}.
+                                          </span>
+                                          <span className="truncate font-medium text-base-content group-hover/item:text-primary transition-colors">
+                                            {topic.title}
+                                          </span>
+                                        </button>
+                                      )}
+                                    </td>
+
+                                    {/* DOC Column */}
+                                    <td className="px-2 py-3 text-center">
+                                      <button
+                                        type="button"
+                                        title={docCount > 0 ? `${docCount} Document(s) - Click to Manage` : "Manage Docs"}
+                                        onClick={() => openDrawer(classItem, topic, "docs")}
+                                        className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
+                                          docCount > 0
+                                            ? "bg-info/20 text-info font-bold"
+                                            : "bg-info/10 text-info/80 hover:bg-info/20 hover:text-info"
+                                        }`}
+                                      >
+                                        <FileText size={16} />
+                                        {docCount > 0 && (
+                                          <span className="text-[11px] font-bold">{docCount}</span>
+                                        )}
+                                      </button>
+                                    </td>
+
+                                    {/* QUIZ Column */}
+                                    <td className="px-2 py-3 text-center">
+                                      <button
+                                        type="button"
+                                        title={quizCount > 0 ? `${quizCount} Quiz(zes) - Click to Manage` : "Manage Quizzes"}
+                                        onClick={() => openDrawer(classItem, topic, "quiz")}
+                                        className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
+                                          quizCount > 0
+                                            ? "bg-warning/20 text-warning font-bold"
+                                            : "bg-warning/10 text-warning/80 hover:bg-warning/20 hover:text-warning"
+                                        }`}
+                                      >
+                                        <HelpCircle size={16} />
+                                        {quizCount > 0 && (
+                                          <span className="text-[11px] font-bold">{quizCount}</span>
+                                        )}
+                                      </button>
+                                    </td>
+
+                                    {/* ASSIGN Column */}
+                                    <td className="px-2 py-3 text-center">
+                                      <button
+                                        type="button"
+                                        title={assignCount > 0 ? `${assignCount} Assignment(s) - Click to Manage` : "Manage Assignments"}
+                                        onClick={() => openDrawer(classItem, topic, "assignments")}
+                                        className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
+                                          assignCount > 0
+                                            ? "bg-secondary/20 text-secondary font-bold"
+                                            : "bg-secondary/10 text-secondary/80 hover:bg-secondary/20 hover:text-secondary"
+                                        }`}
+                                      >
+                                        <ClipboardList size={16} />
+                                        {assignCount > 0 && (
+                                          <span className="text-[11px] font-bold">{assignCount}</span>
+                                        )}
+                                      </button>
+                                    </td>
+
+                                    {/* VIDEO Column */}
+                                    <td className="px-2 py-3 text-center">
+                                      <button
+                                        type="button"
+                                        title={hasVideo ? "Video Configured - Click to Manage" : "Add/Manage Video"}
+                                        onClick={() => openDrawer(classItem, topic, "videos")}
+                                        className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
+                                          hasVideo
+                                            ? "bg-primary/20 text-primary font-bold"
+                                            : "bg-primary/10 text-primary/80 hover:bg-primary/20 hover:text-primary"
+                                        }`}
+                                      >
+                                        <Video size={16} />
+                                        {hasVideo && (
+                                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ring-2 ring-base-100" />
+                                        )}
+                                      </button>
+                                    </td>
+
+                                    {/* RESOURCES Column */}
+                                    <td className="px-2 py-3 text-center">
+                                      <button
+                                        type="button"
+                                        title={resCount > 0 ? `${resCount} Resource(s) - Click to Manage` : "Manage Resources"}
+                                        onClick={() => openDrawer(classItem, topic, "resources")}
+                                        className={`inline-flex items-center justify-center gap-1 p-1.5 rounded-lg transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95 ${
+                                          resCount > 0
+                                            ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold"
+                                            : "bg-emerald-500/10 text-emerald-600/80 dark:text-emerald-400/80 hover:bg-emerald-500/20 hover:text-emerald-600"
+                                        }`}
+                                      >
+                                        <Paperclip size={16} />
+                                        {resCount > 0 && (
+                                          <span className="text-[11px] font-bold">{resCount}</span>
+                                        )}
+                                      </button>
+                                    </td>
+
+                                    {/* ACTIONS Column */}
+                                    <td className="px-3 py-2">
+                                      <div className="flex justify-end items-center gap-1">
+                                        <button
+                                          type="button"
+                                          title="Manage Topic Content (Drawer)"
+                                          aria-label={`Manage content for ${topic.title}`}
+                                          onClick={() => openDrawer(classItem, topic, "overview")}
+                                          className="rounded-lg p-1.5 text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                                        >
+                                          <Layers size={15} />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          title="Move up"
+                                          aria-label={`Move ${topic.title} up`}
+                                          disabled={topicIndex === 0 || reorderingClassId === classItem.id}
+                                          onClick={() => handleReorderTopics(classItem, topicIndex, -1)}
+                                          className="rounded-md p-1.5 text-base-content/45 hover:bg-base-200 disabled:opacity-30 transition-colors"
+                                        >
+                                          <ChevronUp size={15} />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          title="Move down"
+                                          aria-label={`Move ${topic.title} down`}
+                                          disabled={
+                                            topicIndex === classItem.topics.length - 1 ||
+                                            reorderingClassId === classItem.id
+                                          }
+                                          onClick={() => handleReorderTopics(classItem, topicIndex, 1)}
+                                          className="rounded-md p-1.5 text-base-content/45 hover:bg-base-200 disabled:opacity-30 transition-colors"
+                                        >
+                                          <ChevronDown size={15} />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          title="Rename Topic Title"
+                                          aria-label={`Rename ${topic.title}`}
+                                          onClick={() => {
+                                            setEditingTopicId(topic.id);
+                                            setEditingTopicTitle(topic.title);
+                                          }}
+                                          className="rounded-md p-1.5 text-base-content/45 hover:bg-base-200 hover:text-primary transition-colors"
+                                        >
+                                          <Pencil size={15} />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          title="Delete Topic"
+                                          aria-label={`Delete ${topic.title}`}
+                                          onClick={() =>
+                                            setPendingDelete({
+                                              kind: "topic",
+                                              classId: classItem.id,
+                                              topicId: topic.id,
+                                              title: topic.title,
+                                            })
+                                          }
+                                          className="rounded-md p-1.5 text-base-content/45 hover:bg-error/10 hover:text-error transition-colors"
+                                        >
+                                          <Trash2 size={15} />
+                                        </button>
                                       </div>
-                                    )}
-                                  </td>
-                                </tr>
-                              ))}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
                       )}
 
-                      <form onSubmit={(event) => handleAddTopic(event, classItem.id)} className="mt-4 flex flex-col gap-2 rounded-lg border border-dashed border-base-300 p-3 sm:flex-row">
-                        <label className="sr-only" htmlFor={`new-topic-${classItem.id}`}>New Topic title</label>
-                        <input id={`new-topic-${classItem.id}`} required maxLength={160} value={newTopicTitles[classItem.id] || ""} onChange={(event) => setNewTopicTitles((current) => ({ ...current, [classItem.id]: event.target.value }))} placeholder="Topic title" className="min-w-0 flex-1 rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40" />
-                        <Button type="submit" size="sm" isLoading={creatingTopicClassId === classItem.id} disabled={!newTopicTitles[classItem.id]?.trim()}><Plus size={14} /> Add Topic</Button>
-                      </form>
+                      {/* Add Topic Inline Form (Only shown when Add Topic icon in header is clicked) */}
+                      {showAddTopicClassId === classItem.id && (
+                        <form
+                          onSubmit={(event) => {
+                            handleAddTopic(event, classItem.id);
+                            setShowAddTopicClassId(null);
+                          }}
+                          className="mt-4 flex flex-col gap-2 rounded-xl border border-dashed border-base-300 bg-base-100/50 p-2.5 sm:flex-row sm:items-center animate-fade-in"
+                        >
+                          <label className="sr-only" htmlFor={`new-topic-${classItem.id}`}>
+                            New Topic title
+                          </label>
+                          <input
+                            id={`new-topic-${classItem.id}`}
+                            autoFocus
+                            required
+                            maxLength={160}
+                            value={newTopicTitles[classItem.id] || ""}
+                            onChange={(event) =>
+                              setNewTopicTitles((current) => ({
+                                ...current,
+                                [classItem.id]: event.target.value,
+                              }))
+                            }
+                            placeholder="Add topic title..."
+                            className="min-w-0 flex-1 rounded-lg border border-base-300 bg-base-100 px-3 py-1.5 text-sm text-base-content placeholder:text-base-content/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          />
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Button
+                              type="submit"
+                              size="sm"
+                              isLoading={creatingTopicClassId === classItem.id}
+                              disabled={!newTopicTitles[classItem.id]?.trim()}
+                            >
+                              <Plus size={14} /> Add Topic
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setShowAddTopicClassId(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </form>
+                      )}
                     </div>
                   )}
                 </section>
@@ -527,6 +972,21 @@ export default function CourseEditorView({
             <Button type="button" variant="error" isLoading={deleting} onClick={handleConfirmDelete}><Trash2 size={14} /> Delete</Button>
           </div>
         </Modal>
+
+        {/* Manage Topic Content Drawer */}
+        {drawerTopic && (
+          <TopicContentDrawer
+            isOpen={Boolean(drawerTopic)}
+            onClose={() => setDrawerTopic(null)}
+            topic={drawerTopic}
+            classNameTitle={drawerClassName}
+            courseId={course.id}
+            moduleId={drawerModuleId}
+            initialTab={drawerTab}
+            onTopicUpdated={handleTopicDrawerUpdated}
+            onRefreshCourse={handleRefreshCourse}
+          />
+        )}
       </div>
     );
   }
@@ -544,35 +1004,19 @@ export default function CourseEditorView({
       <div className="flex flex-col flex-1 min-w-0 h-full">
         {/* ══ TOP HEADER ══ */}
         <header className="h-[72px] px-8 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
+          <div className="flex items-center gap-3 text-[13px] font-medium text-slate-500">
             <button
               type="button"
               onClick={() => setIsTopicEditorOpen(false)}
-              className="rounded-full bg-indigo-50 px-3 py-2 font-semibold text-indigo-700 hover:bg-indigo-100"
+              className="flex items-center gap-1.5 rounded-xl bg-indigo-50 px-3.5 py-2 font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
             >
-              ← Classes
+              <ArrowLeft size={15} />
+              <span>Back to Classes</span>
             </button>
-            <Link
-              href={user?.role === "super_admin" ? "/admin/dashboard" : "/teacher/dashboard"}
-              className="hover:text-indigo-600 transition-colors"
-            >
-              Dashboard
-            </Link>
-            <span className="text-slate-300">›</span>
-            <Link
-              href="/teacher/courses"
-              className="hover:text-indigo-600 transition-colors"
-            >
-              Courses
-            </Link>
-            <span className="text-slate-300">›</span>
-            <span className="text-slate-800">{course.title}</span>
-            <span className="text-slate-300">›</span>
-            <span className="text-slate-800">
-              {classes.find((item) => item.id === activeModuleId)?.title || "Classes"}
+            <span className="text-slate-300 font-normal">|</span>
+            <span className="text-slate-800 font-semibold truncate max-w-[280px]">
+              {editedTopic?.title || "Edit Lesson"}
             </span>
-            <span className="text-slate-300">›</span>
-            <span className="text-slate-800 font-semibold">Edit Content</span>
           </div>
 
           <div className="flex items-center gap-3">

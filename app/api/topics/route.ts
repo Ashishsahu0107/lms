@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
       duration,
       attachments,
       resources,
+      topicType,
     } = body;
 
     if (!title || !moduleId) {
@@ -118,6 +119,7 @@ export async function POST(req: NextRequest) {
         title: title.trim(),
         moduleId,
         order,
+        topicType: topicType || "doc",
         content: content || "",
         videoUrl: videoUrl || "",
         duration: duration || 0,

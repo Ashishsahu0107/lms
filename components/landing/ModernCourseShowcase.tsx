@@ -165,10 +165,7 @@ export default function ModernCourseShowcase({
                 {/* Shimmer Overlay on Hover */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
 
-                {/* Difficulty Badge */}
-                <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-base-100/85 backdrop-blur text-[10px] font-bold text-base-content border border-base-300 shadow-xs">
-                  {c.difficulty}
-                </div>
+
 
                 {/* 3D Badge Indicator */}
                 <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-primary/80 backdrop-blur text-primary-content text-[9px] font-extrabold tracking-wider uppercase shadow-xs">

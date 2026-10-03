@@ -45,7 +45,7 @@ const relationPaths: Record<string, Record<string, [string, string, string]>> = 
     notes: ["Notes", "_id", "courseId"], schedules: ["Schedule", "_id", "courseId"], studentProgress: ["StudentProgress", "_id", "courseId"],
   },
   Module: { topics: ["Topic", "_id", "moduleId"], quizzes: ["Quiz", "_id", "moduleId"], assignments: ["Assignment", "_id", "moduleId"] },
-  Topic: { resources: ["TopicResource", "_id", "topicId"], quizzes: ["Quiz", "_id", "topicId"], assignments: ["Assignment", "_id", "topicId"], lectureProgress: ["LectureProgress", "_id", "topicId"], studentNotes: ["StudentNote", "_id", "topicId"] },
+  Topic: { resources: ["TopicResource", "_id", "topicId"], docs: ["TopicDoc", "_id", "topicId"], quizzes: ["Quiz", "_id", "topicId"], assignments: ["Assignment", "_id", "topicId"], lectureProgress: ["LectureProgress", "_id", "topicId"], studentNotes: ["StudentNote", "_id", "topicId"] },
   StudentProgress: { lectureProgress: ["LectureProgress", "_id", "progressId"] },
   Quiz: { questions: ["Question", "_id", "quizId"], attempts: ["QuizAttempt", "_id", "quizId"] },
   Question: { attemptAnswers: ["AttemptAnswer", "_id", "questionId"] },

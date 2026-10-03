@@ -11,6 +11,19 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import toast from "react-hot-toast";
 import { API_URL } from "@/lib/api-config";
+import {
+  Pencil,
+  Trash2,
+  UserCheck,
+  Layers,
+  GraduationCap,
+  Plus,
+  BookOpen,
+  Sparkles,
+  Check,
+  X,
+  Users,
+} from "lucide-react";
 
 interface CourseItem {
   id: string;
@@ -83,18 +96,22 @@ export default function TeacherCourseManager() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [assigning, setAssigning] = useState(false);
 
-  // ── Full Page Editor State
-  const [editorCourse, setEditorCourse] = useState<CourseItem | null>(null);
-  const [editForm, setEditForm] = useState({
+  // ── In-Place Edit Course State
+  const [editingCourseItem, setEditingCourseItem] = useState<CourseItem | null>(null);
+  const [editingCourseForm, setEditingCourseForm] = useState({
     title: "",
     category: "Programming",
     difficulty: "beginner",
     status: "published",
     description: "",
-    notes: "",
     teacherId: "",
   });
-  const [savingEditor, setSavingEditor] = useState(false);
+  const [savingCourseEdit, setSavingCourseEdit] = useState(false);
+
+  // ── Assign Course to Teacher State (Admin Only)
+  const [assignTeacherCourseItem, setAssignTeacherCourseItem] = useState<CourseItem | null>(null);
+  const [selectedTeacherForAssign, setSelectedTeacherForAssign] = useState("");
+  const [assigningTeacher, setAssigningTeacher] = useState(false);
 
   const fetchCourses = useCallback(async () => {
     if (!token || !user || (user.role !== "teacher" && user.role !== "super_admin")) return;
@@ -192,32 +209,7 @@ export default function TeacherCourseManager() {
   );
 
 
-  const handleSaveEditor = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAdmin || !editorCourse || !token) return;
-    setSavingEditor(true);
 
-    try {
-      const res = await fetch(`${API_URL}/courses/${editorCourse.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(editForm),
-      });
-
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
-
-      toast.success("Course page and notepad saved successfully!");
-      fetchCourses();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to save edits");
-    } finally {
-      setSavingEditor(false);
-    }
-  };
 
   const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,19 +251,77 @@ export default function TeacherCourseManager() {
     }
   };
 
-  const handleEditCourse = (course: CourseItem) => {
+  const openEditCourseModal = (course: CourseItem) => {
     if (!isAdmin) return;
-    setEditorCourse(course);
-    setEditForm({
+    setEditingCourseItem(course);
+    setEditingCourseForm({
       title: course.title,
       category: course.category || "Programming",
       difficulty: course.difficulty || "beginner",
-      status: course.status || "draft",
+      status: course.status || "published",
       description: course.description || "",
-      notes: course.notes || "",
-      teacherId: course.teacherId,
+      teacherId: course.teacherId || "",
     });
-    fetchModules(course.id);
+  };
+
+  const handleSaveCourseEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAdmin || !editingCourseItem || !token) return;
+    setSavingCourseEdit(true);
+
+    try {
+      const res = await fetch(`${API_URL}/courses/${editingCourseItem.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editingCourseForm),
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      toast.success("Course updated successfully!");
+      setEditingCourseItem(null);
+      fetchCourses();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to save edits");
+    } finally {
+      setSavingCourseEdit(false);
+    }
+  };
+
+  const handleAssignTeacher = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAdmin || !assignTeacherCourseItem || !selectedTeacherForAssign || !token) {
+      toast.error("Please select a teacher");
+      return;
+    }
+    setAssigningTeacher(true);
+
+    try {
+      const res = await fetch(`${API_URL}/courses/${assignTeacherCourseItem.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ teacherId: selectedTeacherForAssign }),
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      toast.success("Course assigned to teacher successfully!");
+      setAssignTeacherCourseItem(null);
+      setSelectedTeacherForAssign("");
+      fetchCourses();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to assign teacher");
+    } finally {
+      setAssigningTeacher(false);
+    }
   };
 
   const handleDeleteCourse = async () => {
@@ -291,39 +341,6 @@ export default function TeacherCourseManager() {
       toast.error(error instanceof Error ? error.message : "Could not delete course");
     } finally {
       setDeletingCourse(false);
-    }
-  };
-
-  const handleAddModule = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newModuleTitle.trim() || !editorCourse || !token) return;
-    setSubmittingModule(true);
-
-    try {
-      const res = await fetch(`${API_URL}/modules`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: newModuleTitle,
-          courseId: editorCourse.id,
-          order: modules.length + 1,
-        }),
-      });
-
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
-
-      toast.success("Module added to course!");
-      setNewModuleTitle("");
-      fetchModules(editorCourse.id);
-      fetchCourses();
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to add module");
-    } finally {
-      setSubmittingModule(false);
     }
   };
 
@@ -364,309 +381,6 @@ export default function TeacherCourseManager() {
     }
   };
 
-  const appendToNotepad = (snippet: string) => {
-    setEditForm((prev) => ({ ...prev, notes: prev.notes + "\n" + snippet }));
-    toast.success("Inserted snippet into notepad!");
-  };
-
-  // ── VIEW 1: Full Page Professional Content Editor Page
-  if (editorCourse) {
-    return (
-      <div className="space-y-6 animate-fade-in text-base-content">
-        {/* Top Sticky Editor Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-base-100 border border-base-300 shadow-sm backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setEditorCourse(null)}
-            >
-              ← Back to All Courses
-            </Button>
-            <div>
-              <h2 className="font-bold text-base text-base-content font-display line-clamp-1">
-                Editing Page: {editForm.title}
-              </h2>
-              <span className="text-xs text-base-content/60">
-                Full Page Professional Content Editor
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleSaveEditor}
-              isLoading={savingEditor}
-            >
-              💾 Save All Changes
-            </Button>
-          </div>
-        </div>
-
-        {/* Editor Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: Metadata & Course Details Form */}
-          <div className="lg:col-span-5 space-y-6">
-            <Card>
-              <CardHeader
-                title="Course Settings & Metadata"
-                subtitle="Update course configuration"
-              />
-
-              <form onSubmit={handleSaveEditor} className="space-y-4">
-                <Input
-                  label="Course Title *"
-                  required
-                  value={editForm.title}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, title: e.target.value })
-                  }
-                />
-
-                {isAdmin && (
-                  <div>
-                    <label htmlFor="editor-assigned-teacher" className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-                      Assigned Teacher
-                    </label>
-                    <select
-                      id="editor-assigned-teacher"
-                      required
-                      value={editForm.teacherId}
-                      onChange={(event) => setEditForm({ ...editForm, teacherId: event.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    >
-                      <option value="">Select a teacher</option>
-                      {teachers.map((teacher) => (
-                        <option key={teacher.id} value={teacher.id}>{teacher.name} ({teacher.email})</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-                      Category
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      value={editForm.category}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, category: e.target.value })
-                      }
-                    >
-                      <option value="Programming">Programming</option>
-                      <option value="Design">Design</option>
-                      <option value="Business">Business</option>
-                      <option value="Data Science">Data Science</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-                      Difficulty
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      value={editForm.difficulty}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, difficulty: e.target.value })
-                      }
-                    >
-                      <option value="beginner">Beginner</option>
-                      <option value="intermediate">Intermediate</option>
-                      <option value="advanced">Advanced</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-                    Publication Status
-                  </label>
-                  <select
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    value={editForm.status}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, status: e.target.value })
-                    }
-                  >
-                    <option value="published">
-                      Published (Visible to Students)
-                    </option>
-                    <option value="draft">Draft (Hidden)</option>
-                  </select>
-                </div>
-
-                {isAdmin && (
-                  <div>
-                    <label htmlFor="edit-course-teacher" className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-                      Assigned Teacher
-                    </label>
-                    <select
-                      id="edit-course-teacher"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      value={editForm.teacherId}
-                      onChange={(event) => setEditForm({ ...editForm, teacherId: event.target.value })}
-                    >
-                      <option value="">Select a teacher</option>
-                      {teachers.map((teacher) => (
-                        <option key={teacher.id} value={teacher.id}>{teacher.name} ({teacher.email})</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-                    Course Summary Description
-                  </label>
-                  <textarea
-                    rows={3}
-                    className="w-full p-3 rounded-xl border border-base-300 bg-base-100 text-base-content text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    value={editForm.description}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, description: e.target.value })
-                    }
-                  />
-                </div>
-              </form>
-            </Card>
-
-            {/* Course Modules Section */}
-            <Card>
-              <CardHeader
-                title={`Course Modules (${modules.length})`}
-                subtitle="Structure your curriculum"
-              />
-
-              <form onSubmit={handleAddModule} className="flex gap-2 mb-4">
-                <Input
-                  placeholder="New module title..."
-                  required
-                  value={newModuleTitle}
-                  onChange={(e) => setNewModuleTitle(e.target.value)}
-                  className="flex-1"
-                />
-                <Button
-                  variant="primary"
-                  size="sm"
-                  type="submit"
-                  isLoading={submittingModule}
-                >
-                  + Add
-                </Button>
-              </form>
-
-              {loadingModules ? (
-                <div className="py-6 text-center text-xs text-base-content/60">
-                  Loading modules...
-                </div>
-              ) : modules.length === 0 ? (
-                <div className="p-4 rounded-xl bg-base-200/50 text-center text-xs text-base-content/60">
-                  No modules added yet. Enter a title above to create the first
-                  module.
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {modules.map((m, idx) => (
-                    <div
-                      key={m.id}
-                      className="p-2.5 rounded-xl bg-base-200/60 border border-base-300 flex items-center justify-between text-xs font-semibold"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-md bg-primary/20 text-primary flex items-center justify-center font-mono text-[10px]">
-                          {idx + 1}
-                        </span>
-                        <span>{m.title}</span>
-                      </div>
-                      <Badge variant="neutral">
-                        {m.topics?.length || 0} Lessons
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-          </div>
-
-          {/* Right Column: Full Professional Content Notepad Canvas */}
-          <div className="lg:col-span-7">
-            <Card className="h-full flex flex-col justify-between space-y-4">
-              <div>
-                <div className="flex items-center justify-between border-b border-base-200 pb-3 mb-4">
-                  <div>
-                    <h3 className="font-bold text-base text-primary font-display">
-                      📝 Professional Notepad & Code Editor Canvas
-                    </h3>
-                    <p className="text-xs text-base-content/60 mt-0.5">
-                      Write lesson notes, Java DSA code snippets, and structured
-                      course documentation.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => appendToNotepad("### Section Heading")}
-                      className="px-2.5 py-1 rounded-lg bg-base-200 hover:bg-base-300 text-xs font-bold transition-all"
-                    >
-                      + Header
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        appendToNotepad(
-                          "```java\npublic class Main {\n    public static void main(String[] args) {\n        // Code snippet\n    }\n}\n```",
-                        )
-                      }
-                      className="px-2.5 py-1 rounded-lg bg-base-200 hover:bg-base-300 text-xs font-mono font-bold transition-all"
-                    >
-                      + Java Code
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        appendToNotepad("- Key lesson takeaway point")
-                      }
-                      className="px-2.5 py-1 rounded-lg bg-base-200 hover:bg-base-300 text-xs font-bold transition-all"
-                    >
-                      + Bullet Note
-                    </button>
-                  </div>
-                </div>
-
-                <textarea
-                  rows={20}
-                  className="w-full p-4 rounded-xl border-2 border-primary/30 bg-base-200/50 font-mono text-xs text-base-content focus:outline-none focus:ring-2 focus:ring-primary/30 leading-relaxed shadow-inner"
-                  value={editForm.notes}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, notes: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-base-200 text-xs text-base-content/60">
-                <span>Total Characters: {editForm.notes.length}</span>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleSaveEditor}
-                  isLoading={savingEditor}
-                >
-                  💾 Save Notepad Content
-                </Button>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // ── VIEW 2: Courses Catalog Grid View
   return (
     <div className="space-y-6 animate-fade-in text-base-content">
@@ -703,67 +417,138 @@ export default function TeacherCourseManager() {
       ) : courses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((c) => (
-            <Card
+            <div
               key={c.id}
-              className="hover:border-primary hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group"
+              className="relative overflow-hidden rounded-2xl border border-base-300 bg-base-100/90 shadow-md hover:shadow-2xl hover:border-primary/50 transition-all duration-300 flex flex-col justify-between group backdrop-blur-sm"
             >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Badge variant="primary">{c.category || "General"}</Badge>
-                  <Badge
-                    variant={c.status === "published" ? "success" : "warning"}
-                  >
-                    {c.status}
-                  </Badge>
+              {/* Top ambient gradient accent bar */}
+              <div className="h-1.5 w-full bg-gradient-to-r from-primary via-secondary to-accent" />
+
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  {/* Category, Status Badges & Quick Action Icons */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-primary/10 text-primary border border-primary/20">
+                        {c.category || "Programming"}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${
+                          c.status === "published"
+                            ? "bg-success/10 text-success border border-success/20"
+                            : "bg-warning/10 text-warning border border-warning/20"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            c.status === "published"
+                              ? "bg-success animate-pulse"
+                              : "bg-warning"
+                          }`}
+                        />
+                        {c.status}
+                      </span>
+                    </div>
+
+                    {/* Edit and Delete Icon Action Buttons */}
+                    {isAdmin && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          title="Edit Course Details"
+                          onClick={() => openEditCourseModal(c)}
+                          className="p-1.5 rounded-lg bg-base-200/80 hover:bg-primary/10 text-base-content/70 hover:text-primary border border-base-300 hover:border-primary/30 transition-all shadow-sm active:scale-95"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          title="Delete Course"
+                          onClick={() => setCourseToDelete(c)}
+                          className="p-1.5 rounded-lg bg-base-200/80 hover:bg-error/10 text-base-content/70 hover:text-error border border-base-300 hover:border-error/30 transition-all shadow-sm active:scale-95"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Course Title */}
+                  <h3 className="font-bold text-lg text-base-content group-hover:text-primary transition-colors font-display line-clamp-1">
+                    {c.title}
+                  </h3>
+
+                  {/* Assigned Teacher Badge / Indicator */}
+                  <div className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-base-200/60 border border-base-300 text-xs">
+                    <span className="text-primary font-semibold flex items-center gap-1.5 shrink-0">
+                      <UserCheck size={14} /> Teacher:
+                    </span>
+                    <span className="font-medium text-base-content truncate">
+                      {c.teacher?.name || "Unassigned"}
+                    </span>
+                  </div>
                 </div>
 
-                <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors font-display line-clamp-1">
-                  {c.title}
-                </h3>
-                <p className="text-xs text-base-content/60 line-clamp-2 mt-1 leading-relaxed">
-                  {c.description || "No description provided."}
-                </p>
+                {/* Bottom Section */}
+                <div className="pt-3.5 mt-3.5 border-t border-base-200 space-y-3">
+                  {/* Stats Chips */}
+                  <div className="grid grid-cols-2 gap-2 text-[11px] font-medium text-base-content/70">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-base-200/50 border border-base-300/50 truncate">
+                      <Users size={12} className="shrink-0 text-primary/70" />
+                      <span className="truncate">{c._count?.enrollments || 0} Enrolled</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-base-200/50 border border-base-300/50 truncate">
+                      <Layers size={12} className="shrink-0 text-secondary/70" />
+                      <span className="truncate">{c._count?.modules || 0} Modules</span>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="space-y-2 pt-1">
+                    {/* Manage Classes button */}
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="w-full font-medium py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                      onClick={() => {
+                        window.location.href = `/teacher/courses/${c.id}/edit`;
+                      }}
+                    >
+                      <Layers size={15} />
+                      <span>Manage Classes</span>
+                    </Button>
+
+                    {/* Admin: ONLY Assign Teacher (NOT Student!) */}
+                    {isAdmin ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAssignTeacherCourseItem(c);
+                          setSelectedTeacherForAssign(c.teacherId || "");
+                        }}
+                        className="w-full py-2 px-3 rounded-xl border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-[0.99]"
+                      >
+                        <UserCheck size={14} />
+                        <span>👨‍🏫 Assign Teacher</span>
+                      </button>
+                    ) : (
+                      /* Teachers: Enroll Student */
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAssignCourseItem(c);
+                          fetchStudents();
+                        }}
+                        className="w-full py-2 px-3 rounded-xl border border-base-300 bg-base-200/70 text-base-content hover:bg-base-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                      >
+                        <GraduationCap size={14} />
+                        <span>🎓 Enroll Student</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-
-              <div className="pt-4 mt-4 border-t border-base-200 space-y-3">
-                <div className="flex items-center justify-between text-xs text-base-content/60">
-                  <span>👥 {c._count?.enrollments || 0} Enrolled</span>
-                  <span>🧩 {c._count?.modules || 0} Modules</span>
-                  <span className="capitalize">📊 {c.difficulty}</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="col-span-2"
-                    onClick={() => {
-                      window.location.href = `/teacher/courses/${c.id}/edit`;
-                    }}
-                  >
-                    ✏️ Manage Classes
-                  </Button>
-                  {isAdmin && (
-                    <>
-                      <Button variant="outline" size="sm" onClick={() => handleEditCourse(c)}>
-                        Edit
-                      </Button>
-                      <Button variant="error" size="sm" onClick={() => setCourseToDelete(c)}>
-                        Delete
-                      </Button>
-                    </>
-                  )}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className={isAdmin ? "col-span-2" : ""}
-                    onClick={() => { setAssignCourseItem(c); fetchStudents(); }}
-                  >
-                    🎓 Assign Student
-                  </Button>
-                </div>
-              </div>
-            </Card>
+            </div>
           ))}
         </div>
       ) : (
@@ -783,59 +568,40 @@ export default function TeacherCourseManager() {
         </Card>
       )}
 
-      {/* ── Searchable Assign Course to Student Modal */}
+      {/* ── Assign Course to Teacher Modal (Admin Only) */}
       <Modal
-        isOpen={Boolean(assignCourseItem)}
-        onClose={() => setAssignCourseItem(null)}
+        isOpen={isAdmin && Boolean(assignTeacherCourseItem)}
+        onClose={() => setAssignTeacherCourseItem(null)}
         title={
-          assignCourseItem
-            ? `Assign Course: ${assignCourseItem.title}`
-            : "Assign Course"
+          assignTeacherCourseItem
+            ? `Assign Teacher: ${assignTeacherCourseItem.title}`
+            : "Assign Teacher"
         }
       >
-        <form
-          onSubmit={handleAssignCourse}
-          className="space-y-4 text-base-content"
-        >
-          {/* Search Box */}
-          <Input
-            label="Search Student Roster"
-            placeholder="Search student by name or email..."
-            icon="🔍"
-            value={studentSearch}
-            onChange={(e) => {
-              setStudentSearch(e.target.value);
-              fetchStudents(e.target.value);
-            }}
-          />
+        <form onSubmit={handleAssignTeacher} className="space-y-4 text-base-content">
+          <p className="text-xs text-base-content/70">
+            Admin can assign or reassign this course to any active teacher on the platform.
+          </p>
 
           <div>
             <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-              Select Active Student ({students.length}) *
+              Select Active Teacher ({teachers.length}) *
             </label>
-
-            {loadingStudents ? (
-              <div className="py-6 text-center text-xs text-base-content/60">
-                <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-1" />
-                Loading active student roster...
-              </div>
-            ) : students.length === 0 ? (
-              <div className="p-4 rounded-xl bg-base-200/50 text-center text-xs text-base-content/60 border border-base-300">
-                No active student accounts found matching &quot;{studentSearch}
-                &quot;.
+            {teachers.length === 0 ? (
+              <div className="p-4 rounded-xl bg-base-200/50 text-center text-xs text-warning border border-base-300">
+                No active teacher accounts found. Please create or verify a teacher first.
               </div>
             ) : (
               <select
                 className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                value={selectedStudentId}
-                onChange={(e) => setSelectedStudentId(e.target.value)}
+                value={selectedTeacherForAssign}
+                onChange={(e) => setSelectedTeacherForAssign(e.target.value)}
                 required
               >
-                <option value="">-- Choose Student Account --</option>
-                {students.map((st) => (
-                  <option key={st.id} value={st.id}>
-                    👤 {st.name} ({st.email}) — Enrolled in{" "}
-                    {st._count?.enrollments || 0} courses
+                <option value="">-- Choose Teacher --</option>
+                {teachers.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    👨‍🏫 {t.name} ({t.email})
                   </option>
                 ))}
               </select>
@@ -846,21 +612,205 @@ export default function TeacherCourseManager() {
             <Button
               variant="outline"
               type="button"
-              onClick={() => setAssignCourseItem(null)}
+              onClick={() => setAssignTeacherCourseItem(null)}
             >
               Cancel
             </Button>
             <Button
               variant="primary"
               type="submit"
-              isLoading={assigning}
-              disabled={!selectedStudentId}
+              isLoading={assigningTeacher}
+              disabled={!selectedTeacherForAssign}
             >
-              🎓 Assign & Enroll Student
+              <UserCheck size={15} /> Confirm Teacher Assignment
             </Button>
           </div>
         </form>
       </Modal>
+
+      {/* ── In-Place Edit Course Modal (Admin Only) */}
+      <Modal
+        isOpen={isAdmin && Boolean(editingCourseItem)}
+        onClose={() => setEditingCourseItem(null)}
+        title={editingCourseItem ? `Edit Course: ${editingCourseItem.title}` : "Edit Course"}
+      >
+        <form onSubmit={handleSaveCourseEdit} className="space-y-4 text-base-content">
+          <Input
+            label="Course Title *"
+            required
+            value={editingCourseForm.title}
+            onChange={(e) =>
+              setEditingCourseForm({ ...editingCourseForm, title: e.target.value })
+            }
+          />
+
+          <div>
+            <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+              Assigned Teacher *
+            </label>
+            <select
+              required
+              className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={editingCourseForm.teacherId}
+              onChange={(e) =>
+                setEditingCourseForm({ ...editingCourseForm, teacherId: e.target.value })
+              }
+            >
+              <option value="">Select a teacher</option>
+              {teachers.map((t) => (
+                <option key={t.id} value={t.id}>
+                  👨‍🏫 {t.name} ({t.email})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+                Category
+              </label>
+              <select
+                className="w-full px-3 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                value={editingCourseForm.category}
+                onChange={(e) =>
+                  setEditingCourseForm({ ...editingCourseForm, category: e.target.value })
+                }
+              >
+                <option value="Programming">Programming</option>
+                <option value="Design">Design</option>
+                <option value="Business">Business</option>
+                <option value="Data Science">Data Science</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+                Status
+              </label>
+              <select
+                className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                value={editingCourseForm.status}
+                onChange={(e) =>
+                  setEditingCourseForm({ ...editingCourseForm, status: e.target.value })
+                }
+              >
+                <option value="published">Published</option>
+                <option value="draft">Draft (Hidden)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+              Course Description
+            </label>
+            <textarea
+              rows={3}
+              className="w-full p-3 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              value={editingCourseForm.description}
+              onChange={(e) =>
+                setEditingCourseForm({ ...editingCourseForm, description: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setEditingCourseItem(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              isLoading={savingCourseEdit}
+            >
+              <Check size={15} /> Save Changes
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ── Enroll Student Modal (Teacher Only) */}
+      {!isAdmin && (
+        <Modal
+          isOpen={Boolean(assignCourseItem)}
+          onClose={() => setAssignCourseItem(null)}
+          title={
+            assignCourseItem
+              ? `Enroll Student: ${assignCourseItem.title}`
+              : "Enroll Student"
+          }
+        >
+          <form
+            onSubmit={handleAssignCourse}
+            className="space-y-4 text-base-content"
+          >
+            <Input
+              label="Search Student Roster"
+              placeholder="Search student by name or email..."
+              icon="🔍"
+              value={studentSearch}
+              onChange={(e) => {
+                setStudentSearch(e.target.value);
+                fetchStudents(e.target.value);
+              }}
+            />
+
+            <div>
+              <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
+                Select Active Student ({students.length}) *
+              </label>
+
+              {loadingStudents ? (
+                <div className="py-6 text-center text-xs text-base-content/60">
+                  <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-1" />
+                  Loading active student roster...
+                </div>
+              ) : students.length === 0 ? (
+                <div className="p-4 rounded-xl bg-base-200/50 text-center text-xs text-base-content/60 border border-base-300">
+                  No active student accounts found matching &quot;{studentSearch}&quot;.
+                </div>
+              ) : (
+                <select
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  value={selectedStudentId}
+                  onChange={(e) => setSelectedStudentId(e.target.value)}
+                  required
+                >
+                  <option value="">-- Choose Student Account --</option>
+                  {students.map((st) => (
+                    <option key={st.id} value={st.id}>
+                      👤 {st.name} ({st.email}) — Enrolled in {st._count?.enrollments || 0} courses
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setAssignCourseItem(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+                isLoading={assigning}
+                disabled={!selectedStudentId}
+              >
+                🎓 Enroll Student
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
       {/* ── Create Course Modal */}
       <Modal
@@ -914,20 +864,6 @@ export default function TeacherCourseManager() {
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
-              Difficulty
-            </label>
-            <select
-              className="w-full px-3.5 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-            >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-            </select>
-          </div>
 
           <div>
             <label className="block text-xs font-semibold text-base-content/80 uppercase tracking-wider mb-1.5">
