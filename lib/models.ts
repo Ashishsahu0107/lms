@@ -188,6 +188,7 @@ export const CourseRating = models.CourseRating;
 export const Module = models.Module;
 export const Topic = models.Topic;
 export const TopicResource = models.TopicResource;
+export const TopicDoc = models.TopicDoc;
 export const Enrollment = models.Enrollment;
 export const StudentProgress = models.StudentProgress;
 export const LectureProgress = models.LectureProgress;
