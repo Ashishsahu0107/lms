@@ -22,6 +22,7 @@ export async function GET(
         resources: true,
         quizzes: { populate: { questions: true } },
         assignments: true,
+        docs: true,
       },
     });
 
