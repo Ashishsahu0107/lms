@@ -34,6 +34,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  LifeBuoy,
 } from "lucide-react";
 
 interface NavItem {
@@ -91,6 +92,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Messages",
     href: "/student/messages",
     icon: MessageSquare,
+    roles: ["student"],
+  },
+  {
+    label: "Support",
+    href: "/student/support",
+    icon: LifeBuoy,
     roles: ["student"],
   },
 
@@ -185,7 +192,8 @@ const ROUTE_LABELS: Record<string, string> = {
   courses: "Courses",
   "my-courses": "My Courses",
   assignments: "Assignments",
-  quizzes: "Quizzes",
+  quizzes: "Quiz",
+  quiz: "Quiz",
   attendance: "Attendance",
   certificates: "Certificates",
   messages: "Messages",
@@ -196,42 +204,77 @@ const ROUTE_LABELS: Record<string, string> = {
   users: "Users",
   health: "System Health",
   settings: "Settings",
+  support: "Support",
+  topics: "Topics",
+  docs: "Docs",
+  videos: "Videos",
+  resources: "Resources",
 };
+
+function formatSegmentLabel(seg: string): string {
+  const lower = seg.toLowerCase();
+  if (ROUTE_LABELS[lower]) {
+    return ROUTE_LABELS[lower];
+  }
+  // Check if it's a mongo ID, long hash or numeric ID
+  if (/^[0-9a-fA-F]{24}$/.test(seg) || seg.length > 20 || /^\d+$/.test(seg)) {
+    return "Details";
+  }
+  return seg
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 function HeaderBreadcrumbBar() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const { breadcrumbs } = useBreadcrumbs();
+  const { breadcrumbs, breadcrumbPath } = useBreadcrumbs();
 
   const crumbs: BreadcrumbItem[] = React.useMemo(() => {
-    if (breadcrumbs && breadcrumbs.length > 0) {
-      return breadcrumbs;
+    // 1. If explicit custom breadcrumbs were passed and match current path, use them (strip any LMS/Teacher/Student/Admin)
+    if (
+      breadcrumbs &&
+      breadcrumbs.length > 0 &&
+      (!breadcrumbPath || breadcrumbPath === pathname)
+    ) {
+      const sanitized = breadcrumbs.filter(
+        (c) =>
+          !["lms", "teacher", "student", "admin", "super_admin"].includes(
+            c.label.trim().toLowerCase()
+          )
+      );
+      if (sanitized.length > 0) return sanitized;
     }
 
-    const homeHref =
-      user?.role === "super_admin"
-        ? "/admin/dashboard"
-        : user?.role === "teacher"
-        ? "/teacher/dashboard"
-        : "/student/dashboard";
+    // 2. Parse URL path segments
+    const rawSegments = pathname.split("/").filter(Boolean);
 
-    const items: BreadcrumbItem[] = [{ label: "LMS", href: homeHref }];
+    // If on root "/" or empty, show Dashboard
+    if (rawSegments.length === 0) {
+      return [{ label: "Dashboard" }];
+    }
 
-    const segments = pathname.split("/").filter(Boolean);
-    let accumHref = "";
+    // Strip out role prefix ("teacher", "student", "admin") so it never appears
+    const rolePrefixes = ["teacher", "student", "admin"];
+    const hasRolePrefix = rolePrefixes.includes(rawSegments[0]?.toLowerCase());
+    const rolePrefix = hasRolePrefix ? rawSegments[0].toLowerCase() : (user?.role || "student");
+    const segments = hasRolePrefix ? rawSegments.slice(1) : rawSegments;
+
+    // If path was just "/teacher" or "/student", show only Dashboard
+    if (segments.length === 0) {
+      return [{ label: "Dashboard" }];
+    }
+
+    // First breadcrumb = current main sidebar tab!
+    // Nested child routes = appended to the right
+    const items: BreadcrumbItem[] = [];
+    let accumHref = hasRolePrefix ? `/${rolePrefix}` : "";
 
     segments.forEach((seg, index) => {
       accumHref += `/${seg}`;
       const isLast = index === segments.length - 1;
-      const lower = seg.toLowerCase();
-      const label =
-        ROUTE_LABELS[lower] ||
-        (seg.length > 20
-          ? "Details"
-          : seg
-              .split("-")
-              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(" "));
+      const label = formatSegmentLabel(seg);
 
       items.push({
         label,
@@ -240,41 +283,51 @@ function HeaderBreadcrumbBar() {
     });
 
     return items;
-  }, [breadcrumbs, pathname, user?.role]);
+  }, [breadcrumbs, breadcrumbPath, pathname, user?.role]);
 
   return (
     <nav
-      aria-label="Breadcrumbs"
-      className="flex items-center gap-1.5 text-xs text-base-content/65 min-w-0 overflow-x-auto no-scrollbar py-1"
+      aria-label="Breadcrumb navigation"
+      className="flex items-center min-w-0 overflow-x-auto no-scrollbar py-0.5"
     >
-      {crumbs.map((crumb, idx) => {
-        const isLast = idx === crumbs.length - 1;
-        return (
-          <React.Fragment key={idx}>
-            {idx > 0 && (
-              <span className="text-base-content/30 select-none text-[11px] shrink-0">
-                ›
-              </span>
-            )}
-            {crumb.href && !isLast ? (
-              <Link
-                href={crumb.href}
-                className="hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-[180px] shrink-0 font-medium"
-              >
-                {crumb.label}
-              </Link>
-            ) : (
-              <span
-                className={`truncate max-w-[150px] sm:max-w-[240px] shrink-0 ${
-                  isLast ? "font-bold text-base-content" : "font-medium"
-                }`}
-              >
-                {crumb.label}
-              </span>
-            )}
-          </React.Fragment>
-        );
-      })}
+      <div className="flex items-center gap-1.5 text-xs shrink-0">
+        {crumbs.map((crumb, idx) => {
+          const isLast = idx === crumbs.length - 1;
+          return (
+            <React.Fragment key={idx}>
+              {idx > 0 && (
+                <span
+                  className="text-base-content/30 select-none text-[12px] font-light px-1 shrink-0"
+                  aria-hidden="true"
+                >
+                  /
+                </span>
+              )}
+              {crumb.href && !isLast ? (
+                <Link
+                  href={crumb.href}
+                  className="inline-flex items-center px-1.5 py-0.5 rounded-md font-medium text-base-content/60 hover:text-primary hover:bg-base-200/80 transition-all shrink-0 max-w-[140px] sm:max-w-[200px] truncate"
+                  title={`Navigate to ${crumb.label}`}
+                >
+                  <span>{crumb.label}</span>
+                </Link>
+              ) : isLast ? (
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-primary/10 text-primary border border-primary/20 shrink-0 shadow-2xs whitespace-nowrap"
+                  aria-current="page"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+                  <span>{crumb.label}</span>
+                </span>
+              ) : (
+                <span className="font-medium text-base-content/60 px-1.5 py-0.5 shrink-0 max-w-[140px] truncate">
+                  {crumb.label}
+                </span>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
     </nav>
   );
 }
@@ -496,6 +549,9 @@ function DashboardLayoutInner({
               {isCollapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
               <span>{isCollapsed ? "Expand" : "Collapse"}</span>
             </button>
+
+            {/* Subtle Divider */}
+            <div className="hidden sm:block w-px h-5 bg-base-300/80 shrink-0" aria-hidden="true" />
 
             {/* Breadcrumb Bar in Top Header */}
             <HeaderBreadcrumbBar />

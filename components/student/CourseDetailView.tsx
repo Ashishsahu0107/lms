@@ -110,8 +110,7 @@ export default function CourseDetailView({ courseId }: { courseId: string }) {
   useBreadcrumbs(
     courseTitle
       ? [
-          { label: "LMS", href: "/student/dashboard" },
-          { label: "My Courses", href: "/student/my-courses" },
+          { label: "Courses", href: "/student/courses" },
           { label: courseTitle },
         ]
       : undefined
