@@ -1,28 +1,5 @@
 // app/api/auth/reset-password/route.ts
-/**
- * @swagger
- * /auth/reset-password:
- *   post:
- *     tags: [Auth]
- *     summary: Reset password using verified OTP
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email, otp, newPassword]
- *             properties:
- *               email: { type: string, format: email }
- *               otp: { type: string }
- *               newPassword: { type: string, minLength: 6 }
- *     responses:
- *       200:
- *         description: Password reset successfully
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- */
+
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import mongo from "@/lib/db";

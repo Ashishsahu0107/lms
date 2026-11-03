@@ -1,8 +1,7 @@
-// app/layout.tsx — Root layout with Global 3D Three.js Background
+// app/layout.tsx — Root layout with global background styling
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppProviders } from "@/providers/AppProviders";
-import GlobalThreeBackground from "@/components/ui/GlobalThreeBackground";
 
 export const metadata: Metadata = {
   title: {
@@ -41,7 +40,6 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className="relative">
         <AppProviders>
-          <GlobalThreeBackground />
           <div className="relative z-10">{children}</div>
         </AppProviders>
       </body>

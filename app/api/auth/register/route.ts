@@ -1,23 +1,5 @@
 // app/api/auth/register/route.ts
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     tags: [Auth]
- *     summary: Register a new student account
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/RegisterRequest'
- *     responses:
- *       201:
- *         description: Registration successful
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- */
+
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import mongo from "@/lib/db";

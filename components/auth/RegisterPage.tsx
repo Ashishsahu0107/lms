@@ -4,7 +4,10 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import {
+  getDashboardRouteForUser,
+  useAuth,
+} from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -49,7 +52,7 @@ export default function RegisterPage() {
 
         login(data.data.token, data.data.user);
         toast.success(`Account created! Welcome, ${data.data.user.name}`);
-        router.push("/student/dashboard");
+        router.replace(getDashboardRouteForUser(data.data.user));
       } catch (err: unknown) {
         toast.error(err instanceof Error ? err.message : "Registration failed");
       } finally {

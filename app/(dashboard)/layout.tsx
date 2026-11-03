@@ -3,7 +3,7 @@
 // app/(dashboard)/layout.tsx — Unified FlyonUI + Tailwind CSS Dashboard Layout with Collapsible Sidebar
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useSocket } from "@/context/SocketContext";
@@ -337,13 +337,19 @@ function DashboardLayoutInner({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { isConnected } = useSocket();
   const pathname = usePathname();
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   // Preserve Collapsed State Across Navigation & Page Refreshes
   useEffect(() => {
@@ -372,6 +378,18 @@ function DashboardLayoutInner({
       localStorage.setItem("lms_sidebar_collapsed", String(nextState));
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <span className="loading loading-spinner loading-lg text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const filteredNav = NAV_ITEMS.filter((item) =>
     user

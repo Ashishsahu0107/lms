@@ -1,11 +1,10 @@
 "use client";
 
-// components/landing/ModernCourseShowcase.tsx — Filterable Course Showcase with 3D Three.js WebGL Thumbnails
+// components/landing/ModernCourseShowcase.tsx — Filterable course showcase with responsive image cards
 import React, { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import ThreeCourseThumbnail from "@/components/landing/ThreeCourseThumbnail";
 
 interface CourseItem {
   id: string;
@@ -16,8 +15,7 @@ interface CourseItem {
   students: number;
   instructor: string;
   description: string;
-  threeType: "nextjs" | "socket" | "ai" | "design" | "database" | "business";
-  gradient: string;
+  image: string;
   badgeVariant: "primary" | "secondary" | "accent" | "info";
 }
 
@@ -32,8 +30,8 @@ const COURSES: CourseItem[] = [
     instructor: "Prof. Ashish Sahu",
     description:
       "Master modern web development with Next.js App Router, Mongoose, and MongoDB Atlas.",
-    threeType: "nextjs",
-    gradient: "from-indigo-500/10 via-purple-500/10 to-pink-500/10",
+    image:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
     badgeVariant: "primary",
   },
   {
@@ -46,8 +44,8 @@ const COURSES: CourseItem[] = [
     instructor: "Dr. Sarah Jenkins",
     description:
       "Build bi-directional chat applications, streaming feeds, and live presence systems.",
-    threeType: "socket",
-    gradient: "from-purple-500/10 via-indigo-500/10 to-violet-500/10",
+    image:
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80",
     badgeVariant: "secondary",
   },
   {
@@ -60,8 +58,8 @@ const COURSES: CourseItem[] = [
     instructor: "Alex Rivera",
     description:
       "Integrate LLM streaming models, vector stores, and AI tutors into web applications.",
-    threeType: "ai",
-    gradient: "from-pink-500/10 via-rose-500/10 to-purple-500/10",
+    image:
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80",
     badgeVariant: "accent",
   },
   {
@@ -74,8 +72,8 @@ const COURSES: CourseItem[] = [
     instructor: "Emma Watson",
     description:
       "Design clean, high-end responsive user interfaces using FlyonUI semantic color tokens.",
-    threeType: "design",
-    gradient: "from-cyan-500/10 via-teal-500/10 to-emerald-500/10",
+    image:
+      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80",
     badgeVariant: "info",
   },
   {
@@ -88,8 +86,8 @@ const COURSES: CourseItem[] = [
     instructor: "Marcus Vance",
     description:
       "Document modeling, indexing strategies, query optimization, and connection pooling with Mongoose.",
-    threeType: "database",
-    gradient: "from-emerald-500/10 via-teal-500/10 to-indigo-500/10",
+    image:
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80",
     badgeVariant: "primary",
   },
   {
@@ -102,8 +100,8 @@ const COURSES: CourseItem[] = [
     instructor: "David Miller",
     description:
       "Learn agile development, user story mapping, metrics analytics, and product launches.",
-    threeType: "business",
-    gradient: "from-amber-500/10 via-orange-500/10 to-red-500/10",
+    image:
+      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80",
     badgeVariant: "secondary",
   },
 ];
@@ -155,21 +153,15 @@ export default function ModernCourseShowcase({
             className="hover:border-primary/60 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden"
           >
             <div>
-              {/* ── Interactive 3D Three.js WebGL Thumbnail Container */}
-              <div
-                className={`relative w-full h-44 rounded-xl mb-4 bg-gradient-to-tr ${c.gradient} border border-base-300 overflow-hidden shadow-inner flex items-center justify-center`}
-              >
-                {/* 3D WebGL Model */}
-                <ThreeCourseThumbnail type={c.threeType} />
-
-                {/* Shimmer Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-
-
-
-                {/* 3D Badge Indicator */}
-                <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-primary/80 backdrop-blur text-primary-content text-[9px] font-extrabold tracking-wider uppercase shadow-xs">
-                  3D WebGL
+              <div className="relative w-full h-44 sm:h-48 rounded-xl mb-4 overflow-hidden border border-base-300 shadow-inner">
+                <img
+                  src={c.image}
+                  alt={c.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-base-100/80 via-base-100/10 to-transparent" />
+                <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-base-100/80 backdrop-blur text-primary text-[9px] font-extrabold tracking-wider uppercase border border-base-300">
+                  Featured
                 </div>
               </div>
 

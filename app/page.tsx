@@ -1,9 +1,13 @@
 "use client";
 
 // app/page.tsx — Master E-Learning Public Landing Page with All 15 Sections
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import {
+  getDashboardRouteForUser,
+  useAuth,
+} from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -12,14 +16,20 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import LoginPage from "@/components/auth/LoginPage";
 import RegisterPage from "@/components/auth/RegisterPage";
-import ThreeHeroScene from "@/components/landing/ThreeHeroScene";
 import InteractivePresentation from "@/components/landing/InteractivePresentation";
 import ModernCourseShowcase from "@/components/landing/ModernCourseShowcase";
 import toast from "react-hot-toast";
 
 export default function MasterLandingPage() {
+  const router = useRouter();
   const { isAuthenticated, user } = useAuth();
   const { resolvedTheme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      router.replace(getDashboardRouteForUser(user));
+    }
+  }, [isAuthenticated, router, user]);
   const [authModal, setAuthModal] = useState<"login" | "register" | null>(null);
   const [activeRoleTab, setActiveRoleTab] = useState<
     "student" | "teacher" | "admin"
@@ -85,7 +95,7 @@ export default function MasterLandingPage() {
   const FAQS = [
     {
       q: "What is LMS Pro and how does it work?",
-      a: "LMS Pro is an enterprise-grade Learning Management System powered by Next.js 15, MongoDB Atlas, and Three.js 3D. It provides role-based portals for Students, Teachers, and Super Admins.",
+      a: "LMS Pro is an enterprise-grade Learning Management System powered by Next.js 15, MongoDB Atlas, and AI-guided learning experiences. It provides role-based portals for Students, Teachers, and Super Admins.",
     },
     {
       q: "Is LMS Pro free to get started for students?",
@@ -172,23 +182,22 @@ export default function MasterLandingPage() {
         </div>
       </header>
 
-      {/* ── 2. Hero Section (Left Text + Right Three.js 3D Canvas) */}
-      <section className="relative px-6 py-12 lg:py-20 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      {/* ── 2. Hero Section */}
+      <section className="relative px-4 sm:px-6 py-12 lg:py-20 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider animate-fade-in">
-              <span>⚡ Next.js 15 + MongoDB Atlas + Three.js 3D</span>
+              <span>⚡ Next.js 15 + MongoDB Atlas + AI Learning</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-base-content tracking-tight font-display leading-tight">
-              Enterprise Learning Powered by{" "}
-              <span className="text-primary">AI & WebSockets</span> 🎓
+              Learn faster with a smarter LMS built for real outcomes. 🎓
             </h1>
 
             <p className="text-base sm:text-lg text-base-content/70 max-w-xl leading-relaxed">
               An all-in-one Learning Management System featuring interactive
               video lessons, real-time messaging, AI tutoring, auto-graded
-              quizzes, and verified credentials.
+              quizzes, and verified credentials for students and educators.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -221,9 +230,30 @@ export default function MasterLandingPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-5 flex justify-center">
-            <Card className="w-full bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border-2 border-primary/20 p-2 overflow-hidden shadow-2xl backdrop-blur-xl">
-              <ThreeHeroScene />
+          <div className="lg:col-span-5 flex justify-center w-full">
+            <Card className="w-full max-w-lg overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-base-100 to-secondary/10 shadow-2xl">
+              <div className="relative h-[300px] sm:h-[360px] w-full overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
+                  alt="Students learning together"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-base-100/90 via-base-100/10 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-base-300 bg-base-100/80 p-3 shadow-lg backdrop-blur-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                    Live learning
+                  </p>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-bold text-base-content">4.9/5 learning rating</p>
+                      <p className="text-[11px] text-base-content/60">10k+ active learners</p>
+                    </div>
+                    <div className="rounded-xl bg-success/10 px-2 py-1 text-xs font-semibold text-success">
+                      +92%
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Card>
           </div>
         </div>
@@ -524,7 +554,7 @@ export default function MasterLandingPage() {
           {[
             { name: "Next.js 15", desc: "React App Router" },
             { name: "MongoDB Atlas", desc: "Mongoose Models" },
-            { name: "Three.js", desc: "3D WebGL Engine" },
+            { name: "AI Tutor", desc: "Live Learning Copilot" },
             { name: "FlyonUI", desc: "Tailwind CSS System" },
             { name: "Socket.io", desc: "Real-time WebSockets" },
             { name: "TypeScript", desc: "End-to-End Type Safety" },

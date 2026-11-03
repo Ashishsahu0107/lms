@@ -1,19 +1,28 @@
-// app/(auth)/layout.tsx — Modern Auth Page Layout with Frosted Glass Card & Three.js Background
-import React from "react";
+"use client";
+
+// app/(auth)/layout.tsx — Modern Auth Page Layout with responsive glass card styling
+import React, { useEffect } from "react";
 import Link from "next/link";
-import GlobalThreeBackground from "@/components/ui/GlobalThreeBackground";
+import { useRouter } from "next/navigation";
+import { getDashboardRouteForUser, useAuth } from "@/context/AuthContext";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      router.replace(getDashboardRouteForUser(user));
+    }
+  }, [isAuthenticated, isLoading, router, user]);
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-base-200 text-base-content">
-      {/* Background WebGL Animation */}
-      <GlobalThreeBackground />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_45%),radial-gradient(circle_at_bottom,_rgba(236,72,153,0.12),_transparent_40%)]" />
 
-      {/* Auth Card Container */}
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         {/* Brand Header */}
         <div className="text-center mb-6 space-y-2">

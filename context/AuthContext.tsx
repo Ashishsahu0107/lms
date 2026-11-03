@@ -44,6 +44,21 @@ interface AuthContextType extends AuthState {
   refreshUser: () => Promise<void>;
 }
 
+export function getDashboardRouteForUser(
+  user?: Pick<User, "role"> | null,
+): string {
+  if (!user) return "/login";
+
+  switch (user.role) {
+    case "super_admin":
+      return "/admin/dashboard";
+    case "teacher":
+      return "/teacher/dashboard";
+    default:
+      return "/student/dashboard";
+  }
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
@@ -134,7 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     dispatch({ type: "LOGOUT" });
-    router.push("/login");
+    router.replace("/login");
   }, [router]);
 
   const updateUser = useCallback((data: Partial<User>) => {

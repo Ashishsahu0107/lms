@@ -1,27 +1,3 @@
-// app/api/auth/login/route.ts
-/**
- * @swagger
- * /auth/login:
- *   post:
- *     tags: [Auth]
- *     summary: Login with email and password
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/LoginRequest'
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/LoginResponse'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- */
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import mongo from "@/lib/db";

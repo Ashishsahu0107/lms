@@ -4,7 +4,7 @@
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { getDashboardRouteForUser, useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -50,11 +50,7 @@ export default function LoginPage() {
 
         login(data.data.token, data.data.user);
         toast.success(`Welcome back, ${data.data.user.name}!`);
-
-        const role = data.data.user.role;
-        if (role === "super_admin") router.push("/admin/dashboard");
-        else if (role === "teacher") router.push("/teacher/dashboard");
-        else router.push("/student/dashboard");
+        router.replace(getDashboardRouteForUser(data.data.user));
       } catch (err: unknown) {
         toast.error(err instanceof Error ? err.message : "Login failed");
       } finally {
